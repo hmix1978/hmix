@@ -1,0 +1,2009 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H/MIX Dashboard</title>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --panel: #16161a;
+      --border: rgba(255,255,255,0.07);
+      --gold: #c9a84c;
+      --blue: #4a9eff;
+      --green: #4caf7d;
+      --red: #e05c5c;
+      --text: #d4d0c8;
+      --text-dim: rgba(212,208,200,0.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', 'Noto Sans JP', sans-serif; font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: rgba(0,0,0,0.4); }
+    .header-title { font-size: 1rem; font-weight: 700; color: var(--gold); }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all 0.15s; }
+    .btn:hover { background: rgba(255,255,255,0.12); border-color: var(--gold); }
+    .btn--solid { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .btn--solid:hover { background: #e0bc60; }
+    .btn--red { border-color: var(--red); color: var(--red); }
+    .btn--green { border-color: var(--green); color: var(--green); }
+
+    /* Tab bar */
+    .tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; background: rgba(0,0,0,0.2); }
+    .tab { padding: 8px 20px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent; transition: all 0.15s; font-size: 0.8rem; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Main layout */
+    .main { flex: 1; display: flex; overflow: hidden; }
+    .sidebar { width: 300px; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-search { padding: 8px; border-bottom: 1px solid var(--border); }
+    .sidebar-search input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; outline: none; }
+    .sidebar-search input:focus { border-color: var(--gold); }
+    .sidebar-list { flex: 1; overflow-y: auto; }
+    .sidebar-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 8px; transition: background 0.1s; }
+    .sidebar-item:hover { background: rgba(255,255,255,0.04); }
+    .sidebar-item.active { background: rgba(201,168,76,0.12); border-left: 3px solid var(--gold); }
+    .sidebar-item__id { font-size: 0.7rem; color: var(--text-dim); min-width: 35px; }
+    .sidebar-item__title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-item__status { font-size: 0.65rem; padding: 1px 6px; border-radius: 99px; }
+    .sidebar-item__status--ok { background: rgba(76,175,125,0.15); color: var(--green); }
+    .sidebar-item__status--ng { background: rgba(224,92,92,0.15); color: var(--red); }
+    .sidebar-count { padding: 6px 12px; font-size: 0.7rem; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+
+    /* Editor panel */
+    .editor { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .editor-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-dim); font-size: 0.9rem; }
+    .field { margin-bottom: 16px; }
+    .field-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .field-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; border-radius: 6px; font-size: 0.85rem; outline: none; font-family: inherit; }
+    .field-input:focus { border-color: var(--gold); }
+    textarea.field-input { min-height: 80px; resize: vertical; line-height: 1.6; }
+
+    /* Description with OK/NG */
+    .desc-header { display: flex; align-items: center; justify-content: space-between; }
+    .desc-actions { display: flex; gap: 4px; }
+    .desc-btn { padding: 2px 10px; border-radius: 99px; cursor: pointer; font-size: 0.7rem; font-weight: 600; border: 1px solid; transition: all 0.15s; }
+    .desc-btn--ok { border-color: var(--green); color: var(--green); background: transparent; }
+    .desc-btn--ok.active { background: var(--green); color: #000; }
+    .desc-btn--ng { border-color: var(--red); color: var(--red); background: transparent; }
+    .desc-btn--ng.active { background: var(--red); color: #fff; }
+
+    /* Tags editor */
+    .tags-section { margin-bottom: 16px; }
+    .tags-section-label { font-size: 0.7rem; color: var(--gold); margin-bottom: 6px; font-weight: 600; }
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+    .tag-chip { padding: 3px 10px; border-radius: 99px; font-size: 0.75rem; cursor: pointer; transition: all 0.15s; border: 1px solid var(--border); color: var(--text-dim); }
+    .tag-chip.on { background: rgba(201,168,76,0.2); border-color: var(--gold); color: var(--gold); }
+    .tag-chip:hover { border-color: rgba(255,255,255,0.3); }
+
+    /* Tag view */
+    .tag-view-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .tag-view-header h2 { font-size: 1rem; color: var(--gold); margin-bottom: 4px; }
+    .tag-view-header p { font-size: 0.75rem; color: var(--text-dim); }
+    .tag-track-list { padding: 8px; }
+    .tag-track-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; transition: background 0.1s; }
+    .tag-track-item:hover { background: rgba(255,255,255,0.04); }
+    .tag-track-item__title { flex: 1; }
+    .tag-track-item__remove { background: none; border: 1px solid rgba(224,92,92,0.3); color: var(--red); padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; transition: all 0.15s; }
+    .tag-track-item__remove:hover { background: rgba(224,92,92,0.15); border-color: var(--red); }
+
+    /* Stats bar */
+    .stats-bar { display: flex; gap: 16px; padding: 6px 16px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--text-dim); background: rgba(0,0,0,0.3); flex-shrink: 0; }
+    .stats-bar span { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .dot--green { background: var(--green); }
+    .dot--red { background: var(--red); }
+    .dot--gold { background: var(--gold); }
+
+    /* Assign view */
+    .assign-row { display:flex; align-items:center; gap:8px; padding:6px 10px; border-bottom:1px solid var(--border); border-radius:4px; }
+    .assign-row:hover { background:rgba(255,255,255,0.03); }
+    .assign-row__id { font-size:0.7rem; color:var(--text-dim); min-width:40px; }
+    .assign-row__title { flex:1; font-size:0.85rem; }
+    .assign-row__tags { font-size:0.65rem; color:var(--text-dim); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .assign-btn { padding:3px 12px; border-radius:4px; font-size:0.72rem; cursor:pointer; border:1px solid; transition:all 0.12s; }
+    .assign-btn--a { border-color:rgba(76,175,125,0.4); color:var(--green); background:rgba(76,175,125,0.08); }
+    .assign-btn--a:hover { background:rgba(76,175,125,0.2); }
+    .assign-btn--b { border-color:rgba(200,140,60,0.4); color:var(--gold); background:rgba(200,140,60,0.08); }
+    .assign-btn--b:hover { background:rgba(200,140,60,0.2); }
+    .assign-btn--done { opacity:0.5; pointer-events:none; background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.15); color:var(--text-dim); }
+    .assign-btn--cancel { border-color:rgba(220,100,100,0.3); color:var(--red); background:rgba(220,100,100,0.06); }
+    .assign-btn--cancel:hover { background:rgba(220,100,100,0.15); }
+    .assign-row--done { opacity:0.6; }
+    .assign-play { width:28px; height:28px; border-radius:50%; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.04); color:var(--text); font-size:0.7rem; cursor:pointer; flex-shrink:0; transition:all 0.12s; display:flex; align-items:center; justify-content:center; }
+    .assign-play:hover { background:rgba(76,175,125,0.15); border-color:var(--green); }
+
+    /* Dashboard */
+    .dash-section { margin-bottom:28px; }
+    .dash-heading { font-size:0.8rem; color:var(--gold); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+    .dash-cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; }
+    .dash-card { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px; text-align:center; }
+    .dash-card__num { font-size:1.6rem; font-weight:700; line-height:1; margin-bottom:4px; }
+    .dash-card__num--green { color:var(--green); }
+    .dash-card__num--gold { color:var(--gold); }
+    .dash-card__num--red { color:var(--red); }
+    .dash-card__num--blue { color:var(--blue); }
+    .dash-card__label { font-size:0.68rem; color:var(--text-dim); }
+    .dash-card__bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); margin-top:8px; overflow:hidden; }
+    .dash-card__bar-fill { height:100%; border-radius:2px; transition:width 0.5s; }
+    .dash-links { display:flex; flex-wrap:wrap; gap:8px; }
+    .dash-link { padding:6px 14px; border-radius:6px; border:1px solid var(--border); color:var(--text); font-size:0.75rem; text-decoration:none; transition:all 0.12s; }
+    .dash-link:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,0.08); }
+    .dash-link--active { border-color:var(--green); color:var(--green); }
+    .dash-link--ext { border-color:rgba(74,158,255,0.25); color:var(--blue); }
+    .dash-link--ext:hover { border-color:var(--blue); background:rgba(74,158,255,0.08); }
+    .dash-tag-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; font-size:0.75rem; }
+    .dash-tag-name { min-width:80px; color:var(--text-dim); text-align:right; }
+    .dash-tag-bar { flex:1; height:14px; background:rgba(255,255,255,0.04); border-radius:3px; overflow:hidden; }
+    .dash-tag-bar-fill { height:100%; border-radius:3px; background:var(--green); opacity:0.6; transition:width 0.5s; }
+    .dash-tag-count { min-width:30px; color:var(--text-dim); font-size:0.68rem; }
+
+    /* 2カラムレイアウト */
+    .dash-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media (max-width:900px) { .dash-row { grid-template-columns:1fr; } }
+    .dash-section--half { min-width:0; }
+
+    /* SNS投稿 */
+    .sns-preview { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:12px; }
+    .sns-preview__label { font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+    .sns-preview__text { font-size:0.85rem; color:var(--text); line-height:1.8; white-space:pre-line; margin-bottom:10px; }
+    .sns-preview__copy { padding:4px 14px; border-radius:99px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text); font-size:0.72rem; cursor:pointer; transition:all 0.12s; }
+    .sns-preview__copy:hover { border-color:var(--gold); color:var(--gold); }
+    .sns-preview__copy.copied { border-color:var(--green); color:var(--green); }
+
+    /* Climax editor */
+    .climax-editor { margin-bottom:16px; }
+    .climax-editor__label { font-size:0.7rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+    .climax-editor__wrap { position:relative; height:56px; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:6px; overflow:hidden; cursor:pointer; }
+    .climax-editor__canvas { display:block; width:100%; height:100%; }
+    .climax-editor__range { position:absolute; top:0; height:100%; background:rgba(201,168,76,0.15); border-left:2px solid var(--gold); border-right:2px solid var(--gold); cursor:move; }
+    .climax-editor__handle { position:absolute; top:0; width:8px; height:100%; cursor:col-resize; z-index:2; }
+    .climax-editor__handle--start { left:-4px; }
+    .climax-editor__handle--end { right:-4px; }
+    .climax-editor__handle:hover { background:rgba(201,168,76,0.3); }
+    .climax-editor__info { font-size:0.72rem; color:var(--text-dim); margin-top:4px; display:flex; gap:12px; }
+    .climax-editor__play { padding:3px 10px; border-radius:4px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text); font-size:0.72rem; cursor:pointer; }
+    .climax-editor__play:hover { background:rgba(201,168,76,0.15); border-color:var(--gold); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header>
+  <span class="header-title">H/MIX Dashboard</span>
+  <div class="header-actions">
+    <span id="change-count" style="font-size:0.75rem;color:var(--gold);"></span>
+    <button class="btn" id="btn-auto-climax">サビ一括検出</button>
+    <button class="btn" id="btn-export-ng">NG一覧エクスポート</button>
+    <button class="btn btn--solid" id="btn-export">tracks.js エクスポート</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="dashboard">ダッシュボード</div>
+  <div class="tab" data-tab="track">曲編集</div>
+  <div class="tab" data-tab="tag">タグ編集</div>
+  <div class="tab" data-tab="desc">説明文</div>
+  <div class="tab" data-tab="assign">振り分け</div>
+  <div class="tab" data-tab="sns">SNS投稿</div>
+  <div class="tab" data-tab="ai">AI生成</div>
+  <div class="tab" data-tab="search">検索置換</div>
+  <div class="tab" data-tab="footprints">足跡管理</div>
+</div>
+
+<div class="main" id="main">
+
+  <!-- Dashboard -->
+  <div class="tab-content" id="tab-dashboard" style="display:flex;flex:1;overflow:hidden;">
+    <div style="flex:1;overflow-y:auto;padding:20px 24px;max-width:1200px;margin:0 auto;">
+
+      <!-- 統計カード -->
+      <div class="dash-section">
+        <h2 class="dash-heading">楽曲データ整備状況</h2>
+        <div class="dash-cards" id="dash-stats"></div>
+      </div>
+
+      <!-- リンク 2カラム -->
+      <div class="dash-row">
+        <div class="dash-section dash-section--half">
+          <h2 class="dash-heading">サイトリンク</h2>
+          <div class="dash-links">
+            <a href="https://www.hmix.net/" target="_blank" class="dash-link">TOP</a>
+            <a href="https://www.hmix.net/music-library.html" target="_blank" class="dash-link">Library</a>
+            <a href="https://www.hmix.net/terms.html" target="_blank" class="dash-link">規約</a>
+            <a href="https://www.hmix.net/composer.html" target="_blank" class="dash-link">Composer</a>
+            <a href="https://www.hmix.net/contact.html" target="_blank" class="dash-link">Contact</a>
+            <a href="https://www.hmix.net/genre/japanese.html" target="_blank" class="dash-link">和風</a>
+            <a href="https://www.hmix.net/genre/horror.html" target="_blank" class="dash-link">ホラー</a>
+            <a href="https://www.hmix.net/genre/healing.html" target="_blank" class="dash-link">癒し</a>
+            <a href="https://www.hmix.net/genre/fantasy.html" target="_blank" class="dash-link">幻想</a>
+            <a href="https://www.hmix.net/genre/battle.html" target="_blank" class="dash-link">戦闘</a>
+          </div>
+        </div>
+        <div class="dash-section dash-section--half">
+          <h2 class="dash-heading">外部サービス</h2>
+          <div class="dash-links">
+            <a href="https://analytics.google.com/" target="_blank" class="dash-link dash-link--ext">Analytics</a>
+            <a href="https://search.google.com/search-console" target="_blank" class="dash-link dash-link--ext">Search Console</a>
+            <a href="https://dashboard.stripe.com/" target="_blank" class="dash-link dash-link--ext">Stripe</a>
+            <a href="https://formspree.io/forms" target="_blank" class="dash-link dash-link--ext">Formspree</a>
+            <a href="https://x.com/hmix_net" target="_blank" class="dash-link dash-link--ext">X</a>
+            <a href="https://www.youtube.com/@hmixbgm" target="_blank" class="dash-link dash-link--ext">YouTube</a>
+            <a href="https://bsky.app/" target="_blank" class="dash-link dash-link--ext">Bluesky</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- GA4 + タグ分布 2カラム -->
+      <div class="dash-row">
+        <div class="dash-section dash-section--half">
+          <h2 class="dash-heading">アクセス解析（GA4 / 7日間）</h2>
+          <div id="ga4-auth" style="margin-bottom:12px;">
+            <button class="btn" id="ga4-login">Google にログインして接続</button>
+          </div>
+          <div id="ga4-data" style="display:none;">
+            <div class="dash-cards" style="grid-template-columns:repeat(2,1fr);" id="ga4-stats"></div>
+            <div style="margin-top:14px;">
+              <h3 style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;">人気ページ</h3>
+              <div id="ga4-pages" style="max-height:200px;overflow-y:auto;"></div>
+            </div>
+            <div style="margin-top:14px;">
+              <h3 style="font-size:0.7rem;color:var(--text-dim);margin-bottom:6px;">流入元</h3>
+              <div id="ga4-sources" style="max-height:160px;overflow-y:auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-section dash-section--half">
+          <h2 class="dash-heading">タグ分布</h2>
+          <div id="dash-tag-chart" style="max-height:400px;overflow-y:auto;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SNS投稿 -->
+  <div class="tab-content" id="tab-sns" style="display:none;flex:1;overflow:hidden;">
+    <div class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="sns-search" placeholder="曲名で検索...">
+      </div>
+      <div class="sidebar-count" id="sns-count"></div>
+      <div class="sidebar-list" id="sns-list"></div>
+    </div>
+    <div class="editor" id="sns-editor" style="overflow-y:auto;">
+      <div class="editor-empty">左のリストから宣伝する曲を選択してください</div>
+    </div>
+  </div>
+
+  <!-- AI生成 -->
+  <div class="tab-content" id="tab-ai" style="display:none;flex:1;overflow:hidden;">
+    <div style="flex:1;overflow-y:auto;padding:20px 24px;max-width:900px;">
+      <div class="dash-section">
+        <h2 class="dash-heading">AI 説明文生成（Claude API）</h2>
+        <p style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;">NG判定の曲、または説明文が空の曲に対して、タグ・タイトルから説明文を自動生成します。</p>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.68rem;color:var(--text-dim);display:block;margin-bottom:4px;">カスタムプロンプト（追加指示）</label>
+          <textarea id="ai-custom-prompt" rows="3" style="width:100%;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:6px;font-size:0.78rem;resize:vertical;" placeholder="例：「もっと詩的に」「RPGの世界観を意識して」「80文字以内で簡潔に」"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="btn" id="ai-gen-ng">NG判定の曲を一括生成</button>
+          <button class="btn" id="ai-gen-empty">説明文が空の曲を一括生成</button>
+          <button class="btn" id="ai-gen-en">英語説明文を一括生成</button>
+          <button class="btn" id="ai-translate-title">英語タイトルを一括生成</button>
+        </div>
+        <div id="ai-progress" style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;"></div>
+        <div id="ai-results" style="max-height:500px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 検索置換 -->
+  <div class="tab-content" id="tab-search" style="display:none;flex:1;overflow:hidden;">
+    <div style="flex:1;overflow-y:auto;padding:20px 24px;max-width:900px;">
+      <div class="dash-section">
+        <h2 class="dash-heading">全曲検索・置換</h2>
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end;">
+          <div>
+            <label style="font-size:0.68rem;color:var(--text-dim);display:block;margin-bottom:2px;">対象フィールド</label>
+            <select id="sr-field" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:0.75rem;">
+              <option value="title">タイトル</option>
+              <option value="title_en">Title (EN)</option>
+              <option value="description">説明文 (JA)</option>
+              <option value="description_en">Description (EN)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.68rem;color:var(--text-dim);display:block;margin-bottom:2px;">検索文字列</label>
+            <input id="sr-find" type="text" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:0.75rem;width:200px;">
+          </div>
+          <div>
+            <label style="font-size:0.68rem;color:var(--text-dim);display:block;margin-bottom:2px;">置換文字列</label>
+            <input id="sr-replace" type="text" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:4px;font-size:0.75rem;width:200px;">
+          </div>
+          <button class="btn" id="sr-search">検索</button>
+          <button class="btn btn--red" id="sr-replace-all">一括置換</button>
+        </div>
+        <div id="sr-count" style="font-size:0.72rem;color:var(--text-dim);margin-bottom:8px;"></div>
+        <div id="sr-results" style="max-height:500px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Track view -->
+  <div class="tab-content" id="tab-track" style="display:none;flex:1;overflow:hidden;">
+    <div class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="track-search" placeholder="曲名・IDで検索...">
+      </div>
+      <div class="sidebar-count" id="track-count"></div>
+      <div class="sidebar-list" id="track-list"></div>
+    </div>
+    <div class="editor" id="track-editor">
+      <div class="editor-empty">左のリストから曲を選択してください</div>
+    </div>
+  </div>
+
+  <!-- Tag view -->
+  <div class="tab-content" id="tab-tag" style="display:none;flex:1;overflow:hidden;">
+    <div class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="tag-search" placeholder="タグ名で検索...">
+      </div>
+      <div style="padding:6px 8px;border-bottom:1px solid var(--border);">
+        <button class="btn btn--green" id="btn-add-tag" style="width:100%;font-size:0.72rem;">+ 新規タグ追加</button>
+      </div>
+      <div class="sidebar-list" id="tag-list"></div>
+    </div>
+    <div class="editor" id="tag-editor" style="overflow-y:auto;">
+      <div class="editor-empty">左のリストからタグを選択してください</div>
+    </div>
+  </div>
+
+  <!-- Description check view -->
+  <div class="tab-content" id="tab-desc" style="display:none;flex:1;overflow:hidden;">
+    <div class="sidebar">
+      <div class="sidebar-search">
+        <input type="text" id="desc-search" placeholder="検索...">
+      </div>
+      <div class="sidebar-count" id="desc-count"></div>
+      <div class="sidebar-list" id="desc-list"></div>
+    </div>
+    <div class="editor" id="desc-editor" style="overflow-y:auto;">
+      <div class="editor-empty">左のリストから曲を選択してください</div>
+    </div>
+  </div>
+
+  <!-- Assign view (タグ振り分け) -->
+  <div class="tab-content" id="tab-assign" style="display:none;flex:1;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <label style="font-size:0.75rem;color:var(--text-dim);">モード:</label>
+        <select id="assign-mode" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:0.75rem;">
+          <option value="has">このタグが付いた曲</option>
+          <option value="not">このタグが付いていない曲</option>
+        </select>
+        <label style="font-size:0.75rem;color:var(--text-dim);">タグ:</label>
+        <select id="assign-source-tag" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:0.75rem;max-width:200px;"></select>
+        <label style="font-size:0.75rem;color:var(--text-dim);">振り分け先:</label>
+        <select id="assign-target-tags" style="background:var(--panel);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:4px;font-size:0.75rem;max-width:200px;"></select>
+        <button class="btn" id="assign-refresh">表示</button>
+        <span id="assign-count" style="font-size:0.72rem;color:var(--text-dim);margin-left:auto;"></span>
+      </div>
+      <div id="assign-list" style="flex:1;overflow-y:auto;padding:8px;"></div>
+    </div>
+  </div>
+
+  <!-- 足跡管理 (Firebase Firestore) -->
+  <div class="tab-content" id="tab-footprints" style="display:none;flex:1;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <!-- ヘッダー: 認証・フィルター -->
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div id="fp-auth-status" style="font-size:0.75rem;color:var(--text-dim);">
+          Firebase 未ログイン
+        </div>
+        <button class="btn" id="fp-login">Google でログイン</button>
+        <button class="btn" id="fp-logout" style="display:none;">ログアウト</button>
+        <div style="flex:1;"></div>
+        <label style="font-size:0.72rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;">
+          <input type="checkbox" id="fp-filter-reported" checked> 通報あり優先
+        </label>
+        <label style="font-size:0.72rem;color:var(--text-dim);display:flex;align-items:center;gap:4px;">
+          <input type="checkbox" id="fp-filter-hidden"> 非表示も表示
+        </label>
+        <button class="btn" id="fp-reload">再読み込み</button>
+      </div>
+      <!-- 統計 -->
+      <div style="padding:6px 14px;border-bottom:1px solid var(--border);font-size:0.72rem;color:var(--text-dim);">
+        <span>全件: <b id="fp-total" style="color:var(--text);">-</b></span>
+        <span style="margin-left:16px;">通報有り: <b id="fp-reported-count" style="color:#e5a14b;">-</b></span>
+        <span style="margin-left:16px;">非表示: <b id="fp-hidden-count" style="color:var(--text-dim);">-</b></span>
+      </div>
+      <!-- リスト -->
+      <div id="fp-list" style="flex:1;overflow-y:auto;padding:8px 14px;">
+        <div style="text-align:center;color:var(--text-dim);padding:40px;font-size:0.8rem;">
+          Google でログインすると足跡一覧が表示されます。<br>
+          （管理者UID: <code style="color:var(--gold,#d4a44c);">K4DqNCuAFbh1hMRjl7AFnl5iQ4s1</code> のみ操作可能）
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  /* 足跡管理タブ専用スタイル */
+  .fp-card {
+    background: var(--panel, #1a1f1c);
+    border: 1px solid var(--border, #2a3028);
+    border-radius: 5px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    font-size: 0.78rem;
+  }
+  .fp-card.has-reports { border-left: 3px solid #e5a14b; }
+  .fp-card.is-hidden { opacity: 0.55; border-left: 3px solid var(--text-dim, #6e8f76); }
+  .fp-msg {
+    font-family: 'Noto Serif JP', serif;
+    color: var(--text, #e8f5ec);
+    font-size: 0.92rem;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .fp-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 0.68rem;
+    color: var(--text-dim, #6e8f76);
+    margin-top: 4px;
+  }
+  .fp-meta .fp-scene { color: var(--gold, #d4a44c); }
+  .fp-meta .fp-reports { color: #e5a14b; font-weight: 600; }
+  .fp-meta .fp-hidden-label { color: #7ba583; }
+  .fp-actions { display: flex; gap: 6px; align-items: center; }
+  .fp-actions .btn { font-size: 0.7rem; padding: 4px 10px; }
+</style>
+
+<div class="stats-bar" id="stats-bar">
+  <span><span class="dot dot--gold"></span> <span id="stat-total">0</span> 曲</span>
+  <span><span class="dot dot--green"></span> OK: <span id="stat-ok">0</span></span>
+  <span><span class="dot dot--red"></span> NG: <span id="stat-ng">0</span></span>
+  <span>未チェック: <span id="stat-unchecked">0</span></span>
+  <span>変更: <span id="stat-changes">0</span></span>
+</div>
+
+<script src="/assets/js/tracks.js?v=20260429-r10removed"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  const tracks = JSON.parse(JSON.stringify(window.TRACKS)); // deep copy
+  const descStatus = JSON.parse(localStorage.getItem('hmix_desc_status') || '{}'); // { trackId: 'ok'|'ng' }
+  let changeCount = 0;
+  let selectedTrackId = null;
+  let selectedTagId = null;
+
+  // ── Tag metadata ──
+  const TAG_CATEGORIES = { feeling: 'Feeling', style: 'Style', scene: 'Scene', story: 'Story' };
+  const tagMap = {};
+  if (window.TAGS_META) {
+    for (const cat in TAGS_META) {
+      TAGS_META[cat].forEach(t => { tagMap[t.id] = { name: t.name, name_en: t.name_en, category: cat }; });
+    }
+  }
+  function tagLabel(id) { return tagMap[id] ? tagMap[id].name + ' / ' + tagMap[id].name_en : id; }
+  function getTrack(id) { return tracks.find(t => t.id === id); }
+
+  // ── Tab switching ──
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      document.getElementById('tab-' + tab.dataset.tab).style.display = 'flex';
+      if (tab.dataset.tab === 'dashboard') renderDashboard();
+    });
+  });
+
+  // ══════════════════════════════════════════
+  // TAB 1: Track view
+  // ══════════════════════════════════════════
+  function renderTrackList(filter) {
+    const list = document.getElementById('track-list');
+    const q = (filter || '').toLowerCase();
+    const filtered = tracks.filter(t => !q || t.id.toLowerCase().includes(q) || (t.title || '').includes(q) || (t.title_en || '').toLowerCase().includes(q));
+    document.getElementById('track-count').textContent = filtered.length + ' / ' + tracks.length + ' 曲';
+    list.innerHTML = filtered.map(t => {
+      const st = descStatus[t.id];
+      const badge = st === 'ok' ? '<span class="sidebar-item__status sidebar-item__status--ok">OK</span>'
+                  : st === 'ng' ? '<span class="sidebar-item__status sidebar-item__status--ng">NG</span>' : '';
+      return '<div class="sidebar-item' + (t.id === selectedTrackId ? ' active' : '') + '" data-id="' + t.id + '">'
+        + '<span class="sidebar-item__id">' + t.id + '</span>'
+        + '<span class="sidebar-item__title">' + esc(t.title || t.id) + '</span>'
+        + badge + '</div>';
+    }).join('');
+  }
+
+  function renderTrackEditor(trackId) {
+    selectedTrackId = trackId;
+    const t = getTrack(trackId);
+    if (!t) return;
+    const ed = document.getElementById('track-editor');
+    const st = descStatus[trackId] || '';
+
+    let html = '<div class="field"><div class="field-label">ID</div><div class="field-input" style="opacity:0.5;">' + esc(t.id) + '</div></div>';
+    html += fieldHTML('title', 'タイトル', t.title || '');
+    html += fieldHTML('title_en', 'Title (EN)', t.title_en || '');
+
+    // サビ区間エディタ
+    var climaxStart = (t.climax && t.climax.start != null) ? t.climax.start : -1;
+    var climaxEnd = (t.climax && t.climax.end != null) ? t.climax.end : -1;
+    html += '<div class="climax-editor" id="climax-editor">'
+      + '<div class="climax-editor__label">サビ区間 <button class="climax-editor__play" id="climax-play">▶ サビを試聴</button></div>'
+      + '<div class="climax-editor__wrap" id="climax-wrap"><canvas class="climax-editor__canvas" id="climax-canvas"></canvas></div>'
+      + '<div class="climax-editor__info"><span id="climax-info">'
+      + (climaxStart >= 0 ? _fmtSec(climaxStart) + ' 〜 ' + _fmtSec(climaxEnd) : '未設定（波形上をドラッグして指定）')
+      + '</span><button class="climax-editor__play" id="climax-clear" style="color:var(--red);border-color:rgba(220,100,100,0.3);">リセット</button></div>'
+      + '</div>';
+
+    // Description with OK/NG
+    html += '<div class="field"><div class="desc-header"><div class="field-label">説明文 (JA)</div>'
+      + '<div class="desc-actions">'
+      + '<span class="desc-btn desc-btn--ok' + (st === 'ok' ? ' active' : '') + '" data-status="ok">OK</span>'
+      + '<span class="desc-btn desc-btn--ng' + (st === 'ng' ? ' active' : '') + '" data-status="ng">NG</span>'
+      + '</div></div>'
+      + '<textarea class="field-input" data-field="description">' + esc(t.description || '') + '</textarea></div>';
+
+    html += '<div class="field"><div class="desc-header"><div class="field-label">Description (EN)</div>'
+      + '<div class="desc-actions">'
+      + '<span class="desc-btn desc-btn--ok' + (st === 'ok' ? ' active' : '') + '" data-status="ok">OK</span>'
+      + '<span class="desc-btn desc-btn--ng' + (st === 'ng' ? ' active' : '') + '" data-status="ng">NG</span>'
+      + '</div></div>'
+      + '<textarea class="field-input" data-field="description_en">' + esc(t.description_en || '') + '</textarea></div>';
+
+    html += fieldHTML('duration', '再生時間', t.duration || '');
+    html += fieldHTML('bpm', 'BPM', t.bpm || '');
+    html += '<div class="field"><div class="field-label">ループ</div>'
+      + '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">'
+      + '<input type="checkbox" id="edit-loop"' + (t.loop ? ' checked' : '') + '> <span>ループ可能</span></label></div>';
+
+    // Tags
+    for (const cat in TAG_CATEGORIES) {
+      const allTags = TAGS_META[cat] || [];
+      const current = t[cat] || [];
+      html += '<div class="tags-section"><div class="tags-section-label">' + TAG_CATEGORIES[cat] + '</div><div class="tags-wrap">';
+      allTags.forEach(tag => {
+        html += '<span class="tag-chip' + (current.includes(tag.id) ? ' on' : '') + '" data-cat="' + cat + '" data-tag="' + tag.id + '">' + esc(tag.name) + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    ed.innerHTML = html;
+
+    // Event: field edits
+    ed.querySelectorAll('.field-input[data-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        const field = el.dataset.field;
+        t[field] = el.value;
+        markChanged();
+      });
+    });
+
+    // Event: loop checkbox
+    const loopEl = document.getElementById('edit-loop');
+    if (loopEl) loopEl.addEventListener('change', () => { t.loop = loopEl.checked; markChanged(); });
+
+    // Event: tag chips
+    ed.querySelectorAll('.tag-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const cat = chip.dataset.cat;
+        const tag = chip.dataset.tag;
+        if (!t[cat]) t[cat] = [];
+        const idx = t[cat].indexOf(tag);
+        if (idx >= 0) { t[cat].splice(idx, 1); chip.classList.remove('on'); }
+        else { t[cat].push(tag); chip.classList.add('on'); }
+        markChanged();
+      });
+    });
+
+    // Event: OK/NG buttons
+    ed.querySelectorAll('.desc-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newSt = btn.dataset.status;
+        if (descStatus[trackId] === newSt) { delete descStatus[trackId]; }
+        else { descStatus[trackId] = newSt; }
+        saveDescStatus();
+        renderTrackEditor(trackId);
+        renderTrackList(document.getElementById('track-search').value);
+        updateStats();
+      });
+    });
+
+    // ── サビ区間エディタ ──
+    (function() {
+      var canvas = document.getElementById('climax-canvas');
+      var wrap = document.getElementById('climax-wrap');
+      var infoEl = document.getElementById('climax-info');
+      if (!canvas || !wrap) return;
+
+      var dpr = window.devicePixelRatio || 1;
+      var cw = wrap.clientWidth, ch = wrap.clientHeight;
+      canvas.width = cw * dpr; canvas.height = ch * dpr;
+      canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+      var ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      var waveData = null;
+      var duration = t.durationSec || 0;
+      var cStart = (t.climax && t.climax.start != null) ? t.climax.start : -1;
+      var cEnd = (t.climax && t.climax.end != null) ? t.climax.end : -1;
+      var dragging = ''; // '' | 'new' | 'start' | 'end' | 'move'
+      var dragOrigin = 0;
+      var moveOffset = 0;
+
+      // 波形読み込み
+      if (t.mp3) {
+        ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('波形読み込み中…', cw/2, ch/2+4);
+        if (!window._climaxAudioCtx) window._climaxAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        fetch(t.mp3).then(r => r.arrayBuffer()).then(buf => window._climaxAudioCtx.decodeAudioData(buf)).then(ab => {
+          duration = ab.duration;
+          var raw = ab.getChannelData(0);
+          var bars = Math.floor(cw / 3);
+          var block = Math.floor(raw.length / bars);
+          waveData = new Float32Array(bars);
+          for (var i = 0; i < bars; i++) {
+            var max = 0;
+            for (var j = 0; j < block; j++) { var v = Math.abs(raw[i*block+j]); if (v > max) max = v; }
+            waveData[i] = max;
+          }
+          drawWave();
+        }).catch(() => { ctx.clearRect(0,0,cw,ch); });
+      }
+
+      function drawWave() {
+        if (!waveData) return;
+        ctx.clearRect(0, 0, cw, ch);
+        // サビ範囲ハイライト
+        if (cStart >= 0 && cEnd > cStart && duration > 0) {
+          var sx = (cStart / duration) * cw, ex = (cEnd / duration) * cw;
+          ctx.fillStyle = 'rgba(201, 168, 76, 0.12)';
+          ctx.fillRect(sx, 0, ex - sx, ch);
+          ctx.fillStyle = 'rgba(201, 168, 76, 0.7)';
+          ctx.fillRect(sx - 1, 0, 2, ch);
+          ctx.fillRect(ex - 1, 0, 2, ch);
+          ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(201, 168, 76, 0.6)';
+          ctx.fillText('サビ', (sx + ex) / 2, 10);
+        }
+        // 波形バー
+        var step = 3;
+        for (var i = 0; i < waveData.length; i++) {
+          var x = i * step;
+          var barH = Math.max(1, waveData[i] * ch * 0.85);
+          var y = (ch - barH) / 2;
+          var ratio = i / waveData.length;
+          if (cStart >= 0 && cEnd > cStart && duration > 0) {
+            var rs = cStart / duration, re = cEnd / duration;
+            ctx.fillStyle = (ratio >= rs && ratio <= re) ? 'rgba(201, 168, 76, 0.7)' : 'rgba(255,255,255,0.15)';
+          } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+          }
+          ctx.fillRect(x, y, 2, barH);
+        }
+        // 再生位置カーソル
+        var audio = window._climaxAudio;
+        if (audio && !audio.paused && audio.src && duration > 0) {
+          var px = (audio.currentTime / duration) * cw;
+          // グロー
+          var grd = ctx.createLinearGradient(px - 6, 0, px + 6, 0);
+          grd.addColorStop(0, 'rgba(154, 223, 180, 0)');
+          grd.addColorStop(0.5, 'rgba(154, 223, 180, 0.15)');
+          grd.addColorStop(1, 'rgba(154, 223, 180, 0)');
+          ctx.fillStyle = grd;
+          ctx.fillRect(px - 6, 0, 12, ch);
+          // ライン
+          ctx.fillStyle = 'rgba(154, 223, 180, 0.85)';
+          ctx.fillRect(px - 0.5, 0, 1.5, ch);
+        }
+
+        // 情報更新
+        if (infoEl) {
+          infoEl.textContent = (cStart >= 0) ? _fmtSec(cStart) + ' 〜 ' + _fmtSec(cEnd) + ' (' + _fmtSec(cEnd - cStart) + ')' : '未設定（波形上をドラッグして指定）';
+        }
+      }
+
+      // アニメーションループ（再生中に波形を更新）
+      var _climaxAnimId = null;
+      function _climaxAnimLoop() {
+        drawWave();
+        var audio = window._climaxAudio;
+        if (audio && !audio.paused) {
+          _climaxAnimId = requestAnimationFrame(_climaxAnimLoop);
+        } else {
+          _climaxAnimId = null;
+        }
+      }
+
+      function getSec(e) {
+        var rect = wrap.getBoundingClientRect();
+        var ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        return ratio * duration;
+      }
+
+      function hitEdge(sec) {
+        if (cStart < 0 || !duration) return '';
+        var pxPerSec = cw / duration;
+        if (Math.abs(sec * pxPerSec - cStart * pxPerSec) < 8) return 'start';
+        if (Math.abs(sec * pxPerSec - cEnd * pxPerSec) < 8) return 'end';
+        if (sec > cStart && sec < cEnd) return 'move';
+        return '';
+      }
+
+      canvas.addEventListener('mousemove', function(e) {
+        if (dragging) return;
+        var sec = getSec(e);
+        var edge = hitEdge(sec);
+        canvas.style.cursor = (edge === 'start' || edge === 'end') ? 'col-resize' : (edge === 'move' ? 'grab' : 'crosshair');
+      });
+
+      canvas.addEventListener('mousedown', function(e) {
+        if (!duration) return;
+        var sec = getSec(e);
+        var edge = hitEdge(sec);
+        if (edge === 'start' || edge === 'end') {
+          dragging = edge;
+        } else if (edge === 'move') {
+          dragging = 'move';
+          moveOffset = sec - cStart;
+        } else {
+          dragging = 'new';
+          cStart = sec; cEnd = sec;
+        }
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        var sec = getSec(e);
+        if (dragging === 'new') { cEnd = Math.max(cStart + 0.5, sec); }
+        else if (dragging === 'start') { cStart = Math.min(sec, cEnd - 0.5); }
+        else if (dragging === 'end') { cEnd = Math.max(sec, cStart + 0.5); }
+        else if (dragging === 'move') {
+          var len = cEnd - cStart;
+          var newStart = Math.max(0, Math.min(duration - len, sec - moveOffset));
+          cStart = newStart; cEnd = newStart + len;
+        }
+        drawWave();
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (!dragging) return;
+        dragging = '';
+        if (cEnd - cStart < 0.5) { cStart = -1; cEnd = -1; }
+        // 保存
+        if (cStart >= 0) {
+          t.climax = { start: Math.round(cStart * 10) / 10, end: Math.round(cEnd * 10) / 10 };
+        } else {
+          delete t.climax;
+        }
+        markChanged();
+        drawWave();
+      });
+
+      // サビ試聴
+      if (!window._climaxAudio) window._climaxAudio = new Audio();
+      document.getElementById('climax-play').addEventListener('click', function() {
+        if (!t.mp3) return;
+        var audio = window._climaxAudio;
+        if (!audio.paused && audio.src.endsWith(t.mp3.split('/').pop())) {
+          audio.pause(); this.textContent = '▶ 試聴'; drawWave(); return;
+        }
+        audio.src = t.mp3;
+        audio.currentTime = (cStart >= 0) ? cStart : 0;
+        audio.play().catch(function(){});
+        this.textContent = '⏸ 停止';
+        var self = this;
+        // アニメーション開始
+        if (!_climaxAnimId) _climaxAnimLoop();
+        var check = setInterval(function() {
+          if ((cEnd > 0 && audio.currentTime >= cEnd) || audio.paused) {
+            clearInterval(check); audio.pause(); self.textContent = '▶ 試聴'; drawWave();
+          }
+        }, 100);
+      });
+
+      // リセット
+      document.getElementById('climax-clear').addEventListener('click', function() {
+        cStart = -1; cEnd = -1; delete t.climax; markChanged(); drawWave();
+      });
+    })();
+
+    renderTrackList(document.getElementById('track-search').value);
+  }
+
+  function fieldHTML(field, label, value) {
+    return '<div class="field"><div class="field-label">' + label + '</div>'
+      + '<input class="field-input" data-field="' + field + '" value="' + esc(value) + '"></div>';
+  }
+
+  document.getElementById('track-list').addEventListener('click', e => {
+    const item = e.target.closest('.sidebar-item');
+    if (item) renderTrackEditor(item.dataset.id);
+  });
+  document.getElementById('track-search').addEventListener('input', e => renderTrackList(e.target.value));
+
+  // ══════════════════════════════════════════
+  // TAB 2: Tag view
+  // ══════════════════════════════════════════
+  function renderTagList(filter) {
+    const list = document.getElementById('tag-list');
+    const q = (filter || '').toLowerCase();
+    let html = '';
+    for (const cat in TAG_CATEGORIES) {
+      const tags = (TAGS_META[cat] || []).filter(t => !q || t.name.includes(q) || t.id.includes(q) || (t.name_en || '').toLowerCase().includes(q));
+      if (!tags.length) continue;
+      html += '<div style="padding:6px 12px;font-size:0.65rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;border-bottom:1px solid var(--border);">' + TAG_CATEGORIES[cat] + '</div>';
+      tags.forEach(t => {
+        const count = tracks.filter(tr => (tr[cat] || []).includes(t.id)).length;
+        html += '<div class="sidebar-item' + (t.id === selectedTagId ? ' active' : '') + '" data-id="' + t.id + '" data-cat="' + cat + '">'
+          + '<span class="sidebar-item__title">' + esc(t.name) + ' / ' + esc(t.name_en || '') + '</span>'
+          + '<span style="font-size:0.7rem;color:var(--text-dim);">' + count + '</span>'
+          + '</div>';
+      });
+    }
+    list.innerHTML = html;
+  }
+
+  function renderTagEditor(tagId, cat) {
+    selectedTagId = tagId;
+    const ed = document.getElementById('tag-editor');
+    const matched = tracks.filter(t => (t[cat] || []).includes(tagId));
+    const info = tagMap[tagId] || {};
+
+    let html = '<div class="tag-view-header"><h2>' + esc(info.name || tagId) + ' / ' + esc(info.name_en || '') + '</h2>'
+      + '<p>' + TAG_CATEGORIES[cat] + ' / ' + matched.length + ' 曲</p></div>';
+    html += '<div class="tag-track-list">';
+    matched.forEach(t => {
+      html += '<div class="tag-track-item" data-id="' + t.id + '">'
+        + '<span style="font-size:0.7rem;color:var(--text-dim);min-width:35px;">' + t.id + '</span>'
+        + '<span class="tag-track-item__title">' + esc(t.title || t.id) + '</span>'
+        + '<button class="tag-track-item__remove" data-track-id="' + t.id + '" data-cat="' + cat + '" data-tag="' + tagId + '">削除</button>'
+        + '</div>';
+    });
+    if (!matched.length) html += '<div style="padding:20px;color:var(--text-dim);text-align:center;">このタグの楽曲はありません</div>';
+    html += '</div>';
+    ed.innerHTML = html;
+
+    // Remove button
+    ed.querySelectorAll('.tag-track-item__remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tr = getTrack(btn.dataset.trackId);
+        if (!tr) return;
+        const c = btn.dataset.cat;
+        const tg = btn.dataset.tag;
+        if (tr[c]) {
+          const idx = tr[c].indexOf(tg);
+          if (idx >= 0) { tr[c].splice(idx, 1); markChanged(); }
+        }
+        renderTagEditor(tagId, cat);
+        renderTagList(document.getElementById('tag-search').value);
+      });
+    });
+
+    renderTagList(document.getElementById('tag-search').value);
+  }
+
+  document.getElementById('tag-list').addEventListener('click', e => {
+    const item = e.target.closest('.sidebar-item');
+    if (item) renderTagEditor(item.dataset.id, item.dataset.cat);
+  });
+  document.getElementById('tag-search').addEventListener('input', e => renderTagList(e.target.value));
+
+  // ══════════════════════════════════════════
+  // TAB 3: Description check
+  // ══════════════════════════════════════════
+  function renderDescList(filter) {
+    const list = document.getElementById('desc-list');
+    const q = (filter || '').toLowerCase();
+    const filtered = tracks.filter(t => !q || (t.title || '').includes(q) || t.id.includes(q));
+    const ok = filtered.filter(t => descStatus[t.id] === 'ok').length;
+    const ng = filtered.filter(t => descStatus[t.id] === 'ng').length;
+    document.getElementById('desc-count').textContent = 'OK: ' + ok + ' / NG: ' + ng + ' / 未: ' + (filtered.length - ok - ng);
+    list.innerHTML = filtered.map(t => {
+      const st = descStatus[t.id];
+      const badge = st === 'ok' ? '<span class="sidebar-item__status sidebar-item__status--ok">OK</span>'
+                  : st === 'ng' ? '<span class="sidebar-item__status sidebar-item__status--ng">NG</span>' : '';
+      return '<div class="sidebar-item' + (t.id === selectedTrackId ? ' active' : '') + '" data-id="' + t.id + '">'
+        + '<span class="sidebar-item__id">' + t.id + '</span>'
+        + '<span class="sidebar-item__title">' + esc(t.title || t.id) + '</span>'
+        + badge + '</div>';
+    }).join('');
+  }
+
+  function renderDescEditor(trackId) {
+    selectedTrackId = trackId;
+    const t = getTrack(trackId);
+    if (!t) return;
+    const ed = document.getElementById('desc-editor');
+    const st = descStatus[trackId] || '';
+
+    let html = '<div style="padding:0 0 16px;"><h3 style="color:var(--gold);font-size:1rem;">' + esc(t.title) + '</h3>'
+      + '<p style="font-size:0.75rem;color:var(--text-dim);">' + esc(t.title_en || '') + ' / ' + t.id + '</p></div>';
+
+    // JA description
+    html += '<div class="field"><div class="desc-header"><div class="field-label">説明文 (JA)</div>'
+      + '<div class="desc-actions">'
+      + '<span class="desc-btn desc-btn--ok' + (st === 'ok' ? ' active' : '') + '" data-status="ok" data-lang="both">OK</span>'
+      + '<span class="desc-btn desc-btn--ng' + (st === 'ng' ? ' active' : '') + '" data-status="ng" data-lang="both">NG</span>'
+      + '</div></div>'
+      + '<textarea class="field-input" data-field="description" rows="4">' + esc(t.description || '') + '</textarea></div>';
+
+    // EN description
+    html += '<div class="field"><div class="field-label">Description (EN)</div>'
+      + '<textarea class="field-input" data-field="description_en" rows="3" style="color:var(--text-dim);">' + esc(t.description_en || '') + '</textarea></div>';
+
+    // Tags
+    html += '<div class="field"><div class="field-label">タグ</div><div style="display:flex;flex-wrap:wrap;gap:4px;">';
+    ['feeling','style','scene','story'].forEach(cat => {
+      (t[cat] || []).forEach(tag => {
+        html += '<span style="padding:2px 8px;border-radius:99px;font-size:0.7rem;background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3);">' + esc(tagMap[tag] ? tagMap[tag].name : tag) + '</span>';
+      });
+    });
+    html += '</div></div>';
+
+    // Navigation
+    const idx = tracks.findIndex(tr => tr.id === trackId);
+    html += '<div style="display:flex;gap:8px;margin-top:16px;">';
+    if (idx > 0) html += '<button class="btn" id="desc-prev">&#8592; 前の曲</button>';
+    if (idx < tracks.length - 1) html += '<button class="btn" id="desc-next">次の曲 &#8594;</button>';
+    html += '</div>';
+
+    ed.innerHTML = html;
+
+    // OK/NG buttons
+    ed.querySelectorAll('.desc-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newSt = btn.dataset.status;
+        if (descStatus[trackId] === newSt) { delete descStatus[trackId]; }
+        else { descStatus[trackId] = newSt; }
+        saveDescStatus();
+        renderDescEditor(trackId);
+        renderDescList(document.getElementById('desc-search').value);
+        updateStats();
+      });
+    });
+
+    // 説明文編集
+    ed.querySelectorAll('.field-input[data-field]').forEach(el => {
+      el.addEventListener('input', () => {
+        t[el.dataset.field] = el.value;
+        markChanged();
+      });
+    });
+
+    // Nav buttons
+    const prevBtn = document.getElementById('desc-prev');
+    const nextBtn = document.getElementById('desc-next');
+    if (prevBtn) prevBtn.addEventListener('click', () => renderDescEditor(tracks[idx - 1].id));
+    if (nextBtn) nextBtn.addEventListener('click', () => renderDescEditor(tracks[idx + 1].id));
+
+    renderDescList(document.getElementById('desc-search').value);
+  }
+
+  document.getElementById('desc-list').addEventListener('click', e => {
+    const item = e.target.closest('.sidebar-item');
+    if (item) renderDescEditor(item.dataset.id);
+  });
+  document.getElementById('desc-search').addEventListener('input', e => renderDescList(e.target.value));
+
+  // ══════════════════════════════════════════
+  // Export
+  // ══════════════════════════════════════════
+  document.getElementById('btn-export').addEventListener('click', async () => {
+    let js = '/*\n * H/MIX GALLERY — tracks.js\n * (Exported from Tracks Manager)\n */\n';
+    js += "const HMIX_BASE_PATH = (function() {\n  if (typeof window !== 'undefined') {\n    if (window.location.pathname.startsWith('/test2026/') || window.location.pathname === '/test2026') return '/test2026';\n    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return '';\n  }\n  return '';\n})();\n\n";
+    js += 'const TAGS_META = ' + JSON.stringify(TAGS_META, null, 2) + ';\n\n';
+    js += 'const TRACKS = ' + JSON.stringify(tracks, null, 2) + ';\n\n';
+    js += "if (typeof window !== 'undefined') {\n  window.TAGS_META = TAGS_META;\n  window.TRACKS = TRACKS;\n}\n";
+
+    // File System Access API で上書き保存（対応ブラウザ）
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: 'tracks.js',
+          types: [{ description: 'JavaScript', accept: { 'text/javascript': ['.js'] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(js);
+        await writable.close();
+        alert('tracks.js を保存しました');
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return; // ユーザーがキャンセル
+      }
+    }
+    // フォールバック: 通常DL
+    const blob = new Blob([js], { type: 'text/javascript' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'tracks.js';
+    a.click();
+  });
+
+  document.getElementById('btn-export-ng').addEventListener('click', () => {
+    const ngTracks = tracks.filter(t => descStatus[t.id] === 'ng').map(t => ({
+      id: t.id,
+      title: t.title,
+      title_en: t.title_en,
+      description: t.description,
+      description_en: t.description_en,
+      tags: [...(t.feeling||[]), ...(t.style||[]), ...(t.scene||[]), ...(t.story||[])],
+    }));
+    const json = JSON.stringify(ngTracks, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ng-descriptions.json';
+    a.click();
+  });
+
+  // ══════════════════════════════════════════
+  // AI生成（Claude API）
+  // ══════════════════════════════════════════
+  // セキュリティ: APIキーはコードに埋め込まない（GitHub漏洩防止）。実行時に入力し、このブラウザの localStorage にのみ保存。
+  var AI_API_KEY = (function(){ try{ return localStorage.getItem('hmix_anthropic_key') || ''; }catch(e){ return ''; } })();
+  if(!AI_API_KEY){ try{ AI_API_KEY = (window.prompt('Anthropic APIキーを入力（このブラウザのみに保存されます）')||'').trim(); if(AI_API_KEY) localStorage.setItem('hmix_anthropic_key', AI_API_KEY); }catch(e){} }
+
+  async function callClaude(prompt, maxTokens) {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': AI_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens || 300,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await res.json();
+    if (data.content && data.content[0]) return data.content[0].text;
+    throw new Error(data.error ? data.error.message : 'API error');
+  }
+
+  async function aiGenerateDesc(trackList, lang) {
+    var progress = document.getElementById('ai-progress');
+    var results = document.getElementById('ai-results');
+    results.innerHTML = '';
+    var done = 0, fail = 0;
+
+    for (var i = 0; i < trackList.length; i++) {
+      var t = trackList[i];
+      progress.textContent = '処理中… ' + (i+1) + '/' + trackList.length + ' (' + esc(t.title || t.id) + ')';
+      var tagNames = [].concat(t.feeling||[], t.style||[], t.scene||[], t.story||[])
+        .map(tag => tagMap[tag] ? tagMap[tag].name : tag).join('、');
+
+      try {
+        var customPrompt = (document.getElementById('ai-custom-prompt') || {}).value || '';
+        var prompt;
+        if (lang === 'en') {
+          prompt = 'Write a poetic, evocative English description (2-3 sentences, max 200 chars) for a BGM track.\n'
+            + 'Title: ' + (t.title_en || t.title) + '\nTags: ' + tagNames
+            + '\nDuration: ' + (t.duration || 'unknown')
+            + '\nJapanese description: ' + (t.description || 'none')
+            + (customPrompt ? '\nAdditional instruction: ' + customPrompt : '')
+            + '\nReturn ONLY the description text, no quotes or labels.';
+        } else {
+          prompt = 'フリーBGM楽曲の説明文を書いてください（2〜3文、200文字以内）。詩的で、情景が浮かぶ文章にしてください。\n'
+            + 'タイトル: ' + t.title + '\nタグ: ' + tagNames
+            + '\n再生時間: ' + (t.duration || '不明')
+            + (customPrompt ? '\n追加指示: ' + customPrompt : '')
+            + '\n説明文のみを返してください。「」や注釈は不要です。';
+        }
+        var result = await callClaude(prompt, 250);
+        result = result.trim().replace(/^["「]|["」]$/g, '');
+
+        if (lang === 'en') {
+          t.description_en = result;
+        } else {
+          t.description = result;
+        }
+        done++;
+        results.innerHTML += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;">'
+          + '<span style="color:var(--green);">✓</span> <strong>' + esc(t.title) + '</strong>: ' + esc(result.slice(0, 80)) + '…</div>';
+      } catch(e) {
+        fail++;
+        results.innerHTML += '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;">'
+          + '<span style="color:var(--red);">✗</span> <strong>' + esc(t.title) + '</strong>: ' + esc(e.message) + '</div>';
+      }
+
+      // レート制限対策（1秒待機）
+      await new Promise(r => setTimeout(r, 1200));
+    }
+
+    progress.textContent = '完了！ 成功: ' + done + ' / 失敗: ' + fail;
+    markChanged();
+  }
+
+  document.getElementById('ai-gen-ng').addEventListener('click', function() {
+    var targets = tracks.filter(t => descStatus[t.id] === 'ng');
+    if (!targets.length) { alert('NG判定の曲がありません'); return; }
+    if (!confirm(targets.length + '曲の説明文(JA)を再生成します。よろしいですか？')) return;
+    aiGenerateDesc(targets, 'ja');
+  });
+
+  document.getElementById('ai-gen-empty').addEventListener('click', function() {
+    var targets = tracks.filter(t => !t.description || t.description.length < 10);
+    if (!targets.length) { alert('説明文が空の曲はありません'); return; }
+    if (!confirm(targets.length + '曲の説明文(JA)を生成します。よろしいですか？')) return;
+    aiGenerateDesc(targets, 'ja');
+  });
+
+  document.getElementById('ai-gen-en').addEventListener('click', function() {
+    var targets = tracks.filter(t => !t.description_en || t.description_en.length < 10);
+    if (!targets.length) { alert('英語説明文が未設定の曲はありません'); return; }
+    if (!confirm(targets.length + '曲の英語説明文を生成します。よろしいですか？')) return;
+    aiGenerateDesc(targets, 'en');
+  });
+
+  document.getElementById('ai-translate-title').addEventListener('click', async function() {
+    var targets = tracks.filter(t => !t.title_en);
+    if (!targets.length) { alert('英語タイトルが未設定の曲はありません'); return; }
+    if (!confirm(targets.length + '曲の英語タイトルを生成します。よろしいですか？')) return;
+
+    var progress = document.getElementById('ai-progress');
+    var results = document.getElementById('ai-results');
+    results.innerHTML = '';
+    var done = 0, fail = 0;
+
+    // 10曲ずつバッチで翻訳（効率化）
+    for (var i = 0; i < targets.length; i += 10) {
+      var batch = targets.slice(i, i + 10);
+      progress.textContent = '処理中… ' + Math.min(i+10, targets.length) + '/' + targets.length;
+
+      var titles = batch.map(t => t.id + ': ' + t.title).join('\n');
+      try {
+        var prompt = 'Translate these Japanese BGM track titles to English. Return ONLY the translations in the same format (id: English Title), one per line.\n\n' + titles;
+        var result = await callClaude(prompt, 500);
+        result.split('\n').forEach(line => {
+          var match = line.match(/^(\w+):\s*(.+)$/);
+          if (match) {
+            var tr = getTrack(match[1]);
+            if (tr) { tr.title_en = match[2].trim(); done++; }
+          }
+        });
+      } catch(e) { fail += batch.length; }
+      await new Promise(r => setTimeout(r, 1200));
+    }
+
+    progress.textContent = '完了！ 成功: ' + done + ' / 失敗: ' + fail;
+    markChanged();
+    results.innerHTML = '<p style="color:var(--green);font-size:0.78rem;">' + done + '曲の英語タイトルを生成しました。tracks.jsをエクスポートして保存してください。</p>';
+  });
+
+  // ══════════════════════════════════════════
+  // 検索置換
+  // ══════════════════════════════════════════
+  document.getElementById('sr-search').addEventListener('click', function() {
+    var field = document.getElementById('sr-field').value;
+    var find = document.getElementById('sr-find').value;
+    if (!find) return;
+    var matches = tracks.filter(t => (t[field] || '').includes(find));
+    document.getElementById('sr-count').textContent = matches.length + '件ヒット';
+    document.getElementById('sr-results').innerHTML = matches.map(t => {
+      var text = t[field] || '';
+      var highlighted = text.replace(new RegExp(esc(find).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '<mark style="background:var(--gold);color:#000;padding:0 2px;border-radius:2px;">' + esc(find) + '</mark>');
+      return '<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.78rem;">'
+        + '<strong style="color:var(--gold);">' + esc(t.title || t.id) + '</strong> '
+        + '<span style="color:var(--text-dim);">(' + t.id + ')</span><br>'
+        + '<span>' + highlighted + '</span></div>';
+    }).join('');
+  });
+
+  document.getElementById('sr-replace-all').addEventListener('click', function() {
+    var field = document.getElementById('sr-field').value;
+    var find = document.getElementById('sr-find').value;
+    var replace = document.getElementById('sr-replace').value;
+    if (!find) return;
+    var count = 0;
+    tracks.forEach(t => {
+      if ((t[field] || '').includes(find)) {
+        t[field] = t[field].split(find).join(replace);
+        count++;
+      }
+    });
+    if (count > 0) markChanged();
+    document.getElementById('sr-count').textContent = count + '件置換しました';
+    document.getElementById('sr-results').innerHTML = '';
+    // 再検索
+    document.getElementById('sr-search').click();
+  });
+
+  // ── サビ一括自動検出 ──
+  document.getElementById('btn-auto-climax').addEventListener('click', async function() {
+    var btn = this;
+    var total = tracks.length;
+    var skip = 0, done = 0, fail = 0;
+    btn.textContent = '処理中… 0/' + total;
+    btn.disabled = true;
+
+    if (!window._bulkAudioCtx) window._bulkAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var ctx = window._bulkAudioCtx;
+
+    for (var i = 0; i < tracks.length; i++) {
+      var t = tracks[i];
+      // 既にclimaxがある曲はスキップ
+      if (t.climax && t.climax.start != null) { skip++; btn.textContent = '処理中… ' + (i+1) + '/' + total; continue; }
+      if (!t.mp3) { fail++; continue; }
+
+      try {
+        var res = await fetch(t.mp3);
+        var buf = await res.arrayBuffer();
+        var ab = await ctx.decodeAudioData(buf);
+        var raw = ab.getChannelData(0);
+        var duration = ab.duration;
+
+        // 10分割で平均音量を計算
+        var blocks = 10;
+        var blockSize = Math.floor(raw.length / blocks);
+        var avgs = [];
+        for (var b = 0; b < blocks; b++) {
+          var sum = 0;
+          for (var j = 0; j < blockSize; j++) sum += Math.abs(raw[b * blockSize + j]);
+          avgs.push(sum / blockSize);
+        }
+        var maxAvg = Math.max.apply(null, avgs);
+        if (maxAvg < 0.01) { fail++; continue; }
+
+        var norm = avgs.map(function(v) { return v / maxAvg; });
+
+        // Climax: 最大音量ブロックを中心に前後を含む
+        var climaxIdx = norm.indexOf(1.0);
+        // 開始: climax前で音量が50%以上になる最初のブロック
+        var startIdx = climaxIdx;
+        for (var s = climaxIdx - 1; s >= 0; s--) {
+          if (norm[s] >= 0.5) startIdx = s;
+          else break;
+        }
+        // 終了: climax後で音量が50%以下になるブロック
+        var endIdx = climaxIdx;
+        for (var e = climaxIdx + 1; e < blocks; e++) {
+          if (norm[e] >= 0.5) endIdx = e;
+          else break;
+        }
+
+        var cStart = Math.round((startIdx / blocks) * duration * 10) / 10;
+        var cEnd = Math.round(((endIdx + 1) / blocks) * duration * 10) / 10;
+        cEnd = Math.min(cEnd, duration);
+
+        if (cEnd - cStart >= 2) {
+          t.climax = { start: cStart, end: cEnd };
+          done++;
+        } else {
+          fail++;
+        }
+      } catch(err) {
+        fail++;
+      }
+      btn.textContent = '処理中… ' + (i+1) + '/' + total;
+    }
+
+    btn.textContent = 'サビ一括検出';
+    btn.disabled = false;
+    markChanged();
+    alert('完了！\n検出: ' + done + '曲\nスキップ(設定済み): ' + skip + '曲\n失敗: ' + fail + '曲\n\n※ tracks.js エクスポートで保存してください');
+  });
+
+  // ── 新規タグ追加 ──
+  document.getElementById('btn-add-tag').addEventListener('click', () => {
+    const cat = prompt('カテゴリを選択:\nfeeling / style / scene / story', 'style');
+    if (!cat || !TAG_CATEGORIES[cat]) { alert('無効なカテゴリです'); return; }
+    const id = prompt('タグID（英語、小文字）:', '');
+    if (!id || !id.match(/^[a-z][a-z0-9_-]*$/)) { alert('タグIDは英小文字で入力してください'); return; }
+    // 重複チェック
+    if (TAGS_META[cat].some(t => t.id === id)) { alert('このタグIDは既に存在します'); return; }
+    const nameJa = prompt('タグ名（日本語）:', '');
+    if (!nameJa) return;
+    const nameEn = prompt('タグ名（English）:', '') || nameJa;
+    TAGS_META[cat].push({ id: id, name: nameJa, name_en: nameEn });
+    tagMap[id] = { name: nameJa, name_en: nameEn, category: cat };
+    renderTagList(document.getElementById('tag-search').value);
+    markChanged();
+    alert('タグ「' + nameJa + '」を ' + TAG_CATEGORIES[cat] + ' に追加しました');
+  });
+
+  // ── Utilities ──
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function _fmtSec(s) { if (s < 0) return '--:--'; var m = Math.floor(s/60), ss = Math.floor(s%60); return m + ':' + (ss<10?'0':'') + ss; }
+  function markChanged() { changeCount++; updateStats(); }
+  function saveDescStatus() { localStorage.setItem('hmix_desc_status', JSON.stringify(descStatus)); }
+  function updateStats() {
+    const ok = Object.values(descStatus).filter(v => v === 'ok').length;
+    const ng = Object.values(descStatus).filter(v => v === 'ng').length;
+    document.getElementById('stat-total').textContent = tracks.length;
+    document.getElementById('stat-ok').textContent = ok;
+    document.getElementById('stat-ng').textContent = ng;
+    document.getElementById('stat-unchecked').textContent = tracks.length - ok - ng;
+    document.getElementById('stat-changes').textContent = changeCount;
+    document.getElementById('change-count').textContent = changeCount ? changeCount + ' 件の変更' : '';
+  }
+
+  // ══════════════════════════════════════════
+  // TAB 4: タグ振り分け
+  // ══════════════════════════════════════════
+  function initAssignView() {
+    var srcSelect = document.getElementById('assign-source-tag');
+    var tgtSelect = document.getElementById('assign-target-tags');
+    if (!srcSelect || !tgtSelect) return;
+
+    // 全タグをドロップダウンに
+    srcSelect.innerHTML = '';
+    tgtSelect.innerHTML = '';
+    for (var cat in TAG_CATEGORIES) {
+      (TAGS_META[cat] || []).forEach(function(t) {
+        var opt1 = document.createElement('option');
+        opt1.value = cat + ':' + t.id;
+        opt1.textContent = TAG_CATEGORIES[cat] + ' / ' + t.name;
+        srcSelect.appendChild(opt1);
+
+        var opt2 = document.createElement('option');
+        opt2.value = cat + ':' + t.id;
+        opt2.textContent = TAG_CATEGORIES[cat] + ' / ' + t.name;
+        tgtSelect.appendChild(opt2);
+      });
+    }
+
+    // デフォルト選択: source=scary, target=japanese_horror
+    srcSelect.value = 'feeling:scary';
+    tgtSelect.value = 'style:japanese_horror';
+  }
+
+  function renderAssignList() {
+    var listEl = document.getElementById('assign-list');
+    var countEl = document.getElementById('assign-count');
+    var mode = document.getElementById('assign-mode').value;
+    var srcVal = document.getElementById('assign-source-tag').value;
+    var tgtVal = document.getElementById('assign-target-tags').value;
+    if (!listEl || !srcVal || !tgtVal) return;
+
+    var srcParts = srcVal.split(':');
+    var srcCat = srcParts[0], srcTag = srcParts[1];
+    var tgtParts = tgtVal.split(':');
+    var tgtCat = tgtParts[0], tgtTag = tgtParts[1];
+
+    // フィルター
+    var filtered;
+    if (mode === 'has') {
+      filtered = tracks.filter(function(t) { return (t[srcCat] || []).includes(srcTag); });
+    } else {
+      filtered = tracks.filter(function(t) { return !(t[srcCat] || []).includes(srcTag); });
+    }
+
+    if (countEl) countEl.textContent = filtered.length + ' 曲';
+
+    var tgtInfo = tagMap[tgtTag] || { name: tgtTag };
+
+    // 振り分け先が2つの場合を想定（和風/洋風のような対）
+    // tgtTag の隣のタグも候補にする
+    var tgtMeta = TAGS_META[tgtCat] || [];
+    var tgtIdx = tgtMeta.findIndex(function(t) { return t.id === tgtTag; });
+    var altTag = null, altInfo = null;
+    if (tgtIdx >= 0 && tgtIdx < tgtMeta.length - 1) {
+      altTag = tgtMeta[tgtIdx + 1].id;
+      altInfo = tagMap[altTag] || { name: altTag };
+    }
+
+    listEl.innerHTML = filtered.map(function(t) {
+      var hasTgt = (t[tgtCat] || []).includes(tgtTag);
+      var hasAlt = altTag && (t[tgtCat] || []).includes(altTag);
+      var doneClass = (hasTgt || hasAlt) ? ' assign-row--done' : '';
+      var doneLabel = hasTgt ? tgtInfo.name : (hasAlt ? altInfo.name : '');
+
+      var allTags = [].concat(t.feeling||[], t.style||[], t.scene||[]).map(function(tag) {
+        return tagMap[tag] ? tagMap[tag].name : tag;
+      }).join(', ');
+
+      var html = '<div class="assign-row' + doneClass + '" data-id="' + t.id + '">';
+      // 再生ボタン
+      html += '<button class="assign-play" data-mp3="' + esc(t.mp3 || '') + '" title="試聴">▶</button>';
+      html += '<span class="assign-row__id">' + t.id + '</span>';
+      html += '<span class="assign-row__title">' + esc(t.title || t.id) + '</span>';
+      html += '<span class="assign-row__tags">' + esc(allTags) + '</span>';
+
+      if (doneLabel) {
+        var doneTag = hasTgt ? tgtTag : altTag;
+        html += '<span class="assign-btn assign-btn--done">' + esc(doneLabel) + '</span>';
+        html += '<button class="assign-btn assign-btn--cancel" data-track="' + t.id + '" data-cat="' + tgtCat + '" data-tag="' + esc(doneTag) + '">取消</button>';
+      } else {
+        html += '<button class="assign-btn assign-btn--a" data-track="' + t.id + '" data-cat="' + tgtCat + '" data-tag="' + tgtTag + '">' + esc(tgtInfo.name) + '</button>';
+        if (altTag) {
+          html += '<button class="assign-btn assign-btn--b" data-track="' + t.id + '" data-cat="' + tgtCat + '" data-tag="' + altTag + '">' + esc(altInfo.name) + '</button>';
+        }
+      }
+      html += '</div>';
+      return html;
+    }).join('');
+
+    // 振り分けボタン
+    listEl.querySelectorAll('.assign-btn--a, .assign-btn--b').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tr = getTrack(btn.dataset.track);
+        if (!tr) return;
+        var cat = btn.dataset.cat;
+        var tag = btn.dataset.tag;
+        if (!tr[cat]) tr[cat] = [];
+        if (!tr[cat].includes(tag)) {
+          tr[cat].push(tag);
+          markChanged();
+        }
+        renderAssignList(); // 行を再描画
+      });
+    });
+
+    // 取消ボタン
+    listEl.querySelectorAll('.assign-btn--cancel').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tr = getTrack(btn.dataset.track);
+        if (!tr) return;
+        var cat = btn.dataset.cat;
+        var tag = btn.dataset.tag;
+        if (tr[cat]) {
+          var idx = tr[cat].indexOf(tag);
+          if (idx >= 0) { tr[cat].splice(idx, 1); markChanged(); }
+        }
+        renderAssignList(); // 行を再描画
+      });
+    });
+
+    // 再生ボタン
+    if (!window._assignAudio) window._assignAudio = new Audio();
+    listEl.querySelectorAll('.assign-play').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var mp3 = btn.dataset.mp3;
+        if (!mp3) return;
+        var audio = window._assignAudio;
+        if (audio.src && audio.src.endsWith(mp3) && !audio.paused) {
+          audio.pause();
+          btn.textContent = '▶';
+        } else {
+          // 他の再生中ボタンをリセット
+          listEl.querySelectorAll('.assign-play').forEach(function(b) { b.textContent = '▶'; });
+          audio.src = mp3;
+          audio.play().catch(function(){});
+          btn.textContent = '⏸';
+          audio.onended = function() { btn.textContent = '▶'; };
+        }
+      });
+    });
+  }
+
+  document.getElementById('assign-refresh').addEventListener('click', renderAssignList);
+  document.getElementById('assign-mode').addEventListener('change', renderAssignList);
+
+  // ══════════════════════════════════════════
+  // DASHBOARD
+  // ══════════════════════════════════════════
+  function renderDashboard() {
+    var statsEl = document.getElementById('dash-stats');
+    var chartEl = document.getElementById('dash-tag-chart');
+    if (!statsEl) return;
+
+    var total = tracks.length;
+    var hasDesc = tracks.filter(t => t.description && t.description.length > 10).length;
+    var hasDescEn = tracks.filter(t => t.description_en && t.description_en.length > 10).length;
+    var hasTitleEn = tracks.filter(t => t.title_en).length;
+    var hasClimax = tracks.filter(t => t.climax && t.climax.start != null).length;
+    var hasBpm = tracks.filter(t => t.bpm).length;
+    var hasLoop = tracks.filter(t => t.loop === true || t.loop === false).length;
+    var okCount = Object.values(descStatus).filter(v => v === 'ok').length;
+    var ngCount = Object.values(descStatus).filter(v => v === 'ng').length;
+
+    function card(num, label, color, pct) {
+      return '<div class="dash-card"><div class="dash-card__num dash-card__num--' + color + '">' + num + '</div>'
+        + '<div class="dash-card__label">' + label + '</div>'
+        + (pct >= 0 ? '<div class="dash-card__bar"><div class="dash-card__bar-fill" style="width:' + pct + '%;background:var(--' + color + ')"></div></div>' : '')
+        + '</div>';
+    }
+
+    statsEl.innerHTML =
+      card(total, '総楽曲数', 'gold', -1) +
+      card(hasDesc, '説明文(JA)', 'green', Math.round(hasDesc/total*100)) +
+      card(hasDescEn, '説明文(EN)', 'blue', Math.round(hasDescEn/total*100)) +
+      card(hasTitleEn, '英語タイトル', 'blue', Math.round(hasTitleEn/total*100)) +
+      card(hasClimax, 'サビ設定済', 'gold', Math.round(hasClimax/total*100)) +
+      card(hasBpm, 'BPM設定済', 'green', Math.round(hasBpm/total*100)) +
+      card(okCount, '説明文 OK', 'green', Math.round(okCount/total*100)) +
+      card(ngCount, '説明文 NG', 'red', Math.round(ngCount/total*100));
+
+    // タグ分布チャート
+    if (chartEl) {
+      var tagCounts = {};
+      tracks.forEach(t => {
+        ['feeling','style','scene','story'].forEach(cat => {
+          (t[cat] || []).forEach(tag => { tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
+        });
+      });
+      var sorted = Object.entries(tagCounts).sort((a,b) => b[1] - a[1]);
+      var maxCount = sorted.length ? sorted[0][1] : 1;
+      chartEl.innerHTML = sorted.map(([tag, count]) => {
+        var name = tagMap[tag] ? tagMap[tag].name : tag;
+        var pct = Math.round(count / maxCount * 100);
+        return '<div class="dash-tag-row">'
+          + '<span class="dash-tag-name">' + esc(name) + '</span>'
+          + '<div class="dash-tag-bar"><div class="dash-tag-bar-fill" style="width:' + pct + '%"></div></div>'
+          + '<span class="dash-tag-count">' + count + '</span></div>';
+      }).join('');
+    }
+  }
+
+  // ══════════════════════════════════════════
+  // GA4 Analytics
+  // ══════════════════════════════════════════
+  var GA4_CLIENT_ID = '467437389950-qrebohqlip4v9n3opabot3ddeqjac4o6.apps.googleusercontent.com';
+  var GA4_PROPERTY_ID = '379774110';
+  var _ga4Token = null;
+
+  document.getElementById('ga4-login').addEventListener('click', function() {
+    var client = google.accounts.oauth2.initTokenClient({
+      client_id: GA4_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/analytics.readonly',
+      callback: function(response) {
+        if (response.access_token) {
+          _ga4Token = response.access_token;
+          document.getElementById('ga4-auth').innerHTML = '<span style="color:var(--green);font-size:0.75rem;">✓ 接続済み</span>';
+          document.getElementById('ga4-data').style.display = 'block';
+          fetchGA4Data();
+        }
+      }
+    });
+    client.requestAccessToken();
+  });
+
+  function fetchGA4Data() {
+    if (!_ga4Token) return;
+    var url = 'https://analyticsdata.googleapis.com/v1beta/properties/' + GA4_PROPERTY_ID + ':runReport';
+
+    // 1. 基本指標（過去7日間）
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _ga4Token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+        metrics: [
+          { name: 'activeUsers' },
+          { name: 'screenPageViews' },
+          { name: 'sessions' },
+          { name: 'averageSessionDuration' }
+        ]
+      })
+    }).then(r => r.json()).then(data => {
+      var row = data.rows && data.rows[0] ? data.rows[0].metricValues : [];
+      var users = row[0] ? row[0].value : '—';
+      var views = row[1] ? row[1].value : '—';
+      var sessions = row[2] ? row[2].value : '—';
+      var avgDur = row[3] ? Math.round(parseFloat(row[3].value)) : 0;
+      var durMin = Math.floor(avgDur / 60);
+      var durSec = avgDur % 60;
+
+      document.getElementById('ga4-stats').innerHTML =
+        '<div class="dash-card"><div class="dash-card__num dash-card__num--green">' + users + '</div><div class="dash-card__label">ユーザー（7日間）</div></div>' +
+        '<div class="dash-card"><div class="dash-card__num dash-card__num--blue">' + views + '</div><div class="dash-card__label">ページビュー</div></div>' +
+        '<div class="dash-card"><div class="dash-card__num dash-card__num--gold">' + sessions + '</div><div class="dash-card__label">セッション</div></div>' +
+        '<div class="dash-card"><div class="dash-card__num dash-card__num--green">' + durMin + ':' + (durSec < 10 ? '0' : '') + durSec + '</div><div class="dash-card__label">平均滞在時間</div></div>';
+    }).catch(e => {
+      document.getElementById('ga4-stats').innerHTML = '<p style="color:var(--red);font-size:0.75rem;">エラー: ' + esc(e.message) + '</p>';
+    });
+
+    // 2. 人気ページ
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _ga4Token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'pagePath' }],
+        metrics: [{ name: 'screenPageViews' }],
+        orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+        limit: 15
+      })
+    }).then(r => r.json()).then(data => {
+      var rows = data.rows || [];
+      var maxVal = rows.length ? parseInt(rows[0].metricValues[0].value) : 1;
+      document.getElementById('ga4-pages').innerHTML = rows.map(row => {
+        var path = row.dimensionValues[0].value;
+        var views = parseInt(row.metricValues[0].value);
+        var pct = Math.round(views / maxVal * 100);
+        return '<div class="dash-tag-row">'
+          + '<span class="dash-tag-name" style="min-width:180px;text-align:left;font-size:0.7rem;">' + esc(path) + '</span>'
+          + '<div class="dash-tag-bar"><div class="dash-tag-bar-fill" style="width:' + pct + '%;background:var(--blue)"></div></div>'
+          + '<span class="dash-tag-count">' + views + '</span></div>';
+      }).join('');
+    }).catch(() => {});
+
+    // 3. 流入元
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + _ga4Token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'sessionSource' }],
+        metrics: [{ name: 'sessions' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 10
+      })
+    }).then(r => r.json()).then(data => {
+      var rows = data.rows || [];
+      var maxVal = rows.length ? parseInt(rows[0].metricValues[0].value) : 1;
+      document.getElementById('ga4-sources').innerHTML = rows.map(row => {
+        var source = row.dimensionValues[0].value;
+        var sessions = parseInt(row.metricValues[0].value);
+        var pct = Math.round(sessions / maxVal * 100);
+        return '<div class="dash-tag-row">'
+          + '<span class="dash-tag-name" style="min-width:120px;">' + esc(source) + '</span>'
+          + '<div class="dash-tag-bar"><div class="dash-tag-bar-fill" style="width:' + pct + '%;background:var(--gold)"></div></div>'
+          + '<span class="dash-tag-count">' + sessions + '</span></div>';
+      }).join('');
+    }).catch(() => {});
+  }
+
+  // ══════════════════════════════════════════
+  // SNS投稿
+  // ══════════════════════════════════════════
+  function renderSnsList(filter) {
+    var list = document.getElementById('sns-list');
+    var q = (filter || '').toLowerCase();
+    var filtered = tracks.filter(t => !q || (t.title || '').includes(q) || t.id.includes(q) || (t.title_en || '').toLowerCase().includes(q));
+    document.getElementById('sns-count').textContent = filtered.length + ' 曲';
+    list.innerHTML = filtered.map(t => {
+      return '<div class="sidebar-item" data-id="' + t.id + '">'
+        + '<span class="sidebar-item__id">' + t.id + '</span>'
+        + '<span class="sidebar-item__title">' + esc(t.title || t.id) + '</span></div>';
+    }).join('');
+  }
+
+  function renderSnsEditor(trackId) {
+    var t = getTrack(trackId);
+    if (!t) return;
+    var ed = document.getElementById('sns-editor');
+    var title = t.title || t.id;
+    var titleEn = t.title_en || title;
+    var tags = [].concat(t.feeling||[], t.style||[], t.scene||[]);
+    var tagNames = tags.map(tag => tagMap[tag] ? tagMap[tag].name : tag).join('・');
+    var url = 'https://www.hmix.net/music/' + t.id + '.html';
+
+    // ハッシュタグ生成
+    var hashMap = {
+      japanese:'#和風BGM', fantasy:'#ファンタジーBGM', scary:'#ホラーBGM',
+      sad:'#感動BGM', gentle:'#癒しBGM', epic:'#壮大BGM', battle:'#戦闘BGM',
+      celtic:'#ケルトBGM', japanese_horror:'#和風ホラーBGM', western_horror:'#洋風ホラーBGM'
+    };
+    var hashtags = ['#フリーBGM', '#HMIXGALLERY'];
+    tags.forEach(tag => { if (hashMap[tag]) hashtags.push(hashMap[tag]); });
+    var hashStr = hashtags.slice(0, 6).join(' ');
+
+    // 投稿テンプレート生成
+    var templates = [
+      {
+        label: 'X 日本語（楽曲紹介）',
+        text: '🎵 ' + title + '\n\n'
+          + (tagNames ? tagNames + 'の雰囲気。\n' : '')
+          + (t.description ? t.description.slice(0, 80) + '\n\n' : '\n')
+          + 'YouTube・ゲーム・映像に無料で使えます。\n'
+          + url + '\n\n'
+          + hashStr
+      },
+      {
+        label: 'X 日本語（短縮版）',
+        text: '🎵 ' + title + ' / H/MIX GALLERY\n'
+          + (tagNames ? tagNames + '\n' : '')
+          + '無料DL → ' + url + '\n'
+          + hashStr
+      },
+      {
+        label: 'X English',
+        text: '🎵 ' + titleEn + '\n\n'
+          + 'Free BGM for YouTube, games & films.\n'
+          + 'Composed by Hirokazu Akiyama.\n\n'
+          + url + '\n\n'
+          + '#FreeBGM #JapaneseMusic #HMIXGALLERY'
+      },
+      {
+        label: 'YouTube概要欄クレジット',
+        text: 'BGM：' + title + ' / H/MIX GALLERY（秋山裕和）\nhttps://www.hmix.net'
+      },
+      {
+        label: 'ハッシュタグ',
+        text: hashStr
+      }
+    ];
+
+    var html = '<div style="padding:0 0 12px;"><h3 style="color:var(--gold);font-size:1rem;">' + esc(title) + '</h3>'
+      + '<p style="font-size:0.75rem;color:var(--text-dim);">' + esc(titleEn) + ' / ' + t.id
+      + (t.duration ? ' / ' + t.duration : '') + '</p>'
+      + '<p style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">' + esc(tagNames) + '</p></div>';
+
+    templates.forEach(tmpl => {
+      html += '<div class="sns-preview">'
+        + '<div class="sns-preview__label">' + esc(tmpl.label) + ' <button class="sns-preview__copy" data-text="' + esc(tmpl.text).replace(/\n/g, '&#10;') + '">コピー</button></div>'
+        + '<div class="sns-preview__text">' + esc(tmpl.text) + '</div>'
+        + '</div>';
+    });
+
+    // X直接投稿リンク
+    var xText = encodeURIComponent(templates[0].text);
+    html += '<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">'
+      + '<a href="https://twitter.com/intent/tweet?text=' + xText + '" target="_blank" class="btn" style="color:var(--text);">X で投稿 →</a>'
+      + '<a href="' + esc(url) + '" target="_blank" class="btn" style="color:var(--text);">楽曲ページを開く →</a>'
+      + '</div>';
+
+    ed.innerHTML = html;
+
+    // コピーボタン
+    ed.querySelectorAll('.sns-preview__copy').forEach(btn => {
+      btn.addEventListener('click', function() {
+        navigator.clipboard.writeText(btn.dataset.text).then(() => {
+          btn.textContent = '✓ コピー済み';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'コピー'; btn.classList.remove('copied'); }, 2000);
+        });
+      });
+    });
+  }
+
+  document.getElementById('sns-list').addEventListener('click', e => {
+    var item = e.target.closest('.sidebar-item');
+    if (item) renderSnsEditor(item.dataset.id);
+  });
+  document.getElementById('sns-search').addEventListener('input', e => renderSnsList(e.target.value));
+
+  // ── Init ──
+  renderDashboard();
+  renderTrackList('');
+  renderTagList('');
+  renderDescList('');
+  renderSnsList('');
+  initAssignView();
+  updateStats();
+
+  // Keyboard: arrow down/up in desc view
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && document.getElementById('desc-next')) document.getElementById('desc-next').click();
+    if (e.key === 'ArrowLeft' && document.getElementById('desc-prev')) document.getElementById('desc-prev').click();
+  });
+})();
+</script>
+
+<!-- ============ 足跡管理 (Firebase + Google Auth) ============ -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+import {
+  getFirestore, collection, query, orderBy, limit, getDocs, getDoc,
+  doc, updateDoc, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBczT5L6PRDJOVAGy3DQ61l-UFbAqI6ESg",
+  authDomain: "hmix-footprints.firebaseapp.com",
+  projectId: "hmix-footprints",
+  storageBucket: "hmix-footprints.firebasestorage.app",
+  messagingSenderId: "477684733173",
+  appId: "1:477684733173:web:ae0d0986a92a426b08e1bc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let _currentUser = null;
+let _isAdmin = false;          // admins コレクションに uid があれば true
+let _allFootprints = [];
+
+const $$ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+const fmtDate = ts => {
+  if (!ts) return '—';
+  try {
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  } catch(e) { return '—'; }
+};
+
+// ───────── 認証 ─────────
+$$('fp-login').addEventListener('click', async () => {
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    alert('ログイン失敗: ' + (e.message || e));
+  }
+});
+$$('fp-logout').addEventListener('click', async () => {
+  try { await signOut(auth); } catch(e) {}
+});
+
+onAuthStateChanged(auth, async (user) => {
+  _currentUser = user;
+  _isAdmin = false;
+  if (user) {
+    // admins/{uid} ドキュメントが存在すれば管理者
+    try {
+      const snap = await getDoc(doc(db, 'admins', user.uid));
+      _isAdmin = snap.exists();
+    } catch(e) {
+      console.warn('admin check failed:', e);
+      _isAdmin = false;
+    }
+  }
+  updateAuthUI();
+  if (_isAdmin) loadFootprints();
+});
+
+function updateAuthUI() {
+  const status = $$('fp-auth-status');
+  if (!_currentUser) {
+    status.innerHTML = '<span style="color:var(--text-dim);">Firebase 未ログイン</span>';
+    $$('fp-login').style.display = '';
+    $$('fp-logout').style.display = 'none';
+    return;
+  }
+  const badge = _isAdmin
+    ? '<span style="color:#7ba583;">✓ 管理者</span>'
+    : '<span style="color:#e5a14b;">⚠ 非管理者 (admins 未登録)</span>';
+  status.innerHTML = `${esc(_currentUser.displayName || _currentUser.email || 'unknown')} · ${badge}`;
+  $$('fp-login').style.display = 'none';
+  $$('fp-logout').style.display = '';
+  if (!_isAdmin) {
+    $$('fp-list').innerHTML = `<div style="text-align:center;color:#e5a14b;padding:40px;font-size:0.82rem;line-height:1.8;">
+      管理者権限がありません。<br>
+      <span style="color:var(--text-dim);font-size:0.72rem;">
+        Firestore の <code style="color:var(--gold,#d4a44c);">admins</code> コレクションに<br>
+        ドキュメントID <code style="color:var(--gold,#d4a44c);">${esc(_currentUser.uid)}</code> を作成してください。
+      </span>
+    </div>`;
+  }
+}
+
+// ───────── 足跡取得 ─────────
+async function loadFootprints() {
+  if (!_currentUser || !_isAdmin) return;
+  const listEl = $$('fp-list');
+  listEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:20px;">読み込み中...</div>';
+  try {
+    // hidden=false と hidden=true の両方を取得するため orderBy 単独で取得 (ルールで管理者は全件読めると想定)
+    const q = query(collection(db, 'footprints'), orderBy('createdAt', 'desc'), limit(500));
+    const snap = await getDocs(q);
+    _allFootprints = [];
+    snap.forEach(docSnap => {
+      _allFootprints.push({ id: docSnap.id, ...docSnap.data() });
+    });
+    renderFootprintList();
+  } catch (e) {
+    console.error(e);
+    listEl.innerHTML = `<div style="color:#e97a7a;padding:20px;">読み込み失敗: ${esc(e.message || e)}</div>`;
+  }
+}
+
+$$('fp-reload').addEventListener('click', loadFootprints);
+$$('fp-filter-reported').addEventListener('change', renderFootprintList);
+$$('fp-filter-hidden').addEventListener('change', renderFootprintList);
+
+function renderFootprintList() {
+  const showHidden = $$('fp-filter-hidden').checked;
+  const reportedFirst = $$('fp-filter-reported').checked;
+
+  // フィルター
+  let list = _allFootprints.slice();
+  if (!showHidden) list = list.filter(f => !f.hidden);
+
+  // ソート: 通報優先なら reports desc → createdAt desc
+  if (reportedFirst) {
+    list.sort((a, b) => {
+      const ra = a.reports || 0, rb = b.reports || 0;
+      if (rb !== ra) return rb - ra;
+      const ta = a.createdAt?.toMillis?.() || 0;
+      const tb = b.createdAt?.toMillis?.() || 0;
+      return tb - ta;
+    });
+  }
+
+  // 統計
+  const total = _allFootprints.length;
+  const reported = _allFootprints.filter(f => (f.reports || 0) > 0).length;
+  const hiddenCnt = _allFootprints.filter(f => f.hidden).length;
+  $$('fp-total').textContent = total;
+  $$('fp-reported-count').textContent = reported;
+  $$('fp-hidden-count').textContent = hiddenCnt;
+
+  // 描画
+  const listEl = $$('fp-list');
+  if (list.length === 0) {
+    listEl.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px;">該当する足跡がありません</div>';
+    return;
+  }
+  listEl.innerHTML = list.map(f => {
+    const reports = f.reports || 0;
+    const cls = [
+      'fp-card',
+      reports > 0 ? 'has-reports' : '',
+      f.hidden ? 'is-hidden' : ''
+    ].filter(Boolean).join(' ');
+    const actionLabel = f.hidden ? '表示に戻す' : '非表示にする';
+    return `
+      <div class="${cls}" data-id="${esc(f.id)}">
+        <div>
+          <div class="fp-msg">${esc(f.message || '')}</div>
+          <div class="fp-meta">
+            <span>— ${esc(f.author || '旅人')}</span>
+            <span class="fp-scene">${esc(f.sceneName || f.sceneId || '')}</span>
+            <span>${fmtDate(f.createdAt)}</span>
+            ${reports > 0 ? `<span class="fp-reports">通報 ${reports}</span>` : ''}
+            ${f.hidden ? '<span class="fp-hidden-label">● 非表示中</span>' : ''}
+          </div>
+        </div>
+        <div class="fp-actions">
+          <button class="btn fp-toggle" data-id="${esc(f.id)}" data-hidden="${f.hidden ? '1' : '0'}">${actionLabel}</button>
+          ${reports > 0 ? `<button class="btn fp-reset-reports" data-id="${esc(f.id)}" title="通報カウンタをクリア">通報クリア</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  listEl.querySelectorAll('.fp-toggle').forEach(btn => {
+    btn.addEventListener('click', () => handleToggleHidden(btn.dataset.id, btn.dataset.hidden === '1'));
+  });
+  listEl.querySelectorAll('.fp-reset-reports').forEach(btn => {
+    btn.addEventListener('click', () => handleResetReports(btn.dataset.id));
+  });
+}
+
+async function handleToggleHidden(id, isCurrentlyHidden) {
+  const newHidden = !isCurrentlyHidden;
+  const label = newHidden ? 'この足跡を非表示にしますか?\n(ユーザーから見えなくなります)' : 'この足跡を再表示しますか?';
+  if (!confirm(label)) return;
+  try {
+    await updateDoc(doc(db, 'footprints', id), {
+      hidden: newHidden,
+      moderatedAt: serverTimestamp(),
+      moderatedBy: _currentUser.uid
+    });
+    // ローカルキャッシュ更新
+    const item = _allFootprints.find(f => f.id === id);
+    if (item) item.hidden = newHidden;
+    renderFootprintList();
+  } catch (e) {
+    alert('更新失敗: ' + (e.message || e));
+  }
+}
+
+async function handleResetReports(id) {
+  if (!confirm('通報カウンタを 0 に戻しますか？')) return;
+  try {
+    await updateDoc(doc(db, 'footprints', id), { reports: 0 });
+    const item = _allFootprints.find(f => f.id === id);
+    if (item) item.reports = 0;
+    renderFootprintList();
+  } catch (e) {
+    alert('更新失敗: ' + (e.message || e));
+  }
+}
+</script>
+
+</body>
+</html>

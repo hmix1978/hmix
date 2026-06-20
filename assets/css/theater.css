@@ -1,0 +1,1721 @@
+/* ============================================================
+   THEATER MODE (FEATURED MUSIC IMPERSIVE EXPERIENCE)
+   ============================================================ */
+
+/* INP改善: theater open時のbody固定をクラスで一括適用 */
+body.theater-body-lock {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  top: var(--theater-scroll-y, 0px);
+}
+
+.theater-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  /* visibility:hidden で非表示中は一切描画しない（bg-journey フラッシュ防止）*/
+  visibility: hidden;
+  transition: opacity 1.5s ease, visibility 0s linear 1.5s;
+}
+
+.theater-modal.is-open {
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 1.5s ease, visibility 0s linear 0s;
+}
+
+.theater-bg {
+  position: absolute;
+  inset: 0;
+  /* 微かな星の光 — 完全な闇ではなく宇宙的な空間 */
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(154, 223, 180, 0.15), transparent),
+    radial-gradient(1px 1px at 80% 70%, rgba(154, 223, 180, 0.10), transparent),
+    radial-gradient(1px 1px at 50% 10%, rgba(200, 230, 210, 0.12), transparent),
+    radial-gradient(1px 1px at 10% 80%, rgba(154, 223, 180, 0.08), transparent),
+    radial-gradient(1.5px 1.5px at 65% 45%, rgba(200, 230, 210, 0.10), transparent),
+    radial-gradient(1px 1px at 35% 90%, rgba(154, 223, 180, 0.12), transparent),
+    radial-gradient(0.8px 0.8px at 92% 15%, rgba(180, 240, 200, 0.10), transparent),
+    radial-gradient(1px 1px at 45% 65%, rgba(154, 223, 180, 0.08), transparent),
+    #030403;
+  z-index: 1;
+  transition: background 1.5s ease;
+}
+
+.theater-window {
+  position: relative;
+  z-index: 2;
+  width: min(94vw, 1300px);
+  aspect-ratio: 16 / 9;
+  transform: scale(0.95);
+  transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.theater-modal.is-open .theater-window {
+  transform: scale(1);
+}
+
+/* Removed hard glass border for seamless portal effect */
+
+.theater-scenery {
+  position: absolute;
+  inset: -15%; /* 枠をさらに広げ、フェードの距離を十分に確保 */
+  background-image: url('../images/history/bg-journey.png');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.8) contrast(1.1);
+  transition: filter 2s ease;
+  /* 複数のポイントで透明度をコントロールし、圧倒的に滑らかなグラデーションを作る */
+  mask-image: radial-gradient(ellipse at center, 
+    rgba(0,0,0,1) 15%, 
+    rgba(0,0,0,0.8) 35%, 
+    rgba(0,0,0,0.3) 55%, 
+    rgba(0,0,0,0) 72%
+  );
+  -webkit-mask-image: radial-gradient(ellipse at center, 
+    rgba(0,0,0,1) 15%, 
+    rgba(0,0,0,0.8) 35%, 
+    rgba(0,0,0,0.3) 55%, 
+    rgba(0,0,0,0) 72%
+  );
+}
+
+/* scenery 周縁のリムライト — 窓枠が光る */
+.theater-scenery::after {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(100, 180, 130, 0.03) 52%,
+    rgba(80, 160, 110, 0.06) 56%,
+    rgba(60, 140, 90, 0.03) 62%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Particles layer (fireflies) */
+.theater-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* UI Layer */
+.theater-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 3rem;
+  opacity: 0;
+  pointer-events: none; /* Let clicks pass through the invisible parts */
+  transition: opacity 1.2s ease 0.5s;
+}
+
+.theater-modal.is-open .theater-ui {
+  opacity: 1;
+}
+
+.theater-top, .theater-bottom {
+  pointer-events: auto; /* Buttons remain clickable */
+}
+
+.theater-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.theater-controls-top {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* ── 帰還 + 全画面のペア ─────────────────────────────── */
+.theater-controls-top-pair {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 1px;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.theater-controls-top-pair__sep {
+  display: block;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
+}
+
+.theater-return-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.4rem 1.4rem;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  border-radius: 0;
+}
+
+.theater-return-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  letter-spacing: 0.32em;
+}
+
+.theater-fullscreen-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.4rem 1.1rem;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.theater-fullscreen-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  letter-spacing: 0.28em;
+}
+
+.theater-close {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 22px;
+  padding: 6px 14px 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+.theater-close__label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.theater-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.90);
+}
+
+/* 全画面ボタン：物語性 */
+.theater-fullscreen-btn--story {
+  position: relative;
+}
+.theater-fullscreen-btn--story::after {
+  content: '— すりガラスの向こうへ';
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.62rem;
+  color: rgba(200, 220, 210, 0.40);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.theater-fullscreen-btn--story:hover::after {
+  opacity: 1;
+}
+
+.theater-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: relative;
+}
+
+.theater-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.theater-title {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 2rem;
+  font-weight: 300;
+  color: rgba(255, 250, 240, 0.95);
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+  margin: 0;
+}
+
+.theater-composer {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+.theater-play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(8px);
+}
+.theater-play-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.1);
+}
+
+.theater-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.theater-sub-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  text-decoration: none;
+}
+.theater-sub-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+.theater-btn-fav.is-fav {
+  color: #e25555;
+}
+.theater-btn-fav.is-fav .icon-fav-off { display: none; }
+.theater-btn-fav.is-fav .icon-fav-on { display: block !important; }
+
+/* Navigation Arrows */
+@keyframes nav-float-prev {
+  0%, 100% { transform: translateY(-50%) translateX(0); box-shadow: 0 0 0 rgba(255,255,255,0); opacity: 0.6; }
+  50%      { transform: translateY(-50%) translateX(-10px); box-shadow: 0 0 20px rgba(255,255,255,0.15); opacity: 1; }
+}
+@keyframes nav-float-next {
+  0%, 100% { transform: translateY(-50%) translateX(0); box-shadow: 0 0 0 rgba(255,255,255,0); opacity: 0.6; }
+  50%      { transform: translateY(-50%) translateX(10px); box-shadow: 0 0 20px rgba(255,255,255,0.15); opacity: 1; }
+}
+
+.theater-nav {
+  position: absolute;
+  top: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  z-index: 20;
+}
+.theater-nav-prev {
+  left: 3vw;
+  animation: nav-float-prev 3s ease-in-out infinite;
+}
+.theater-nav-next {
+  right: 3vw;
+  animation: nav-float-next 3s ease-in-out infinite;
+}
+.theater-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+  animation-play-state: paused;
+  transform: translateY(-50%) scale(1.15) !important;
+  box-shadow: 0 0 30px rgba(255,255,255,0.3) !important;
+  opacity: 1 !important;
+}
+
+/* Feature Music entry point (Theater Gate) */
+.featured-music {
+  padding: 8rem 0 4rem;
+  position: relative;
+  overflow: hidden;
+  background: #030403;
+}
+
+/* 奥からの光漏れ — 深緑の呼吸する光 */
+.featured-music::before {
+  content: '';
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  width: 80%;
+  height: 70%;
+  background: radial-gradient(
+    ellipse 50% 40% at 50% 50%,
+    rgba(100, 180, 130, 0.06) 0%,
+    rgba(80, 160, 110, 0.03) 40%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: gateGlowDrift 12s ease-in-out infinite;
+}
+
+/* 上下ビネット + 中央の微かな光 */
+.featured-music::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 30% 60% at 50% 60%, rgba(60, 140, 90, 0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 20% at 50% 0%, rgba(4, 12, 8, 0.90) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 20% at 50% 100%, rgba(4, 12, 8, 0.90) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes gateGlowDrift {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 0.7; transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* Updated Gate Design */
+.fm-card {
+  position: relative;
+  width: min(100%, 1000px);
+  margin: 4rem auto 0;
+  aspect-ratio: 21 / 9;
+  min-height: 380px;
+  cursor: pointer;
+  border-radius: 4px;
+  background: #000;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* リムライト — 門の縁が微かに光る */
+.fm-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 4px;
+  background: linear-gradient(
+    to bottom,
+    rgba(100, 180, 130, 0.12) 0%,
+    transparent 15%,
+    transparent 85%,
+    rgba(100, 180, 130, 0.08) 100%
+  );
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity 1s ease;
+}
+
+.fm-card:hover::before {
+  opacity: 1;
+}
+
+.fm-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: rgba(100, 180, 130, 0.15);
+  box-shadow:
+    0 50px 120px rgba(0, 0, 0, 1),
+    0 0 40px rgba(100, 180, 130, 0.08),
+    0 0 100px rgba(60, 140, 90, 0.04);
+}
+
+.fm-card-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  filter: grayscale(0.5) brightness(0.6);
+  transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fm-card:hover .fm-card-bg {
+  opacity: 0.6;
+  filter: grayscale(0.2) brightness(0.8);
+  transform: scale(1.05);
+}
+
+.fm-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.fm-card-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  pointer-events: none; /* Make clicks pass to .fm-card */
+}
+
+.fm-tag {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  color: rgba(154, 223, 180, 0.50);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.fm-title {
+  font-family: var(--font-serif-jp, serif);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 200;
+  color: #fff;
+  letter-spacing: 0.2em;
+  margin: 0;
+  text-shadow: 0 0 30px rgba(0,0,0,0.5);
+  transition: all 0.8s ease;
+}
+
+.fm-card:hover .fm-title {
+  letter-spacing: 0.25em;
+  text-shadow: 0 0 40px rgba(100, 180, 130, 0.25);
+}
+
+.fm-composer {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.3);
+  margin: 0;
+}
+
+.fm-play-indicator {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.5s ease;
+}
+
+.fm-play-indicator svg {
+  opacity: 0.5;
+  transition: all 0.5s ease;
+}
+
+.fm-card:hover .fm-play-indicator {
+  color: #fff;
+}
+.fm-card:hover .fm-play-indicator svg {
+  opacity: 1;
+  transform: translateX(4px);
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+}
+
+
+/* Fullscreen Special States */
+.theater-modal.is-fullscreen .theater-window {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  aspect-ratio: auto;
+  transform: scale(1) !important;
+}
+
+.theater-modal.is-fullscreen .theater-scenery {
+  inset: 0;
+  mask-image: none;
+  -webkit-mask-image: none;
+  filter: brightness(0.9) contrast(1.1);
+}
+
+.theater-modal.is-fullscreen .theater-ui {
+  padding: clamp(2rem, 8vh, 6rem) clamp(2rem, 8vw, 8rem);
+}
+
+.theater-modal.is-fullscreen .theater-title {
+  font-size: clamp(2rem, 6vh, 4rem);
+}
+
+.theater-modal.is-fullscreen .theater-nav-prev { left: 5vw; }
+.theater-modal.is-fullscreen .theater-nav-next { right: 5vw; }
+
+/* 全画面中：縮小ボタンをグレーアウト（帰還が主アクション） */
+.theater-modal.is-fullscreen .theater-fullscreen-btn {
+  color: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  cursor: default;
+}
+.theater-modal.is-fullscreen .theater-controls-top-pair__sep {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Scene button (top-left) ───────────────────────────── */
+.theater-controls-top-left {
+  display: flex;
+  align-items: center;
+}
+
+.theater-scene-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.4rem 1.2rem;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  border-radius: 1px;
+  backdrop-filter: blur(4px);
+}
+.theater-scene-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+/* ── Info area (left column of theater-bottom) ─────────── */
+.theater-info-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+  max-width: 55%;
+}
+
+/* ── Seekbar ───────────────────────────────────────────── */
+.theater-seekbar-area {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.theater-time {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+  min-width: 2.4em;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.theater-seekbar {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  transition: height 0.2s ease;
+}
+.theater-seekbar:hover {
+  height: 5px;
+}
+.theater-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(255,255,255,0.4);
+  transition: transform 0.15s ease;
+}
+.theater-seekbar:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.theater-seekbar::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  border: none;
+}
+.theater-seekbar::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+}
+
+/* ── License area ──────────────────────────────────────── */
+.theater-license-area {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.theater-license-text {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.theater-license-link {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(209, 184, 122, 0.7);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(209, 184, 122, 0.3);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+.theater-license-link:hover {
+  color: rgba(209, 184, 122, 1);
+  border-bottom-color: rgba(209, 184, 122, 0.8);
+}
+
+/* ── Loop / Share buttons ──────────────────────────────── */
+.theater-btn-loop {
+  color: rgba(255, 255, 255, 0.35);
+}
+.theater-btn-loop.is-active {
+  color: rgba(140, 210, 170, 0.9);
+  background: rgba(140, 210, 170, 0.08);
+}
+
+.theater-btn-share {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ── Ken Burns effect ──────────────────────────────────── */
+@keyframes kenburns {
+  0%   { background-position: 50% 50%; transform: scale(1.00); }
+  25%  { background-position: 48% 52%; transform: scale(1.05); }
+  50%  { background-position: 52% 48%; transform: scale(1.07); }
+  75%  { background-position: 49% 51%; transform: scale(1.04); }
+  100% { background-position: 50% 50%; transform: scale(1.00); }
+}
+
+.theater-modal.is-playing .theater-scenery {
+  animation: kenburns 35s ease-in-out infinite;
+}
+
+/* 再生中: 底部に音楽の光が灯る */
+.theater-modal.is-playing .theater-bottom::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 120px;
+  background: radial-gradient(
+    ellipse 60% 80% at 50% 100%,
+    rgba(100, 180, 130, 0.06) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: playGlow 4s ease-in-out infinite;
+}
+
+@keyframes playGlow {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+
+/* ── Scene Picker — Left Side Panel ─────────────────────── */
+.theater-scene-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  background: rgba(4, 4, 3, 0.92);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.theater-scene-picker[hidden] {
+  display: flex !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+.theater-scene-picker.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.theater-scene-picker__header {
+  display: flex;
+  align-items: center;
+  padding: 1.1rem 1.2rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.theater-scene-picker__title {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  flex: 1;
+}
+
+.theater-scene-picker__close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.theater-scene-picker__close:hover { color: rgba(255, 255, 255, 0.8); }
+
+.theater-scene-picker__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.6rem 0 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+.theater-scene-picker__body::-webkit-scrollbar { width: 3px; }
+.theater-scene-picker__body::-webkit-scrollbar-track { background: transparent; }
+.theater-scene-picker__body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+/* カテゴリグループ */
+.theater-scene-group {
+  padding: 0.5rem 0 0.3rem;
+}
+.theater-scene-group + .theater-scene-group {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.theater-scene-group__label {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.25);
+  padding: 0.3rem 1.2rem 0.4rem;
+  text-transform: uppercase;
+}
+
+.theater-scene-group__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.2rem 1rem 0.4rem;
+}
+
+.theater-scene-tag {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.3rem 0.75rem;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 1px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.theater-scene-tag:hover {
+  background: rgba(209, 184, 122, 0.1);
+  border-color: rgba(209, 184, 122, 0.4);
+  color: rgba(209, 184, 122, 0.95);
+}
+
+/* ── Controls top-left gap ───────────────────────────────── */
+.theater-controls-top-left {
+  gap: 0.7rem;
+}
+
+/* ── Volume bar ──────────────────────────────────────────── */
+.theater-volume-area {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.4rem;
+}
+
+.theater-volume-bar {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+  cursor: pointer;
+  outline: none;
+  transition: height 0.15s ease;
+}
+.theater-volume-bar:hover {
+  height: 5px;
+}
+.theater-volume-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.4);
+  transition: transform 0.15s ease;
+}
+.theater-volume-bar:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.theater-volume-bar::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  cursor: pointer;
+}
+.theater-volume-bar::-webkit-slider-runnable-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 2px;
+}
+
+/* ── Auto-hide controls (cinema mode) ───────────────────── */
+.theater-top,
+.theater-bottom {
+  transition: opacity 0.5s ease;
+}
+
+.theater-modal.controls-hidden .theater-top,
+.theater-modal.controls-hidden .theater-bottom {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.theater-modal.controls-hidden .theater-nav {
+  opacity: 0 !important;
+  pointer-events: none;
+  animation: none !important;
+  transition: opacity 0.8s ease !important;
+}
+
+.theater-modal.controls-hidden {
+  cursor: none;
+}
+
+/* ── UI非表示時：曲名と作曲者名を残す ── */
+.theater-breath-light {
+  position: fixed;
+  bottom: 32px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10001;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.theater-modal.controls-hidden .theater-breath-light {
+  opacity: 1;
+}
+.theater-modal:not(.controls-hidden) .theater-breath-light,
+.theater-modal.theater-opening .theater-breath-light {
+  opacity: 0;
+}
+.theater-breath-light__title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: rgba(230, 245, 235, 0.90);
+  text-shadow:
+    0 0 20px rgba(200, 230, 210, 0.40),
+    0 0 40px rgba(154, 223, 180, 0.25),
+    0 0 80px rgba(154, 223, 180, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.60);
+  animation: theaterTitleGlow 4s ease-in-out infinite;
+}
+.theater-breath-light__composer {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: rgba(180, 210, 190, 0.45);
+  margin-top: 6px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+}
+@keyframes theaterTitleGlow {
+  0%, 100% {
+    text-shadow:
+      0 0 15px rgba(200, 230, 210, 0.30),
+      0 0 30px rgba(154, 223, 180, 0.15),
+      0 2px 8px rgba(0, 0, 0, 0.60);
+  }
+  50% {
+    text-shadow:
+      0 0 25px rgba(200, 230, 210, 0.55),
+      0 0 50px rgba(154, 223, 180, 0.30),
+      0 0 100px rgba(154, 223, 180, 0.15),
+      0 2px 8px rgba(0, 0, 0, 0.60);
+  }
+}
+
+/* ── 開場シーケンス中：UIを完全に隠す ── */
+.theater-modal.theater-opening .theater-top,
+.theater-modal.theater-opening .theater-bottom,
+.theater-modal.theater-opening .theater-nav {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: none !important;
+}
+.theater-modal.theater-opening {
+  cursor: default;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Mobile — Portrait (〜768px)
+   PC版を縮小するのではなく、モバイル専用レイアウトとして再設計
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── ウィンドウをビューポート全体に ── */
+  .theater-window {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: unset;
+    transform: none !important;
+    border-radius: 0;
+  }
+  .theater-modal.is-open .theater-window {
+    transform: none !important;
+  }
+  .theater-scenery {
+    inset: 0;
+    mask-image: none;
+    -webkit-mask-image: none;
+    filter: brightness(0.72) contrast(1.05);
+  }
+
+  /* ── UI レイヤー：パディングをゼロにして各セクションが管理 ── */
+  .theater-ui {
+    padding: 0;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* ══ TOP BAR ══
+     左: 情景ボタンのみ（小）
+     右: 帰還 + × 閉じる                    */
+  .theater-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    min-height: 52px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 100%);
+    flex-shrink: 0;
+  }
+
+  /* 左側：情景ボタンのみ表示。お気に入り・足跡ボタンは非表示 */
+  .theater-controls-top-left {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .theater-fav-list-btn,
+  .theater-footprints-btn {
+    display: none;
+  }
+  .theater-scene-btn {
+    font-size: 0.63rem;
+    padding: 0.28rem 0.6rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  /* お気に入りボタンだけモバイルでも表示 */
+  .theater-fav-list-btn {
+    display: flex;
+  }
+
+  /* 右側：帰還ボタン + × */
+  .theater-controls-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .theater-controls-top-pair {
+    display: flex;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  /* モバイルは全画面ボタン・セパレータを非表示（iOS Fullscreen API非対応） */
+  .theater-fullscreen-btn,
+  .theater-controls-top-pair__sep {
+    display: none;
+  }
+  .theater-fullscreen-btn--story::after {
+    display: none;
+  }
+  .theater-return-btn {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.8rem;
+    letter-spacing: 0.12em;
+    border: none;
+  }
+  /* 閉じるボタン：モバイルではラベルを隠してアイコンのみ */
+  .theater-close {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+  .theater-close__label {
+    display: none;
+  }
+
+  /* ══ NAV 矢印：両端に寄せ、コンテンツと干渉しないサイズに ══ */
+  .theater-nav {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+    animation-play-state: paused; /* モバイルはフロートアニメ停止 */
+  }
+  .theater-nav svg {
+    width: 22px;
+    height: 22px;
+  }
+  .theater-nav-prev {
+    left: 0;
+    animation: none;
+  }
+  .theater-nav-next {
+    right: 0;
+    animation: none;
+  }
+
+  /* ══ BOTTOM：曲情報 → シークバー → ボタン群（縦積み） ══ */
+  .theater-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 12px 20px max(16px, env(safe-area-inset-bottom, 16px));
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    flex-shrink: 0;
+  }
+
+  /* 曲情報エリア：全幅 */
+  .theater-info-area {
+    max-width: 100%;
+    gap: 0.3rem;
+  }
+  .theater-info {
+    gap: 0.2rem;
+  }
+  .theater-title {
+    font-size: 1.2rem;
+    letter-spacing: 0.04em;
+    line-height: 1.3;
+  }
+  .theater-composer {
+    font-size: 0.67rem;
+    letter-spacing: 0.12em;
+  }
+  .theater-seekbar-area {
+    gap: 0.4rem;
+    margin-top: 0.1rem;
+  }
+  .theater-time {
+    font-size: 0.6rem;
+    min-width: 2em;
+  }
+  .theater-license-area { display: none; }
+  .theater-volume-area  { display: none; }
+
+  /* コントロールボタン行：アイコンのみ、中央寄せ */
+  .theater-controls {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    flex-wrap: nowrap;
+  }
+  .theater-sub-btn {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+  /* 「足跡を残す」テキスト非表示、アイコンのみ */
+  .theater-btn-footprint span { display: none; }
+
+  /* 再生ボタン：少し大きめ */
+  .theater-play-btn {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+  }
+
+  /* ══ パネル類 ══ */
+
+  /* お気に入りパネル：画面右全幅 */
+  .theater-fav-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* 情景ピッカー：下からのシートに変更 */
+  .theater-scene-picker {
+    width: 100%;
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 65%;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    transform: translateY(100%);
+  }
+  .theater-scene-picker.is-open {
+    transform: translateY(0);
+  }
+
+  /* シェアポップアップ：右上に出る */
+  .theater-share-popup {
+    right: 0;
+    left: auto;
+    bottom: calc(100% + 6px);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Mobile — Landscape（横画面 / max-height 500px）
+   ══════════════════════════════════════════════════════════ */
+@media (max-height: 500px) and (orientation: landscape) {
+  .theater-window {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: unset;
+    transform: none !important;
+  }
+  .theater-modal.is-open .theater-window {
+    transform: none !important;
+  }
+  .theater-scenery {
+    inset: 0;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .theater-ui {
+    padding: 0;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  .theater-top {
+    padding: 6px 16px;
+    min-height: 44px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%);
+    flex-shrink: 0;
+  }
+  .theater-fav-list-btn,
+  .theater-footprints-btn { display: none; }
+  .theater-fav-list-btn { display: flex; }
+  .theater-fullscreen-btn,
+  .theater-controls-top-pair__sep { display: none; }
+  .theater-return-btn {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.7rem;
+  }
+  .theater-close { width: 36px; height: 36px; }
+
+  .theater-nav { width: 36px; height: 36px; animation: none; }
+  .theater-nav-prev { left: 0; }
+  .theater-nav-next { right: 0; }
+
+  /* 横画面は左右並列でコンパクトに */
+  .theater-bottom {
+    flex-direction: row;
+    align-items: flex-end;
+    padding: 8px 16px max(10px, env(safe-area-inset-bottom, 10px));
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+  .theater-info-area {
+    max-width: 55%;
+    gap: 0.2rem;
+    flex: 1;
+  }
+  .theater-title { font-size: 0.95rem; }
+  .theater-composer { font-size: 0.6rem; }
+  .theater-time { font-size: 0.58rem; }
+  .theater-play-btn { width: 44px; height: 44px; }
+  .theater-sub-btn { width: 38px; height: 38px; }
+  .theater-btn-footprint span { display: none; }
+  .theater-controls { gap: 0.1rem; flex-wrap: nowrap; }
+  .theater-license-area { display: none; }
+  .theater-volume-area  { display: none; }
+
+  .theater-scene-picker {
+    width: 100%;
+    top: auto;
+    left: 0; right: 0; bottom: 0;
+    height: 75%;
+    border-right: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    transform: translateY(100%);
+  }
+  .theater-scene-picker.is-open { transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════
+   Share Popup
+   ══════════════════════════════════════════════════════════ */
+.theater-share-wrap {
+  position: relative;
+}
+
+.theater-share-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: -4px;
+  background: rgba(6, 6, 5, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  backdrop-filter: blur(12px);
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  z-index: 50;
+  animation: share-popup-in 0.18s ease;
+}
+.theater-share-popup[hidden] { display: none; }
+
+@keyframes share-popup-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.theater-share-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: transparent;
+  border: none;
+  color: rgba(255, 250, 240, 0.65);
+  cursor: pointer;
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.75rem;
+  border-radius: 1px;
+  transition: background 0.15s, color 0.15s;
+  width: 100%;
+  text-align: left;
+}
+.theater-share-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 250, 240, 1);
+}
+.theater-share-item--copy {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  margin-top: 2px;
+  color: rgba(209, 184, 122, 0.7);
+}
+.theater-share-item--copy:hover {
+  color: rgba(209, 184, 122, 1);
+  background: rgba(209, 184, 122, 0.06);
+}
+
+/* ══════════════════════════════════════════════════════════
+   Favorites Panel
+   ══════════════════════════════════════════════════════════ */
+.theater-fav-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  background: rgba(4, 4, 3, 0.9);
+  backdrop-filter: blur(12px);
+  border-left: 1px solid rgba(209, 184, 122, 0.15);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.theater-fav-panel[hidden] {
+  display: flex !important;   /* hidden でも transform アニメを使う */
+  visibility: hidden;
+  pointer-events: none;
+}
+.theater-fav-panel.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* ── ヘッダー ─────────────────────────────────────────── */
+.theater-fav-panel__header {
+  display: flex;
+  align-items: center;
+  padding: 1.1rem 1.2rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+.theater-fav-panel__title {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+  color: rgba(209, 184, 122, 0.8);
+  margin: 0;
+  flex: 1;
+}
+
+.theater-fav-panel__count {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.05em;
+}
+
+.theater-fav-panel__close {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.theater-fav-panel__close:hover { color: rgba(255, 255, 255, 0.8); }
+
+/* ── リスト ───────────────────────────────────────────── */
+.theater-fav-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem 0;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(209, 184, 122, 0.2) transparent;
+}
+.theater-fav-panel__list::-webkit-scrollbar { width: 4px; }
+.theater-fav-panel__list::-webkit-scrollbar-track { background: transparent; }
+.theater-fav-panel__list::-webkit-scrollbar-thumb { background: rgba(209, 184, 122, 0.2); border-radius: 2px; }
+
+.theater-fav-panel__hint {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.2);
+  padding: 0.45rem 1.2rem 0.35rem;
+  margin: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  flex-shrink: 0;
+}
+
+.theater-fav-panel__empty {
+  padding: 2rem 1.2rem;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+/* ── 各アイテム ───────────────────────────────────────── */
+.theater-fav-item {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  cursor: default;
+  transition: background 0.15s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  user-select: none;
+}
+.theater-fav-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.theater-fav-item.is-playing {
+  background: rgba(209, 184, 122, 0.05);
+}
+.theater-fav-item.is-dragging {
+  opacity: 0.4;
+}
+.theater-fav-item.drag-over {
+  border-top: 2px solid rgba(209, 184, 122, 0.5);
+}
+
+.theater-fav-item__drag {
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.85rem;
+  cursor: grab;
+  padding: 0.7rem 0;
+  line-height: 1;
+}
+.theater-fav-item__drag:active { cursor: grabbing; }
+
+.theater-fav-item__index {
+  flex-shrink: 0;
+  width: 20px;
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0;
+  text-align: right;
+}
+
+.theater-fav-item__name {
+  flex: 1;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 250, 240, 0.7);
+  padding: 0.7rem 0.5rem 0.7rem 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1.4;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.theater-fav-item__name:hover { color: rgba(255, 250, 240, 1); }
+.theater-fav-item.is-playing .theater-fav-item__name {
+  color: rgba(209, 184, 122, 0.95);
+}
+
+.theater-fav-item__playing {
+  flex-shrink: 0;
+  font-size: 0.55rem;
+  color: rgba(209, 184, 122, 0.8);
+  padding-right: 0.3rem;
+  animation: fp-playing-pulse 1.4s ease-in-out infinite;
+}
+@keyframes fp-playing-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.theater-fav-item__remove {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: rgba(209, 184, 122, 0.3);
+  cursor: pointer;
+  padding: 0.7rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+}
+.theater-fav-item__remove:hover {
+  color: rgba(220, 80, 80, 0.8);
+  transform: scale(1.2);
+}
+
+/* ── フッター ─────────────────────────────────────────── */
+.theater-fav-panel__footer {
+  padding: 0.9rem 1.2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.theater-fav-panel__play-all {
+  width: 100%;
+  background: rgba(209, 184, 122, 0.08);
+  border: 1px solid rgba(209, 184, 122, 0.3);
+  border-radius: 1px;
+  color: rgba(209, 184, 122, 0.8);
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  padding: 0.55rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.theater-fav-panel__play-all:hover {
+  background: rgba(209, 184, 122, 0.15);
+  border-color: rgba(209, 184, 122, 0.6);
+  color: rgba(209, 184, 122, 1);
+}
+
+/* チェックボックス */
+.theater-fav-item__check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(209, 184, 122, 0.3);
+  border-radius: 3px;
+  background: rgba(209, 184, 122, 0.05);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: all 0.15s;
+}
+.theater-fav-item__check:checked {
+  background: rgba(209, 184, 122, 0.25);
+  border-color: rgba(209, 184, 122, 0.7);
+}
+.theater-fav-item__check:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -1px;
+  left: 2px;
+  font-size: 12px;
+  color: rgba(209, 184, 122, 0.95);
+}
+
+/* 商用ライセンスボタン */
+.theater-fav-panel__license {
+  width: 100%;
+  margin-top: 0.5rem;
+  background: rgba(100, 160, 120, 0.08);
+  border: 1px solid rgba(100, 160, 120, 0.3);
+  border-radius: 1px;
+  color: rgba(140, 200, 160, 0.8);
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.theater-fav-panel__license:hover:not(:disabled) {
+  background: rgba(100, 160, 120, 0.18);
+  border-color: rgba(100, 160, 120, 0.6);
+  color: rgba(160, 220, 180, 1);
+}
+.theater-fav-panel__license:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ── モバイル ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .theater-fav-panel {
+    width: 100%;
+    top: auto;
+    height: 65%;
+    transform: translateY(100%);
+    border-left: none;
+    border-top: 1px solid rgba(209, 184, 122, 0.15);
+  }
+  .theater-fav-panel.is-open {
+    transform: translateY(0);
+  }
+}
+
+/* ═══ 蛍パーティクル — CSS animation版（INP改善: setInterval不使用）═══ */
+.window-firefly {
+  background: rgba(255, 255, 200, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(255, 255, 200, 0.5);
+  animation:
+    firefly-drift var(--ff-dur, 8s) ease-in-out var(--ff-delay, 0s) infinite alternate,
+    firefly-glow  calc(var(--ff-dur, 8s) * 0.7) ease-in-out var(--ff-delay, 0s) infinite alternate;
+  will-change: transform, opacity;
+}
+
+@keyframes firefly-drift {
+  0%   { transform: translate(0, 0); }
+  33%  { transform: translate(calc(var(--ff-dx, 8%) * -0.5), calc(var(--ff-dy, 8%) * 0.8)); }
+  66%  { transform: translate(var(--ff-dx, 8%), calc(var(--ff-dy, 8%) * -0.3)); }
+  100% { transform: translate(calc(var(--ff-dx, 8%) * -0.3), var(--ff-dy, 8%)); }
+}
+
+@keyframes firefly-glow {
+  0%   { opacity: 0.2; }
+  50%  { opacity: 1.0; }
+  100% { opacity: 0.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .window-firefly {
+    animation: firefly-glow 4s ease-in-out infinite alternate;
+  }
+}

@@ -1,0 +1,41 @@
+/* ================================================================
+   SCENIC BG — 再生連動の背景演出
+   再生中のカテゴリに応じて背景に情景画像をフェードイン/アウト。
+   ================================================================ */
+
+#scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 1;                         /* body背景の上・コンテンツの下 */
+  pointer-events: none;               /* クリック・スクロール阻害しない */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transition: opacity 1.8s ease-in-out;
+  will-change: opacity;               /* GPUレイヤー昇格でちらつき防止 */
+}
+
+/* idle: 図書館背景（無音時） */
+#scene-bg.is-idle {
+  opacity: 0.25;
+}
+
+/* playing: カテゴリ背景（再生時） — 情景をやや前に出す */
+#scene-bg.is-visible {
+  opacity: 0.34;
+}
+
+/* アクセシビリティ: 動きを減らす設定に対応 */
+@media (prefers-reduced-motion: reduce) {
+  #scene-bg {
+    transition: none;
+  }
+}
+
+/* モバイル: GPUコストを抑えるため固定背景をスクロール追従に変更 */
+@media (hover: none) and (pointer: coarse) {
+  #scene-bg {
+    background-attachment: scroll;
+  }
+}

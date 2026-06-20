@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H/MIX AUDIO COMPARATOR — オーディオ比較 | H/MIX TOOLS</title>
+<meta name="description" content="2 つの音源を波形・スペクトル・ラウドネスで詳細に比較する Web ツール。A/B ブラインドテスト機能付き。ハイレゾ化前後の比較や、 マスター候補のジャッジに。H/MIX GALLERY 監修。">
+<meta name="keywords" content="オーディオ比較,A/Bテスト,波形,スペクトル,ラウドネス,音源比較,H/MIX">
+<link rel="canonical" href="https://www.hmix.net/tools/comparator/">
+
+<meta property="og:title" content="H/MIX AUDIO COMPARATOR — 音源比較ツール">
+<meta property="og:description" content="2 つの音源を波形・スペクトル・ラウドネスで詳細に比較。 A/B ブラインドテスト機能付きの Web アプリ。">
+<meta property="og:image" content="https://www.hmix.net/tools/comparator/og.jpg">
+<meta property="og:url" content="https://www.hmix.net/tools/comparator/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H/MIX GALLERY">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "H/MIX AUDIO COMPARATOR",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web Browser",
+  "url": "https://www.hmix.net/tools/comparator/",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+  "creator": { "@type": "Person", "name": "秋山裕和", "url": "https://www.hmix.net/composer.html" },
+  "publisher": { "@type": "Organization", "name": "H/MIX GALLERY", "url": "https://www.hmix.net/" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* H/MIX TOOLS ブランド統一: 旧変数名で新色を返す (既存コード非破壊) */
+  :root {
+    --bg: #050b18;
+    --panel: rgba(10, 20, 34, 0.7);
+    --ink: rgba(245, 240, 230, 0.94);
+    --muted: rgba(180, 220, 195, 0.55);
+    --gold: #d4a44c;
+    --gold-bright: #f5d896;
+    --red: #c2554d;
+    --line: rgba(217, 181, 102, 0.16);
+    --green: #40ceb4;
+    --jade: #40ceb4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #181613, #0f0e0c);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  h1 .gold { color: var(--gold); }
+  header .sub {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  main { padding: 20px 28px 40px; max-width: 1400px; margin: 0 auto; }
+  section { margin-bottom: 22px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 14px 18px;
+  }
+  .row { display: flex; gap: 14px; }
+  .row > * { flex: 1; }
+
+  /* ---- Drop zones ---- */
+  .drop {
+    border: 1.5px dashed #39342c;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all .15s;
+    cursor: pointer;
+    background: #15130f;
+    position: relative;
+  }
+  .drop:hover, .drop.over {
+    border-color: var(--gold);
+    background: #1c1a15;
+  }
+  .drop.loaded { border-style: solid; border-color: #3a4c3a; background: #171d17; }
+  .drop .label { font-size: 12px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+  .drop .label.A { color: var(--red); }
+  .drop .label.B { color: var(--gold); }
+  .drop .name { font-size: 13px; margin-top: 6px; word-break: break-all; color: var(--ink); }
+  .drop .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .drop input[type="file"] { display: none; }
+
+  /* ---- Transport ---- */
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  button.btn {
+    background: #232019;
+    border: 1px solid #3a352b;
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .1s;
+    font-family: inherit;
+  }
+  button.btn:hover:not(:disabled) { background: #2a2620; border-color: var(--gold); }
+  button.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  button.play { min-width: 72px; }
+
+  .ab-toggle {
+    background: #1a1613;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px;
+    display: inline-flex;
+    overflow: hidden;
+  }
+  .ab-toggle button {
+    background: transparent;
+    border: 0;
+    color: var(--muted);
+    padding: 8px 22px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all .12s;
+    min-width: 64px;
+    font-family: inherit;
+    letter-spacing: 0.05em;
+  }
+  .ab-toggle button.active.A { background: var(--red); color: white; }
+  .ab-toggle button.active.B { background: var(--gold); color: #1a1a1a; }
+  .ab-toggle button:hover:not(.active) { color: var(--ink); }
+
+  label.check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; }
+  label.check input { accent-color: var(--gold); }
+
+  .scrubber-wrap { flex: 1 1 100%; display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+  .scrubber-wrap span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; min-width: 48px; }
+  input[type="range"] {
+    flex: 1;
+    appearance: none;
+    height: 4px;
+    background: #2a2620;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+  }
+
+  /* ---- Canvases ---- */
+  .viz-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .viz-title h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--ink); }
+  .viz-title .hint { font-size: 11px; color: var(--muted); }
+
+  canvas.full {
+    display: block;
+    width: 100%;
+    background: #0a0908;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+
+  .legend {
+    display: inline-flex; gap: 14px;
+    font-size: 11px; color: var(--muted);
+    align-items: center;
+  }
+  .legend .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 4px; }
+  .legend .A { background: var(--red); }
+  .legend .B { background: var(--gold); }
+  .legend .diff { background: linear-gradient(90deg, #6aa06b, #e6c76a); }
+
+  /* ---- Stats ---- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .stat {
+    background: #15130f;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .stat .k { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .stat .v { font-size: 16px; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .stat .v .A { color: var(--red); }
+  .stat .v .B { color: var(--gold); }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 18px 0 32px;
+    letter-spacing: 0.08em;
+  }
+
+  .blind-banner {
+    background: #2a2220;
+    border: 1px solid var(--gold);
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: var(--gold);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+  }
+  .blind-banner.hidden { display: none; }
+  .blind-reveal { margin-left: 8px; color: var(--ink); font-weight: 600; }
+
+  .hotkey {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #2a2620;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: Consolas, monospace;
+  }
+
+  /* ---- Info tooltip ---- */
+  .info {
+    display: inline-block;
+    width: 13px; height: 13px;
+    line-height: 13px;
+    text-align: center;
+    font-size: 9px;
+    border-radius: 50%;
+    background: #3a352b;
+    color: var(--muted);
+    cursor: help;
+    margin-left: 3px;
+    font-family: Consolas, monospace;
+    font-weight: bold;
+    user-select: none;
+    position: relative;
+  }
+  .info:hover { background: var(--gold); color: var(--bg); }
+  .info:hover .tip {
+    display: block;
+  }
+  .info .tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2620;
+    border: 1px solid var(--gold);
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.55;
+    width: 320px;
+    text-align: left;
+    z-index: 100;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    pointer-events: none;
+    font-family: "Yu Gothic UI", sans-serif;
+  }
+  .info .tip b { color: var(--gold); }
+  .info .tip .good { color: var(--green); }
+  .info .tip .bad  { color: var(--red); }
+
+  /* ---- Explain panel (accordion) ---- */
+  details.explain {
+    background: #15130f;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 18px;
+  }
+  details.explain summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    user-select: none;
+    list-style: none;
+    outline: none;
+  }
+  details.explain summary::before {
+    content: "▶ ";
+    display: inline-block;
+    transition: transform .15s;
+    font-size: 10px;
+    color: var(--muted);
+  }
+  details.explain[open] summary::before {
+    transform: rotate(90deg);
+  }
+  details.explain .body {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--ink);
+  }
+  details.explain .body h4 {
+    color: var(--gold);
+    margin: 14px 0 4px;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+  }
+  details.explain .body h4:first-child { margin-top: 0; }
+  details.explain .body p { margin: 4px 0; color: #c8c3b4; }
+  details.explain .body .ok { color: var(--green); font-weight: 600; }
+  details.explain .body .warn { color: var(--red); font-weight: 600; }
+  details.explain .body .neutral { color: var(--gold); font-weight: 600; }
+  details.explain .body table { border-collapse: collapse; margin: 6px 0; font-size: 12px; }
+  details.explain .body th, details.explain .body td { border: 1px solid var(--line); padding: 4px 10px; text-align: left; }
+  details.explain .body th { background: #1a1815; color: var(--gold); font-weight: 600; }
+</style>
+<link rel="stylesheet" href="../_hmix-brand-frame.css">
+</head>
+<body>
+
+<div class="hmix-brand-bar">
+  <a class="hmix-brand-bar__back" href="../index.html">← H/MIX TOOLS</a>
+  <img class="hmix-brand-bar__logo"
+       src="../assets/hmix-logo.png"
+       alt="H/MIX GALLERY">
+  <div class="hmix-brand-bar__title">
+    <span class="hmix-brand-bar__name">AUDIO COMPARATOR</span>
+    <span class="hmix-brand-bar__name-ja">オーディオ比較ツール</span>
+  </div>
+  <span class="hmix-brand-bar__chip">LIVE · WEB</span>
+</div>
+
+<header>
+  <h1>H/MIX <span class="gold">Audio Comparator</span></h1>
+  <div class="sub">MP3（元） vs ハイレゾWAV（処理後） の精密比較ツール</div>
+</header>
+
+<main>
+
+  <!-- ============== ファイル投入 ============== -->
+  <section class="row">
+    <div class="drop" id="dropA" data-ab="A">
+      <div class="label A">■ A  —  Original</div>
+      <div class="big">音源をドロップ <span class="hotkey">または</span> クリックして選択</div>
+      <div class="name" id="nameA"></div>
+      <div class="meta" id="metaA"></div>
+      <input type="file" id="fileA" accept="audio/*">
+    </div>
+    <div class="drop" id="dropB" data-ab="B">
+      <div class="label B">■ B  —  Hi-Res</div>
+      <div class="big">音源をドロップ <span class="hotkey">または</span> クリックして選択</div>
+      <div class="name" id="nameB"></div>
+      <div class="meta" id="metaB"></div>
+      <input type="file" id="fileB" accept="audio/*">
+    </div>
+  </section>
+
+  <!-- ============== プレイヤー ============== -->
+  <section class="card">
+    <div class="transport">
+      <button class="btn play" id="playBtn" disabled>▶ 再生</button>
+      <button class="btn" id="stopBtn" disabled>■ 停止</button>
+
+      <div class="ab-toggle">
+        <button id="btnA" class="A active">A</button>
+        <button id="btnB" class="B">B</button>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="loudnessMatch" checked>
+        ラウドネス補正
+      </label>
+      <label class="check">
+        <input type="checkbox" id="blindMode">
+        ブラインドテスト
+      </label>
+      <label class="check">
+        <input type="checkbox" id="loopMode">
+        ループ
+      </label>
+
+      <div id="blindBanner" class="blind-banner hidden">
+        ブラインドモード中  —  正解を見る：<button class="btn" id="revealBtn" style="padding:2px 10px; margin-left:4px;">答え合わせ</button>
+        <span class="blind-reveal" id="revealText"></span>
+      </div>
+
+      <span style="margin-left:auto; font-size:11px; color:var(--muted);">
+        <span class="hotkey">Space</span>: 再生/停止  &nbsp;
+        <span class="hotkey">X</span>: A/B 切替
+      </span>
+
+      <div class="scrubber-wrap">
+        <span id="timeNow">0:00</span>
+        <input type="range" id="scrubber" min="0" max="1000" value="0" disabled>
+        <span id="timeTotal">0:00</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== 平均スペクトル（静的FFT） ============== -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>平均スペクトル比較 （全体のFFT平均）</h3>
+      <span class="hint">高域のカットオフ位置と、エキサイターで再構築された帯域が見えます</span>
+    </div>
+    <canvas id="spectrumCanvas" class="full" height="220"></canvas>
+    <div style="margin-top:6px;" class="legend">
+      <span><span class="swatch A"></span>Original (A)</span>
+      <span><span class="swatch B"></span>Hi-Res (B)</span>
+      <span style="margin-left:auto;" id="spectrumStats"></span>
+    </div>
+  </section>
+
+  <!-- ============== リアルタイム・スペクトログラム ============== -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>リアルタイム・スペクトログラム</h3>
+      <span class="hint">上: A / 下: B  —  再生中の周波数分布を時間軸で表示</span>
+    </div>
+    <canvas id="spectrogramA" class="full" height="140" style="margin-bottom:4px;"></canvas>
+    <canvas id="spectrogramB" class="full" height="140"></canvas>
+  </section>
+
+  <!-- ============== 波形比較 ============== -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>波形 / ダイナミクス比較</h3>
+      <span class="hint">上: A / 下: B  —  ダイナミクスの圧縮度合いが視覚的に分かります</span>
+    </div>
+    <canvas id="waveformCanvas" class="full" height="180"></canvas>
+  </section>
+
+  <!-- ============== 数値統計 ============== -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>数値統計</h3>
+      <span class="hint">客観指標による比較</span>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="k">サンプルレート / ビット深度<span class="info">?<span class="tip"><b>1秒間を何サンプルで表すか、1サンプルを何ビットで表すか</b>。<br>44100Hz/16bit=CD品質、96000Hz/24bit=ハイレゾ標準。<br>サンプルレートの半分までの周波数を記録可能（ナイキスト定理）。<br><b>目安：</b> B側が A側より<span class="good">高い</span>のが理想（例: 44100→96000）。<br>数値は<b>ファイルヘッダから直接読み取った真の値</b>を表示します。<br><b>⚠ マーク</b>が付く場合：ブラウザのWebAudioが内部で別のSRにリサンプリングしていますが、ファイル自体のSRは正しい値です。再生・スペクトル分析は内部SRで行われます。</span></span></div>
+        <div class="v"><span class="A" id="srA">—</span> / <span class="B" id="srB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">チャンネル<span class="info">?<span class="tip"><b>モノラル(1ch)かステレオ(2ch)か</b>。ステレオは左右独立の空間表現ができる。音源そのものの性質なので、AとBで一致すべき値。</span></span></div>
+        <div class="v"><span class="A" id="chA">—</span> / <span class="B" id="chB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">再生時間<span class="info">?<span class="tip"><b>曲の長さ</b>。AとBで必ず一致すべき。ズレている場合はそもそも別の曲を比較している可能性がある。</span></span></div>
+        <div class="v"><span class="A" id="durA">—</span> / <span class="B" id="durB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">RMS (dB)<span class="info">?<span class="tip"><b>Root Mean Square — 平均的な音圧</b>。<br>数値が大きい（0に近い）ほど「全体として音が大きい／太い／圧縮されている」。<br><b>高い=良い、ではない</b>：高いほど音は派手に聞こえるが、ダイナミクス（抑揚）は犠牲になる。映画音楽なら低い方が、ポップスなら高い方が適切。<br><b>A vs B</b>: 通常ほぼ同じ値になる。大きく違う場合はラウドネス処理が異なっている。</span></span></div>
+        <div class="v"><span class="A" id="rmsA">—</span> / <span class="B" id="rmsB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">ピーク (dBFS)<span class="info">?<span class="tip"><b>最大音圧 — デジタル上の最大値からの距離</b>。<br>0 dBFS = デジタル最大（クリップ寸前）。-6 dBFS はピークが最大の半分。<br><b>大事：低い方が "安全"</b>。<br>MP3は往々にして 0.0 dBFS まで詰められている（クリップ紙一重）のに対し、本ツールは意図的に<b class="good">-0.5 dBFS のヘッドルーム</b>を確保して書き出します。<br>これは後段のマスタリング・音量調整で歪まないための<b>プロの作法</b>。B側が-0.5〜-1.0 dBFS 程度低いのは<span class="good">むしろ正しい動作</span>で、音質劣化ではありません。</span></span></div>
+        <div class="v"><span class="A" id="peakA">—</span> / <span class="B" id="peakB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">クレストファクター<span class="info">?<span class="tip"><b>ピーク − RMS</b>。音の "躍動感" の指標。<br><b>高いほど</b> ダイナミックレンジが広い＝パンチがある。<br><b>低いほど</b> 圧縮されている（現代のポップスは6〜10dB、オーケストラは18dB以上）。<br><b>エクスパンダー</b>を ON にすると B 側のクレストファクターが少し上がるのが理想的な動作。</span></span></div>
+        <div class="v"><span class="A" id="crestA">—</span> / <span class="B" id="crestB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">高域エネルギー &gt;16kHz<span class="info">?<span class="tip"><b>16kHz より上の帯域にどれだけ音のエネルギーがあるか</b>（dB単位）。<br>MP3は16kHz付近でばっさり切り捨てるので、元MP3は通常 -30〜-50 dB の低い値。<br><b>B側が A側より高い（= 0に近い）方が理想</b>。ハーモニック・エキサイターが効いていれば +3〜+10 dB 程度の上昇が期待される。<br><b class="bad">B の方が低い場合</b>：エキサイター処理が弱すぎるか、アップコンバート自体が未実行。</span></span></div>
+        <div class="v"><span class="A" id="hfA">—</span> / <span class="B" id="hfB">—</span></div>
+      </div>
+      <div class="stat">
+        <div class="k">周波数ロールオフ<span class="info">?<span class="tip"><b>全エネルギーの85%が収まる周波数の上限</b>。<br>この値が高いほど「高域までコンテンツが豊富」。<br>明るい曲・楽器（シンバル・バイオリン）は高く（5〜10kHz以上）、暗い曲（チェロ・和太鼓）は低い（1〜3kHz）。<br>A と B で大きく変わらないのが普通。B が A より若干高いのが理想。<br>※ 曲そのものの性質（アレンジ・楽器構成）に大きく依存するので、絶対値の良し悪しは論じにくい。</span></span></div>
+        <div class="v"><span class="A" id="rollA">—</span> / <span class="B" id="rollB">—</span></div>
+      </div>
+    </div>
+
+    <!-- 解説パネル -->
+    <details class="explain" style="margin-top: 14px;" open>
+      <summary>&nbsp;各指標の読み方  —  「数値が高ければ良い」とは限らない</summary>
+      <div class="body">
+        <h4>■ 基本的な考え方</h4>
+        <p>これらの数値は<b>「A と B の違いを見るため」</b>のもので、<b>絶対値の優劣を論じるものではありません</b>。曲のジャンル・アレンジ・楽器構成で理想値は大きく変わります。</p>
+
+        <h4>■ 項目別・読み方ガイド</h4>
+        <table>
+          <tr><th>指標</th><th>高い意味</th><th>低い意味</th><th>B(変換後)の理想</th></tr>
+          <tr><td>サンプルレート</td><td>広帯域記録可能</td><td>帯域制限</td><td><span class="ok">高い</span>（96kHz 以上）</td></tr>
+          <tr><td>RMS</td><td>音が太い・派手</td><td>繊細・ダイナミック</td><td><span class="neutral">A と同程度</span></td></tr>
+          <tr><td>ピーク (dBFS)</td><td>音量限界まで詰まっている</td><td>ヘッドルームあり（<b class="ok">安全</b>）</td><td><span class="ok">-0.5〜-1.0 dBFS</span>（ヘッドルーム確保）</td></tr>
+          <tr><td>クレストファクター</td><td>ダイナミック（躍動感）</td><td>圧縮されている</td><td><span class="ok">A と同じか 少し高い</span></td></tr>
+          <tr><td>&gt;16kHz エネルギー</td><td>高域豊富</td><td>MP3カット後</td><td><span class="ok">A より +3〜+10 dB 高い</span></td></tr>
+          <tr><td>周波数ロールオフ</td><td>明るい/華やか</td><td>暗い/落ち着いた</td><td><span class="neutral">A と同程度 or 少し高い</span></td></tr>
+        </table>
+
+        <h4>■ よくある疑問</h4>
+        <p><b class="neutral">Q. なぜ変換後のピーク値が下がるの？</b><br>
+        A. 本ツールは意図的に <b>-0.5 dBFS のヘッドルーム</b> を確保して書き出すためです。MP3 は配信効率のため 0.0 dBFS ギリギリまで詰められていることが多く、そのままだと DAW での追加処理・EQ・リバーブで<b>デジタルクリップ（歪み）</b>が起きます。-0.5 dB ほど余裕を持たせるのがプロの作法で、<b class="ok">これは音質劣化ではなく品質向上</b>です。</p>
+
+        <p><b class="neutral">Q. 数値は高いほど良いの？</b><br>
+        A. <b>指標によります</b>。サンプルレートや高域エネルギーは高い方が良い（情報量が多い）。一方で RMS が高すぎるのは圧縮されすぎ、ピークが高すぎる（=0 dBFS）のはクリップ寸前で危険。クレストファクターは<b>高い方がダイナミック</b>ですが、ポップスでは低い方が「売れる音」になることもあります。</p>
+
+        <p><b class="neutral">Q. AとBの数値がほぼ同じ。変換の意味あった？</b><br>
+        A. 音の質感に関する数値（RMS・クレスト）は、処理を最小限にした場合ほぼ変わりません。<b>ハイレゾ化の本質的な価値</b>は「サンプルレート・ビット深度・ヘッドルーム」という<b>技術規格面</b>と、「&gt;16kHz エネルギー」の<b>微増</b>にあります。耳で分かる違いが出るかどうかは、元音源の特性と再生環境次第です。</p>
+
+        <p><b class="neutral">Q. &gt;16kHz エネルギーが変換後に下がってしまった！</b><br>
+        A. <b>バグではなく、現在のDSP設計上の制約</b>です。ハーモニック・エキサイターは元のサンプルレート（44.1kHz）で適用されるため、ナイキスト周波数 22.05kHz までしか倍音を合成できません。より劇的な高域復元には、アップサンプリング後にエキサイターをかけ直すか、AI ベースのスペクトル超解像（AudioSR など）の導入が必要です。</p>
+
+        <h4>■ 比較の "ベストプラクティス"</h4>
+        <p>1. <b>まずブラインドテスト</b>でヘッドフォン装着、ラウドネス補正 ON。<br>
+        2. <b>耳だけで判別できるか</b>確認（多くの場合できません — これは正常）。<br>
+        3. <b>スペクトル / スペクトログラム</b>で視覚的な差を確認。<br>
+        4. <b>数値統計</b>で客観指標として記録。<br>
+        5. 判別できなくても、技術仕様（24bit/96kHz・ヘッドルーム確保）は<b class="ok">客観的に事実</b>です。</p>
+      </div>
+    </details>
+  </section>
+
+</main>
+
+<footer>
+  H/MIX GALLERY  ©  秋山裕和 &nbsp;·&nbsp; built with Web Audio API
+</footer>
+
+<script>
+// ==============================================================================
+//   H/MIX Audio Comparator
+//   秋山裕和 / H/MIX GALLERY
+// ==============================================================================
+
+const state = {
+  ctx: null,
+  bufferA: null,
+  bufferB: null,
+  sourceA: null,
+  sourceB: null,
+  gainA: null,
+  gainB: null,
+  analyserA: null,
+  analyserB: null,
+  current: 'A',       // 'A' or 'B'
+  blind: false,
+  blindSide: null,    // どちらが"左ボタン"か ('A' or 'B')
+  loudnessMatch: true,
+  loop: false,
+  volA: 1.0,          // loudness-compensated gain
+  volB: 1.0,
+  isPlaying: false,
+  startCtxTime: 0,    // ctx.currentTime when play started
+  startOffset: 0,     // buffer offset when play started
+  duration: 0,
+  rafId: null,
+  avgSpecA: null,
+  avgSpecB: null,
+};
+
+// ---- ユーティリティ ----
+function fmtTime(s) {
+  s = Math.max(0, Math.floor(s));
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s%60).padStart(2,'0')}`;
+}
+function dbFromLin(x) { return 20 * Math.log10(Math.max(x, 1e-9)); }
+
+// ---- ファイルヘッダから真のサンプルレート/ビット深度を読み取る ----
+async function parseFileMetadata(file) {
+  // 先頭 1KB を読み取る（ID3v2が長い場合も考慮して多めに）
+  const head = await file.slice(0, 4096).arrayBuffer();
+  const dv = new DataView(head);
+
+  // ---- WAV (RIFF) ----
+  if (dv.byteLength >= 12 &&
+      dv.getUint32(0, false) === 0x52494646 && // "RIFF"
+      dv.getUint32(8, false) === 0x57415645) { // "WAVE"
+    let off = 12;
+    while (off + 8 < dv.byteLength) {
+      const id = dv.getUint32(off, false);
+      const size = dv.getUint32(off + 4, true);
+      if (id === 0x666d7420) { // "fmt "
+        const fmt = dv.getUint16(off + 8, true);       // 1=PCM, 3=IEEE float
+        const channels = dv.getUint16(off + 10, true);
+        const sr = dv.getUint32(off + 12, true);
+        const bits = dv.getUint16(off + 22, true);
+        return { sr, bits, channels, format: fmt === 3 ? 'WAV float' : 'WAV PCM' };
+      }
+      off += 8 + size;
+    }
+  }
+
+  // ---- FLAC ----
+  if (dv.byteLength >= 4 &&
+      dv.getUint32(0, false) === 0x664c6143) { // "fLaC"
+    // STREAMINFO block starts at offset 8 (after "fLaC" + block header)
+    // Sample rate is at bits 80-99 from start of STREAMINFO
+    // Bytes 18-20 contain SR (20 bits), but spans byte boundary
+    const b18 = dv.getUint8(18), b19 = dv.getUint8(19), b20 = dv.getUint8(20);
+    const sr = (b18 << 12) | (b19 << 4) | (b20 >> 4);
+    const bits = (((b20 & 0x01) << 4) | (dv.getUint8(21) >> 4)) + 1;
+    return { sr, bits, channels: null, format: 'FLAC' };
+  }
+
+  // ---- MP3 (ID3 skipped) ----
+  let off = 0;
+  if (dv.getUint8(0) === 0x49 && dv.getUint8(1) === 0x44 && dv.getUint8(2) === 0x33) {
+    // ID3v2 header
+    const size = ((dv.getUint8(6) & 0x7f) << 21) |
+                 ((dv.getUint8(7) & 0x7f) << 14) |
+                 ((dv.getUint8(8) & 0x7f) << 7)  |
+                 (dv.getUint8(9) & 0x7f);
+    off = 10 + size;
+  }
+  // ID3タグが大きい場合は追加で読む
+  let searchDv = dv;
+  if (off + 4 > dv.byteLength) {
+    const more = await file.slice(off, Math.min(file.size, off + 4096)).arrayBuffer();
+    searchDv = new DataView(more);
+    off = 0;
+  }
+  for (let i = off; i < searchDv.byteLength - 4; i++) {
+    const b1 = searchDv.getUint8(i);
+    const b2 = searchDv.getUint8(i + 1);
+    if (b1 === 0xFF && (b2 & 0xE0) === 0xE0) {
+      const version = (b2 >> 3) & 0x03;   // 11=MPEG1, 10=MPEG2, 00=MPEG2.5
+      const b3 = searchDv.getUint8(i + 2);
+      const srIdx = (b3 >> 2) & 0x03;
+      const bitrateIdx = (b3 >> 4) & 0x0F;
+      const rates = version === 3 ? [44100, 48000, 32000] :
+                    version === 2 ? [22050, 24000, 16000] :
+                    version === 0 ? [11025, 12000, 8000] : null;
+      if (rates && srIdx < 3) {
+        // ビットレート表も（MPEG1 Layer3 のみ簡易対応）
+        const brTable = [0,32,40,48,56,64,80,96,112,128,160,192,224,256,320];
+        const br = (version === 3) ? brTable[bitrateIdx] : null;
+        return { sr: rates[srIdx], bits: null, channels: null,
+                 format: 'MP3', bitrate: br };
+      }
+    }
+  }
+  return null; // unknown
+}
+
+// ---- ファイル読込 & AudioBuffer化 ----
+async function loadFile(file, slot) {
+  // AudioContext は高サンプルレート優先（96kHz）で起動し、ハイレゾ音源の
+  // 高域を保持する。ブラウザが拒否したら段階的にフォールバック。
+  if (!state.ctx) {
+    const tryRates = [96000, 88200, 48000, 44100];
+    for (const r of tryRates) {
+      try { state.ctx = new (window.AudioContext||window.webkitAudioContext)({ sampleRate: r }); break; }
+      catch(_) { /* try next */ }
+    }
+    if (!state.ctx) state.ctx = new (window.AudioContext||window.webkitAudioContext)();
+  }
+
+  // ヘッダから真のSR/bitsを取得
+  const meta = await parseFileMetadata(file);
+
+  const arr = await file.arrayBuffer();
+  let buffer;
+  try {
+    buffer = await state.ctx.decodeAudioData(arr);
+  } catch (e) {
+    alert(`音声ファイルのデコードに失敗しました: ${file.name}\n${e.message}`);
+    return;
+  }
+  if (slot === 'A') { state.bufferA = buffer; state.metaA = meta; }
+  else             { state.bufferB = buffer; state.metaB = meta; }
+
+  document.getElementById(`name${slot}`).textContent = file.name;
+
+  // メタ表示：真のSR (ブラウザ内SR) · Nbit · Nch · 長さ · サイズ
+  const trueSr = meta ? meta.sr : buffer.sampleRate;
+  const trueBits = meta && meta.bits ? `${meta.bits}bit · ` : '';
+  const fmtLabel = meta ? meta.format : 'unknown';
+  const brLabel = meta && meta.bitrate ? ` · ${meta.bitrate}kbps` : '';
+  const ctxNote = (trueSr !== buffer.sampleRate) ? `  (ブラウザ内: ${buffer.sampleRate}Hz)` : '';
+  document.getElementById(`meta${slot}`).textContent =
+    `${fmtLabel} · ${trueSr} Hz · ${trueBits}${buffer.numberOfChannels}ch · ${fmtTime(buffer.duration)} · ${(file.size/1024/1024).toFixed(1)} MB${brLabel}${ctxNote}`;
+  document.getElementById(`drop${slot}`).classList.add('loaded');
+
+  // 統計更新
+  updateStats(slot, buffer, meta);
+
+  // 両方揃ったらスペクトル計算 & 再生準備完了
+  if (state.bufferA && state.bufferB) {
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('scrubber').disabled = false;
+    computeAverageSpectra();
+    drawWaveforms();
+    state.duration = Math.min(state.bufferA.duration, state.bufferB.duration);
+    document.getElementById('timeTotal').textContent = fmtTime(state.duration);
+    computeLoudnessMatch();
+  }
+}
+
+// ---- 統計 ----
+function computeRMSPeak(buffer) {
+  // 最初のチャンネルから計算（ステレオでも十分な近似）
+  const data = buffer.getChannelData(0);
+  let sumSq = 0; let peak = 0;
+  // サンプリングで高速化
+  const step = Math.max(1, Math.floor(data.length / 500000));
+  let count = 0;
+  for (let i = 0; i < data.length; i += step) {
+    const v = data[i];
+    sumSq += v * v;
+    const a = Math.abs(v);
+    if (a > peak) peak = a;
+    count++;
+  }
+  return { rms: Math.sqrt(sumSq / count), peak };
+}
+
+function updateStats(slot, buffer, meta) {
+  const { rms, peak } = computeRMSPeak(buffer);
+  const rmsDb = dbFromLin(rms);
+  const peakDb = dbFromLin(peak);
+  // サンプルレート表示: 真のファイルSR / bit深度（WAVのみ）
+  const trueSr = meta ? meta.sr : buffer.sampleRate;
+  let srText = `${trueSr.toLocaleString()} Hz`;
+  if (meta && meta.bits) srText += ` · ${meta.bits}bit`;
+  // ブラウザが別SRで処理している場合はマーク
+  if (trueSr !== buffer.sampleRate) srText += ` ⚠`;
+  document.getElementById(`sr${slot}`).textContent = srText;
+  document.getElementById(`ch${slot}`).textContent = `${buffer.numberOfChannels}ch`;
+  document.getElementById(`dur${slot}`).textContent = fmtTime(buffer.duration);
+  document.getElementById(`rms${slot}`).textContent = `${rmsDb.toFixed(1)}`;
+  document.getElementById(`peak${slot}`).textContent = `${peakDb.toFixed(1)}`;
+  document.getElementById(`crest${slot}`).textContent = `${(peakDb - rmsDb).toFixed(1)} dB`;
+}
+
+// ---- ラウドネス補正（RMS整合） ----
+function computeLoudnessMatch() {
+  const { rms: rA } = computeRMSPeak(state.bufferA);
+  const { rms: rB } = computeRMSPeak(state.bufferB);
+  // 両者のRMSを、-20dBFSに揃える（ピークは-0.5を超えないよう抑制）
+  const target = Math.pow(10, -20/20);
+  state.volA = target / Math.max(rA, 1e-9);
+  state.volB = target / Math.max(rB, 1e-9);
+  // ピーク制限
+  const { peak: pA } = computeRMSPeak(state.bufferA);
+  const { peak: pB } = computeRMSPeak(state.bufferB);
+  const maxVA = 0.95 / Math.max(pA, 1e-9);
+  const maxVB = 0.95 / Math.max(pB, 1e-9);
+  state.volA = Math.min(state.volA, maxVA);
+  state.volB = Math.min(state.volB, maxVB);
+}
+
+// ---- 平均スペクトル（静的FFT） ----
+async function computeAverageSpectra() {
+  state.avgSpecA = await averageSpectrum(state.bufferA);
+  state.avgSpecB = await averageSpectrum(state.bufferB);
+  drawSpectrum();
+  updateFreqStats();
+}
+async function averageSpectrum(buffer) {
+  const data = buffer.getChannelData(0);
+  const fftSize = 8192;
+  const sr = buffer.sampleRate;
+  const hop = fftSize; // 重複なしで高速に
+  const nFrames = Math.floor((data.length - fftSize) / hop);
+  const bins = fftSize / 2;
+  const avg = new Float32Array(bins);
+
+  // Hann 窓
+  const win = new Float32Array(fftSize);
+  for (let i = 0; i < fftSize; i++) {
+    win[i] = 0.5 * (1 - Math.cos(2 * Math.PI * i / (fftSize - 1)));
+  }
+
+  // 単純な実装: Cooley-Tukey (iterative, radix-2)
+  // FFT 関数
+  const fft = makeFFT(fftSize);
+  const re = new Float32Array(fftSize);
+  const im = new Float32Array(fftSize);
+
+  let actualFrames = 0;
+  for (let f = 0; f < nFrames; f++) {
+    const start = f * hop;
+    for (let i = 0; i < fftSize; i++) {
+      re[i] = data[start + i] * win[i];
+      im[i] = 0;
+    }
+    fft(re, im);
+    for (let k = 0; k < bins; k++) {
+      const mag = Math.sqrt(re[k]*re[k] + im[k]*im[k]);
+      avg[k] += mag * mag; // power average
+    }
+    actualFrames++;
+    if (f % 50 === 0) await new Promise(r => setTimeout(r, 0)); // yield
+  }
+  if (actualFrames === 0) actualFrames = 1;
+  for (let k = 0; k < bins; k++) avg[k] = Math.sqrt(avg[k] / actualFrames);
+  return { spec: avg, sr, fftSize };
+}
+
+// Cooley-Tukey FFT (iterative radix-2)
+function makeFFT(N) {
+  // ビット反転テーブル
+  const log2N = Math.log2(N);
+  const rev = new Int32Array(N);
+  for (let i = 0; i < N; i++) {
+    let r = 0, x = i;
+    for (let j = 0; j < log2N; j++) { r = (r << 1) | (x & 1); x >>>= 1; }
+    rev[i] = r;
+  }
+  // Twiddle
+  const cosT = new Float32Array(N/2);
+  const sinT = new Float32Array(N/2);
+  for (let i = 0; i < N/2; i++) {
+    cosT[i] = Math.cos(-2 * Math.PI * i / N);
+    sinT[i] = Math.sin(-2 * Math.PI * i / N);
+  }
+  return function fft(re, im) {
+    // ビット反転並べ替え
+    for (let i = 0; i < N; i++) {
+      const j = rev[i];
+      if (j > i) {
+        let t = re[i]; re[i] = re[j]; re[j] = t;
+            t = im[i]; im[i] = im[j]; im[j] = t;
+      }
+    }
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1;
+      const step = N / size;
+      for (let i = 0; i < N; i += size) {
+        for (let k = 0; k < half; k++) {
+          const tIdx = k * step;
+          const cos = cosT[tIdx], sin = sinT[tIdx];
+          const rOdd = re[i+k+half] * cos - im[i+k+half] * sin;
+          const iOdd = re[i+k+half] * sin + im[i+k+half] * cos;
+          re[i+k+half] = re[i+k] - rOdd;
+          im[i+k+half] = im[i+k] - iOdd;
+          re[i+k]      = re[i+k] + rOdd;
+          im[i+k]      = im[i+k] + iOdd;
+        }
+      }
+    }
+  };
+}
+
+// ---- 周波数統計（ロールオフ等） ----
+function updateFreqStats() {
+  if (!state.avgSpecA || !state.avgSpecB) return;
+  const A = state.avgSpecA, B = state.avgSpecB;
+
+  // >16kHz の合計エネルギー（dB）
+  function hiEnergy(s) {
+    const k16 = Math.floor(16000 / (s.sr / s.fftSize));
+    let sum = 0;
+    for (let k = k16; k < s.spec.length; k++) sum += s.spec[k] * s.spec[k];
+    return dbFromLin(Math.sqrt(sum / Math.max(1, s.spec.length - k16)));
+  }
+  // ロールオフ：全エネルギーの85%を超える周波数
+  function rolloff(s) {
+    let tot = 0;
+    for (let k = 0; k < s.spec.length; k++) tot += s.spec[k] * s.spec[k];
+    const target = tot * 0.85;
+    let cum = 0;
+    for (let k = 0; k < s.spec.length; k++) {
+      cum += s.spec[k] * s.spec[k];
+      if (cum >= target) return (k * s.sr) / s.fftSize;
+    }
+    return s.sr / 2;
+  }
+  document.getElementById('hfA').textContent = `${hiEnergy(A).toFixed(1)} dB`;
+  document.getElementById('hfB').textContent = `${hiEnergy(B).toFixed(1)} dB`;
+  document.getElementById('rollA').textContent = `${(rolloff(A)/1000).toFixed(1)} kHz`;
+  document.getElementById('rollB').textContent = `${(rolloff(B)/1000).toFixed(1)} kHz`;
+
+  const hfA = hiEnergy(A), hfB = hiEnergy(B);
+  document.getElementById('spectrumStats').innerHTML =
+    `>16kHz ゲイン: <b style="color:var(--green)">${(hfB-hfA).toFixed(1)} dB</b>`;
+}
+
+// ---- 平均スペクトル描画 ----
+function drawSpectrum() {
+  const canvas = document.getElementById('spectrumCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = 220 * dpr;
+  const g = canvas.getContext('2d');
+  g.scale(dpr, dpr);
+  const W = canvas.clientWidth, H = 220;
+
+  g.fillStyle = '#0a0908';
+  g.fillRect(0, 0, W, H);
+
+  if (!state.avgSpecA || !state.avgSpecB) return;
+
+  const srMax = Math.max(state.avgSpecA.sr, state.avgSpecB.sr);
+  const fMax = srMax / 2;
+  const fMin = 20;
+
+  // グリッド
+  g.strokeStyle = '#2a2620'; g.lineWidth = 1;
+  g.fillStyle = '#6a665c'; g.font = '10px Consolas, monospace';
+  [20, 100, 1000, 10000, 20000, 48000].forEach(f => {
+    if (f > fMax) return;
+    const x = xForFreq(f, fMin, fMax, W);
+    g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
+    g.fillText(f >= 1000 ? `${f/1000}k` : `${f}`, x + 3, H - 4);
+  });
+  // dB グリッド
+  const dbMin = -110, dbMax = 0;
+  for (let db = dbMax; db >= dbMin; db -= 20) {
+    const y = H - ((db - dbMin) / (dbMax - dbMin)) * H;
+    g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
+    g.fillText(`${db}`, 4, y - 2);
+  }
+
+  // スペクトル描画
+  drawSpecLine(g, state.avgSpecA, fMin, fMax, dbMin, dbMax, W, H, 'rgba(194,85,77,0.95)');
+  drawSpecLine(g, state.avgSpecB, fMin, fMax, dbMin, dbMax, W, H, 'rgba(240,207,133,0.95)');
+}
+function xForFreq(f, fMin, fMax, W) {
+  const lo = Math.log10(fMin), hi = Math.log10(fMax);
+  return ((Math.log10(Math.max(f, fMin)) - lo) / (hi - lo)) * W;
+}
+function drawSpecLine(g, sObj, fMin, fMax, dbMin, dbMax, W, H, color) {
+  const spec = sObj.spec, sr = sObj.sr, N = sObj.fftSize;
+  g.strokeStyle = color;
+  g.lineWidth = 1.5;
+  g.beginPath();
+  const bins = spec.length;
+  // スムージング用の線形ビニング
+  let first = true;
+  for (let x = 0; x < W; x += 1) {
+    const f = fMin * Math.pow(fMax / fMin, x / W);
+    const k = Math.round((f * N) / sr);
+    if (k < 1 || k >= bins) continue;
+    // 近傍平均で滑らかに
+    const k0 = Math.max(1, k - 2), k1 = Math.min(bins - 1, k + 2);
+    let m = 0; for (let i = k0; i <= k1; i++) m += spec[i];
+    m /= (k1 - k0 + 1);
+    const db = dbFromLin(m);
+    const y = H - ((db - dbMin) / (dbMax - dbMin)) * H;
+    if (first) { g.moveTo(x, y); first = false; } else g.lineTo(x, y);
+  }
+  g.stroke();
+}
+
+// ---- 波形描画 ----
+function drawWaveforms() {
+  const canvas = document.getElementById('waveformCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * dpr;
+  canvas.height = 180 * dpr;
+  const g = canvas.getContext('2d');
+  g.scale(dpr, dpr);
+  const W = canvas.clientWidth, H = 180;
+  g.fillStyle = '#0a0908';
+  g.fillRect(0, 0, W, H);
+  // 中央線
+  g.strokeStyle = '#2a2620';
+  g.beginPath(); g.moveTo(0, H/4); g.lineTo(W, H/4); g.moveTo(0, 3*H/4); g.lineTo(W, 3*H/4); g.stroke();
+  drawWaveHalf(g, state.bufferA, 0, H/2, W, 'rgba(194,85,77,0.85)');
+  drawWaveHalf(g, state.bufferB, H/2, H/2, W, 'rgba(240,207,133,0.85)');
+  // ラベル
+  g.fillStyle = '#c2554d'; g.font = 'bold 11px Consolas'; g.fillText('A', 6, 14);
+  g.fillStyle = '#d9b566'; g.fillText('B', 6, H/2 + 14);
+}
+function drawWaveHalf(g, buffer, yOff, h, W, color) {
+  const data = buffer.getChannelData(0);
+  const step = Math.max(1, Math.floor(data.length / W));
+  g.strokeStyle = color;
+  g.lineWidth = 1;
+  for (let x = 0; x < W; x++) {
+    const start = x * step;
+    const end = Math.min(data.length, start + step);
+    let mn = 1, mx = -1;
+    for (let i = start; i < end; i++) {
+      const v = data[i];
+      if (v < mn) mn = v;
+      if (v > mx) mx = v;
+    }
+    const midY = yOff + h/2;
+    g.beginPath();
+    g.moveTo(x, midY + mn * (h/2) * 0.95);
+    g.lineTo(x, midY + mx * (h/2) * 0.95);
+    g.stroke();
+  }
+}
+
+// ---- 再生 ----
+function play() {
+  if (!state.bufferA || !state.bufferB) return;
+  if (state.isPlaying) stop();
+
+  state.sourceA = state.ctx.createBufferSource();
+  state.sourceB = state.ctx.createBufferSource();
+  state.sourceA.buffer = state.bufferA;
+  state.sourceB.buffer = state.bufferB;
+  state.sourceA.loop = state.loop;
+  state.sourceB.loop = state.loop;
+
+  state.gainA = state.ctx.createGain();
+  state.gainB = state.ctx.createGain();
+  state.analyserA = state.ctx.createAnalyser();
+  state.analyserB = state.ctx.createAnalyser();
+  state.analyserA.fftSize = 2048;
+  state.analyserB.fftSize = 2048;
+
+  state.sourceA.connect(state.gainA).connect(state.analyserA).connect(state.ctx.destination);
+  state.sourceB.connect(state.gainB).connect(state.analyserB).connect(state.ctx.destination);
+
+  updateGains(0); // instant set
+
+  const when = state.ctx.currentTime + 0.05;
+  state.sourceA.start(when, state.startOffset);
+  state.sourceB.start(when, state.startOffset);
+  state.startCtxTime = when;
+  state.isPlaying = true;
+  document.getElementById('playBtn').textContent = '❚❚ 一時停止';
+  document.getElementById('stopBtn').disabled = false;
+
+  state.sourceA.onended = () => {
+    if (!state.loop) onPlaybackEnd();
+  };
+  startVizLoop();
+}
+function onPlaybackEnd() {
+  state.isPlaying = false;
+  state.startOffset = 0;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+  document.getElementById('scrubber').value = 0;
+  document.getElementById('timeNow').textContent = '0:00';
+}
+function pause() {
+  if (!state.isPlaying) return;
+  const now = state.ctx.currentTime;
+  state.startOffset += now - state.startCtxTime;
+  stopSources();
+  state.isPlaying = false;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+}
+function stop() {
+  stopSources();
+  state.isPlaying = false;
+  state.startOffset = 0;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+  document.getElementById('scrubber').value = 0;
+  document.getElementById('timeNow').textContent = '0:00';
+}
+function stopSources() {
+  [state.sourceA, state.sourceB].forEach(s => {
+    if (s) try { s.stop(); } catch(_){}
+  });
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+}
+function updateGains(fadeTime) {
+  if (!state.gainA) return;
+  const now = state.ctx.currentTime;
+  const vA = state.loudnessMatch ? state.volA : 1;
+  const vB = state.loudnessMatch ? state.volB : 1;
+  const tA = state.current === 'A' ? vA : 0;
+  const tB = state.current === 'B' ? vB : 0;
+  if (fadeTime > 0) {
+    state.gainA.gain.cancelScheduledValues(now);
+    state.gainB.gain.cancelScheduledValues(now);
+    state.gainA.gain.setValueAtTime(state.gainA.gain.value, now);
+    state.gainB.gain.setValueAtTime(state.gainB.gain.value, now);
+    state.gainA.gain.linearRampToValueAtTime(tA, now + fadeTime);
+    state.gainB.gain.linearRampToValueAtTime(tB, now + fadeTime);
+  } else {
+    state.gainA.gain.setValueAtTime(tA, now);
+    state.gainB.gain.setValueAtTime(tB, now);
+  }
+}
+
+function toggleAB() {
+  state.current = state.current === 'A' ? 'B' : 'A';
+  updateGains(0.006); // 6ms フェード（クリック防止）
+  refreshABButtons();
+}
+function refreshABButtons() {
+  const btnA = document.getElementById('btnA');
+  const btnB = document.getElementById('btnB');
+  btnA.classList.toggle('active', state.blind ? false : state.current === 'A');
+  btnB.classList.toggle('active', state.blind ? false : state.current === 'B');
+  if (state.blind) {
+    btnA.classList.toggle('active', state.current === state.blindSide);
+    btnB.classList.toggle('active', state.current !== state.blindSide);
+    btnA.textContent = '←';
+    btnB.textContent = '→';
+  } else {
+    btnA.textContent = 'A';
+    btnB.textContent = 'B';
+  }
+}
+
+// ---- スペクトログラム（リアルタイム） ----
+function setupSpectroCanvas(id) {
+  const c = document.getElementById(id);
+  const dpr = window.devicePixelRatio || 1;
+  c.width = c.clientWidth * dpr;
+  c.height = 140 * dpr;
+  const g = c.getContext('2d');
+  g.scale(dpr, dpr);
+  g.fillStyle = '#000';
+  g.fillRect(0, 0, c.clientWidth, 140);
+  return g;
+}
+let specGA = null, specGB = null;
+function startVizLoop() {
+  specGA = setupSpectroCanvas('spectrogramA');
+  specGB = setupSpectroCanvas('spectrogramB');
+  const dataA = new Uint8Array(state.analyserA.frequencyBinCount);
+  const dataB = new Uint8Array(state.analyserB.frequencyBinCount);
+  const W_A = document.getElementById('spectrogramA').clientWidth;
+  const H_A = 140;
+
+  function frame() {
+    state.analyserA.getByteFrequencyData(dataA);
+    state.analyserB.getByteFrequencyData(dataB);
+    drawSpectroColumn(specGA, dataA, W_A, H_A, state.ctx.sampleRate);
+    drawSpectroColumn(specGB, dataB, W_A, H_A, state.ctx.sampleRate);
+
+    // 時刻表示
+    if (state.isPlaying) {
+      const now = state.ctx.currentTime;
+      const t = Math.min(state.duration, state.startOffset + (now - state.startCtxTime));
+      document.getElementById('timeNow').textContent = fmtTime(t);
+      document.getElementById('scrubber').value = (t / state.duration) * 1000;
+    }
+    state.rafId = requestAnimationFrame(frame);
+  }
+  frame();
+}
+function drawSpectroColumn(g, data, W, H, sr) {
+  const img = g.getImageData(1, 0, W - 1, H);
+  g.putImageData(img, 0, 0);
+  g.clearRect(W - 1, 0, 1, H);
+  const bins = data.length;
+  const fMax = sr / 2;
+  const fMin = 20;
+  const lo = Math.log10(fMin), hi = Math.log10(fMax);
+  for (let y = 0; y < H; y++) {
+    const f = Math.pow(10, hi - ((y / H) * (hi - lo)));
+    const k = Math.round((f / fMax) * bins);
+    if (k < 0 || k >= bins) continue;
+    const v = data[k];
+    if (v < 8) continue;
+    g.fillStyle = colorMap(v);
+    g.fillRect(W - 1, y, 1, 1);
+  }
+}
+function colorMap(v) {
+  const t = v / 255;
+  let r, g_, b;
+  if (t < 0.25)      { r = 30 + t*4 * 120; g_ = 10; b = 5; }
+  else if (t < 0.55) { r = 150 + (t-0.25)/0.3 * 90; g_ = 40 + (t-0.25)/0.3 * 100; b = 20; }
+  else if (t < 0.85) { r = 240; g_ = 140 + (t-0.55)/0.3 * 85; b = 50 + (t-0.55)/0.3 * 80; }
+  else               { r = 250; g_ = 225 + (t-0.85)/0.15 * 30; b = 130 + (t-0.85)/0.15 * 100; }
+  return 'rgb(' + (r|0) + ',' + (g_|0) + ',' + (b|0) + ')';
+}
+
+// ==============================================================================
+//   イベント配線
+// ==============================================================================
+function wireDropZone(slot) {
+  const el = document.getElementById('drop' + slot);
+  const input = document.getElementById('file' + slot);
+  el.addEventListener('click', () => input.click());
+  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); el.classList.remove('over');
+    if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0], slot);
+  });
+  input.addEventListener('change', e => {
+    if (e.target.files.length) loadFile(e.target.files[0], slot);
+  });
+}
+wireDropZone('A');
+wireDropZone('B');
+
+document.getElementById('playBtn').addEventListener('click', () => {
+  if (state.isPlaying) pause(); else play();
+});
+document.getElementById('stopBtn').addEventListener('click', stop);
+document.getElementById('btnA').addEventListener('click', () => {
+  if (state.blind) { state.current = state.blindSide; }
+  else { state.current = 'A'; }
+  updateGains(0.006); refreshABButtons();
+});
+document.getElementById('btnB').addEventListener('click', () => {
+  if (state.blind) { state.current = state.blindSide === 'A' ? 'B' : 'A'; }
+  else { state.current = 'B'; }
+  updateGains(0.006); refreshABButtons();
+});
+document.getElementById('loudnessMatch').addEventListener('change', e => {
+  state.loudnessMatch = e.target.checked;
+  updateGains(0.05);
+});
+document.getElementById('loopMode').addEventListener('change', e => {
+  state.loop = e.target.checked;
+  if (state.sourceA) { state.sourceA.loop = state.loop; state.sourceB.loop = state.loop; }
+});
+document.getElementById('blindMode').addEventListener('change', e => {
+  state.blind = e.target.checked;
+  if (state.blind) {
+    state.blindSide = Math.random() < 0.5 ? 'A' : 'B';
+    state.current = state.blindSide;
+    document.getElementById('blindBanner').classList.remove('hidden');
+    document.getElementById('revealText').textContent = '';
+  } else {
+    document.getElementById('blindBanner').classList.add('hidden');
+  }
+  updateGains(0); refreshABButtons();
+});
+document.getElementById('revealBtn').addEventListener('click', () => {
+  const left = state.blindSide;
+  const right = left === 'A' ? 'B' : 'A';
+  document.getElementById('revealText').textContent =
+    '  ← = ' + (left === 'A' ? 'Original' : 'Hi-Res') + '  ／  → = ' + (right === 'A' ? 'Original' : 'Hi-Res');
+});
+document.getElementById('scrubber').addEventListener('input', e => {
+  if (!state.bufferA || !state.bufferB) return;
+  const t = (e.target.value / 1000) * state.duration;
+  state.startOffset = t;
+  document.getElementById('timeNow').textContent = fmtTime(t);
+  if (state.isPlaying) { stopSources(); play(); }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); if (state.isPlaying) pause(); else play(); }
+  if (e.code === 'KeyX')  { e.preventDefault(); if (state.isPlaying) toggleAB(); }
+});
+
+window.addEventListener('resize', () => {
+  if (state.bufferA && state.bufferB) {
+    drawSpectrum();
+    drawWaveforms();
+  }
+});
+</script>
+
+</body>
+</html>

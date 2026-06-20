@@ -1,0 +1,504 @@
+/* =====================================================================
+   H/MIX MUSIC LIBRARY — cardtools=forest-glass
+   "新緑のガラス" card variant — opt-in via ?cardtools=forest-glass
+
+   Mount: body[data-cardtools="forest-glass"] is set by music-library.js
+          when the URL carries ?cardtools=forest-glass
+
+   All rules are scoped under that attribute so this file is a no-op
+   when the param is absent.
+
+   Required card DOM (created by music-library.js when the attr is on):
+     <div class="fg-perspective">
+       <article class="ml-card">
+         <div class="ml-card-jacket"></div>
+         <div class="fg-noise"></div>
+         <div class="fg-iridescent"></div>
+         <div class="fg-iridescent fg-iridescent--sharp"></div>
+         <div class="fg-specular"></div>
+         <div class="fg-gloss"></div>
+         <div class="fg-halo"></div>
+         <div class="ml-card-inner">...existing inner markup...</div>
+       </article>
+     </div>
+
+   Pointer tracking writes --mx, --my, --rx, --ry onto .ml-card.
+   ===================================================================== */
+
+body[data-cardtools="forest-glass"] {
+  /* ── Effect knobs ──────────────────────────────────────────────── */
+
+  /* 視点・動き */
+  --fg-tilt-max:        8deg;
+  --fg-hover-lift:      6px;
+  --fg-hover-scale:     1.018;
+
+  /* 透明感（ガラスの厚み） */
+  --fg-surface-alpha:   0.24;
+  --fg-surface-blur:    24px;
+  --fg-surface-tint:    0.30;
+
+  /* 光の反射 — defaults tuned for 新緑の眩しい光 */
+  --fg-light-hue:       132;
+  --fg-light-peak:      0.995;
+  --fg-light-chroma:    0.16;
+  --fg-ambient-light:   0.22;
+  --fg-specular-alpha:  0.28;
+  --fg-specular-size:   32%;
+  --fg-specular-sharp:  0.62;
+  --fg-secondary-spec:  0.42;
+  --fg-iri-alpha:       0.30;
+  --fg-iri-shift:       0deg;
+  --fg-reveal-edge:     0.30;
+
+  /* 外側のグロー */
+  --fg-glow-hue:        142;
+  --fg-glow-alpha:      0.16;
+
+  /* 表面のテクスチャ */
+  --fg-noise-alpha:     0.05;
+}
+
+/* =====================================================================
+   Perspective wrapper
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .fg-perspective {
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+  /* NOTE: no transform-style: preserve-3d — preserve-3d isolates each
+     descendant into its own 3D rendering context, which breaks
+     mix-blend-mode on the light/iridescent layers. */
+}
+
+/* =====================================================================
+   Card — glass surface
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card {
+  position: relative;
+  border: 1px solid rgba(126, 203, 149, 0.22);
+  border-radius: 18px;
+  overflow: hidden;
+  isolation: isolate;
+  transform: none;
+  transform-origin: 50% 50%;
+  transition:
+    transform .35s cubic-bezier(.2,.7,.2,1),
+    box-shadow .35s,
+    border-color .35s;
+  will-change: transform;
+
+  background:
+    radial-gradient(140% 70% at 50% 0%,
+      oklch(0.62 0.14 var(--fg-light-hue) /
+        calc(0.22 * var(--fg-surface-alpha) * var(--fg-surface-tint))),
+      transparent 55%),
+    radial-gradient(120% 80% at 50% 0%,
+      oklch(0.34 0.07 152 / calc(0.55 * var(--fg-surface-alpha))),
+      transparent 60%),
+    linear-gradient(160deg,
+      oklch(0.27 0.05 152 / var(--fg-surface-alpha)) 0%,
+      oklch(0.20 0.04 152 / var(--fg-surface-alpha)) 55%,
+      oklch(0.16 0.03 152 / var(--fg-surface-alpha)) 100%);
+
+  backdrop-filter: blur(var(--fg-surface-blur)) saturate(1.05);
+  -webkit-backdrop-filter: blur(var(--fg-surface-blur)) saturate(1.05);
+  background-color: transparent !important; /* override dark-theme override */
+
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.10 var(--fg-light-hue) /
+      calc(var(--fg-reveal-edge) * 0.7)),
+    inset 0 0 0 1px oklch(0.74 0.06 142 / 0.06),
+    0 1px 1px oklch(0.04 0.005 150 / 0.4),
+    0 12px 30px -10px oklch(0.04 0.005 150 / 0.55);
+}
+
+/* Override the dark-theme is-playing box-shadow with our own */
+body[data-cardtools="forest-glass"] .ml-card.is-playing {
+  border-color: oklch(0.86 0.14 142 / 0.6) !important;
+  box-shadow:
+    inset 0 1px 0 oklch(0.92 0.10 152 / 0.5),
+    inset 0 0 0 1px oklch(0.86 0.14 142 / 0.25),
+    0 0 0 1px oklch(0.86 0.14 142 / 0.35),
+    0 24px 50px -12px oklch(0.04 0.005 150 / 0.7),
+    0 0 80px -8px oklch(0.74 0.16 142 / 0.45) !important;
+}
+
+/* =====================================================================
+   Jacket — bright young-leaf light spill replacing the dark gradient
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card-jacket {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 30% -10%,
+      oklch(0.78 0.14 var(--fg-light-hue) / calc(0.55 * var(--fg-surface-tint))),
+      transparent 60%),
+    radial-gradient(ellipse 50% 40% at 82% 14%,
+      oklch(0.92 0.12 110 / calc(0.20 * var(--fg-surface-tint))),
+      transparent 60%),
+    linear-gradient(170deg,
+      oklch(0.26 0.07 var(--fg-light-hue) / calc(0.85 * var(--fg-surface-alpha))) 0%,
+      oklch(0.14 0.03 150 / calc(0.95 * var(--fg-surface-alpha))) 100%) !important;
+  opacity: calc(0.18 + 0.42 * var(--fg-surface-alpha)) !important;
+  transition: transform var(--transition-slow, .5s);
+}
+
+/* Existing tag-primary gradients on .ml-card-jacket are overridden above
+   so the whole grid reads as one consistent "forest glass" palette. */
+
+body[data-cardtools="forest-glass"] .ml-card-jacket::before,
+body[data-cardtools="forest-glass"] .ml-card-jacket::after {
+  display: none;
+}
+
+/* leaf-veined fine pattern layered on the jacket */
+body[data-cardtools="forest-glass"] .ml-card-jacket::before {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(115deg,
+      oklch(0.92 0.08 152 / 0.05) 0 1px,
+      transparent 1px 14px),
+    repeating-linear-gradient(25deg,
+      oklch(0.86 0.10 90 / 0.03) 0 1px,
+      transparent 1px 22px);
+  mix-blend-mode: plus-lighter;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* =====================================================================
+   Effect layers
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card > .fg-noise,
+body[data-cardtools="forest-glass"] .ml-card > .fg-iridescent,
+body[data-cardtools="forest-glass"] .ml-card > .fg-specular,
+body[data-cardtools="forest-glass"] .ml-card > .fg-gloss {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+body[data-cardtools="forest-glass"] .ml-card > .fg-halo {
+  display: block;
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Iridescent sheen — soft pass */
+body[data-cardtools="forest-glass"] .fg-iridescent {
+  background:
+    conic-gradient(from calc(120deg + var(--fg-iri-shift)),
+      oklch(0.96 0.14 var(--fg-light-hue) / 0.0)  0deg,
+      oklch(0.98 0.14 var(--fg-light-hue) / 0.85) 28deg,
+      oklch(0.99 0.10 100 / 0.75) 60deg,
+      oklch(0.95 0.18 130 / 0.85) 95deg,
+      oklch(0.92 0.16 152 / 0.65) 140deg,
+      oklch(0.86 0.18 142 / 0.70) 180deg,
+      oklch(0.94 0.14 122 / 0.55) 230deg,
+      oklch(0.99 0.10 100 / 0.40) 290deg,
+      oklch(0.96 0.14 var(--fg-light-hue) / 0.0) 360deg);
+  -webkit-mask-image:
+    radial-gradient(circle at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      black 0%, black 14%, transparent 58%);
+          mask-image:
+    radial-gradient(circle at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      black 0%, black 14%, transparent 58%);
+  mix-blend-mode: plus-lighter;
+  opacity: calc(var(--fg-iri-alpha) *
+    (var(--fg-ambient-light) + var(--fg-hover-active, 0) * 0.22));
+  transition: opacity .35s ease;
+  filter: blur(5px) saturate(1.35);
+}
+
+/* Iridescent — sharp pass */
+body[data-cardtools="forest-glass"] .fg-iridescent--sharp {
+  filter: none;
+  mix-blend-mode: plus-lighter;
+  opacity: calc(var(--fg-iri-alpha) * 0.28 *
+    (var(--fg-ambient-light) * 0.5 + var(--fg-hover-active, 0) * 0.18));
+  -webkit-mask-image:
+    radial-gradient(circle at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      black 0%, black 6%, transparent 30%);
+          mask-image:
+    radial-gradient(circle at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      black 0%, black 6%, transparent 30%);
+}
+
+/* Specular — bright young-leaf hotspot following the pointer */
+body[data-cardtools="forest-glass"] .fg-specular {
+  background:
+    radial-gradient(
+      calc(var(--fg-specular-size) * (0.18 + (1 - var(--fg-specular-sharp)) * 0.10))
+      calc(var(--fg-specular-size) * (0.18 + (1 - var(--fg-specular-sharp)) * 0.10))
+      at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      oklch(var(--fg-light-peak) var(--fg-light-chroma) var(--fg-light-hue) /
+        calc(var(--fg-specular-alpha) * var(--fg-secondary-spec))) 0%,
+      oklch(0.95 0.18 var(--fg-light-hue) /
+        calc(var(--fg-specular-alpha) * var(--fg-secondary-spec) * 0.55)) 28%,
+      transparent 60%),
+    radial-gradient(
+      var(--fg-specular-size) var(--fg-specular-size)
+      at calc(var(--mx, 50) * 1%) calc(var(--my, 50) * 1%),
+      oklch(var(--fg-light-peak) var(--fg-light-chroma) var(--fg-light-hue) /
+        calc(var(--fg-specular-alpha) * (0.9 - var(--fg-specular-sharp) * 0.3))) 0%,
+      oklch(0.92 0.18 calc(var(--fg-light-hue) + 14) /
+        calc(var(--fg-specular-alpha) * 0.55)) 22%,
+      oklch(0.88 0.16 152 /
+        calc(var(--fg-specular-alpha) * 0.30)) 45%,
+      transparent 70%);
+  mix-blend-mode: plus-lighter;
+  opacity: calc(var(--fg-ambient-light) * 0.45 + var(--fg-hover-active, 0) * 0.22);
+  transition: opacity .35s ease;
+  filter: saturate(1.15);
+}
+
+/* Top-edge gloss */
+body[data-cardtools="forest-glass"] .fg-gloss {
+  background:
+    linear-gradient(180deg,
+      oklch(0.96 0.14 var(--fg-light-hue) / calc(var(--fg-reveal-edge) * 0.6)) 0%,
+      oklch(0.92 0.10 var(--fg-light-hue) / 0) 18%,
+      transparent 100%),
+    linear-gradient(95deg,
+      transparent 0%,
+      oklch(0.95 0.06 var(--fg-light-hue) / calc(var(--fg-reveal-edge) * 0.10)) 6%,
+      transparent 18%);
+  mix-blend-mode: plus-lighter;
+}
+
+/* Outer halo */
+body[data-cardtools="forest-glass"] .fg-halo {
+  background: radial-gradient(ellipse 75% 60% at 50% 50%,
+    oklch(0.78 0.18 var(--fg-glow-hue) /
+      calc(var(--fg-glow-alpha) *
+        (var(--fg-ambient-light) * 0.4 + var(--fg-hover-active, 0) * 0.22))),
+    transparent 70%);
+  filter: blur(26px);
+  opacity: calc(var(--fg-ambient-light) * 0.5 + var(--fg-hover-active, 0) * 0.20);
+  transition: opacity .45s ease;
+}
+
+/* Noise overlay */
+body[data-cardtools="forest-glass"] .fg-noise {
+  opacity: var(--fg-noise-alpha);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.65 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 180px 180px;
+  mix-blend-mode: overlay;
+}
+
+/* =====================================================================
+   Inner content sits above all effect layers
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* =====================================================================
+   Hover — full light activation + perspective tilt
+   --fg-hover-active is toggled to 1 via :hover
+   --mx/--my/--rx/--ry are written by JS (pointer tracking)
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card:hover {
+  --fg-hover-active: 1;
+  border-color: oklch(0.92 0.10 var(--fg-light-hue) / 0.24);
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.12 var(--fg-light-hue) /
+      calc(var(--fg-reveal-edge) * 0.72)),
+    inset 0 0 0 1px oklch(0.92 0.10 var(--fg-light-hue) / 0.08),
+    0 2px 2px oklch(0.04 0.005 150 / 0.45),
+    0 24px 50px -12px oklch(0.04 0.005 150 / 0.7),
+    0 0 60px -8px oklch(0.78 0.18 var(--fg-glow-hue) /
+      calc(var(--fg-glow-alpha) * 0.7));
+}
+
+body[data-cardtools="forest-glass"] .fg-perspective:hover .ml-card {
+  transform:
+    rotateX(calc(var(--ry, 0) * var(--fg-tilt-max) * -1))
+    rotateY(calc(var(--rx, 0) * var(--fg-tilt-max)))
+    translateY(calc(var(--fg-hover-lift) * -1))
+    scale(var(--fg-hover-scale));
+}
+
+/* =====================================================================
+   Creator tools button
+   ===================================================================== */
+body[data-cardtools="forest-glass"] .ml-card-actions {
+  align-items: center;
+  gap: 8px;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play,
+body[data-cardtools="forest-glass"] .ml-btn-tools {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.36rem;
+  min-height: 36px;
+  padding: 0.48rem 0.92rem 0.48rem 0.72rem;
+  border: 1px solid oklch(0.82 0.10 90 / 0.36);
+  border-radius: 999px;
+  color: oklch(0.96 0.04 142);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,
+      oklch(0.86 0.10 90 / 0.20),
+      transparent 70%),
+    linear-gradient(180deg,
+      oklch(0.42 0.10 150 / 0.95),
+      oklch(0.30 0.08 152 / 0.95));
+  box-shadow:
+    inset 0 1px 0 oklch(0.92 0.08 152 / 0.5),
+    inset 0 -1px 0 oklch(0.10 0.03 150 / 0.5),
+    0 4px 14px -3px oklch(0.20 0.06 152 / 0.6);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play {
+  min-width: 92px;
+  border-color: oklch(0.78 0.09 152 / 0.34);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,
+      oklch(0.78 0.10 152 / 0.14),
+      transparent 70%),
+    linear-gradient(180deg,
+      oklch(0.34 0.08 152 / 0.92),
+      oklch(0.24 0.06 152 / 0.92));
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-tools {
+  min-width: 132px;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play::before,
+body[data-cardtools="forest-glass"] .ml-btn-tools::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    repeating-linear-gradient(90deg,
+      oklch(0.92 0.08 152 / 0) 0 6px,
+      oklch(0.92 0.08 152 / 0.08) 6px 7px);
+  opacity: 0.7;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play::after,
+body[data-cardtools="forest-glass"] .ml-btn-tools::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  width: 30%;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg,
+    transparent 0%,
+    oklch(0.99 0.05 92 / 0.20) 40%,
+    oklch(0.92 0.10 152 / 0.14) 60%,
+    transparent 100%);
+  filter: blur(3px);
+  transform: skewX(-18deg);
+  transition: left .7s cubic-bezier(.2,.7,.2,1);
+}
+
+body[data-cardtools="forest-glass"] .ml-card:hover .ml-btn-play::after,
+body[data-cardtools="forest-glass"] .ml-btn-play:hover::after,
+body[data-cardtools="forest-glass"] .ml-card:hover .ml-btn-tools::after,
+body[data-cardtools="forest-glass"] .ml-btn-tools:hover::after {
+  left: 130%;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play .play-icon-svg {
+  color: oklch(0.94 0.08 152);
+  filter: drop-shadow(0 0 3px oklch(0.78 0.12 152 / 0.35));
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-tools .tools-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: oklch(0.96 0.08 92);
+  filter: drop-shadow(0 0 3px oklch(0.86 0.10 90 / 0.35));
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-tools .tools-pip {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: oklch(0.92 0.16 142);
+  box-shadow: 0 0 4px oklch(0.92 0.16 142 / 0.45);
+  animation: fgToolsPulse 2.4s ease-in-out infinite;
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-play:hover {
+  border-color: oklch(0.90 0.10 152 / 0.42);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,
+      oklch(0.82 0.11 152 / 0.18),
+      transparent 70%),
+    linear-gradient(180deg,
+      oklch(0.39 0.10 152 / 0.94),
+      oklch(0.28 0.08 152 / 0.94));
+  box-shadow:
+    inset 0 1px 0 oklch(0.92 0.10 152 / 0.34),
+    inset 0 -1px 0 oklch(0.10 0.03 150 / 0.5),
+    0 6px 18px -3px oklch(0.16 0.07 152 / 0.65),
+    0 0 16px -7px oklch(0.78 0.12 152 / 0.24);
+}
+
+body[data-cardtools="forest-glass"] .ml-btn-tools:hover {
+  border-color: oklch(0.92 0.10 90 / 0.40);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,
+      oklch(0.86 0.10 90 / 0.16),
+      transparent 70%),
+    linear-gradient(180deg,
+      oklch(0.48 0.12 148 / 0.95),
+      oklch(0.34 0.10 152 / 0.95));
+  box-shadow:
+    inset 0 1px 0 oklch(0.92 0.10 152 / 0.38),
+    inset 0 -1px 0 oklch(0.10 0.03 150 / 0.5),
+    0 6px 18px -3px oklch(0.20 0.08 152 / 0.7),
+    0 0 18px -6px oklch(0.86 0.10 90 / 0.24);
+}
+
+@keyframes fgToolsPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.10); }
+}
+
+/* =====================================================================
+   Mobile / reduced motion fallbacks
+   ===================================================================== */
+@media (hover: none), (max-width: 720px) {
+  body[data-cardtools="forest-glass"] .fg-perspective:hover .ml-card {
+    transform: none;
+  }
+  body[data-cardtools="forest-glass"] .fg-perspective { perspective: none; }
+  /* keep ambient light, drop pointer-driven layers */
+  body[data-cardtools="forest-glass"] .fg-iridescent--sharp { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-cardtools="forest-glass"] .ml-card,
+  body[data-cardtools="forest-glass"] .fg-perspective:hover .ml-card {
+    transition: none !important;
+    transform: none !important;
+  }
+  body[data-cardtools="forest-glass"] .ml-btn-tools .tools-pip {
+    animation: none;
+  }
+}

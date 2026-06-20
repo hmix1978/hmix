@@ -1,0 +1,167 @@
+/* ============================================================
+   H/MIX GALLERY — Ornamental Decorations
+   European classical scrollwork × Forest fantasy
+   ============================================================ */
+
+/* ─── Section Divider Ornament ─── */
+.orn-divider {
+  display: block;
+  width: min(95%, 580px);
+  height: 52px;
+  margin: 0.5rem auto;
+  background: url('/images/ornaments/divider.svg') center / contain no-repeat;
+  border: none;
+  opacity: 0.9;
+}
+
+/* ─── Corner-framed Sections ─── */
+.orn-framed {
+  position: relative;
+  padding: 2.5rem 3rem;
+}
+
+.orn-framed::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 90px;
+  height: 90px;
+  background: url('/images/ornaments/corner-tl.svg') top left / contain no-repeat;
+  pointer-events: none;
+}
+
+.orn-framed::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 90px;
+  height: 90px;
+  background: url('/images/ornaments/corner-tr.svg') top right / contain no-repeat;
+  pointer-events: none;
+}
+
+/* Bottom corners via inner wrapper */
+.orn-framed-bottom::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: -4px;
+  width: 90px;
+  height: 90px;
+  background: url('/images/ornaments/corner-bl.svg') bottom left / contain no-repeat;
+  pointer-events: none;
+}
+
+.orn-framed-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 90px;
+  height: 90px;
+  background: url('/images/ornaments/corner-br.svg') bottom right / contain no-repeat;
+  pointer-events: none;
+}
+
+/* ─── Hero Title Ornamental Frame ─── */
+.orn-hero-frame {
+  position: relative;
+  display: inline-block;
+}
+
+.orn-hero-frame::before,
+.orn-hero-frame::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 60px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.orn-hero-frame::before {
+  right: calc(100% + 1.5rem);
+  background: linear-gradient(90deg, transparent, #9adfb4);
+  opacity: 0.3;
+}
+
+.orn-hero-frame::after {
+  left: calc(100% + 1.5rem);
+  background: linear-gradient(90deg, #9adfb4, transparent);
+  opacity: 0.3;
+}
+
+/* ─── Decorative Vine Border (top/bottom of sections) ─── */
+.orn-vine-top {
+  position: relative;
+}
+
+.orn-vine-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 600px);
+  height: 3px;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(154, 223, 180, 0.15) 15%,
+      rgba(154, 223, 180, 0.30) 50%,
+      rgba(154, 223, 180, 0.15) 85%,
+      transparent 100%
+    );
+  pointer-events: none;
+}
+
+/* ─── Gold accent line ─── */
+.orn-gold-line {
+  display: block;
+  width: 40px;
+  height: 1px;
+  margin: 1rem auto;
+  background: linear-gradient(90deg, transparent, #d4a44c, transparent);
+  border: none;
+  opacity: 0.4;
+}
+
+/* ─── Subtle pattern overlay for info-hero ─── */
+.orn-pattern-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(154, 223, 180, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(212, 164, 76, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px, 80px 80px;
+  pointer-events: none;
+}
+
+/* ─── Override: remove default section border when ornamental dividers are used ─── */
+#page-content .info-section {
+  border-bottom: none;
+}
+
+/* ─── Override: TOC padding for corner ornaments ─── */
+.terms-toc.orn-framed {
+  padding: 2.5rem 3rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .orn-framed {
+    padding: 2rem;
+  }
+  .orn-framed::before,
+  .orn-framed::after {
+    width: 60px;
+    height: 60px;
+  }
+  .orn-framed-bottom::before,
+  .orn-framed-bottom::after {
+    width: 60px;
+    height: 60px;
+  }
+}

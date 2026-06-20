@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /backups/
+Disallow: /archive-restored/
+Disallow: /scripts/
+Disallow: /tracks-manager.html
+Disallow: /tag-editor.html
+Disallow: /test-loader.html
+Disallow: /convert-waku.html
+Disallow: /mj-prompt.html
+Disallow: /midjourney_prompts.html
+Disallow: /fix_seo_head.js
+
+Sitemap: https://www.hmix.net/sitemap.xml

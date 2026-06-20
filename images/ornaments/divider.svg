@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 60" width="600" height="60">
+  <!-- Ornamental section divider — wider, with heraldic central emblem -->
+
+  <!-- ═══ Central Emblem ═══ -->
+  <!-- Outer shield shape -->
+  <path d="M300,4 L316,16 L316,34 C316,42 308,50 300,54 C292,50 284,42 284,34 L284,16 Z"
+        fill="none" stroke="#9adfb4" stroke-width="0.9" opacity="0.40"/>
+  <!-- Inner shield -->
+  <path d="M300,10 L312,19 L312,33 C312,39 306,46 300,49 C294,46 288,39 288,33 L288,19 Z"
+        fill="none" stroke="#9adfb4" stroke-width="0.5" opacity="0.22"/>
+  <!-- Shield fill -->
+  <path d="M300,10 L312,19 L312,33 C312,39 306,46 300,49 C294,46 288,39 288,33 L288,19 Z"
+        fill="#9adfb4" opacity="0.04"/>
+
+  <!-- Musical note / lyre inside shield -->
+  <!-- Lyre arms -->
+  <path d="M300,40 L300,22"
+        stroke="#d4a44c" stroke-width="0.6" fill="none" opacity="0.30"/>
+  <path d="M300,22 C294,20 291,16 292,14 C293,12 296,12 298,14"
+        stroke="#d4a44c" stroke-width="0.5" fill="none" opacity="0.25"/>
+  <path d="M300,22 C306,20 309,16 308,14 C307,12 304,12 302,14"
+        stroke="#d4a44c" stroke-width="0.5" fill="none" opacity="0.25"/>
+  <!-- Lyre strings -->
+  <line x1="296" y1="22" x2="296" y2="16" stroke="#d4a44c" stroke-width="0.3" opacity="0.18"/>
+  <line x1="304" y1="22" x2="304" y2="16" stroke="#d4a44c" stroke-width="0.3" opacity="0.18"/>
+  <!-- Lyre base dot -->
+  <circle cx="300" cy="42" r="1.5" fill="#d4a44c" opacity="0.22"/>
+
+  <!-- Crown/crest above shield -->
+  <path d="M294,4 L297,0 L300,3 L303,0 L306,4"
+        stroke="#d4a44c" stroke-width="0.5" fill="none" opacity="0.22"/>
+  <circle cx="300" cy="1" r="0.8" fill="#d4a44c" opacity="0.18"/>
+
+  <!-- Small wings / laurel flanking the shield -->
+  <path d="M284,18 C278,14 274,10 276,8 C278,6 282,8 284,14"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.25"/>
+  <path d="M282,22 C276,20 272,16 274,14 C276,12 280,14 282,18"
+        stroke="#9adfb4" stroke-width="0.5" fill="none" opacity="0.18"/>
+  <path d="M316,18 C322,14 326,10 324,8 C322,6 318,8 316,14"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.25"/>
+  <path d="M318,22 C324,20 328,16 326,14 C324,12 320,14 318,18"
+        stroke="#9adfb4" stroke-width="0.5" fill="none" opacity="0.18"/>
+
+  <!-- ═══ Left Scrollwork ═══ -->
+  <path d="M278,30 C264,30 254,22 238,24 C222,26 214,32 196,30
+           C178,28 168,22 152,24 C136,26 126,30 110,28
+           C94,26 84,22 68,24 C52,26 42,29 26,28"
+        stroke="#9adfb4" stroke-width="0.9" fill="none" opacity="0.30"/>
+
+  <!-- Upper curls -->
+  <path d="M238,24 C234,18 228,16 226,20 C224,24 230,26 238,24"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.20"/>
+  <path d="M152,24 C148,18 142,16 140,20 C138,24 144,26 152,24"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.16"/>
+
+  <!-- Lower curls -->
+  <path d="M196,30 C194,36 188,38 186,34 C184,30 190,28 196,30"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.18"/>
+  <path d="M110,28 C108,34 102,36 100,32 C98,28 104,26 110,28"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.14"/>
+
+  <!-- Small leaves -->
+  <path d="M68,24 C62,18 56,20 60,26 C64,32 74,30 68,24Z"
+        fill="#9adfb4" opacity="0.05"/>
+
+  <!-- Fade line -->
+  <line x1="26" y1="28" x2="4" y2="30" stroke="#9adfb4" stroke-width="0.4" opacity="0.08"/>
+
+  <!-- ═══ Right Scrollwork (mirrored) ═══ -->
+  <path d="M322,30 C336,30 346,22 362,24 C378,26 386,32 404,30
+           C422,28 432,22 448,24 C464,26 474,30 490,28
+           C506,26 516,22 532,24 C548,26 558,29 574,28"
+        stroke="#9adfb4" stroke-width="0.9" fill="none" opacity="0.30"/>
+
+  <path d="M362,24 C366,18 372,16 374,20 C376,24 370,26 362,24"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.20"/>
+  <path d="M448,24 C452,18 458,16 460,20 C462,24 456,26 448,24"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.16"/>
+
+  <path d="M404,30 C406,36 412,38 414,34 C416,30 410,28 404,30"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.18"/>
+  <path d="M490,28 C492,34 498,36 500,32 C502,28 496,26 490,28"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.14"/>
+
+  <path d="M532,24 C538,18 544,20 540,26 C536,32 526,30 532,24Z"
+        fill="#9adfb4" opacity="0.05"/>
+
+  <line x1="574" y1="28" x2="596" y2="30" stroke="#9adfb4" stroke-width="0.4" opacity="0.08"/>
+
+  <!-- ═══ Accent dots ═══ -->
+  <circle cx="238" cy="24" r="1.2" fill="#d4a44c" opacity="0.16"/>
+  <circle cx="152" cy="24" r="1.0" fill="#d4a44c" opacity="0.12"/>
+  <circle cx="68" cy="24" r="1.0" fill="#d4a44c" opacity="0.10"/>
+  <circle cx="362" cy="24" r="1.2" fill="#d4a44c" opacity="0.16"/>
+  <circle cx="448" cy="24" r="1.0" fill="#d4a44c" opacity="0.12"/>
+  <circle cx="532" cy="24" r="1.0" fill="#d4a44c" opacity="0.10"/>
+</svg>

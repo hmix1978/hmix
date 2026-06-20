@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>?cardtools=forest-glass プレビュー — H/MIX Music Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;700&family=Cinzel:wght@400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!--
+    cardtools=forest-glass を本番と同一の構成で読み込む。
+    実サイトでは music-library.css → music-library-dark.css → cardtools-forest-glass.css
+    の順で読み込まれる。
+    この単独プレビューは ?cardtools=forest-glass を強制 ON にして、
+    新カード装飾の見た目のみを最小構成で確認するためのもの。
+  -->
+  <link rel="stylesheet" href="./assets/css/cardtools-forest-glass.css">
+
+  <style>
+    :root {
+      --color-bg:           #0a1410;
+      --color-bg-2:         #0d1c14;
+      --color-text:         #e8f4eb;
+      --color-text-muted:   #a8c9b3;
+      --color-text-dim:     #7ba48a;
+      --color-green-light:  #9adfb4;
+      --color-border:       rgba(120, 180, 140, 0.15);
+      --color-surface:      rgba(20, 38, 28, 0.6);
+      --color-surface-2:    rgba(28, 50, 36, 0.7);
+
+      --font-serif-jp: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+      --font-sans-jp:  "Noto Sans JP", "Hiragino Sans", sans-serif;
+      --font-display:  "Cinzel", "Noto Serif JP", serif;
+
+      --transition-fast: 180ms ease;
+      --transition-base: 250ms ease;
+      --transition-slow: 450ms cubic-bezier(.2,.7,.2,1);
+
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 14px;
+      --space-lg: 20px;
+      --space-xl: 28px;
+      --space-2xl: 44px;
+      --radius-xl: 18px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-sans-jp);
+      color: var(--color-text);
+      background:
+        radial-gradient(ellipse 60% 50% at 18% 12%, oklch(0.30 0.06 152 / 0.5), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 88% 88%, oklch(0.26 0.05 158 / 0.5), transparent 60%),
+        radial-gradient(circle at 22% 26%, oklch(0.78 0.16 132 / 0.18), transparent 32%),
+        radial-gradient(circle at 78% 70%, oklch(0.82 0.14 122 / 0.14), transparent 30%),
+        linear-gradient(160deg, oklch(0.18 0.03 152), oklch(0.12 0.02 150) 45%, oklch(0.09 0.015 148));
+      background-attachment: fixed;
+    }
+    .proto-shell { max-width: 1200px; margin: 0 auto; padding: 56px 32px 200px; }
+    .proto-eyebrow {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: oklch(0.82 0.08 142 / 0.78);
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: var(--font-serif-jp);
+      font-weight: 400;
+      font-size: 32px;
+      letter-spacing: 0.04em;
+      color: #f0faf4;
+      margin: 0 0 8px;
+    }
+    .proto-sub {
+      font-family: var(--font-serif-jp);
+      font-size: 14px;
+      letter-spacing: 0.04em;
+      color: rgba(180, 215, 192, 0.78);
+      max-width: 640px;
+      line-height: 1.8;
+      margin: 0 0 32px;
+    }
+    .proto-note {
+      max-width: 680px;
+      margin: 0 0 32px;
+      font-size: 12.5px;
+      line-height: 1.85;
+      color: rgba(168, 201, 179, 0.74);
+    }
+    .proto-note code, .proto-note kbd {
+      font-family: "Cinzel", monospace;
+      font-size: 11px;
+      padding: 2px 6px;
+      background: oklch(0.20 0.04 152 / 0.6);
+      border: 1px solid oklch(0.74 0.06 142 / 0.22);
+      border-radius: 4px;
+      color: oklch(0.92 0.08 142);
+      letter-spacing: 0.04em;
+    }
+
+    /* ===== Card grid (same selectors music-library.css would supply) ===== */
+    .ml-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 22px;
+    }
+    .ml-card {
+      min-height: 296px;
+      display: flex;
+      flex-direction: column;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+    .ml-card-jacket { position: absolute; inset: 0; z-index: 0; }
+    .ml-card-inner {
+      position: relative;
+      z-index: 2;
+      padding: 20px 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+    .ml-card-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .ml-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+    .ml-card-meta-badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 9px;
+      font-family: "Cinzel", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      border-radius: 100px;
+      color: rgba(180, 210, 190, 0.78);
+      background: rgba(40, 80, 55, 0.4);
+      border: 1px solid rgba(126, 203, 149, 0.18);
+    }
+    .ml-card-meta-badge--bpm { color: rgba(220, 195, 130, 0.82); background: rgba(120, 90, 30, 0.18); border-color: rgba(220, 180, 100, 0.20); }
+    .ml-card-meta-badge--loop { color: rgba(126, 220, 175, 0.85); background: rgba(40, 100, 65, 0.22); border-color: rgba(126, 220, 175, 0.22); }
+    .ml-card-title {
+      font-family: var(--font-serif-jp);
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 1.4;
+      color: #f0faf4;
+      margin: 0;
+      text-shadow: 0 1px 14px oklch(0.20 0.06 152 / 0.7);
+    }
+    .ml-card-desc {
+      font-size: 12.5px;
+      line-height: 1.7;
+      margin: 0;
+      color: rgba(190, 220, 200, 0.72);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .ml-card-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; padding-top: 4px; }
+    .ml-card-tag {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      color: rgba(160, 220, 175, 0.85);
+      background: rgba(60, 120, 80, 0.35);
+      border: 1px solid rgba(126, 203, 149, 0.22);
+    }
+    .ml-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 4px;
+      flex-wrap: wrap;
+    }
+    .ml-btn-play, .ml-btn-detail {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px;
+      min-height: 32px;
+      border-radius: 999px;
+      font-family: var(--font-sans-jp);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .ml-btn-play {
+      color: oklch(0.92 0.08 152 / 0.92);
+      background: oklch(0.28 0.05 152 / 0.5);
+      border: 1px solid oklch(0.74 0.08 142 / 0.32);
+    }
+    .ml-btn-play:hover { background: oklch(0.36 0.08 150 / 0.65); color: oklch(0.97 0.04 142); }
+    .ml-btn-detail {
+      color: oklch(0.78 0.04 142 / 0.7);
+      background: transparent;
+      border: 1px solid oklch(0.74 0.06 142 / 0.22);
+      font-size: 11.5px;
+    }
+    .ml-btn-detail:hover { color: oklch(0.92 0.06 142); border-color: oklch(0.86 0.10 142 / 0.4); }
+    .ml-btn-fav, .ml-btn-dl {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px;
+      border-radius: 999px;
+      color: oklch(0.74 0.04 142 / 0.65);
+      background: oklch(0.18 0.03 150 / 0.4);
+      border: 1px solid oklch(0.74 0.06 142 / 0.18);
+      cursor: pointer;
+      flex-shrink: 0;
+      text-decoration: none;
+      transition: all .2s;
+      margin-left: auto;
+    }
+    .ml-btn-fav { margin-left: auto; }
+    .ml-btn-dl  { margin-left: 0; }
+    .ml-btn-fav:hover, .ml-btn-dl:hover {
+      color: oklch(0.92 0.08 142); border-color: oklch(0.86 0.10 142 / 0.45);
+    }
+    .ml-card-playing-bar { display: none; }
+  </style>
+</head>
+<body data-cardtools="forest-glass">
+  <div class="proto-shell">
+    <span class="proto-eyebrow">cardtools = forest-glass</span>
+    <h1>新緑のガラス — 統合プレビュー</h1>
+    <p class="proto-sub">
+      実サイトと同じ <code>cardtools-forest-glass.css</code> をそのまま読み込み、
+      <code>music-library.js</code> の <code>_fgWrapCard()</code> が組み立てる DOM 構造を
+      手書きで再現したサンプル。実サイトでは <code>?cardtools=forest-glass</code> を URL に付与すれば、
+      この見た目に切り替わります。
+    </p>
+    <p class="proto-note">
+      ホバーすると鏡面ハイライトが動き、虹彩が薄く広がります。
+      静止時にもアンビエント光があるため、リスト全体がうっすら光って見えます。
+      パラメータを外せば既存カードに即戻ります。
+    </p>
+
+    <div class="ml-grid">
+      <!-- Card 1 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="forest">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">2:34</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">92 BPM</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--loop">Loop</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">Moment</h3>
+            <p class="ml-card-desc">木漏れ日のように、ふと胸を満たす光のテーマ。優しいピアノと弦の余韻。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">森</span><span class="ml-card-tag">優しい</span><span class="ml-card-tag">ファンタジー</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play" data-action="play">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                試聴
+              </button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav" data-action="fav" aria-label="お気に入りに追加">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </button>
+              <a class="ml-btn-dl" href="#" download aria-label="ダウンロード">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="night">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">3:12</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">76 BPM</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">星寂の散歩道</h3>
+            <p class="ml-card-desc">夜の森を抜けて、静かに星に出会う散歩道。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">夜</span><span class="ml-card-tag">神秘</span><span class="ml-card-tag">ケルト</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>試聴</button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              <a class="ml-btn-dl" href="#"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="battle">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">3:48</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">108 BPM</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">志は死なない</h3>
+            <p class="ml-card-desc">逆境に立ち上がる魂のための、重く高潔なオーケストラ。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">戦闘</span><span class="ml-card-tag">勇壮</span><span class="ml-card-tag">中世</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>試聴</button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              <a class="ml-btn-dl" href="#"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="festival">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">2:12</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">104 BPM</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--loop">Loop</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">宵祭りの風</h3>
+            <p class="ml-card-desc">提灯と笛の音が遠くに揺れる、和の祭の夕暮れ。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">祭り</span><span class="ml-card-tag">楽しい</span><span class="ml-card-tag">和風</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>試聴</button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              <a class="ml-btn-dl" href="#"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="travel">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">2:58</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">96 BPM</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--loop">Loop</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">いつかの大地へ</h3>
+            <p class="ml-card-desc">旅立つ者の背中を押す、開けた地平線のテーマ。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">旅</span><span class="ml-card-tag">優しい</span><span class="ml-card-tag">ケルト</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>試聴</button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              <a class="ml-btn-dl" href="#"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="fg-perspective">
+        <article class="ml-card" data-tag-primary="memory">
+          <div class="ml-card-jacket" aria-hidden="true"></div>
+          <div class="fg-noise" aria-hidden="true"></div>
+          <div class="fg-iridescent" aria-hidden="true"></div>
+          <div class="fg-iridescent fg-iridescent--sharp" aria-hidden="true"></div>
+          <div class="fg-specular" aria-hidden="true"></div>
+          <div class="fg-gloss" aria-hidden="true"></div>
+          <div class="fg-halo" aria-hidden="true"></div>
+          <div class="ml-card-inner">
+            <div class="ml-card-header">
+              <div class="ml-card-meta">
+                <span class="ml-card-meta-badge ml-card-meta-badge--duration">4:18</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--bpm">72 BPM</span>
+                <span class="ml-card-meta-badge ml-card-meta-badge--loop">Loop</span>
+              </div>
+            </div>
+            <h3 class="ml-card-title">Dear Childhood Friend</h3>
+            <p class="ml-card-desc">遠い日の友達を思い出す、優しいピアノとストリングス。</p>
+            <div class="ml-card-tags">
+              <span class="ml-card-tag">思い出</span><span class="ml-card-tag">悲しい</span><span class="ml-card-tag">ファンタジー</span>
+            </div>
+            <div class="ml-card-actions">
+              <button class="ml-btn-play"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>試聴</button>
+              <a class="ml-btn-detail" href="#">詳細</a>
+              <button class="ml-btn-fav"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+              <a class="ml-btn-dl" href="#"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ====================================================================
+    // Pointer tracking — mirrors music-library.js's _fgAttachPointer.
+    // For the integration check, run it here against the same DOM.
+    // ====================================================================
+    (function () {
+      var raf = false;
+      var queue = new Map();
+      function flush() {
+        raf = false;
+        queue.forEach(function (p, c) {
+          c.style.setProperty('--mx', p.mx);
+          c.style.setProperty('--my', p.my);
+          c.style.setProperty('--rx', p.rx);
+          c.style.setProperty('--ry', p.ry);
+        });
+        queue.clear();
+      }
+      document.querySelectorAll('.fg-perspective').forEach(function (wrap) {
+        var card = wrap.querySelector('.ml-card');
+        if (!card) return;
+        wrap.addEventListener('pointermove', function (e) {
+          var r = wrap.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          var x = e.clientX - r.left;
+          var y = e.clientY - r.top;
+          var mx = Math.max(0, Math.min(100, (x / r.width)  * 100));
+          var my = Math.max(0, Math.min(100, (y / r.height) * 100));
+          var rx = Math.max(-1, Math.min(1, (x / r.width)  * 2 - 1));
+          var ry = Math.max(-1, Math.min(1, (y / r.height) * 2 - 1));
+          queue.set(card, { mx: mx, my: my, rx: rx, ry: ry });
+          if (!raf) { raf = true; requestAnimationFrame(flush); }
+        });
+        wrap.addEventListener('pointerleave', function () {
+          card.style.setProperty('--mx', '50');
+          card.style.setProperty('--my', '50');
+          card.style.setProperty('--rx', '0');
+          card.style.setProperty('--ry', '0');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

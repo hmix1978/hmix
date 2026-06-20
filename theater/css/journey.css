@@ -1,0 +1,129 @@
+/* ============================================================
+   星渡り — The Star Crossing  /  scroll-journey styles
+   Inherits the theater's vocabulary: deep night, gold, serif.
+   ============================================================ */
+:root{
+  --ink:#f3ecdd; --ink-soft:rgba(243,236,221,.6); --ink-dim:rgba(243,236,221,.32);
+  --gold:#d8b46a; --gold-soft:rgba(216,180,106,.55);
+  --font-jp:'Noto Serif JP',serif; --font-en:'Cinzel',serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --aura:216,180,106;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ height:100%; }
+body{ background:#050409; color:var(--ink); font-family:var(--font-jp);
+  -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; }
+::selection{ background:rgba(var(--aura),.3); }
+
+/* the scroll container is the journey; canvas + overlay are fixed inside */
+#journey{ position:fixed; inset:0; overflow-y:auto; overflow-x:hidden; scroll-behavior:auto;
+  -webkit-overflow-scrolling:touch; overscroll-behavior-y:contain; touch-action:pan-y; }
+#journey::-webkit-scrollbar{ width:0; height:0; }
+#journey{ scrollbar-width:none; }
+
+#jCanvas{ position:fixed; inset:0; width:100vw; height:100vh; display:block; z-index:0; pointer-events:none; }
+#jVignette{ position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(130% 100% at 50% 38%, transparent 46%, rgba(0,0,0,.6) 100%),
+    linear-gradient(180deg, rgba(0,0,0,.4), transparent 20%, transparent 72%, rgba(0,0,0,.7)); }
+#jGrain{ position:fixed; inset:-40%; z-index:1; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+/* the tall element that gives the page its scroll length
+   (must catch wheel/touch so the fixed container actually scrolls) */
+#jScroller{ position:relative; z-index:2; width:100%; pointer-events:auto; }
+.seg{ height:118vh; }
+
+/* ---- brand mark (fixed, quiet) ---------------------------- */
+#jMark{ position:fixed; top:26px; left:30px; z-index:6; font-family:var(--font-en);
+  font-size:12px; letter-spacing:.42em; color:var(--gold-soft); text-indent:.42em; pointer-events:none; }
+#jMark .slash{ opacity:.5; }
+#jExit{ position:fixed; top:24px; right:30px; z-index:6; font-size:10px; letter-spacing:.26em;
+  color:var(--ink-dim); border:1px solid var(--line,rgba(243,236,221,.12)); border-radius:999px;
+  padding:9px 18px; transition:.4s var(--ease); text-decoration:none; }
+#jExit:hover{ color:var(--ink); border-color:var(--gold-soft); }
+
+/* ============================================================ OVERLAY : kinetic type */
+#jOverlay{ position:fixed; inset:0; z-index:4; pointer-events:none; }
+.st-block{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:space-between;
+  align-items:center; padding:15vh 8vw 14vh; text-align:center; opacity:0; will-change:opacity,transform; }
+
+.st-top{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.st-idx{ font-family:var(--font-en); font-size:13px; letter-spacing:.5em; color:var(--gold);
+  text-indent:.5em; opacity:0; transform:translateY(-12px); transition:.9s var(--ease) .1s; }
+.st-cat{ font-size:11px; letter-spacing:.42em; color:var(--ink-dim); text-indent:.42em; white-space:nowrap;
+  opacity:0; transform:translateY(-10px); transition:.9s var(--ease) .2s; }
+.st-block.on .st-idx, .st-block.on .st-cat{ opacity:1; transform:none; }
+.st-idx::after{ content:''; display:block; width:1px; height:40px; margin:16px auto 0;
+  background:linear-gradient(var(--gold-soft),transparent); opacity:0; transition:opacity 1.1s ease .3s; }
+.st-block.on .st-idx::after{ opacity:.7; }
+
+.st-foot{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+.st-en{ font-family:var(--font-en); font-weight:500; font-size:clamp(20px,2.7vw,34px); letter-spacing:.14em; color:var(--ink); white-space:nowrap; }
+.st-sub{ font-family:var(--font-en); font-style:italic; font-size:12px; letter-spacing:.34em; color:var(--gold-soft); white-space:nowrap;
+  opacity:0; transform:translateY(10px); transition:1s var(--ease) .25s; }
+.st-block.on .st-sub{ opacity:1; transform:none; letter-spacing:.46em; }
+.st-poem{ font-weight:200; font-size:clamp(15px,1.55vw,20px); line-height:2.1; letter-spacing:.16em;
+  color:var(--ink-soft); max-width:30em; text-wrap:balance; }
+
+/* kinetic characters — resolve out of blur, staggered */
+.kc{ display:inline-block; white-space:pre; opacity:0; transform:translateY(.55em) rotateX(38deg) scale(.96);
+  filter:blur(7px); transition:opacity .7s var(--ease), transform .8s var(--ease), filter .7s var(--ease);
+  transition-delay:calc(var(--i)*0.028s); }
+.st-poem .kc{ transition-delay:calc(0.18s + var(--i)*0.022s); }
+.st-block.on .kc{ opacity:1; transform:none; filter:none; }
+.kc.sp{ width:.42em; }
+@media (prefers-reduced-motion:reduce){
+  .kc{ filter:none; transform:none; transition:opacity .4s; }
+}
+
+/* intro & outro emphasis */
+.intro .st-en, .outro .st-en{ font-size:clamp(24px,3.4vw,46px); letter-spacing:.2em; }
+.intro .st-foot, .outro .st-foot{ gap:22px; }
+
+/* enter-the-theater button (outro) */
+.j-enter{ margin-top:14px; display:inline-flex; align-items:center; gap:14px; padding:15px 42px;
+  border:1px solid var(--gold-soft); border-radius:999px; color:var(--ink);
+  font-size:13px; letter-spacing:.34em; text-indent:.34em; text-decoration:none;
+  pointer-events:auto; transition:.5s var(--ease); position:relative; overflow:hidden;
+  opacity:0; transform:translateY(14px); }
+.outro.on .j-enter{ opacity:1; transform:none; transition-delay:.5s; }
+.j-enter::before{ content:''; position:absolute; inset:0; opacity:0; transition:.5s;
+  background:radial-gradient(circle at 50% 120%, rgba(var(--aura),.35), transparent 70%); }
+.j-enter:hover{ border-color:rgba(var(--aura),.9); letter-spacing:.5em; }
+.j-enter:hover::before{ opacity:1; }
+.j-enter .dot{ width:6px; height:6px; border-radius:50%; background:rgb(var(--aura));
+  box-shadow:0 0 14px rgba(var(--aura),.95); }
+
+/* ============================================================ SCROLL HINT */
+#jScrollHint{ position:fixed; left:50%; bottom:34px; transform:translateX(-50%); z-index:6;
+  display:flex; flex-direction:column; align-items:center; gap:10px; pointer-events:none;
+  font-size:10px; letter-spacing:.32em; color:var(--ink-dim); text-indent:.32em; }
+#jScrollHint .mouse{ width:22px; height:34px; border:1px solid var(--gold-soft); border-radius:12px; position:relative; }
+#jScrollHint .mouse i{ position:absolute; left:50%; top:7px; width:3px; height:6px; border-radius:2px;
+  background:var(--gold); transform:translateX(-50%); animation:jWheel 1.7s var(--ease) infinite; }
+@keyframes jWheel{ 0%{ opacity:0; transform:translate(-50%,0); } 30%{ opacity:1; } 70%{ opacity:1; transform:translate(-50%,10px); } 100%{ opacity:0; transform:translate(-50%,12px); } }
+@media (prefers-reduced-motion:reduce){ #jScrollHint .mouse i{ animation:none; } }
+
+/* ============================================================ PROGRESS DOTS */
+#jDots{ position:fixed; right:28px; top:50%; transform:translateY(-50%); z-index:6;
+  display:flex; flex-direction:column; gap:15px; align-items:flex-end; }
+.j-dot{ display:flex; align-items:center; gap:11px; pointer-events:auto; background:none; border:none;
+  cursor:pointer; color:var(--ink-dim); transition:.35s var(--ease); }
+.j-dot i{ width:6px; height:6px; border-radius:50%; background:currentColor; transition:.35s var(--ease);
+  box-shadow:0 0 0 rgba(var(--aura),0); }
+.j-dot.edge i{ width:4px; height:4px; opacity:.5; }
+.j-dot span{ font-size:11px; letter-spacing:.2em; opacity:0; transform:translateX(8px); transition:.35s var(--ease); }
+.j-dot:hover{ color:var(--ink-soft); }
+.j-dot:hover span{ opacity:1; transform:none; }
+.j-dot.active{ color:var(--ink); }
+.j-dot.active i{ width:9px; height:9px; background:rgb(var(--aura)); box-shadow:0 0 16px rgba(var(--aura),.9); }
+.j-dot.active span{ opacity:1; transform:none; color:rgb(var(--aura)); }
+
+@media (max-width:720px){
+  #jDots{ right:14px; gap:12px; }
+  .j-dot span{ display:none; }
+  #jMark{ left:18px; font-size:10px; }
+  #jExit{ right:16px; }
+  .st-poem{ letter-spacing:.1em; }
+}

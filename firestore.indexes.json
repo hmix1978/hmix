@@ -1,0 +1,14 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "footprints",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "trackId", "order": "ASCENDING"},
+        {"fieldPath": "hidden", "order": "ASCENDING"},
+        {"fieldPath": "createdAt", "order": "DESCENDING"}
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

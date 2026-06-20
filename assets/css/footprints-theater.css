@@ -1,0 +1,539 @@
+/* ============================================================
+   H/MIX GALLERY — footprints-theater.css
+   旅人の足跡 : シアタールーム 漂う演出
+   ============================================================ */
+
+/* ── 足跡レイヤー ───────────────────────────────────────── */
+.theater-footprints-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;               /* scenery(0) < particles(3) < footprints(8) < ui(10) */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── 各足跡テキスト ─────────────────────────────────────── */
+.theater-footprint {
+  position: absolute;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35em;
+  max-width: 28%;           /* 長文でも画面の28%以内 */
+  animation: fp-drift 20s linear forwards;
+  /* duration は JS の inline style で上書きされる (el.style.animation) */
+}
+
+.theater-footprint__body {
+  font-family: var(--font-serif-jp, serif);
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+  font-weight: 300;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  color: rgba(255, 252, 240, 1);
+  text-shadow:
+    0 0 22px rgba(0,0,0,1),
+    0 0 10px rgba(0,0,0,0.95),
+    0 1px 4px rgba(0,0,0,0.85);
+  white-space: pre-wrap;
+  word-break: break-all;
+  animation: fp-body-shimmer var(--fp-shimmer-dur, 4s) ease-in-out infinite;
+  animation-delay: var(--fp-shimmer-delay, 0.6s);
+}
+
+.theater-footprint__meta {
+  font-family: var(--font-display, sans-serif);
+  font-size: clamp(0.9rem, 1.4vw, 1.1rem);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: rgba(209, 184, 122, 1);
+  text-shadow:
+    0 0 24px rgba(0, 0, 0, 1),
+    0 0 12px rgba(0, 0, 0, 1),
+    0 0 6px rgba(0, 0, 0, 0.9),
+    0 1px 3px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+  border-top: 1px solid rgba(209, 184, 122, 0.35);
+  padding-top: 0.4em;
+  margin-top: 0.15em;
+  pointer-events: auto; /* レイヤーのnoneを上書き */
+}
+
+.theater-footprint__track-link {
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: rgba(209, 184, 122, 0.4);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s, color 0.2s;
+}
+.theater-footprint__track-link:hover {
+  color: rgba(255, 248, 200, 1);
+  text-decoration-color: rgba(255, 248, 200, 0.8);
+  text-shadow:
+    0 0 24px rgba(0, 0, 0, 1),
+    0 0 12px rgba(0, 0, 0, 1),
+    0 0 10px rgba(255, 230, 100, 0.6);
+}
+
+/* ── 足跡カード全体をクリック可能にする (is-clickable 付与時のみ) ── */
+.theater-footprint.is-clickable {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: filter 0.25s ease, transform 0.3s ease;
+}
+.theater-footprint.is-clickable:hover {
+  filter: drop-shadow(0 0 16px rgba(255, 230, 130, 0.4));
+  transform: scale(1.03);
+}
+.theater-footprint.is-clickable:hover .theater-footprint__track-link {
+  color: rgba(255, 248, 200, 1);
+  text-decoration-color: rgba(255, 248, 200, 0.8);
+}
+
+/* ── 漂うアニメーション ──────────────────────────────────── */
+@keyframes fp-drift {
+  0%   { opacity: 0;                         transform: translateY(0) translateX(0); }
+  12%  { opacity: var(--fp-opacity, 0.45); }
+  85%  { opacity: var(--fp-opacity, 0.45); }
+  100% { opacity: 0; transform: translateY(var(--fp-dy, -35px)) translateX(var(--fp-dx, 0px)); }
+}
+
+/* ── 本文シマー（発光pulse）────────────────────────────── */
+@keyframes fp-body-shimmer {
+  0%, 100% {
+    text-shadow:
+      0 0 24px rgba(0,0,0,1),
+      0 0 12px rgba(0,0,0,1),
+      0 1px 4px rgba(0,0,0,0.9),
+      0 0 6px rgba(255,248,200,0.12);
+  }
+  30% {
+    text-shadow:
+      0 0 24px rgba(0,0,0,1),
+      0 0 12px rgba(0,0,0,1),
+      0 1px 4px rgba(0,0,0,0.9),
+      0 0 16px rgba(255,248,200,0.75),
+      0 0 36px rgba(255,220,120,0.45),
+      0 0 60px rgba(255,200,80,0.2);
+  }
+  65% {
+    text-shadow:
+      0 0 24px rgba(0,0,0,1),
+      0 0 12px rgba(0,0,0,1),
+      0 1px 4px rgba(0,0,0,0.9),
+      0 0 10px rgba(255,248,200,0.4),
+      0 0 22px rgba(255,220,120,0.2);
+  }
+}
+
+/* ── スパークル粒子 ─────────────────────────────────────── */
+.theater-fp-sparkle {
+  position: absolute;
+  pointer-events: none;
+  font-style: normal;
+  line-height: 1;
+  color: rgba(255, 252, 210, 1);
+  text-shadow:
+    0 0 8px  rgba(255, 230, 100, 1),
+    0 0 18px rgba(255, 210, 60, 0.8),
+    0 0 30px rgba(255, 200, 40, 0.5);
+  left: var(--sp-x, 50%);
+  top:  var(--sp-y, 0%);
+  font-size: var(--sp-size, 0.8rem);
+  animation: fp-sparkle-fly var(--sp-dur, 2.4s) ease-out forwards;
+  animation-delay: var(--sp-delay, 0s);
+  opacity: 0;
+}
+
+@keyframes fp-sparkle-fly {
+  0%   { opacity: 0;   transform: translate(0,0) scale(0.2) rotate(0deg); }
+  15%  { opacity: 1;   transform: translate(0,0) scale(1.3) rotate(15deg); }
+  45%  { opacity: 1;   transform: translate(var(--sp-tx,0px), var(--sp-ty,-12px)) scale(1) rotate(35deg); }
+  100% { opacity: 0;   transform: translate(var(--sp-tx2,3px), var(--sp-ty2,-28px)) scale(0.1) rotate(90deg); }
+}
+
+/* ── 足跡を残すボタン（テキスト＋ペンアイコン） ────────── */
+/* ── キラキラアニメーション ──────────────────────────────── */
+@keyframes fp-btn-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes fp-btn-glow-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(209,184,122,0.3), 0 0 14px rgba(209,184,122,0.1); }
+  50%       { box-shadow: 0 0 12px rgba(209,184,122,0.6), 0 0 28px rgba(209,184,122,0.25), 0 0 2px rgba(255,248,200,0.5) inset; }
+}
+@keyframes fp-btn-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-2px); }
+}
+
+.theater-btn-footprint {
+  /* .theater-sub-btn の円形スタイルを上書き */
+  position: relative;
+  border-radius: 2px !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.42rem 1.1rem !important;
+  gap: 0.45rem;
+  /* 流れるシマーグラデーション */
+  background: linear-gradient(
+    105deg,
+    rgba(209,184,122,0.06) 0%,
+    rgba(255,248,200,0.18) 40%,
+    rgba(209,184,122,0.06) 60%,
+    rgba(255,248,200,0.14) 80%,
+    rgba(209,184,122,0.06) 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  animation:
+    fp-btn-shimmer 3s linear infinite,
+    fp-btn-glow-pulse 2.4s ease-in-out infinite,
+    fp-btn-float 3.2s ease-in-out infinite;
+  border: 1px solid rgba(209, 184, 122, 0.5) !important;
+  color: rgba(255, 240, 180, 0.92) !important;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  display: flex;
+  align-items: center;
+  text-shadow: 0 0 8px rgba(255,220,120,0.6);
+  overflow: hidden;
+}
+
+/* ボタン内の光の筋（疑似要素） */
+.theater-btn-footprint::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,248,200,0.22) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: fp-btn-shimmer 2s linear infinite;
+  pointer-events: none;
+}
+
+.theater-btn-footprint:hover {
+  border-color: rgba(255, 220, 100, 0.85) !important;
+  color: rgba(255, 248, 180, 1) !important;
+  background: linear-gradient(
+    105deg,
+    rgba(209,184,122,0.12) 0%,
+    rgba(255,248,200,0.28) 40%,
+    rgba(209,184,122,0.12) 60%,
+    rgba(255,248,200,0.22) 80%,
+    rgba(209,184,122,0.12) 100%
+  ) !important;
+  background-size: 300% 100% !important;
+  text-shadow: 0 0 12px rgba(255,220,120,0.9);
+}
+.theater-btn-footprint.is-open {
+  border-color: rgba(255, 220, 100, 0.85) !important;
+  color: rgba(255, 248, 180, 1) !important;
+  background: rgba(209, 184, 122, 0.15) !important;
+  text-shadow: 0 0 10px rgba(255,220,120,0.8);
+}
+
+/* ── 足跡投稿フォームオーバーレイ ────────────────────────── */
+.theater-fp-form {
+  position: absolute;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6rem; /* theater-bottom の上に乗せる */
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+}
+.theater-fp-form[hidden] { display: none; }
+
+.theater-fp-form__inner {
+  width: min(460px, 88%);
+  background: rgba(8, 8, 6, 0.88);
+  border: 1px solid rgba(209, 184, 122, 0.2);
+  border-radius: 2px;
+  padding: 1.4rem 1.6rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── タブ ───────────────────────────────────────────────── */
+.theater-fp-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin: -0.2rem -0.1rem 0.6rem;
+}
+
+.theater-fp-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  padding: 0.5rem 0.5rem 0.55rem;
+  transition: color 0.2s, border-color 0.2s;
+  position: relative;
+  bottom: -1px;
+}
+.theater-fp-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+.theater-fp-tab.is-active {
+  color: rgba(209, 184, 122, 0.9);
+  border-bottom-color: rgba(209, 184, 122, 0.6);
+}
+
+.theater-fp-tab__badge {
+  display: inline-block;
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.62rem;
+  letter-spacing: 0;
+  color: rgba(209, 184, 122, 0.6);
+  margin-left: 0.3em;
+}
+
+/* ── 一覧 ───────────────────────────────────────────────── */
+.theater-fp-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-right: 0.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(209, 184, 122, 0.2) transparent;
+}
+.theater-fp-list::-webkit-scrollbar { width: 3px; }
+.theater-fp-list::-webkit-scrollbar-thumb { background: rgba(209, 184, 122, 0.2); border-radius: 2px; }
+
+.theater-fp-list__empty {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  padding: 1.2rem 0;
+  letter-spacing: 0.1em;
+}
+
+.theater-fp-list__item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 0.5rem;
+}
+
+.theater-fp-list__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.theater-fp-list__name {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: rgba(209, 184, 122, 0.7);
+}
+
+.theater-fp-list__date {
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.05em;
+  margin-left: auto;
+}
+
+.theater-fp-list__delete {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 2px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.theater-fp-list__delete:hover {
+  color: rgba(220, 80, 60, 0.9);
+  background: rgba(220, 80, 60, 0.1);
+}
+
+.theater-fp-list__body {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.82rem;
+  color: rgba(255, 250, 240, 0.8);
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.theater-fp-form__title {
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.3em;
+  color: rgba(209, 184, 122, 0.75);
+  margin: 0;
+  text-align: center;
+}
+
+.theater-fp-form__nickname {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  color: rgba(255, 250, 240, 0.8);
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  padding: 0.45rem 0.75rem;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+.theater-fp-form__nickname::placeholder { color: rgba(255,255,255,0.2); }
+.theater-fp-form__nickname:focus { border-color: rgba(209, 184, 122, 0.4); }
+
+.theater-fp-form__textarea-wrap {
+  position: relative;
+}
+
+.theater-fp-form__body {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  color: rgba(255, 250, 240, 0.9);
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
+  line-height: 1.7;
+  padding: 0.6rem 0.75rem 1.6rem;
+  resize: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+.theater-fp-form__body::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+.theater-fp-form__body:focus { border-color: rgba(209, 184, 122, 0.4); }
+
+.theater-fp-form__count {
+  position: absolute;
+  bottom: 0.4rem;
+  right: 0.6rem;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.25);
+  pointer-events: none;
+}
+
+.theater-fp-form__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.theater-fp-form__note {
+  font-size: 0.75rem;
+  margin: 0;
+  min-height: 1em;
+  color: rgba(255,255,255,0.4);
+}
+.theater-fp-form__note--error   { color: rgba(220, 100, 80, 0.9); }
+.theater-fp-form__note--success { color: rgba(140, 210, 160, 0.9); }
+
+.theater-fp-form__btns {
+  display: flex;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+
+.theater-fp-form__cancel {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 1px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-family: var(--font-display, sans-serif);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  padding: 0.4rem 1rem;
+  transition: all 0.3s;
+}
+.theater-fp-form__cancel:hover {
+  border-color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.7);
+}
+
+.theater-fp-list__clear-btn {
+  color: rgba(220, 80, 60, 0.5);
+  border-color: rgba(220, 80, 60, 0.2);
+}
+.theater-fp-list__clear-btn:hover {
+  color: rgba(220, 80, 60, 0.9);
+  border-color: rgba(220, 80, 60, 0.5);
+  background: rgba(220, 80, 60, 0.08);
+}
+
+.theater-fp-form__submit {
+  background: rgba(209, 184, 122, 0.1);
+  border: 1px solid rgba(209, 184, 122, 0.4);
+  border-radius: 1px;
+  color: rgba(209, 184, 122, 0.85);
+  cursor: pointer;
+  font-family: var(--font-serif-jp, serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  padding: 0.4rem 1.2rem;
+  transition: all 0.3s;
+}
+.theater-fp-form__submit:hover {
+  background: rgba(209, 184, 122, 0.18);
+  border-color: rgba(209, 184, 122, 0.7);
+  color: rgba(209, 184, 122, 1);
+}
+
+@media (max-width: 768px) {
+  .theater-fp-form {
+    padding-bottom: 9rem; /* モバイルでは theater-bottom が縦積みで高い */
+    align-items: flex-end;
+  }
+  .theater-fp-form__inner {
+    padding: 1.1rem 1.2rem 1rem;
+    width: min(420px, 94%);
+  }
+}
+
+/* ── 足跡トグルボタン（.theater-scene-btn と同スタイル） ─── */
+.theater-footprints-btn {
+  /* theater.css の .theater-scene-btn を継承 */
+}
+
+.theater-footprints-btn.is-active {
+  border-color: rgba(209, 184, 122, 0.45);
+  color: rgba(209, 184, 122, 0.85);
+  background: rgba(209, 184, 122, 0.06);
+}
+
+/* ── モバイル：足跡を小さく・少なく ────────────────────── */
+@media (max-width: 768px) {
+  .theater-footprint {
+    max-width: 55%;
+  }
+  .theater-footprint__body {
+    font-size: clamp(1rem, 3.5vw, 1.3rem);
+    letter-spacing: 0.05em;
+  }
+  .theater-footprint__meta {
+    font-size: clamp(0.78rem, 2.8vw, 0.95rem);
+  }
+}

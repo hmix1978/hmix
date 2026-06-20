@@ -1,0 +1,95 @@
+/*
+  H/MIX GALLERY — Scene Icons CSS v1.0
+  Quick Scene Navigation のSVGアイコンスタイル
+  テーマ: 和風 × 幻想 × RPG UI — 細線の紋章風アイコン
+*/
+
+/* ===== アイコン本体 ===== */
+.scene-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  color: var(--color-green-mid, #3d7a54);
+  opacity: 0.80;
+  transition:
+    color 0.28s ease,
+    opacity 0.28s ease,
+    transform 0.28s ease,
+    filter 0.28s ease;
+}
+
+/* SVG要素のサイズ統一 */
+.scene-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ===== カードホバー・アクティブ時の演出 ===== */
+
+/* 浮き上がり + 色が深くなる */
+.ml-qs-card:hover .scene-icon,
+.ml-qs-card:focus-visible .scene-icon {
+  color: var(--color-green, #2d5a3d);
+  opacity: 1;
+  transform: translateY(-3px) scale(1.06);
+  filter: drop-shadow(0 4px 8px rgba(45, 90, 61, 0.22));
+}
+
+/* アクティブ（選択中）: 深緑 + 光彩 */
+.ml-qs-card.active .scene-icon {
+  color: var(--color-green, #2d5a3d);
+  opacity: 1;
+  transform: translateY(-2px) scale(1.04);
+  filter: drop-shadow(0 2px 6px rgba(45, 90, 61, 0.30));
+}
+
+/* ===== カード全体のトランジション強化 ===== */
+.ml-qs-card {
+  transition:
+    border-color 0.28s ease,
+    background 0.28s ease,
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.ml-qs-card:hover {
+  border-color: var(--color-green-mid, #3d7a54);
+  background: var(--color-surface-2, #f2ede4);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(45, 90, 61, 0.14);
+}
+
+.ml-qs-card.active {
+  border-color: var(--color-green, #2d5a3d);
+  background: rgba(45, 90, 61, 0.07);
+}
+
+/* ===== ラベルのホバー演出 ===== */
+.ml-qs-card:hover .ml-qs-label,
+.ml-qs-card.active .ml-qs-label {
+  color: var(--color-green, #2d5a3d);
+}
+
+.ml-qs-card:hover .ml-qs-label-jp,
+.ml-qs-card.active .ml-qs-label-jp {
+  color: var(--color-text-muted, #5a5248);
+}
+
+/* ===== レスポンシブ: モバイルでアイコンサイズを縮小 ===== */
+@media (max-width: 768px) {
+  .scene-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .scene-icon {
+    width: 28px;
+    height: 28px;
+  }
+}

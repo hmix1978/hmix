@@ -1,0 +1,69 @@
+/* ============================================================
+   星渡し — tag-cockpit  (hub labels + mode gating)
+   Loads AFTER journey.css + cockpit.css. Adds the 58-tag hub and
+   hides the scroll-journey-only chrome. The docked station itself
+   is rendered identically to journey-cockpit.
+   ============================================================ */
+:root{ --hud:'Share Tech Mono',ui-monospace,monospace; }
+
+/* the scroll-journey bits we don't use here */
+#jDots, .cp-gauge-label, .cp-thrust, #jScrollHint{ display:none !important; }
+
+/* 星図はドラッグでパンできる */
+body[data-mode="hub"] #journey{ cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+body.hub-dragging #journey, body.hub-dragging .taglbl{ cursor:grabbing !important; }
+
+/* ============================================================ 帰り道ナビ (ハブ表示中のみ) */
+#hubNav{ position:fixed; top:26px; left:30px; z-index:6; display:flex; align-items:center; gap:14px;
+  font-family:var(--hud); font-size:10px; letter-spacing:.22em;
+  transition:opacity .6s var(--ease); }
+body:not([data-mode="hub"]) #hubNav{ opacity:0; pointer-events:none; }
+.hn-link{ color:var(--ink-dim); text-decoration:none; padding:7px 0; white-space:nowrap;
+  text-shadow:0 1px 8px rgba(0,0,0,.6); transition:color .3s, text-shadow .3s; }
+.hn-link:hover{ color:var(--gold-soft); text-shadow:0 0 12px rgba(216,180,106,.4); }
+.hn-sep{ width:1px; height:10px; background:rgba(243,236,221,.18); }
+@media (max-width:700px){ #hubNav{ left:16px; top:16px; gap:10px; } }
+
+/* gate the cockpit chrome + station text to the docked states only */
+#cockpit{ transition:opacity .8s var(--ease); }
+body[data-mode="hub"] #cockpit{ opacity:0 !important; pointer-events:none; }
+body[data-mode="hub"] #jOverlay{ opacity:0; transition:opacity .5s; }
+
+/* ============================================================ HUB */
+#tagHub{ position:fixed; inset:0; z-index:5; pointer-events:none; }
+.taglbl{ position:fixed; left:0; top:0; will-change:transform; display:flex; flex-direction:column;
+  align-items:center; gap:2px; padding:6px 10px; white-space:nowrap; opacity:0; background:none; border:none; cursor:pointer; }
+.tl-jp{ font-family:var(--font-jp); font-weight:300; font-size:14px; letter-spacing:.05em; color:var(--ink);
+  text-shadow:0 1px 9px rgba(0,0,0,.85); transition:.25s var(--ease); }
+.tl-meta{ font-family:var(--hud); font-size:8px; letter-spacing:.14em; color:var(--gold-soft); opacity:0; transform:translateY(-2px); transition:.25s var(--ease); }
+.taglbl.ring0 .tl-jp{ color:#fbe7c0; } .taglbl.ring1 .tl-jp{ color:#e7d6f3; } .taglbl.ring2 .tl-jp{ color:#d6ecf6; }
+.taglbl.hot{ z-index:6; }
+.taglbl.hot .tl-jp{ font-size:16px; color:#fff; text-shadow:0 0 16px rgba(var(--aura),.95); }
+.taglbl.hot .tl-meta{ opacity:1; transform:none; }
+
+#tagHubHead{ position:fixed; top:0; left:0; right:0; z-index:6; padding:54px 8vw 0; text-align:center; pointer-events:none;
+  transition:opacity .6s var(--ease); }
+body:not([data-mode="hub"]) #tagHubHead{ opacity:0; }
+.th-kicker{ font-family:var(--font-en); font-size:10px; letter-spacing:.5em; color:var(--gold-soft); text-indent:.5em; }
+.th-title{ margin-top:9px; font-weight:200; font-size:clamp(20px,2.2vw,28px); letter-spacing:.18em; opacity:.92; }
+.th-title b{ font-weight:300; color:var(--gold-soft); text-shadow:0 0 14px rgba(216,180,106,.35); }
+.th-sub{ margin-top:9px; font-family:var(--hud); font-size:10px; letter-spacing:.26em; color:var(--ink-dim); }
+.th-legend{ position:fixed; bottom:34px; left:0; right:0; z-index:6; display:flex; justify-content:center; gap:24px;
+  font-family:var(--hud); font-size:10px; letter-spacing:.18em; color:var(--ink-dim); pointer-events:none; transition:opacity .6s; }
+body:not([data-mode="hub"]) .th-legend{ opacity:0; }
+.th-legend i{ display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:7px; vertical-align:middle; }
+
+/* back-to-atlas control on the cockpit top strip */
+.cp-back{ -webkit-appearance:none; appearance:none; background:none; cursor:pointer; pointer-events:auto;
+  font-family:var(--hud); font-size:10px; letter-spacing:.24em; color:var(--ink-dim); white-space:nowrap;
+  border:1px solid var(--line,rgba(243,236,221,.12)); border-radius:3px; padding:6px 13px; transition:.3s; }
+.cp-back:hover{ color:var(--ink); border-color:rgba(var(--aura),.6); }
+
+/* manifest rows are clickable to play */
+.man-row{ cursor:pointer; }
+
+/* instrument meta line under the station's EN name
+   e.g.  STORY TAG · 55 TRACKS · NEAR: 別れ  */
+.st-meta{ font-family:var(--hud); font-size:9.5px; letter-spacing:.3em; color:var(--ink-dim);
+  white-space:nowrap; opacity:0; transform:translateY(10px); transition:1s var(--ease) .45s; }
+.st-block.on .st-meta{ opacity:1; transform:none; }

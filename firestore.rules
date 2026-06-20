@@ -1,0 +1,104 @@
+rules_version = '2';
+// ============================================================
+// H/MIX GALLERY — Firestore セキュリティルール (v2)
+// 音の劇場 (Theater) の実装に合わせて更新。管理者による審査を支援。
+// ============================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 管理者判定 (秋山裕和の Firebase Auth UID)
+    function isAdmin() {
+      return request.auth != null
+          && request.auth.uid == "K4DqNCuAFbh1hMRjl7AFnl5iQ4s1";
+    }
+
+    // ── 足跡データのバリデーション (新規投稿時)
+    // 旧スキーマ(sceneId軸 = PCシアター)と新スキーマ(trackId軸 = 共有モジュール)の両方を許可
+    function isValidFootprint(data) {
+      return data.message is string
+          && data.message.size() > 0
+          && data.message.size() <= 60
+          // URL・リンク投稿禁止
+          && !data.message.matches('(?i).*https?://.*')
+          && !data.message.matches('(?i).*www\\..*')
+          // author は任意 (空でもOK)
+          && (!('author' in data.keys()) || data.author is string)
+          && (!('author' in data.keys()) || data.author.size() <= 20)
+          // 文脈ID: sceneId(シーン軸) または trackId(楽曲軸) のどちらかを必須
+          && (
+            (('sceneId' in data.keys()) && data.sceneId is string && data.sceneId.size() <= 32)
+            || (('trackId' in data.keys()) && data.trackId is string && data.trackId.size() <= 32)
+          )
+          && data.hidden == false
+          && data.reports == 0;
+    }
+
+    // ============================================================
+    // footprints コレクション (旅人の足跡)
+    // ============================================================
+    match /footprints/{docId} {
+
+      // 読み取り:
+      //   - 一般ユーザー: hidden=false のみ表示可能
+      //   - 管理者: 全て読める (非表示にした投稿のレビュー用)
+      allow read: if resource.data.hidden == false || isAdmin();
+
+      // 新規投稿:
+      //   誰でも (匿名含め) 投稿可能だが、バリデーション通過必須
+      //   (Firebase 匿名認証が無くても通る設定)
+      allow create: if isValidFootprint(request.resource.data);
+
+      // 更新:
+      //   管理者のみ (hidden の切替、reports カウンタのリセット)
+      allow update: if isAdmin();
+
+      // 削除:
+      //   管理者のみ (スパム・規約違反の完全削除)
+      allow delete: if isAdmin();
+    }
+
+    // ============================================================
+    // reports コレクション (足跡の通報)
+    // ============================================================
+    match /reports/{docId} {
+
+      // 読み取り: 管理者のみ
+      allow read: if isAdmin();
+
+      // 通報の作成: 誰でも (匿名含む) 投稿可能だが、スキーマ厳格 + 実在性チェック
+      // 必須4フィールド: footprintId / reason / createdAt / reporterHash
+      // PCシアター inline 実装と整合 (theater/index.html:fbReportFootprint)
+      // 強化点 (2026-04-28):
+      //   - footprintId が実在する footprint を指す (存在しないIDへの通報スパム拒否)
+      //   - reason に URL を含まない (footprints と同じスパム対策)
+      //   - createdAt はサーバ時刻と一致 (時刻偽装を拒否)
+      allow create: if
+          request.resource.data.footprintId is string
+          && request.resource.data.footprintId.size() > 0
+          && request.resource.data.footprintId.size() <= 64
+          && exists(/databases/$(database)/documents/footprints/$(request.resource.data.footprintId))
+          && request.resource.data.reason is string
+          && request.resource.data.reason.size() > 0
+          && request.resource.data.reason.size() <= 32
+          && !request.resource.data.reason.matches('(?i).*https?://.*')
+          && !request.resource.data.reason.matches('(?i).*www\\..*')
+          && request.resource.data.createdAt is timestamp
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.reporterHash is string
+          && request.resource.data.reporterHash.size() > 0
+          && request.resource.data.reporterHash.size() <= 64;
+
+      // 更新・削除: 管理者のみ
+      allow update, delete: if isAdmin();
+    }
+
+    // ============================================================
+    // purchases collection (Stripe payment records)
+    // ============================================================
+    match /purchases/{docId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if false;
+    }
+
+  }
+}

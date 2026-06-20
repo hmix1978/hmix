@@ -1,0 +1,681 @@
+/**
+ * H/MIX GALLERY — license-request.css
+ * 商用ライセンス一括申請ページ
+ */
+
+/* ─── 空状態 ─── */
+.lr-empty {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  color: var(--color-text-dim, #6e8f76);
+}
+.lr-empty__title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted, #b0c8b8);
+  margin-bottom: 1rem;
+}
+.lr-empty__desc {
+  font-size: 0.96rem;
+  line-height: 1.9;
+  margin-bottom: 2rem;
+}
+.lr-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+/* ─── 選択楽曲セクション ─── */
+.selected-tracks {
+  margin-bottom: 3rem;
+}
+.selected-tracks__heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  color: var(--color-green-light, #9adfb4);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+.selected-tracks__count {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.68rem;
+  color: var(--color-text-dim, #6e8f76);
+  letter-spacing: 0.04em;
+}
+.selected-tracks__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ─── 楽曲カード ─── */
+.selected-track-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(14, 26, 18, 0.60);
+  border: 1px solid rgba(100, 180, 130, 0.14);
+  border-radius: 4px;
+  padding: 0.65rem 0.875rem;
+  transition: border-color 0.15s;
+}
+.selected-track-card:hover {
+  border-color: rgba(100, 180, 130, 0.26);
+}
+.selected-track-card__preview {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(60, 130, 85, 0.18);
+  border: 1px solid rgba(80, 160, 110, 0.25);
+  color: rgba(120, 210, 155, 0.80);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.selected-track-card__preview:hover {
+  background: rgba(70, 150, 100, 0.30);
+  border-color: rgba(100, 190, 140, 0.50);
+  color: rgba(160, 230, 185, 1);
+  box-shadow: 0 0 8px rgba(80, 180, 120, 0.20);
+}
+.selected-track-card__preview svg {
+  fill: currentColor;
+  margin-left: 1px;
+}
+.selected-track-card__info {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.selected-track-card__title {
+  font-size: 0.97rem;
+  color: var(--color-text, #e8f5ec);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.selected-track-card__id {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim, #6e8f76);
+  margin-top: 0.15rem;
+}
+.selected-track-card__tags {
+  font-size: 0.76rem;
+  color: var(--color-text-dim, #6e8f76);
+  margin-top: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.selected-track-card__remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(200, 138, 50, 0.35);
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.selected-track-card__remove:hover {
+  color: rgba(255, 168, 60, 0.88);
+  border-color: rgba(255, 145, 45, 0.28);
+  background: rgba(180, 100, 18, 0.14);
+}
+.selected-track-card__remove svg { fill: currentColor; }
+
+/* カード削除アニメ */
+.selected-track-card--removing {
+  overflow: hidden;
+  animation: trackCardOut 0.25s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+@keyframes trackCardOut {
+  from { opacity: 1; max-height: 60px; margin-bottom: 0; }
+  to   { opacity: 0; max-height: 0;    margin-bottom: -0.5rem; }
+}
+
+/* ─── フォームセクション ─── */
+.license-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── フィールドグループ ─── */
+.lr-fieldgroup {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(100, 180, 130, 0.07);
+}
+.lr-fieldgroup:last-of-type {
+  border-bottom: none;
+}
+.lr-fieldgroup__label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--color-green-light, #9adfb4);
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+
+/* ─── フォームフィールド ─── */
+.license-request-field {
+  margin-bottom: 1.25rem;
+}
+.license-request-field:last-child {
+  margin-bottom: 0;
+}
+.lr-label {
+  display: block;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text, #e8f5ec);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.45rem;
+}
+.lr-label--required::after {
+  content: ' *';
+  color: rgba(160, 210, 155, 0.75);
+  font-size: 0.68rem;
+}
+.lr-label--optional::after {
+  content: ' （任意）';
+  color: var(--color-text-dim, #6e8f76);
+  font-size: 0.68rem;
+  font-weight: 400;
+}
+.lr-input,
+.lr-select,
+.lr-textarea {
+  width: 100%;
+  background: rgba(14, 26, 18, 0.80);
+  border: 1px solid rgba(100, 180, 130, 0.20);
+  border-radius: 3px;
+  color: var(--color-text, #e8f5ec);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.95rem;
+  padding: 0.60rem 0.875rem;
+  transition: border-color 0.18s, box-shadow 0.18s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.lr-input:focus,
+.lr-select:focus,
+.lr-textarea:focus {
+  outline: none;
+  border-color: rgba(100, 190, 140, 0.50);
+  box-shadow: 0 0 0 3px rgba(80, 180, 120, 0.12);
+}
+.lr-input::placeholder,
+.lr-textarea::placeholder {
+  color: rgba(110, 143, 118, 0.55);
+}
+.lr-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.7;
+}
+.lr-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e8f76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  padding-right: 2.25rem;
+  cursor: pointer;
+}
+.lr-select option {
+  background: #0e1a12;
+  color: #e8f5ec;
+}
+.lr-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-dim, #6e8f76);
+  margin-top: 0.35rem;
+  line-height: 1.6;
+}
+.lr-error {
+  display: none;
+  font-size: 0.70rem;
+  color: rgba(255, 130, 100, 0.85);
+  margin-top: 0.35rem;
+}
+.lr-field-invalid .lr-input,
+.lr-field-invalid .lr-select,
+.lr-field-invalid .lr-textarea {
+  border-color: rgba(255, 120, 90, 0.45);
+}
+.lr-field-invalid .lr-error {
+  display: block;
+}
+
+/* 横並びフィールド */
+.lr-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ─── アクション ─── */
+.license-request-actions {
+  padding-top: 2rem;
+  text-align: center;
+}
+.lr-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.98rem;
+  letter-spacing: 0.10em;
+  color: rgba(200, 158, 72, 0.95);
+  background: rgba(130, 88, 18, 0.18);
+  border: 1px solid rgba(200, 148, 50, 0.38);
+  border-radius: 4px;
+  padding: 0.75rem 2.5rem;
+  cursor: pointer;
+  transition: all 0.20s ease;
+  min-width: 220px;
+}
+.lr-submit-btn:hover {
+  color: rgba(255, 205, 110, 1);
+  border-color: rgba(255, 175, 70, 0.60);
+  background: rgba(165, 108, 22, 0.28);
+  box-shadow: 0 0 16px rgba(255, 180, 70, 0.20);
+}
+.lr-submit-btn:disabled {
+  color: rgba(150, 118, 55, 0.35);
+  border-color: rgba(160, 120, 45, 0.18);
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+.lr-submit-btn--pending {
+  color: rgba(180, 140, 60, 0.55) !important;
+  border-color: rgba(180, 140, 60, 0.25) !important;
+  gap: 0.5rem;
+}
+.license-request-note--pending {
+  color: rgba(200, 160, 80, 0.75);
+}
+.license-request-note--pending a {
+  color: rgba(180, 220, 160, 0.8);
+  text-decoration: underline;
+}
+.license-request-note {
+  font-size: 0.72rem;
+  color: var(--color-text-dim, #6e8f76);
+  line-height: 1.8;
+  margin-top: 1.25rem;
+}
+
+/* ─── 確認パネル（送信後） ─── */
+.lr-confirm-panel {
+  background: rgba(14, 26, 18, 0.85);
+  border: 1px solid rgba(100, 200, 140, 0.20);
+  border-radius: 6px;
+  padding: 2rem 1.75rem;
+  margin-bottom: 2rem;
+}
+.lr-confirm-panel__title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.80rem;
+  letter-spacing: 0.16em;
+  color: var(--color-green-light, #9adfb4);
+  margin-bottom: 1rem;
+}
+.lr-confirm-panel__body {
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(100, 180, 130, 0.12);
+  border-radius: 3px;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #b0c8b8);
+  line-height: 1.9;
+  white-space: pre-wrap;
+  font-family: 'Noto Sans JP', monospace;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(80, 160, 110, 0.30) transparent;
+}
+.lr-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* ─── セクション共通 ─── */
+.lr-section {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2.5rem;
+  border-bottom: 1px solid rgba(100, 180, 130, 0.07);
+}
+.lr-section:last-of-type {
+  border-bottom: none;
+}
+.lr-section__heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  color: var(--color-green-light, #9adfb4);
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── ライセンスカード ─── */
+.lr-license-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.lr-license-card {
+  position: relative;
+  background: rgba(14, 26, 18, 0.60);
+  border: 1px solid rgba(100, 180, 130, 0.18);
+  border-radius: 6px;
+  padding: 1.5rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.20s ease;
+  user-select: none;
+}
+.lr-license-card:hover:not(.lr-license-card--disabled) {
+  border-color: rgba(100, 190, 140, 0.42);
+  background: rgba(20, 38, 26, 0.75);
+  box-shadow: 0 0 18px rgba(80, 180, 120, 0.12);
+}
+.lr-license-card--selected {
+  border-color: rgba(154, 223, 180, 0.65) !important;
+  background: rgba(26, 50, 34, 0.80) !important;
+  box-shadow: 0 0 22px rgba(100, 200, 140, 0.18) !important;
+}
+.lr-license-card--selected::before {
+  content: '✓';
+  position: absolute;
+  top: 0.65rem;
+  right: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-green-light, #9adfb4);
+}
+.lr-license-card--disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.lr-license-card--recommended {
+  border-color: rgba(212, 164, 76, 0.55) !important;
+  box-shadow: 0 0 18px rgba(212, 164, 76, 0.12) !important;
+}
+.lr-pack-hint {
+  font-size: 0.82rem;
+  color: rgba(212, 164, 76, 0.85);
+  text-align: center;
+  margin-top: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+/* Professional / 店舗BGMパス 帯（ゴールド基調） */
+.lr-license-card--pro,
+.lr-license-card--pro-link {
+  border-color: rgba(212, 164, 76, 0.30);
+  background: linear-gradient(180deg, rgba(40, 30, 12, 0.45), rgba(14, 26, 18, 0.60));
+}
+.lr-license-card--pro-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.lr-license-card--pro:hover,
+.lr-license-card--pro-link:hover {
+  border-color: rgba(212, 164, 76, 0.60) !important;
+  background: linear-gradient(180deg, rgba(56, 41, 16, 0.60), rgba(20, 30, 20, 0.72)) !important;
+  box-shadow: 0 0 18px rgba(212, 164, 76, 0.14) !important;
+}
+.lr-license-card__badge--pro {
+  color: rgba(220, 180, 110, 0.9);
+  background: rgba(150, 110, 30, 0.16);
+  border-color: rgba(212, 164, 76, 0.32);
+}
+
+/* Professional 用途プルダウン */
+.lr-pro-usage {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(212, 164, 76, 0.28);
+  border-radius: 6px;
+  background: rgba(150, 110, 30, 0.06);
+}
+.lr-pro-usage[hidden] { display: none; }
+.lr-pro-usage .lr-label { margin-bottom: 0.5rem; }
+.lr-license-card__badge {
+  display: inline-block;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: rgba(154, 223, 180, 0.75);
+  background: rgba(80, 160, 110, 0.12);
+  border: 1px solid rgba(100, 180, 130, 0.20);
+  border-radius: 999px;
+  padding: 0.15rem 0.65rem;
+  margin-bottom: 0.75rem;
+}
+.lr-license-card__name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.10em;
+  color: var(--color-text, #e8f5ec);
+  margin-bottom: 0.4rem;
+}
+.lr-license-card__price {
+  font-family: 'Cinzel', serif;
+  font-size: 1.30rem;
+  font-weight: 600;
+  color: rgba(200, 168, 100, 0.90);
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+.lr-license-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid rgba(100, 180, 130, 0.08);
+  padding-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.lr-license-card__features li {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.82rem;
+  color: var(--color-text-dim, #6e8f76);
+  line-height: 1.5;
+  padding-left: 0.75rem;
+  position: relative;
+}
+.lr-license-card__features li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: rgba(100, 180, 130, 0.40);
+}
+
+/* ─── エラーメッセージ ─── */
+.lr-error-msg {
+  font-size: 0.72rem;
+  color: rgba(255, 130, 100, 0.85);
+  margin-top: 0.75rem;
+}
+
+/* ─── 価格表示 ─── */
+.lr-price-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  min-height: 1.8rem;
+}
+.lr-price-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.72rem;
+  color: var(--color-text-dim, #6e8f76);
+  letter-spacing: 0.06em;
+}
+.lr-price-amount {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  color: rgba(200, 168, 100, 0.90);
+  letter-spacing: 0.04em;
+}
+
+/* ─── レスポンシブ ─── */
+/* 4カード（Standard / Project Pack / Professional / 店舗BGMパス）の段階的折返し */
+@media (max-width: 1040px) {
+  .lr-license-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .lr-license-cards {
+    grid-template-columns: 1fr;
+  }
+  .lr-field-row {
+    grid-template-columns: 1fr;
+  }
+  .lr-confirm-panel {
+    padding: 1.5rem 1.25rem;
+  }
+  .lr-submit-btn {
+    width: 100%;
+  }
+}
+
+/* ── 曲名で追加（サジェスト） ───────────────────────────── */
+.lr-add-track { position: relative; margin-top: 0.75rem; }
+.lr-add-track__box {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.6rem 0.85rem; border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.14);
+  transition: border-color 0.2s, background 0.2s;
+}
+.lr-add-track__box:focus-within {
+  border-color: rgba(100,180,130,0.5);
+  background: rgba(255,255,255,0.06);
+}
+.lr-add-track__box svg { color: rgba(255,255,255,0.4); flex: none; }
+.lr-add-track__input {
+  flex: 1; background: none; border: none; outline: none;
+  color: rgba(255,255,255,0.92); font-size: 0.92rem; font-family: inherit;
+}
+.lr-add-track__input::placeholder { color: rgba(255,255,255,0.35); }
+
+.lr-suggest {
+  list-style: none; margin: 0.3rem 0 0; padding: 0.25rem;
+  position: absolute; left: 0; right: 0; top: 100%; z-index: 30;
+  background: rgba(18,22,20,0.96); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.16); border-radius: 10px;
+  box-shadow: 0 18px 50px -18px rgba(0,0,0,0.7);
+  max-height: 300px; overflow-y: auto;
+}
+.lr-suggest__item {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 0.55rem 0.7rem; border-radius: 7px; cursor: pointer;
+  transition: background 0.15s;
+}
+.lr-suggest__item:hover { background: rgba(100,180,130,0.16); }
+.lr-suggest__title { font-size: 0.9rem; color: rgba(255,255,255,0.95); }
+.lr-suggest__tags { font-size: 0.72rem; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
+.lr-suggest__empty { padding: 0.7rem; font-size: 0.82rem; color: rgba(255,255,255,0.4); text-align: center; }
+
+.lr-empty__or {
+  margin: 1.4rem 0 0.7rem; font-size: 0.8rem; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.4); text-align: center;
+}
+.lr-empty .lr-add-track { max-width: 420px; margin-left: auto; margin-right: auto; }
+.lr-price-prompt { font-size: 0.82rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; }
+
+.selected-tracks__placeholder {
+  list-style: none; padding: 0.9rem 1rem; border-radius: 10px;
+  background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.16);
+  font-size: 0.86rem; color: rgba(255,255,255,0.55); line-height: 1.6;
+}
+
+/* ═══ 店舗BGMパス（A表・年額サブスク）入力ブロック ═══ */
+.lr-store-block {
+  margin-top: 1.1rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(100,180,130,0.28);
+  border-radius: 12px;
+  background: rgba(60,120,80,0.06);
+}
+.lr-store-plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+.lr-store-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  background: rgba(255,255,255,0.02);
+}
+.lr-store-plan:hover { border-color: rgba(100,180,130,0.5); }
+.lr-store-plan--selected {
+  border-color: rgba(120,210,150,0.7);
+  background: rgba(100,180,130,0.12);
+}
+.lr-store-plan input { position: absolute; opacity: 0; pointer-events: none; }
+.lr-store-plan__name {
+  font-size: 0.96rem; font-weight: 600; color: rgba(255,255,255,0.95);
+}
+.lr-store-plan__desc {
+  font-size: 0.78rem; color: rgba(255,255,255,0.55); line-height: 1.5;
+}
+.lr-store-count {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.lr-store-count .lr-label { margin: 0; }
+.lr-input--num { width: 84px; text-align: center; }
+.lr-store-count__hint {
+  font-size: 0.82rem; color: rgba(255,255,255,0.55); letter-spacing: 0.03em;
+}
+.lr-store-block .lr-field-row { margin-bottom: 0.8rem; }
+.lr-store-block .lr-hint { margin-top: 0.5rem; }
+
+@media (max-width: 560px) {
+  .lr-store-plans { grid-template-columns: 1fr; }
+}

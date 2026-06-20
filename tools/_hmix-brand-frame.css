@@ -1,0 +1,261 @@
+/* ===================================================================
+   H/MIX TOOLS — Brand Frame Overlay
+   既存の H/MIX ミニツール (audio-comparator / bpm-key-finder 等) に
+   COMPRESSOR の視覚言語を被せて、ブランドの一貫性を担保する CSS。
+
+   使い方: 元ツールの <head> に以下を 1 行足すだけ
+     <link rel="stylesheet" href="../_hmix-brand-frame.css">
+   そのうえで <body> 直下に以下のヘッダーバーを追加:
+     <div class="hmix-brand-bar">
+       <a class="hmix-brand-bar__back" href="../index.html">← H/MIX TOOLS</a>
+       <img class="hmix-brand-bar__logo" src="..." alt="H/MIX GALLERY">
+       <div class="hmix-brand-bar__title">
+         <span class="hmix-brand-bar__name">AUDIO COMPARATOR</span>
+         <span class="hmix-brand-bar__name-ja">オーディオ比較</span>
+       </div>
+     </div>
+=================================================================== */
+
+/* tokens 上書き — 既存の墨×金から、コンプの jade+gold へ */
+:root {
+  --bg: #03060d;
+  --panel: rgba(11, 24, 36, 0.78);
+  --panel2: rgba(15, 28, 40, 0.82);
+  --ink: rgba(245, 240, 230, 0.94);
+  --ink-bright: #f5f0e6;
+  --muted: rgba(180, 220, 195, 0.55);
+  --gold: #d4a44c;
+  --gold-bright: #f5d896;
+  --green: #40ceb4;
+  --blue: #6a8ea0;
+  --line: rgba(217, 181, 102, 0.32);
+  --line-soft: rgba(217, 181, 102, 0.16);
+}
+
+/* === BODY === */
+html, body {
+  background:
+    radial-gradient(ellipse at 50% -20%, rgba(64, 206, 180, 0.10), transparent 55%),
+    radial-gradient(ellipse at 100% 100%, rgba(217, 181, 102, 0.06), transparent 55%),
+    linear-gradient(180deg, #050b18 0%, #03060d 100%) !important;
+  color: var(--ink);
+  font-family: 'Noto Sans JP', "Yu Gothic UI", "Hiragino Kaku Gothic ProN", -apple-system, sans-serif;
+}
+
+/* 星粒子フィールド (固定) */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 8% 14%,  rgba(245,240,230,0.55), transparent 60%),
+    radial-gradient(1px 1px at 22% 71%, rgba(245,240,230,0.45), transparent 60%),
+    radial-gradient(1px 1px at 38% 22%, rgba(245,240,230,0.5),  transparent 60%),
+    radial-gradient(1px 1px at 54% 88%, rgba(245,240,230,0.4),  transparent 60%),
+    radial-gradient(1px 1px at 71% 32%, rgba(245,240,230,0.55), transparent 60%),
+    radial-gradient(1px 1px at 88% 64%, rgba(245,240,230,0.45), transparent 60%),
+    radial-gradient(1px 1px at 95% 18%, rgba(245,240,230,0.4),  transparent 60%);
+  opacity: 0.5;
+  z-index: 0;
+}
+body > * { position: relative; z-index: 1; }
+
+
+/* ===================================================================
+   ブランドバー (各ツールの最上部に挿入)
+=================================================================== */
+.hmix-brand-bar {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 1.4rem;
+  align-items: center;
+  padding: 1.2rem 2rem;
+  background:
+    linear-gradient(180deg, rgba(15, 28, 40, 0.85), rgba(6, 14, 22, 0.90));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(245, 216, 150, 0.12),
+    0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.hmix-brand-bar::before {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(217, 181, 102, 0.35) 30%,
+    rgba(64, 206, 180, 0.35) 70%, transparent);
+}
+
+.hmix-brand-bar__back {
+  font-family: 'Cinzel', serif;
+  font-size: 0.74rem; letter-spacing: 0.3em;
+  color: var(--gold);
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  transition: all 0.2s;
+}
+.hmix-brand-bar__back:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold);
+  background: rgba(217, 181, 102, 0.08);
+}
+
+.hmix-brand-bar__logo {
+  height: 38px; width: auto;
+  filter: drop-shadow(0 0 12px rgba(245, 216, 150, 0.3));
+}
+
+.hmix-brand-bar__title {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  padding-left: 1.2rem;
+  border-left: 1px solid var(--line-soft);
+}
+.hmix-brand-bar__name {
+  font-family: 'Cinzel', serif; font-weight: 500;
+  font-size: 1.05rem; letter-spacing: 0.24em;
+  color: var(--gold-bright);
+  text-shadow: 0 0 14px rgba(245, 216, 150, 0.3);
+}
+.hmix-brand-bar__name-ja {
+  font-family: 'Noto Serif JP', serif; font-weight: 400;
+  font-size: 0.74rem; letter-spacing: 0.28em;
+  color: rgba(123, 224, 200, 0.8);
+}
+
+.hmix-brand-bar__chip {
+  font-family: 'Cinzel', serif;
+  font-size: 0.66rem; letter-spacing: 0.22em;
+  padding: 0.36rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(64, 206, 180, 0.28);
+  color: rgba(123, 224, 200, 0.9);
+  background: rgba(64, 206, 180, 0.06);
+  display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.hmix-brand-bar__chip::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: #40ceb4; box-shadow: 0 0 6px #40ceb4;
+}
+
+
+/* ===================================================================
+   既存ツールヘッダー (元の <header>) を内部副題化
+=================================================================== */
+body > header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--line-soft) !important;
+  padding: 1.4rem 2rem !important;
+  display: flex !important; align-items: baseline !important; gap: 1rem !important;
+}
+body > header h1 {
+  font-family: 'Cinzel', serif !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.2em !important;
+  color: var(--gold-bright) !important;
+  font-size: 1.1rem !important;
+}
+body > header h1 .gold { color: var(--gold) !important; }
+body > header .sub {
+  font-family: 'Cormorant Garamond', serif !important;
+  font-style: italic;
+  letter-spacing: 0.06em !important;
+  color: var(--muted) !important;
+  font-size: 0.92rem !important;
+}
+
+
+/* ===================================================================
+   panel / card 系のリスキン
+=================================================================== */
+.card, .panel {
+  background: var(--panel) !important;
+  border: 1px solid var(--line-soft) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    inset 0 1px 0 rgba(245, 216, 150, 0.06),
+    0 8px 26px rgba(0, 0, 0, 0.45) !important;
+  position: relative;
+}
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(217, 181, 102, 0.3) 30%,
+    rgba(64, 206, 180, 0.3) 70%, transparent);
+  border-radius: 12px 12px 0 0;
+}
+
+/* drop zone のリスキン (ファイル投入エリア) */
+.drop {
+  border: 1.5px dashed rgba(217, 181, 102, 0.32) !important;
+  background: rgba(8, 18, 28, 0.45) !important;
+  transition: all 0.2s;
+}
+.drop:hover, .drop.over {
+  border-color: var(--gold-bright) !important;
+  background: rgba(217, 181, 102, 0.08) !important;
+  box-shadow: 0 0 24px rgba(217, 181, 102, 0.15);
+}
+.drop.loaded {
+  border-style: solid !important;
+  border-color: rgba(64, 206, 180, 0.5) !important;
+  background: rgba(64, 206, 180, 0.06) !important;
+}
+
+/* 強調ラベル */
+.drop .label {
+  font-family: 'Cinzel', serif !important;
+  letter-spacing: 0.22em !important;
+}
+
+/* ボタン系 */
+button, .btn {
+  font-family: 'Cinzel', 'Noto Sans JP', sans-serif !important;
+  letter-spacing: 0.18em !important;
+}
+
+
+/* ===================================================================
+   フッター (任意)
+=================================================================== */
+.hmix-tool-foot {
+  margin-top: 4rem;
+  padding: 2rem;
+  text-align: center;
+  border-top: 1px solid var(--line-soft);
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.hmix-tool-foot a {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+.hmix-tool-foot a:hover {
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold);
+}
+
+
+/* ===================================================================
+   モバイル
+=================================================================== */
+@media (max-width: 720px) {
+  .hmix-brand-bar {
+    grid-template-columns: auto auto 1fr;
+    padding: 0.9rem 1rem;
+    gap: 0.8rem;
+  }
+  .hmix-brand-bar__chip { display: none; }
+  .hmix-brand-bar__name { font-size: 0.92rem; letter-spacing: 0.18em; }
+  .hmix-brand-bar__name-ja { font-size: 0.66rem; }
+  .hmix-brand-bar__back { font-size: 0.62rem; padding: 0.4rem 0.7rem; }
+  .hmix-brand-bar__logo { height: 30px; }
+  .hmix-brand-bar__title { padding-left: 0.7rem; }
+}

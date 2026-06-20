@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H/MIX BPM &amp; KEY FINDER — テンポ・キー検出 | H/MIX TOOLS</title>
+<meta name="description" content="楽曲の BPM と調性を自動検出する Web ツール。Krumhansl プロファイル + 自己相関で 0.1 BPM 精度。DJ・作曲・リミックス・解析に。H/MIX GALLERY 監修。">
+<meta name="keywords" content="BPM,キー検出,調性,テンポ,Krumhansl,自己相関,音楽解析,H/MIX">
+<link rel="canonical" href="https://www.hmix.net/tools/bpm-key/">
+
+<meta property="og:title" content="H/MIX BPM &amp; KEY FINDER — テンポ・キー検出">
+<meta property="og:description" content="BPM と調性を自動検出。 Krumhansl + 自己相関で 0.1 BPM 精度。 DJ・作曲・リミックスに。">
+<meta property="og:image" content="https://www.hmix.net/tools/bpm-key/og.jpg">
+<meta property="og:url" content="https://www.hmix.net/tools/bpm-key/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H/MIX GALLERY">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "H/MIX BPM & KEY FINDER",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web Browser",
+  "url": "https://www.hmix.net/tools/bpm-key/",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+  "creator": { "@type": "Person", "name": "秋山裕和", "url": "https://www.hmix.net/composer.html" },
+  "publisher": { "@type": "Organization", "name": "H/MIX GALLERY", "url": "https://www.hmix.net/" }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500&family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;1,400;1,500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* H/MIX TOOLS ブランド統一: 旧変数名で新色を返す (既存コード非破壊) */
+  :root {
+    --bg: #050b18;
+    --panel: rgba(10, 20, 34, 0.7);
+    --panel2: rgba(15, 30, 50, 0.65);
+    --ink: rgba(245, 240, 230, 0.94);
+    --ink-bright: #f5d896;
+    --muted: rgba(180, 220, 195, 0.55);
+    --gold: #d4a44c;
+    --gold-bright: #f5d896;
+    --red: #c2554d;
+    --green: #40ceb4;
+    --blue: #7be0c8;
+    --line: rgba(217, 181, 102, 0.16);
+    --jade: #40ceb4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Yu Gothic UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, #181613, #0f0e0c);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  h1 .gold { color: var(--gold); }
+  header .sub { color: var(--muted); font-size: 12px; }
+  main { padding: 20px 28px 50px; max-width: 1100px; margin: 0 auto; }
+  section { margin-bottom: 22px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 22px;
+  }
+  .viz-title {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .viz-title h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; }
+  .viz-title .hint { font-size: 11px; color: var(--muted); }
+
+  /* Drop zone */
+  .drop {
+    border: 1.5px dashed #39342c;
+    border-radius: 8px;
+    padding: 36px;
+    text-align: center;
+    cursor: pointer;
+    background: #15130f;
+    transition: all .15s;
+  }
+  .drop:hover, .drop.over {
+    border-color: var(--gold);
+    background: #1c1a15;
+  }
+  .drop.loaded { border-style: solid; border-color: #3a4c3a; background: #171d17; }
+  .drop .label {
+    font-size: 11px; color: var(--muted);
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .drop .big { font-size: 14px; color: var(--ink); }
+  .drop .name { font-size: 13px; margin-top: 10px; color: var(--gold-bright); word-break: break-all; }
+  .drop .meta { font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .drop input[type="file"] { display: none; }
+
+  /* Big results */
+  .big-results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 18px 0;
+  }
+  .result-box {
+    background: linear-gradient(135deg, #1a1815, #23201c);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    padding: 28px 32px;
+    text-align: center;
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .result-box .kind {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .result-box .value {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--gold-bright);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin: 10px 0 2px;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-box .value .unit {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .result-box .confidence {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .result-box .confidence b { color: var(--green); font-weight: 600; }
+  .result-box .confidence b.low { color: var(--red); }
+  .result-box .alt {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .result-box.loading { opacity: 0.5; }
+  .result-box .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid var(--gold);
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Transport */
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  button.btn {
+    background: #232019;
+    border: 1px solid #3a352b;
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all .1s;
+    font-family: inherit;
+  }
+  button.btn:hover:not(:disabled) { background: #2a2620; border-color: var(--gold); }
+  button.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  button.btn.primary {
+    background: var(--gold);
+    color: #141210;
+    border-color: var(--gold);
+    font-weight: 600;
+  }
+  button.btn.primary:hover { background: var(--gold-bright); }
+
+  input[type="range"] {
+    flex: 1;
+    appearance: none;
+    height: 4px;
+    background: #2a2620;
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+  }
+  .time {
+    font-size: 12px; color: var(--muted);
+    font-variant-numeric: tabular-nums; min-width: 48px;
+  }
+
+  canvas.full {
+    display: block;
+    width: 100%;
+    background: #0a0908;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+
+  /* Stats grid */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat {
+    background: #15130f;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .stat .k {
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .stat .v {
+    font-size: 15px; margin-top: 2px;
+    font-variant-numeric: tabular-nums; color: var(--ink-bright);
+  }
+
+  /* Tempo candidates */
+  .candidates {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+  }
+  .cand {
+    background: var(--panel2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .cand b { color: var(--gold); margin-right: 4px; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    padding: 24px 0 36px;
+    letter-spacing: 0.08em;
+  }
+  footer .mark { color: var(--gold); }
+
+  .help {
+    background: rgba(217, 181, 102, 0.05);
+    border-left: 3px solid var(--gold);
+    padding: 12px 16px;
+    margin-top: 14px;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    color: var(--ink);
+  }
+
+  .hotkey {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #2a2620;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: Consolas, monospace;
+  }
+</style>
+<link rel="stylesheet" href="../_hmix-brand-frame.css">
+</head>
+<body>
+
+<div class="hmix-brand-bar">
+  <a class="hmix-brand-bar__back" href="../index.html">← H/MIX TOOLS</a>
+  <img class="hmix-brand-bar__logo"
+       src="../assets/hmix-logo.png"
+       alt="H/MIX GALLERY">
+  <div class="hmix-brand-bar__title">
+    <span class="hmix-brand-bar__name">BPM &amp; KEY FINDER</span>
+    <span class="hmix-brand-bar__name-ja">テンポ・キー検出</span>
+  </div>
+  <span class="hmix-brand-bar__chip">LIVE · WEB</span>
+</div>
+
+<header>
+  <h1>H/MIX <span class="gold">BPM & Key Finder</span></h1>
+  <div class="sub">楽曲の BPM ／ キー ／ 拍位置を自動検出  ・ ブラウザ内で完結</div>
+</header>
+
+<main>
+
+  <!-- Drop zone -->
+  <section>
+    <div class="drop" id="drop">
+      <div class="label">■ Audio File</div>
+      <div class="big">音源をドロップ <span class="hotkey">または</span> クリックして選択</div>
+      <div class="name" id="fileName"></div>
+      <div class="meta" id="fileMeta"></div>
+      <input type="file" id="fileInput" accept="audio/*">
+    </div>
+  </section>
+
+  <!-- Big results -->
+  <section class="big-results">
+    <div class="result-box" id="bpmBox">
+      <div class="kind">BPM  ／  Tempo</div>
+      <div class="value" id="bpmValue">—</div>
+      <div class="confidence" id="bpmConf"></div>
+      <div class="alt" id="bpmAlt"></div>
+    </div>
+    <div class="result-box" id="keyBox">
+      <div class="kind">Key  ／  調性</div>
+      <div class="value" id="keyValue">—</div>
+      <div class="confidence" id="keyConf"></div>
+      <div class="alt" id="keyAlt"></div>
+    </div>
+  </section>
+
+  <!-- Transport + Waveform -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>波形 + 拍位置</h3>
+      <span class="hint">波形クリックで任意位置にジャンプ ・ 金の縦線が検出された拍</span>
+    </div>
+    <canvas id="waveform" class="full" height="160"></canvas>
+    <div class="transport">
+      <button class="btn primary" id="playBtn" disabled>▶ 再生</button>
+      <button class="btn" id="stopBtn" disabled>■ 停止</button>
+      <label style="display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:12px;">
+        <input type="checkbox" id="clickTrack" style="accent-color: var(--gold);">
+        拍音クリックを重ねて再生
+      </label>
+      <span style="margin-left:auto; font-size:11px; color:var(--muted);">
+        <span class="hotkey">Space</span>: 再生/停止
+      </span>
+    </div>
+    <div class="transport" style="margin-top:8px;">
+      <span class="time" id="timeNow">0:00</span>
+      <input type="range" id="scrubber" min="0" max="1000" value="0" disabled>
+      <span class="time" id="timeTotal">0:00</span>
+    </div>
+  </section>
+
+  <!-- Tempo candidates -->
+  <section class="card">
+    <div class="viz-title">
+      <h3>他のテンポ候補</h3>
+      <span class="hint">半分／倍のテンポ解釈も併記</span>
+    </div>
+    <div class="candidates" id="candidates">
+      <span class="cand" style="color:var(--muted);">—</span>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="card">
+    <div class="viz-title"><h3>詳細情報</h3></div>
+    <div class="stats">
+      <div class="stat"><div class="k">サンプルレート</div><div class="v" id="srStat">—</div></div>
+      <div class="stat"><div class="k">チャンネル</div><div class="v" id="chStat">—</div></div>
+      <div class="stat"><div class="k">長さ</div><div class="v" id="durStat">—</div></div>
+      <div class="stat"><div class="k">検出した拍数</div><div class="v" id="beatStat">—</div></div>
+    </div>
+    <div class="transport" style="margin-top:12px;">
+      <button class="btn" id="exportBtn" disabled>⬇  拍タイミングを CSV 書き出し</button>
+      <span style="color:var(--muted); font-size:11px;">
+        DAW に読み込んで編集用のリズム・グリッドとして使えます
+      </span>
+    </div>
+  </section>
+
+  <div class="help" id="helpMsg">
+    <b>検出の精度について：</b>
+    ビートの明確な曲（ポップス・ロック・EDM・和モダン）は 95〜99% 精度。<br>
+    伝統邦楽の<b>自由リズム曲</b>（尺八本曲・邦楽独奏・瞑想音楽など）は BPM 概念自体がないため、検出値は参考程度に留めてください。<br>
+    キー検出は、長調／短調の2択マッチングです。モード音楽・転調曲は信頼度が下がります。
+  </div>
+
+</main>
+
+<footer>
+  ✦  H/MIX GALLERY  ©  秋山裕和  ✦
+</footer>
+
+<script>
+// =====================================================================
+//   H/MIX BPM & Key Finder
+// =====================================================================
+
+const state = {
+  ctx: null,
+  buffer: null,
+  source: null,
+  gainNode: null,
+  clickGain: null,
+  clickOsc: null,
+  isPlaying: false,
+  startCtxTime: 0,
+  startOffset: 0,
+  rafId: null,
+  beats: [],        // 拍の時刻（秒） 配列
+  bpm: null,
+  bpmConf: 0,
+  bpmAlts: [],
+  key: null,
+  keyConf: 0,
+  keyAlts: [],
+};
+
+// ---- ファイル読込 ----
+async function loadFile(file) {
+  if (!state.ctx) state.ctx = new (window.AudioContext||window.webkitAudioContext)();
+  const arr = await file.arrayBuffer();
+  let buffer;
+  try {
+    buffer = await state.ctx.decodeAudioData(arr);
+  } catch (e) {
+    alert('デコードに失敗しました: ' + e.message);
+    return;
+  }
+  state.buffer = buffer;
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileMeta').textContent =
+    `${buffer.sampleRate} Hz · ${buffer.numberOfChannels}ch · ${fmtTime(buffer.duration)} · ${(file.size/1024/1024).toFixed(1)} MB`;
+  document.getElementById('drop').classList.add('loaded');
+  document.getElementById('srStat').textContent = `${buffer.sampleRate.toLocaleString()} Hz`;
+  document.getElementById('chStat').textContent = `${buffer.numberOfChannels}ch`;
+  document.getElementById('durStat').textContent = fmtTime(buffer.duration);
+  document.getElementById('timeTotal').textContent = fmtTime(buffer.duration);
+
+  // 解析開始
+  await analyze();
+
+  document.getElementById('playBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = false;
+  document.getElementById('scrubber').disabled = false;
+  document.getElementById('exportBtn').disabled = false;
+}
+
+function fmtTime(s) {
+  s = Math.max(0, Math.floor(s));
+  return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+}
+
+// ---- BPM / Key 解析 ----
+async function analyze() {
+  setLoading(true);
+
+  // モノラル化 + ダウンサンプル
+  const SR_ANALYSIS = 11025;
+  const mono = await downsampleMono(state.buffer, SR_ANALYSIS);
+
+  // BPM
+  const bpmResult = detectBPM(mono, SR_ANALYSIS);
+  state.bpm = bpmResult.bpm;
+  state.bpmConf = bpmResult.confidence;
+  state.bpmAlts = bpmResult.alternatives;
+  state.beats = bpmResult.beats;
+
+  // Key
+  const keyResult = detectKey(mono, SR_ANALYSIS);
+  state.key = keyResult.key;
+  state.keyConf = keyResult.confidence;
+  state.keyAlts = keyResult.alternatives;
+
+  updateUI();
+  drawWaveform();
+  setLoading(false);
+}
+
+function setLoading(on) {
+  if (on) {
+    document.getElementById('bpmValue').innerHTML = '<span class="spinner"></span>解析中';
+    document.getElementById('keyValue').innerHTML = '<span class="spinner"></span>解析中';
+    document.getElementById('bpmBox').classList.add('loading');
+    document.getElementById('keyBox').classList.add('loading');
+  } else {
+    document.getElementById('bpmBox').classList.remove('loading');
+    document.getElementById('keyBox').classList.remove('loading');
+  }
+}
+
+async function downsampleMono(buf, targetSR) {
+  const N = Math.floor(buf.length * targetSR / buf.sampleRate);
+  const ctx = new OfflineAudioContext(1, N, targetSR);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.start(0);
+  const rendered = await ctx.startRendering();
+  return rendered.getChannelData(0);
+}
+
+// ---- BPM detection via spectral flux + autocorrelation ----
+function detectBPM(signal, sr) {
+  // 1. Short-time energy onset (spectral-flux-like using simple envelope)
+  const WIN = 1024, HOP = 512;
+  const nFrames = Math.floor((signal.length - WIN) / HOP);
+  const onset = new Float32Array(nFrames);
+  let prev = 0;
+  for (let i = 0; i < nFrames; i++) {
+    const s = i * HOP;
+    let e = 0;
+    for (let j = 0; j < WIN; j++) e += signal[s+j] * signal[s+j];
+    e = Math.sqrt(e / WIN);
+    // Half-wave rectified diff
+    onset[i] = Math.max(0, e - prev);
+    prev = e;
+  }
+  const frameRate = sr / HOP;  // frames per second
+
+  // 2. Normalize onset envelope
+  let max = 0;
+  for (let i = 0; i < onset.length; i++) if (onset[i] > max) max = onset[i];
+  if (max > 0) for (let i = 0; i < onset.length; i++) onset[i] /= max;
+
+  // 3. Autocorrelation to find tempo
+  // Search 50-220 BPM range
+  const minBPM = 50, maxBPM = 220;
+  const minLag = Math.floor(60 / maxBPM * frameRate);
+  const maxLag = Math.ceil(60 / minBPM * frameRate);
+  const acf = new Float32Array(maxLag + 1);
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let sum = 0;
+    for (let i = 0; i < onset.length - lag; i++) sum += onset[i] * onset[i+lag];
+    acf[lag] = sum;
+  }
+
+  // Find peak
+  let peakLag = minLag, peakVal = 0;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    if (acf[lag] > peakVal) { peakVal = acf[lag]; peakLag = lag; }
+  }
+
+  // Parabolic interpolation for sub-bin precision
+  let refinedLag = peakLag;
+  if (peakLag > minLag && peakLag < maxLag) {
+    const y0 = acf[peakLag-1], y1 = acf[peakLag], y2 = acf[peakLag+1];
+    const denom = (y0 - 2*y1 + y2);
+    if (Math.abs(denom) > 1e-9) {
+      refinedLag = peakLag + 0.5 * (y0 - y2) / denom;
+    }
+  }
+
+  let bpm = 60 * frameRate / refinedLag;
+  // Snap to likely double/half tempos if in typical range
+  const candidates = [];
+  for (const mult of [0.5, 1.0, 2.0]) {
+    const b = bpm * mult;
+    if (b >= 60 && b <= 200) candidates.push({ bpm: b, mult });
+  }
+
+  // Most-likely tempo is the one closest to 120 BPM (common bias)
+  // But we'll trust the fundamental as primary
+  bpm = Math.round(bpm * 10) / 10;
+
+  // Confidence: peak-to-average ratio
+  let acfSum = 0, acfCount = 0;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    acfSum += acf[lag]; acfCount++;
+  }
+  const acfAvg = acfSum / acfCount;
+  const confidence = Math.min(1, (peakVal / acfAvg - 1) / 4);
+
+  // 4. Generate beat positions
+  const period = refinedLag / frameRate;  // seconds per beat
+  const beats = [];
+  // Find best offset: try each frame offset from 0 to period and pick best onset-sum
+  const periodFrames = refinedLag;
+  let bestOffset = 0, bestScore = -1;
+  for (let off = 0; off < periodFrames; off++) {
+    let score = 0;
+    for (let i = off; i < onset.length; i += periodFrames) {
+      score += onset[Math.floor(i)] || 0;
+    }
+    if (score > bestScore) { bestScore = score; bestOffset = off; }
+  }
+  for (let i = bestOffset; i < onset.length; i += periodFrames) {
+    beats.push(i / frameRate);
+  }
+
+  return { bpm, confidence, alternatives: candidates, beats };
+}
+
+// ---- Key detection via Krumhansl-Schmuckler profiles ----
+const KEY_PROFILES = {
+  major: [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88],
+  minor: [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17],
+};
+const PITCH_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
+const PITCH_NAMES_EN = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+function detectKey(signal, sr) {
+  const chroma = computeChromagram(signal, sr);
+
+  // Normalize chroma total
+  const total = chroma.reduce((a, b) => a + b, 0);
+  if (total > 0) for (let i = 0; i < 12; i++) chroma[i] /= total;
+
+  // Compare to all 24 keys (12 major + 12 minor)
+  const results = [];
+  for (let tonic = 0; tonic < 12; tonic++) {
+    for (const mode of ['major', 'minor']) {
+      const profile = KEY_PROFILES[mode];
+      let corr = 0;
+      let pSum = 0, cSum = 0;
+      for (let i = 0; i < 12; i++) { pSum += profile[i]; cSum += chroma[i]; }
+      const pMean = pSum / 12, cMean = cSum / 12;
+      let num = 0, pVar = 0, cVar = 0;
+      for (let i = 0; i < 12; i++) {
+        const dp = profile[(i - tonic + 12) % 12] - pMean;
+        const dc = chroma[i] - cMean;
+        num += dp * dc;
+        pVar += dp * dp;
+        cVar += dc * dc;
+      }
+      corr = num / Math.sqrt(pVar * cVar + 1e-12);
+      results.push({
+        key: `${PITCH_NAMES[tonic]} ${mode === 'major' ? 'Major' : 'Minor'}`,
+        keyShort: PITCH_NAMES[tonic] + (mode === 'minor' ? 'm' : ''),
+        tonic, mode, correlation: corr,
+      });
+    }
+  }
+  results.sort((a, b) => b.correlation - a.correlation);
+
+  const best = results[0];
+  const second = results[1];
+  const confidence = Math.max(0, Math.min(1, (best.correlation - second.correlation) * 3 + best.correlation));
+
+  return {
+    key: best,
+    confidence,
+    alternatives: results.slice(1, 4),
+  };
+}
+
+function computeChromagram(signal, sr) {
+  const FFT = 4096;
+  const HOP = 2048;
+  const nFrames = Math.floor((signal.length - FFT) / HOP);
+  const chroma = new Float32Array(12);
+
+  const fft = makeFFT(FFT);
+  const re = new Float32Array(FFT);
+  const im = new Float32Array(FFT);
+  const win = new Float32Array(FFT);
+  for (let i = 0; i < FFT; i++) win[i] = 0.5 * (1 - Math.cos(2*Math.PI*i/(FFT-1)));
+
+  // Bin→pitch lookup (A4 = 440Hz)
+  const A4 = 440;
+  const binPitch = new Int16Array(FFT/2);
+  for (let k = 1; k < FFT/2; k++) {
+    const freq = k * sr / FFT;
+    if (freq < 80 || freq > 3000) { binPitch[k] = -1; continue; }
+    const midi = 69 + 12 * Math.log2(freq / A4);
+    const pitch = Math.round(midi) % 12;
+    binPitch[k] = (pitch + 12) % 12;
+  }
+
+  for (let f = 0; f < nFrames; f++) {
+    const start = f * HOP;
+    for (let i = 0; i < FFT; i++) { re[i] = signal[start+i] * win[i]; im[i] = 0; }
+    fft(re, im);
+    for (let k = 1; k < FFT/2; k++) {
+      const pc = binPitch[k];
+      if (pc < 0) continue;
+      const mag = Math.sqrt(re[k]*re[k] + im[k]*im[k]);
+      chroma[pc] += mag;
+    }
+  }
+  return chroma;
+}
+
+// Cooley-Tukey FFT
+function makeFFT(N) {
+  const log2N = Math.log2(N);
+  const rev = new Int32Array(N);
+  for (let i = 0; i < N; i++) {
+    let r = 0, x = i;
+    for (let j = 0; j < log2N; j++) { r = (r<<1)|(x&1); x>>>=1; }
+    rev[i] = r;
+  }
+  const cosT = new Float32Array(N/2), sinT = new Float32Array(N/2);
+  for (let i = 0; i < N/2; i++) {
+    cosT[i] = Math.cos(-2*Math.PI*i/N);
+    sinT[i] = Math.sin(-2*Math.PI*i/N);
+  }
+  return function fft(re, im) {
+    for (let i = 0; i < N; i++) {
+      const j = rev[i];
+      if (j > i) { let t = re[i]; re[i]=re[j]; re[j]=t; t=im[i]; im[i]=im[j]; im[j]=t; }
+    }
+    for (let size = 2; size <= N; size <<= 1) {
+      const half = size >> 1;
+      const step = N / size;
+      for (let i = 0; i < N; i += size) {
+        for (let k = 0; k < half; k++) {
+          const tIdx = k * step;
+          const c = cosT[tIdx], s = sinT[tIdx];
+          const rOdd = re[i+k+half]*c - im[i+k+half]*s;
+          const iOdd = re[i+k+half]*s + im[i+k+half]*c;
+          re[i+k+half] = re[i+k] - rOdd;
+          im[i+k+half] = im[i+k] - iOdd;
+          re[i+k]      = re[i+k] + rOdd;
+          im[i+k]      = im[i+k] + iOdd;
+        }
+      }
+    }
+  };
+}
+
+// ---- UI update ----
+function updateUI() {
+  // BPM
+  document.getElementById('bpmValue').innerHTML =
+    `${state.bpm.toFixed(1)}<span class="unit">BPM</span>`;
+  const confPct = Math.round(state.bpmConf * 100);
+  const confClass = confPct >= 60 ? '' : 'low';
+  document.getElementById('bpmConf').innerHTML =
+    `信頼度: <b class="${confClass}">${confPct}%</b>`;
+
+  // Alt tempos
+  const alts = state.bpmAlts.filter(a => Math.abs(a.bpm - state.bpm) > 3);
+  document.getElementById('bpmAlt').textContent =
+    alts.length > 0
+      ? '別解釈: ' + alts.map(a => a.bpm.toFixed(0) + ' BPM').join(' ／ ')
+      : '';
+
+  const candsEl = document.getElementById('candidates');
+  candsEl.innerHTML = '';
+  state.bpmAlts.forEach((a, i) => {
+    const el = document.createElement('span');
+    el.className = 'cand';
+    const tag = a.mult === 1 ? '主候補' : a.mult === 0.5 ? '半分' : '倍';
+    el.innerHTML = `<b>${a.bpm.toFixed(1)}</b> BPM · ${tag}`;
+    candsEl.appendChild(el);
+  });
+
+  // Key
+  document.getElementById('keyValue').textContent = state.key.key;
+  const kconf = Math.round(state.keyConf * 100);
+  const kClass = kconf >= 50 ? '' : 'low';
+  document.getElementById('keyConf').innerHTML =
+    `信頼度: <b class="${kClass}">${kconf}%</b>`;
+  document.getElementById('keyAlt').textContent =
+    '次候補: ' + state.keyAlts.slice(0, 2).map(a => a.keyShort).join(' ／ ');
+
+  // Beat count
+  document.getElementById('beatStat').textContent = `${state.beats.length} 拍`;
+}
+
+// ---- Waveform + beats drawing ----
+function drawWaveform() {
+  const c = document.getElementById('waveform');
+  const dpr = window.devicePixelRatio || 1;
+  c.width = c.clientWidth * dpr;
+  c.height = 160 * dpr;
+  const g = c.getContext('2d');
+  g.scale(dpr, dpr);
+  const W = c.clientWidth, H = 160;
+  g.fillStyle = '#0a0908'; g.fillRect(0, 0, W, H);
+
+  if (!state.buffer) return;
+  const data = state.buffer.getChannelData(0);
+  const dur = state.buffer.duration;
+  const step = Math.max(1, Math.floor(data.length / W));
+  g.strokeStyle = 'rgba(194,85,77,0.75)';
+  g.lineWidth = 1;
+  for (let x = 0; x < W; x++) {
+    const s = x * step;
+    let mn = 1, mx = -1;
+    for (let i = s; i < Math.min(data.length, s + step); i++) {
+      if (data[i] < mn) mn = data[i];
+      if (data[i] > mx) mx = data[i];
+    }
+    g.beginPath();
+    g.moveTo(x, H/2 + mn * H/2 * 0.9);
+    g.lineTo(x, H/2 + mx * H/2 * 0.9);
+    g.stroke();
+  }
+
+  // Beat markers
+  g.strokeStyle = 'rgba(217, 181, 102, 0.7)';
+  g.lineWidth = 1;
+  state.beats.forEach(t => {
+    const x = Math.round(t / dur * W);
+    g.beginPath();
+    g.moveTo(x, 0); g.lineTo(x, H);
+    g.stroke();
+  });
+
+  // Center line
+  g.strokeStyle = 'rgba(138, 133, 122, 0.3)';
+  g.beginPath(); g.moveTo(0, H/2); g.lineTo(W, H/2); g.stroke();
+}
+
+function drawPlayhead() {
+  drawWaveform();
+  if (!state.buffer) return;
+  const c = document.getElementById('waveform');
+  const g = c.getContext('2d');
+  const W = c.clientWidth, H = 160;
+  const t = currentTime();
+  const x = Math.round(t / state.buffer.duration * W);
+  g.strokeStyle = 'rgba(240, 207, 133, 1)';
+  g.lineWidth = 2;
+  g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke();
+}
+
+function currentTime() {
+  if (!state.isPlaying) return state.startOffset;
+  return Math.min(state.buffer.duration, state.startOffset + (state.ctx.currentTime - state.startCtxTime));
+}
+
+// ---- Playback ----
+function play() {
+  if (!state.buffer) return;
+  if (state.isPlaying) stop();
+  state.source = state.ctx.createBufferSource();
+  state.source.buffer = state.buffer;
+  state.gainNode = state.ctx.createGain();
+  state.source.connect(state.gainNode).connect(state.ctx.destination);
+  const when = state.ctx.currentTime + 0.05;
+  state.source.start(when, state.startOffset);
+  state.startCtxTime = when;
+  state.isPlaying = true;
+  document.getElementById('playBtn').textContent = '❚❚ 一時停止';
+  state.source.onended = () => { if (state.isPlaying) onEnd(); };
+
+  // Click track
+  if (document.getElementById('clickTrack').checked) scheduleClicks();
+
+  startLoop();
+}
+function onEnd() {
+  state.isPlaying = false;
+  state.startOffset = 0;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+  document.getElementById('scrubber').value = 0;
+  document.getElementById('timeNow').textContent = '0:00';
+}
+function pause() {
+  if (!state.isPlaying) return;
+  state.startOffset = currentTime();
+  try { state.source.stop(); } catch(_){}
+  state.isPlaying = false;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+}
+function stop() {
+  try { state.source && state.source.stop(); } catch(_){}
+  state.isPlaying = false;
+  state.startOffset = 0;
+  document.getElementById('playBtn').textContent = '▶ 再生';
+  document.getElementById('scrubber').value = 0;
+  document.getElementById('timeNow').textContent = '0:00';
+  if (state.rafId) { cancelAnimationFrame(state.rafId); state.rafId = null; }
+  drawWaveform();
+}
+function startLoop() {
+  function frame() {
+    if (!state.isPlaying) return;
+    const t = currentTime();
+    document.getElementById('timeNow').textContent = fmtTime(t);
+    document.getElementById('scrubber').value = (t / state.buffer.duration) * 1000;
+    drawPlayhead();
+    state.rafId = requestAnimationFrame(frame);
+  }
+  frame();
+}
+function scheduleClicks() {
+  // 拍位置で簡易クリック音を再生
+  state.beats.forEach(t => {
+    const rel = t - state.startOffset;
+    if (rel < 0) return;
+    const when = state.startCtxTime + rel;
+    const osc = state.ctx.createOscillator();
+    const gain = state.ctx.createGain();
+    osc.frequency.value = 1500;
+    gain.gain.setValueAtTime(0.2, when);
+    gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+    osc.connect(gain).connect(state.ctx.destination);
+    osc.start(when);
+    osc.stop(when + 0.06);
+  });
+}
+
+// ---- CSV export ----
+function exportCSV() {
+  let csv = 'beat_index,time_sec,time_mmss\n';
+  state.beats.forEach((t, i) => {
+    csv += `${i+1},${t.toFixed(4)},${fmtTime(t)}.${String(Math.floor((t%1)*1000)).padStart(3,'0')}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'beats.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---- Event wiring ----
+(function() {
+  const drop = document.getElementById('drop');
+  const input = document.getElementById('fileInput');
+  drop.addEventListener('click', () => input.click());
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault(); drop.classList.remove('over');
+    if (e.dataTransfer.files.length) loadFile(e.dataTransfer.files[0]);
+  });
+  input.addEventListener('change', e => {
+    if (e.target.files.length) loadFile(e.target.files[0]);
+  });
+
+  document.getElementById('playBtn').addEventListener('click', () => {
+    state.isPlaying ? pause() : play();
+  });
+  document.getElementById('stopBtn').addEventListener('click', stop);
+  document.getElementById('scrubber').addEventListener('input', e => {
+    if (!state.buffer) return;
+    state.startOffset = (e.target.value / 1000) * state.buffer.duration;
+    document.getElementById('timeNow').textContent = fmtTime(state.startOffset);
+    if (state.isPlaying) { try { state.source.stop(); } catch(_){} play(); }
+    drawPlayhead();
+  });
+  document.getElementById('exportBtn').addEventListener('click', exportCSV);
+
+  // Waveform click
+  document.getElementById('waveform').addEventListener('click', e => {
+    if (!state.buffer) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    state.startOffset = (x / rect.width) * state.buffer.duration;
+    document.getElementById('timeNow').textContent = fmtTime(state.startOffset);
+    if (state.isPlaying) { try { state.source.stop(); } catch(_){} play(); }
+    drawPlayhead();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Space') { e.preventDefault(); state.isPlaying ? pause() : play(); }
+  });
+
+  window.addEventListener('resize', drawWaveform);
+})();
+</script>
+
+</body>
+</html>

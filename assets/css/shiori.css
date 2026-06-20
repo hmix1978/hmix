@@ -1,0 +1,126 @@
+/* ============================================================
+   旅のしおり — Theater Onboarding Guide
+   ============================================================ */
+
+.theater-shiori {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.theater-shiori.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.theater-shiori.is-fading {
+  opacity: 0;
+  transition: opacity 1.5s ease-out;
+}
+
+.theater-shiori__inner {
+  position: relative;
+  max-width: 500px;
+  padding: 3.5rem 3.8rem;
+  border-radius: 6px;
+  text-align: center;
+
+  /* 古書・羊皮紙風 — 金の蔦装飾フレーム */
+  /* 中央を羊皮紙色で覆い、縁の装飾だけ見せる */
+  background:
+    radial-gradient(ellipse at center,
+      rgba(243,238,226,0.95) 0%,
+      rgba(243,238,226,0.92) 50%,
+      rgba(243,238,226,0.6) 70%,
+      rgba(243,238,226,0) 85%
+    ),
+    url('/assets/images/shiori-frame.webp') center / cover no-repeat;
+  box-shadow:
+    0 4px 40px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.15) inset,
+    0 -1px 0 rgba(0,0,0,0.08) inset;
+
+  transform: scale(0.98);
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.theater-shiori.is-visible .theater-shiori__inner {
+  transform: scale(1);
+}
+
+/* 上部装飾（フレーム画像があるので最小限） */
+.theater-shiori__ornament {
+  width: 30px;
+  height: 1px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(90deg, transparent, rgba(180,150,90,0.4), transparent);
+}
+
+/* テキスト */
+.theater-shiori__lead {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #2b2b2b;
+  line-height: 1.8;
+  margin: 0 0 0.4rem;
+  letter-spacing: 0.06em;
+}
+.theater-shiori__sub {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: #5a5a5a;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.theater-shiori__hints {
+  text-align: left;
+  border-top: 1px solid rgba(180,150,90,0.2);
+  padding-top: 1rem;
+}
+.theater-shiori__hints p {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.78rem;
+  color: #4a4a4a;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+  padding-left: 1.8rem;
+  position: relative;
+}
+.theater-shiori__hints p:last-child {
+  margin-bottom: 0;
+}
+.theater-shiori__icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.4rem;
+  text-align: center;
+  color: #c9a96e;
+  font-size: 0.82rem;
+}
+
+/* モバイル */
+@media (max-width: 768px) {
+  .theater-shiori__inner {
+    max-width: 380px;
+    padding: 2.8rem 3rem;
+  }
+  .theater-shiori__lead { font-size: 0.9rem; }
+  .theater-shiori__sub { font-size: 0.78rem; }
+  .theater-shiori__hints p { font-size: 0.72rem; }
+}
+
+/* しおりボタン（上部コントロール内） */
+.theater-shiori-btn {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+.theater-shiori-btn:hover {
+  opacity: 0.9;
+}

@@ -1,0 +1,1369 @@
+/* ================================================================
+   H/MIX GALLERY — Music Library DARK THEME
+   深緑・夜・森・静けさ / ゲームタイトル画面の没入感
+   ================================================================ */
+
+/* ===================================================================
+   § 1. CSS変数オーバーライド
+   =================================================================== */
+
+body.library-page--dark {
+  /* 背景 — 漆黒の森（共通ダークトークン参照） */
+  --color-bg:           var(--dark-bg);
+  --color-bg-2:         var(--dark-bg-2);
+  --color-bg-3:         var(--dark-bg-3);
+  --color-surface:      var(--dark-surface);
+  --color-surface-2:    var(--dark-surface-2);
+  --color-surface-3:    #223625;
+
+  /* テキスト — 月光の白 */
+  --color-text:         var(--dark-text);
+  --color-text-muted:   var(--dark-text-muted);
+  --color-text-dim:     var(--dark-text-dim);
+
+  /* グリーン — 翡翠 */
+  --color-green:        var(--dark-green);
+  --color-green-mid:    var(--dark-green-mid);
+  --color-green-light:  var(--dark-green-light);
+  --color-green-pale:   var(--dark-green-pale);
+  --color-green-dim:    #2d5a3d;
+
+  /* ゴールド — ランタン */
+  --color-gold:         var(--dark-gold);
+  --color-gold-light:   var(--dark-gold-light);
+
+  /* ボーダー */
+  --color-border:       var(--dark-border);
+  --color-border-hover: var(--dark-border-hover);
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ===================================================================
+   § 2. 蛍エフェクト — レイヤー構造
+   ──────────────────────────────────────────────────────────────────
+   問題: hero__fireflies を #scene-bg の中に入れると
+         scene-bg の opacity(0〜0.50) が継承され、
+         fireflyGlow(0.12〜0.95) が 0.05〜0.38 に圧縮 → 明滅が見えなくなる。
+         CSS opacity 継承は子要素から上書き不可。
+
+   解法: hero__fireflies を scene-bg と独立した兄弟要素にし、
+         自身の opacity:1 を保つ。
+         コンテンツセクションを z-index:3 に引き上げることで、
+         暗い背景色がUIエリアの蛍を視覚的に覆い隠す。
+         → 背景画像が透けているエリアにのみ蛍が見える。
+
+   z-index 階層:
+     #scene-bg (z-index:1)             ← 図書館背景画像
+     .hero__fireflies (fixed, z-index:2) ← 蛍 / TOPと同一アニメ
+     コンテンツ全セクション (z-index:3) ← UI / 暗背景が蛍を隠す
+     player (z-index:1200)
+   =================================================================== */
+
+body.library-page--dark .hero__fireflies {
+  position: fixed;
+  z-index: 2;   /* scene-bg(1) より上 / コンテンツ(3) より下 */
+  pointer-events: none; /* クリックを阻害しない */
+}
+
+/* ===================================================================
+   § 3. scenic-bg: ダーク背景で映えるよう opacity 引き上げ
+        + タグ連動切替用に transition を 0.8s に短縮（base: 1.8s）
+   =================================================================== */
+
+body.library-page--dark #scene-bg {
+  transition: opacity 0.8s ease-in-out;
+}
+body.library-page--dark #scene-bg.is-idle    { opacity: 0.40; }
+body.library-page--dark #scene-bg.is-visible { opacity: 0.55; }
+
+/* ===================================================================
+   § 3. Header
+   =================================================================== */
+
+body.library-page--dark .site-header {
+  background: rgba(11, 21, 16, 0.92);
+  border-bottom: 1px solid rgba(80, 160, 110, 0.14);
+  box-shadow: 0 1px 30px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(16px);
+}
+
+body.library-page--dark .site-header.scrolled {
+  background: rgba(10, 18, 14, 0.97);
+}
+
+body.library-page--dark .logo-text {
+  color: var(--color-green-light);
+  text-shadow: 0 0 24px rgba(126, 203, 149, 0.30);
+}
+
+body.library-page--dark .logo-sub   { color: var(--color-text-dim); }
+
+body.library-page--dark .nav-link {
+  color: var(--color-text-muted);
+}
+body.library-page--dark .nav-link:hover,
+body.library-page--dark .nav-link--active {
+  color: var(--color-green-light);
+}
+
+body.library-page--dark .nav-link--cta {
+  border-color: rgba(100, 180, 130, 0.30);
+  color: var(--color-green-light);
+}
+body.library-page--dark .nav-link--cta:hover {
+  background: rgba(80, 160, 110, 0.18);
+  border-color: var(--color-green-mid);
+}
+
+body.library-page--dark .nav-toggle span {
+  background: var(--color-text-muted);
+}
+
+/* ===================================================================
+   § 4. Hero — ゲームタイトル画面
+   z-index:auto で scenic-bg が透過して映える
+   =================================================================== */
+
+body.library-page--dark .music-library-hero {
+  z-index: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0)    0%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.50) 100%
+  );
+  border-bottom: 1px solid rgba(80, 160, 110, 0.10);
+  padding: clamp(100px, 14vw, 180px) 20px clamp(72px, 10vw, 120px);
+}
+
+/* 霧レイヤー */
+body.library-page--dark .music-library-hero::before {
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(60, 120, 80, 0.10) 0%, rgba(0, 0, 0, 0) 58%),
+    radial-gradient(ellipse at 30% 55%, rgba(40, 80, 55, 0.08) 0%, rgba(0, 0, 0, 0) 54%);
+}
+
+/* テクスチャレイヤー */
+body.library-page--dark .music-library-hero::after {
+  opacity: 0.08;
+}
+
+/* eyebrow */
+body.library-page--dark .music-library-hero__eyebrow {
+  color: rgba(154, 223, 180, 0.82);
+  text-shadow: 0 0 20px rgba(100, 200, 140, 0.30);
+  letter-spacing: 0.45em;
+}
+
+/* タイトル "Music Library" */
+body.library-page--dark .music-library-hero__title {
+  color: #f0faf4;
+  text-shadow:
+    0 0 40px rgba(100, 220, 150, 0.22),
+    0 2px 0 rgba(0, 0, 0, 0.65),
+    0 4px 20px rgba(0, 0, 0, 0.50);
+  font-weight: 400;
+}
+
+/* タイトル下ライン */
+body.library-page--dark .music-library-hero__title-sub {
+  color: rgba(169, 224, 187, 0.82);
+  text-shadow:
+    0 0 20px rgba(100, 220, 150, 0.18),
+    0 1px 10px rgba(0, 0, 0, 0.68);
+}
+
+body.library-page--dark .music-library-hero__title::after {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(100, 200, 140, 0.30) 18%,
+    rgba(120, 210, 155, 0.50) 50%,
+    rgba(100, 200, 140, 0.30) 82%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  box-shadow: 0 0 18px rgba(100, 200, 140, 0.18);
+}
+
+/* lead */
+body.library-page--dark .music-library-hero__lead {
+  color: rgba(225, 245, 232, 0.95);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.75);
+}
+
+/* sublead */
+body.library-page--dark .music-library-hero__sublead {
+  color: rgba(170, 205, 182, 0.88);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
+}
+
+/* 検索ラップ */
+body.library-page--dark .music-library-hero__search-wrap {
+  background: rgba(12, 22, 16, 0.82);
+  border: 1px solid rgba(100, 180, 130, 0.24);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(100, 180, 130, 0.12);
+  backdrop-filter: blur(24px);
+}
+
+/* 検索入力 */
+body.library-page--dark .music-library-hero__search {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px rgba(100, 180, 130, 0.14);
+  caret-color: var(--color-green-light);
+}
+
+body.library-page--dark .music-library-hero__search::placeholder {
+  color: rgba(120, 170, 135, 0.60);
+}
+
+body.library-page--dark .music-library-hero__search:focus {
+  box-shadow:
+    inset 0 0 0 1.5px rgba(100, 180, 130, 0.40),
+    0 0 0 3px rgba(80, 160, 110, 0.14);
+}
+
+/* 検索アイコン */
+body.library-page--dark .music-library-hero__search-icon {
+  color: rgba(100, 180, 130, 0.60);
+}
+
+/* クリアボタン */
+body.library-page--dark .ml-search-clear {
+  color: var(--color-text-dim);
+}
+body.library-page--dark .ml-search-clear:hover {
+  background: rgba(100, 180, 130, 0.12);
+  color: var(--color-text);
+}
+
+/* 人気タグラベル */
+body.library-page--dark .music-library-hero__quick-tag-label {
+  color: var(--color-text-dim);
+}
+
+/* 人気タグボタン */
+body.library-page--dark .music-library-hero__quick-tag {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(100, 180, 130, 0.22);
+  color: rgba(170, 215, 180, 0.82);
+}
+body.library-page--dark .music-library-hero__quick-tag:hover {
+  background: rgba(80, 160, 110, 0.20);
+  border-color: rgba(100, 200, 140, 0.45);
+  color: var(--color-green-light);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.32);
+}
+
+/* ===================================================================
+   § 5. コンテンツセクション — z-index: 3 で scene-bg と蛍より前面へ
+   scene-bg(z-index:1) と hero__fireflies(z-index:2) より上に配置。
+   各セクションの暗い background-color が蛍を視覚的に隠すため
+   テキスト・カード上に蛍が重なって見えることはない。
+   =================================================================== */
+
+body.library-page--dark .ml-intro,
+body.library-page--dark .ml-quick-scene,
+body.library-page--dark .ml-filter-panel,
+body.library-page--dark .ml-active-filters,
+body.library-page--dark .ml-results-bar,
+body.library-page--dark .ml-main,
+body.library-page--dark .end-cta,
+body.library-page--dark .site-footer {
+  position: relative;
+  z-index: 3;   /* 蛍(z-index:2) より上 — 各セクションの暗背景が蛍を隠す */
+}
+
+/* ===================================================================
+   § 6. Library Intro
+   =================================================================== */
+
+body.library-page--dark .ml-intro {
+  background: rgba(8, 16, 12, 0.60);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding-top: clamp(3.5rem, 8vw, 5.5rem);
+  padding-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+body.library-page--dark .ml-intro__main {
+  color: rgba(225, 245, 232, 0.95);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.55);
+}
+
+body.library-page--dark .ml-intro__sub {
+  color: rgba(150, 190, 162, 0.80);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* ===================================================================
+   § 7. Quick Scene Navigation
+   =================================================================== */
+
+body.library-page--dark .ml-quick-scene {
+  background: rgba(8, 16, 12, 0.50);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(80, 160, 110, 0.10);
+  border-bottom: 1px solid rgba(80, 160, 110, 0.10);
+}
+
+body.library-page--dark .ml-scene-card {
+  background: rgba(22, 38, 28, 0.90);
+  border-color: rgba(100, 180, 130, 0.22);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(10px);
+}
+
+body.library-page--dark .ml-scene-card:hover {
+  background: rgba(40, 80, 55, 0.60);
+  border-color: rgba(100, 200, 140, 0.45);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 16px rgba(80, 160, 110, 0.14);
+}
+
+body.library-page--dark .ml-scene-card.is-active {
+  background: rgba(60, 120, 80, 0.50);
+  border-color: rgba(126, 203, 149, 0.65);
+  box-shadow: 0 0 20px rgba(100, 200, 140, 0.22);
+}
+
+/* QuickScene カードラベル */
+body.library-page--dark .ml-scene-icon  { color: var(--color-green-light); }
+body.library-page--dark .ml-scene-label { color: rgba(210, 240, 220, 0.95); }
+body.library-page--dark .ml-scene-label-jp { color: rgba(150, 190, 162, 0.75); }
+
+/* QuickScene SVGアイコン (ml-qs-* クラス) */
+body.library-page--dark .ml-qs-card {
+  background: rgba(16, 30, 22, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(100, 180, 130, 0.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+body.library-page--dark .ml-qs-card:hover {
+  background: rgba(30, 65, 44, 0.55);
+  border-color: rgba(100, 200, 140, 0.40);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.35),
+    0 0 16px rgba(80, 160, 110, 0.08);
+}
+body.library-page--dark .ml-qs-card.active {
+  background: rgba(40, 100, 65, 0.40);
+  border-color: rgba(126, 203, 149, 0.55);
+  color: var(--color-green-light);
+  box-shadow:
+    0 0 20px rgba(100, 200, 140, 0.15),
+    inset 0 0 12px rgba(100, 200, 140, 0.04);
+}
+body.library-page--dark .ml-qs-label     { color: rgba(210, 240, 220, 0.90); }
+body.library-page--dark .ml-qs-label-jp  { color: rgba(150, 190, 162, 0.72); }
+
+/* ===================================================================
+   § 8. Filter Panel
+   =================================================================== */
+
+body.library-page--dark .ml-filter-panel {
+  background: rgba(10, 28, 18, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(80, 160, 110, 0.10);
+  border-bottom: 1px solid rgba(80, 160, 110, 0.10);
+}
+
+body.library-page--dark .ml-filter-heading {
+  color: rgba(180, 225, 195, 0.92);
+}
+
+body.library-page--dark .ml-filter-heading svg {
+  color: var(--color-green-mid);
+}
+
+/* フィルターヘッダー右側グループ */
+body.library-page--dark .ml-filter-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* 最近再生フィルターボタン — 青緑 / 時間の流れ */
+body.library-page--dark .ml-recent-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: rgba(80, 195, 210, 0.78);
+  background: rgba(20, 60, 40, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(60, 170, 190, 0.22);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+body.library-page--dark .ml-recent-filter-btn:hover {
+  color: rgba(110, 220, 235, 0.90);
+  border-color: rgba(70, 190, 210, 0.38);
+  background: rgba(30, 80, 50, 0.70);
+}
+body.library-page--dark .ml-recent-filter-btn[aria-pressed="true"] {
+  color: rgba(100, 230, 245, 0.96);
+  border-color: rgba(70, 200, 220, 0.55);
+  background: rgba(18, 110, 130, 0.16);
+  box-shadow:
+    0 0 8px  rgba(80, 210, 230, 0.30),
+    0 0 18px rgba(50, 170, 190, 0.14);
+  text-shadow: 0 0 6px rgba(100, 220, 240, 0.28);
+}
+
+/* お気に入りのみフィルターボタン — 灯火 / アンバー */
+body.library-page--dark .ml-fav-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: rgba(210, 148, 62, 0.78);
+  background: rgba(20, 60, 40, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(200, 130, 45, 0.22);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+body.library-page--dark .ml-fav-filter-btn:hover {
+  color: rgba(255, 184, 88, 0.90);
+  border-color: rgba(255, 148, 45, 0.38);
+  background: rgba(30, 80, 50, 0.70);
+}
+body.library-page--dark .ml-fav-filter-btn.is-active,
+body.library-page--dark .ml-fav-filter-btn[aria-pressed="true"] {
+  color: rgba(255, 175, 72, 0.98);
+  border-color: rgba(255, 145, 45, 0.55);
+  background: rgba(180, 100, 18, 0.16);
+  box-shadow:
+    0 0 8px  rgba(255, 170, 60, 0.32),
+    0 0 18px rgba(255, 120, 35, 0.14);
+  text-shadow: 0 0 6px rgba(255, 180, 80, 0.30);
+}
+
+body.library-page--dark .ml-filter-reset-btn {
+  color: var(--color-text-muted);
+  background: rgba(20, 60, 40, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-color: rgba(100, 180, 130, 0.22);
+}
+body.library-page--dark .ml-filter-reset-btn:hover {
+  color: var(--color-green-light);
+  border-color: rgba(100, 200, 140, 0.42);
+  background: rgba(30, 80, 50, 0.70);
+}
+
+/* フィルターグループ */
+body.library-page--dark .ml-filter-group {
+  background: rgba(14, 28, 20, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(100, 180, 130, 0.15);
+}
+
+body.library-page--dark .ml-filter-group-toggle {
+  color: rgba(195, 230, 208, 0.92);
+  border-bottom-color: rgba(80, 140, 100, 0.14);
+}
+body.library-page--dark .ml-filter-group-toggle:hover {
+  background: rgba(40, 70, 50, 0.50);
+  color: var(--color-green-light);
+}
+
+body.library-page--dark .ml-filter-group-label   { color: rgba(210, 240, 220, 0.95); }
+body.library-page--dark .ml-filter-group-label-jp { color: var(--color-text-dim); }
+body.library-page--dark .ml-filter-group-icon     { color: var(--color-gold-light); }
+
+/* チップ */
+body.library-page--dark .ml-chip {
+  background: rgba(22, 40, 30, 0.90);
+  border-color: rgba(100, 180, 130, 0.22);
+  color: rgba(180, 220, 192, 0.88);
+}
+
+body.library-page--dark .ml-chip:hover {
+  background: rgba(50, 100, 68, 0.55);
+  border-color: rgba(100, 200, 140, 0.45);
+  color: var(--color-green-light);
+}
+
+body.library-page--dark .ml-chip.is-active,
+body.library-page--dark .ml-chip[aria-pressed="true"] {
+  background: rgba(60, 140, 90, 0.22);
+  border-color: rgba(126, 203, 149, 0.55);
+  color: var(--dark-green-light, #9adfb4);
+  box-shadow:
+    0 0 12px rgba(100, 200, 140, 0.20),
+    inset 0 0 8px rgba(100, 200, 140, 0.06);
+  text-shadow: 0 0 8px rgba(100, 200, 140, 0.25);
+}
+
+/* ===================================================================
+   § 9. Active Filters / Results Bar
+   =================================================================== */
+
+body.library-page--dark .ml-active-filters {
+  background: rgba(8, 16, 12, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-color: rgba(80, 160, 110, 0.10);
+}
+
+body.library-page--dark .ml-active-filters-label {
+  color: var(--color-text-muted);
+}
+
+body.library-page--dark .ml-active-chip {
+  position: relative;
+  background:
+    radial-gradient(circle at 28% 18%, rgba(255, 247, 184, 0.55), transparent 36%),
+    linear-gradient(135deg, rgba(128, 94, 18, 0.96), rgba(33, 138, 79, 0.82)) !important;
+  border-color: rgba(255, 226, 105, 0.95) !important;
+  color: #fff3a8 !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 241, 166, 0.28),
+    0 0 10px rgba(255, 220, 80, 0.52),
+    0 0 22px rgba(80, 230, 143, 0.26),
+    inset 0 0 10px rgba(255, 255, 255, 0.16) !important;
+  text-shadow: 0 0 8px rgba(255, 244, 180, 0.7) !important;
+  animation: none;
+}
+
+body.library-page--dark .ml-active-chip.is-quest-burst {
+  animation: mlActiveConditionBurst 2s cubic-bezier(.16, 1, .3, 1) both !important;
+}
+
+@keyframes mlActiveConditionGlow {
+  0%, 100% {
+    filter: brightness(1);
+    transform: translateY(0);
+  }
+  50% {
+    filter: brightness(1.35) saturate(1.22);
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes mlActiveConditionBurst {
+  0% { transform: scale(1); filter: brightness(1) saturate(1); }
+  12% { transform: scale(1.18); filter: brightness(1.9) saturate(1.45); box-shadow: 0 0 0 5px rgba(255, 244, 160, 0.42), 0 0 26px rgba(255, 246, 155, 1), 0 0 68px rgba(255, 210, 64, 0.98), 0 0 118px rgba(74, 255, 152, 0.72), inset 0 0 28px rgba(255, 255, 255, 0.44); }
+  34% { transform: scale(1.08); filter: brightness(1.55) saturate(1.32); }
+  68% { transform: scale(1.02); filter: brightness(1.18) saturate(1.1); }
+  100% { transform: scale(1); filter: brightness(1) saturate(1); }
+}
+
+body.library-page--dark .ml-active-chip__remove:hover {
+  background: rgba(200, 80, 80, 0.22);
+  color: rgba(240, 185, 185, 0.95);
+}
+
+/* 最近再生フィルターチップ — 青緑 */
+body.library-page--dark .ml-active-chip--recent {
+  background: rgba(18, 110, 130, 0.18);
+  border-color: rgba(70, 195, 215, 0.40);
+  color: rgba(110, 225, 240, 0.90);
+}
+
+/* お気に入りフィルターチップ — アンバー */
+body.library-page--dark .ml-active-chip--fav {
+  background: rgba(170, 100, 18, 0.20);
+  border-color: rgba(255, 145, 45, 0.42);
+  color: rgba(255, 184, 88, 0.92);
+}
+
+body.library-page--dark .ml-active-clear-all {
+  color: var(--color-text-muted);
+  border-color: rgba(100, 180, 130, 0.22);
+}
+body.library-page--dark .ml-active-clear-all:hover {
+  color: var(--color-green-light);
+  border-color: rgba(100, 200, 140, 0.42);
+}
+
+body.library-page--dark .ml-results-bar {
+  background: rgba(10, 18, 14, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: rgba(80, 140, 100, 0.14);
+}
+
+body.library-page--dark .ml-results-count {
+  color: rgba(180, 225, 195, 0.95);
+}
+
+body.library-page--dark .ml-results-condition {
+  color: var(--color-text-muted);
+}
+
+body.library-page--dark .ml-results-hint {
+  color: var(--color-text-dim);
+}
+
+/* ===================================================================
+   § 10. Card Grid — フル幅レイアウト + 左右フェード
+   =================================================================== */
+
+/*
+  ml-main をフル幅に解放し、::before の gradient で左右フェードを演出。
+  z-index 構造:
+    #scene-bg (fixed, z-index:1)
+    └─ .ml-main (relative, z-index:2) ← scene-bg より上
+         ├─ ::before (z-index:-1) ← .ml-main 内で最背面 / scene-bg より上
+         └─ .ml-grid / cards ← ::before の上
+*/
+
+body.library-page--dark .ml-main {
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-2xl) clamp(0.75rem, 2.5vw, 2.5rem) var(--space-4xl);
+  background: transparent;  /* 背景は ::before に委譲 */
+}
+
+/* 左右フェードグラデーション背景 */
+body.library-page--dark .ml-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(10, 18, 14, 0)    0%,
+    rgba(10, 18, 14, 0.04) 3%,
+    rgba(10, 18, 14, 0.10) 8%,
+    rgba(10, 18, 14, 0.16) 16%,
+    rgba(10, 18, 14, 0.20) 24%,
+    rgba(10, 18, 14, 0.20) 76%,
+    rgba(10, 18, 14, 0.16) 84%,
+    rgba(10, 18, 14, 0.10) 92%,
+    rgba(10, 18, 14, 0.04) 97%,
+    rgba(10, 18, 14, 0)   100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* グリッド: 3列固定 / max-width で画面が広がってもカード幅を抑制 */
+body.library-page--dark .ml-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1080px;    /* 3列 × ~340px + gap = カード幅を適切に抑える */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* カード本体
+   ① animation:none でベースCSSのml-card-appearをキャンセル（scroll-revealに委譲）
+   ② 視認できる背景色を付与
+   ③ ボーダーを強化 */
+body.library-page--dark .ml-card {
+  animation: none;
+  background-color: rgba(14, 28, 20, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(100, 180, 130, 0.18);
+  box-shadow:
+    0 4px 28px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease,
+    background-color 0.35s ease;
+}
+
+body.library-page--dark .ml-card:hover {
+  background-color: rgba(18, 36, 26, 0.85);
+  border-color: rgba(100, 200, 140, 0.38);
+  box-shadow:
+    0 20px 56px rgba(0, 0, 0, 0.60),
+    0 0 28px rgba(80, 160, 110, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ホバー時: 試聴ボタンが少し前に浮き出る */
+body.library-page--dark .ml-card:hover .ml-btn-play {
+  transform: translateY(-3px) scale(1.08);
+  background: rgba(45, 110, 72, 0.62);
+  border-color: rgba(118, 192, 148, 0.62);
+  box-shadow: 0 6px 22px rgba(50, 130, 80, 0.40);
+}
+
+body.library-page--dark .ml-card.is-playing {
+  border-color: rgba(126, 203, 149, 0.82);
+  box-shadow:
+    0 0 0 2px rgba(100, 220, 140, 0.95),
+    0 0 38px rgba(80, 200, 120, 0.35),
+    0 12px 40px rgba(0, 0, 0, 0.50);
+}
+
+/* ジャケット背景を統一 — タグ別グラデーションを全て深緑ベースに上書き
+   body.library-page--dark .ml-card[data-tag-primary] .ml-card-jacket は
+   specificityが (0,3,0) でベースCSSの (0,2,0) を上回るため !important 不要 */
+body.library-page--dark .ml-card-jacket,
+body.library-page--dark .ml-card[data-tag-primary] .ml-card-jacket {
+  background: linear-gradient(145deg, #0e1f17 0%, #172b1d 45%, #1d3422 72%, #12201a 100%);
+  filter: none;
+}
+
+/* カードタイトル */
+body.library-page--dark .ml-card-title {
+  color: rgba(240, 255, 245, 0.98);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.70);
+}
+
+body.library-page--dark .ml-card:hover .ml-card-title {
+  color: rgba(165, 240, 190, 1);
+}
+
+body.library-page--dark .ml-card.is-playing .ml-card-title {
+  color: rgba(155, 255, 190, 1);
+}
+
+/* カード説明文 */
+body.library-page--dark .ml-card-desc {
+  color: rgba(195, 225, 205, 0.82);
+}
+
+/* カードID・尺 */
+body.library-page--dark .ml-card-id       { color: rgba(150, 190, 165, 0.55); }
+body.library-page--dark .ml-card-duration { color: rgba(150, 190, 165, 0.50); }
+
+/* カードタグ */
+body.library-page--dark .ml-card-tag {
+  border-color: rgba(140, 200, 165, 0.28);
+  background: rgba(50, 100, 68, 0.28);
+  color: rgba(185, 230, 200, 0.88);
+}
+
+/* 試聴ボタン */
+body.library-page--dark .ml-btn-play {
+  background: rgba(40, 100, 62, 0.45);
+  border-color: rgba(100, 180, 130, 0.42);
+  color: rgba(200, 245, 215, 0.95);
+}
+body.library-page--dark .ml-btn-play:hover {
+  background: rgba(50, 120, 75, 0.65);
+  border-color: rgba(126, 203, 149, 0.65);
+  box-shadow: 0 4px 20px rgba(60, 140, 90, 0.40);
+}
+
+/* お気に入りボタン — 灯火 / アンバー */
+body.library-page--dark .ml-btn-fav {
+  border-color: rgba(200, 130, 45, 0.22);
+  background: rgba(140, 90, 18, 0.10);
+  color: rgba(210, 148, 62, 0.55);
+}
+body.library-page--dark .ml-btn-fav:hover {
+  border-color: rgba(255, 150, 50, 0.45);
+  color: rgba(255, 184, 88, 0.92);
+  background: rgba(160, 100, 18, 0.18);
+}
+body.library-page--dark .ml-btn-fav.is-fav {
+  color: rgba(255, 168, 60, 0.98);
+  border-color: rgba(255, 148, 45, 0.65);
+  background: rgba(180, 100, 18, 0.22);
+  box-shadow:
+    0 0 6px  rgba(255, 175, 70, 0.42),
+    0 0 14px rgba(255, 125, 35, 0.20);
+  text-shadow: 0 0 5px rgba(255, 190, 90, 0.25);
+}
+
+/* ダウンロードボタン */
+body.library-page--dark .ml-btn-dl {
+  border-color: rgba(140, 200, 160, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(180, 220, 195, 0.60);
+}
+body.library-page--dark .ml-btn-dl:hover {
+  border-color: rgba(140, 200, 160, 0.52);
+  color: rgba(210, 248, 225, 0.95);
+  background: rgba(50, 110, 72, 0.25);
+}
+
+/* ===================================================================
+   § 11. Load More
+   =================================================================== */
+
+body.library-page--dark .ml-loadmore-btn {
+  background: rgba(18, 34, 24, 0.90);
+  border-color: rgba(100, 180, 130, 0.26);
+  color: var(--color-text-muted);
+}
+body.library-page--dark .ml-loadmore-btn:hover {
+  background: rgba(50, 100, 68, 0.45);
+  border-color: rgba(100, 200, 140, 0.48);
+  color: var(--color-green-light);
+}
+
+/* ===================================================================
+   § 12. Empty State
+   =================================================================== */
+
+body.library-page--dark .ml-empty-title {
+  color: rgba(190, 225, 200, 0.95);
+}
+body.library-page--dark .ml-empty-sub {
+  color: var(--color-text-dim);
+}
+body.library-page--dark .ml-empty-reset {
+  color: var(--color-green-light);
+  border-color: rgba(100, 180, 130, 0.35);
+}
+body.library-page--dark .ml-empty-reset:hover {
+  background: var(--color-green-mid);
+  color: #fff;
+}
+
+/* ===================================================================
+   § 13. Bottom CTA
+   =================================================================== */
+
+/* ===================================================================
+   旧 ml-bottom-cta は end-cta に置き換え済み（クラス名は保持）
+   =================================================================== */
+body.library-page--dark .ml-bottom-cta {
+  display: none; /* 保険 */
+}
+
+/* ===================================================================
+   § END CTA — 次の旅への分岐点
+   =================================================================== */
+
+body.library-page--dark .end-cta {
+  background: rgba(8, 14, 11, 0.96);
+  border-top: 1px solid rgba(80, 140, 100, 0.14);
+  text-align: center;
+  padding: 100px 20px 120px;
+}
+
+body.library-page--dark .end-cta__inner {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+body.library-page--dark .end-cta__title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  letter-spacing: 0.10em;
+  color: rgba(216, 240, 228, 0.96);
+  margin-bottom: 1.25rem;
+  font-weight: 400;
+}
+
+body.library-page--dark .end-cta__desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.86rem;
+  line-height: 2.0;
+  color: rgba(180, 215, 198, 0.72);
+  margin-bottom: 2.75rem;
+}
+
+/* Card renewal overrides */
+body.library-page--dark .ml-card {
+  background:
+    linear-gradient(180deg, rgba(22, 44, 32, 0.76), rgba(9, 18, 13, 0.82)),
+    rgba(12, 26, 18, 0.56);
+  border-color: rgba(170, 220, 188, 0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 18px 52px rgba(0, 0, 0, 0.42);
+}
+body.library-page--dark .ml-card:hover {
+  background:
+    linear-gradient(180deg, rgba(25, 52, 37, 0.84), rgba(10, 22, 15, 0.88)),
+    rgba(14, 32, 22, 0.64);
+  border-color: rgba(178, 234, 196, 0.34);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.58),
+    0 0 34px rgba(91, 190, 124, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+body.library-page--dark .ml-btn-tools {
+  border-color: rgba(226, 198, 128, 0.45);
+  background:
+    linear-gradient(135deg, rgba(226, 198, 128, 0.20), rgba(78, 164, 110, 0.22)),
+    rgba(255, 255, 255, 0.06);
+  color: rgba(248, 232, 180, 0.96);
+}
+body.library-page--dark .ml-btn-tools:hover {
+  border-color: rgba(246, 216, 148, 0.76);
+  color: rgba(255, 242, 196, 1);
+  box-shadow:
+    0 8px 24px rgba(226, 198, 128, 0.20),
+    0 0 18px rgba(90, 190, 124, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.12);
+}
+body.library-page--dark .ml-card-icon-actions .ml-btn-detail {
+  border-color: rgba(140, 200, 160, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(180, 220, 195, 0.66);
+}
+body.library-page--dark .ml-card-icon-actions .ml-btn-detail:hover {
+  border-color: rgba(140, 200, 160, 0.52);
+  color: rgba(210, 248, 225, 0.95);
+  background: rgba(50, 110, 72, 0.25);
+}
+body.library-page--dark.ml-card-style-game .ml-card {
+  border-color: rgba(104, 236, 156, 0.34);
+  background:
+    linear-gradient(135deg, rgba(13, 46, 30, 0.92), rgba(3, 13, 11, 0.96)),
+    rgba(4, 14, 10, 0.86);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.50),
+    0 0 0 1px rgba(104, 236, 156, 0.06),
+    inset 0 0 24px rgba(104, 236, 156, 0.06);
+}
+body.library-page--dark.ml-card-style-game .ml-btn-tools {
+  border-color: rgba(104, 236, 156, 0.62);
+  background: linear-gradient(180deg, rgba(43, 142, 78, 0.42), rgba(9, 52, 31, 0.62));
+  color: rgba(201, 255, 220, 0.98);
+}
+body.library-page--dark.ml-card-style-fantasy .ml-card {
+  border-color: rgba(236, 205, 132, 0.34);
+  background:
+    radial-gradient(circle at 18% 10%, rgba(236, 205, 132, 0.16), transparent 30%),
+    linear-gradient(145deg, rgba(49, 35, 20, 0.88), rgba(11, 23, 16, 0.94));
+  box-shadow:
+    0 20px 54px rgba(0, 0, 0, 0.52),
+    inset 0 0 34px rgba(236, 205, 132, 0.07);
+}
+body.library-page--dark.ml-card-style-fantasy .ml-btn-tools {
+  border-color: rgba(255, 226, 156, 0.66);
+  background: linear-gradient(135deg, rgba(146, 98, 34, 0.34), rgba(51, 94, 57, 0.25));
+}
+body.library-page--dark.ml-card-style-bold .ml-card {
+  border-color: rgba(246, 216, 148, 0.36);
+  background:
+    linear-gradient(112deg, rgba(3, 8, 7, 0.98) 0 56%, rgba(56, 92, 62, 0.72) 56% 100%);
+  box-shadow:
+    0 24px 62px rgba(0, 0, 0, 0.58),
+    inset 0 0 0 1px rgba(246, 216, 148, 0.04);
+}
+body.library-page--dark.ml-card-style-bold .ml-btn-tools {
+  border-color: rgba(246, 216, 148, 0.76);
+  background: rgba(246, 216, 148, 0.22);
+}
+body.library-page--dark.ml-card-style-forest-glass .ml-card {
+  border-color: oklch(0.74 0.06 142 / 0.22);
+  background:
+    radial-gradient(140% 70% at 50% 0%,
+      oklch(0.62 0.14 var(--light-hue, 132) / calc(0.22 * var(--surface-alpha, 0.62) * var(--surface-tint, 0.55))),
+      transparent 55%),
+    radial-gradient(120% 80% at 50% 0%,
+      oklch(0.34 0.07 152 / calc(0.55 * var(--surface-alpha, 0.62))),
+      transparent 60%),
+    linear-gradient(160deg,
+      oklch(0.27 0.05 152 / var(--surface-alpha, 0.62)) 0%,
+      oklch(0.20 0.04 152 / var(--surface-alpha, 0.62)) 55%,
+      oklch(0.16 0.03 152 / var(--surface-alpha, 0.62)) 100%);
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.10 var(--light-hue, 132) / calc(var(--reveal-edge, 0.60) * 0.7)),
+    inset 0 0 0 1px oklch(0.74 0.06 142 / 0.06),
+    0 1px 1px oklch(0.04 0.005 150 / 0.4),
+    0 12px 30px -10px oklch(0.04 0.005 150 / 0.55);
+}
+body.library-page--dark.ml-card-style-forest-glass .ml-card:hover {
+  border-color: oklch(0.92 0.10 var(--light-hue, 132) / 0.36);
+  box-shadow:
+    inset 0 1px 0 oklch(0.96 0.12 var(--light-hue, 132) / calc(var(--reveal-edge, 0.60) * 1)),
+    inset 0 0 0 1px oklch(0.92 0.10 var(--light-hue, 132) / 0.14),
+    0 2px 2px oklch(0.04 0.005 150 / 0.45),
+    0 24px 50px -12px oklch(0.04 0.005 150 / 0.7),
+    0 0 60px -8px oklch(0.78 0.18 var(--glow-color, 142) / calc(var(--glow-alpha, 0.48) * 1.4));
+}
+body.library-page--dark.ml-card-style-forest-glass .ml-btn-tools {
+  border-color: oklch(0.82 0.10 90 / 0.36);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.86 0.10 90 / calc(0.20 * var(--tools-glow, 0.95))), transparent 70%),
+    linear-gradient(180deg, oklch(0.42 0.10 150 / 0.95), oklch(0.30 0.08 152 / 0.95));
+  color: oklch(0.96 0.04 142);
+}
+
+body.library-page--dark .end-cta__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ベースボタン */
+body.library-page--dark .end-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.80rem;
+  letter-spacing: 0.06em;
+  border: 1px solid rgba(100, 170, 130, 0.28);
+  color: rgba(190, 228, 208, 0.82);
+  background: rgba(20, 55, 38, 0.28);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.22s ease;
+}
+body.library-page--dark .end-cta__btn:hover {
+  color: rgba(220, 248, 230, 0.96);
+  border-color: rgba(120, 200, 155, 0.45);
+  background: rgba(30, 75, 52, 0.38);
+  transform: translateY(-1px);
+}
+
+/* 主役: 保存リスト — アンバー */
+body.library-page--dark .end-cta__btn--primary {
+  color: #ffd6a0;
+  border-color: rgba(255, 150, 60, 0.48);
+  background: rgba(180, 95, 18, 0.16);
+  box-shadow:
+    0 0 10px rgba(255, 170, 80, 0.22),
+    inset 0 0 10px rgba(255, 155, 60, 0.06);
+  animation: endCtaPulse 3.0s ease-in-out infinite;
+}
+body.library-page--dark .end-cta__btn--primary:hover {
+  color: #ffe8c0;
+  border-color: rgba(255, 170, 70, 0.65);
+  background: rgba(200, 110, 20, 0.24);
+  box-shadow:
+    0 0 14px rgba(255, 190, 100, 0.38),
+    0 0 28px rgba(255, 140, 50, 0.18);
+  transform: translateY(-2px);
+}
+
+@keyframes endCtaPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(255, 170, 80, 0.20), inset 0 0 10px rgba(255, 155, 60, 0.06); }
+  50%       { box-shadow: 0 0 18px rgba(255, 195, 110, 0.36), inset 0 0 12px rgba(255, 165, 70, 0.10); }
+}
+
+/* ghost: TOP へ */
+body.library-page--dark .end-cta__btn--ghost {
+  opacity: 0.58;
+  border-color: rgba(80, 130, 100, 0.18);
+  background: transparent;
+}
+body.library-page--dark .end-cta__btn--ghost:hover {
+  opacity: 0.88;
+}
+
+/* モバイル */
+@media (max-width: 600px) {
+  body.library-page--dark .end-cta {
+    padding: 72px 16px 100px;
+  }
+  body.library-page--dark .end-cta__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  body.library-page--dark .end-cta__btn {
+    width: 100%;
+    max-width: 260px;
+    justify-content: center;
+  }
+}
+
+body.library-page--dark .btn--ghost {
+  border-color: rgba(100, 180, 130, 0.30);
+  color: rgba(185, 225, 198, 0.88);
+}
+body.library-page--dark .btn--ghost:hover {
+  background: rgba(60, 130, 80, 0.22);
+  border-color: rgba(100, 200, 140, 0.50);
+  color: var(--color-green-light);
+}
+
+/* ===================================================================
+   § 14. Footer
+   =================================================================== */
+
+body.library-page--dark .site-footer {
+  background: rgba(7, 13, 11, 0.98);
+  border-top: 1px solid rgba(80, 140, 100, 0.12);
+}
+
+body.library-page--dark .footer-logo   { color: var(--color-green-light); }
+
+body.library-page--dark .footer-tagline,
+body.library-page--dark .footer-desc   { color: var(--color-text-dim); }
+
+body.library-page--dark .footer-nav-heading { color: rgba(175, 220, 190, 0.88); }
+
+body.library-page--dark .footer-nav-list a {
+  color: rgba(140, 180, 152, 0.75);
+}
+body.library-page--dark .footer-nav-list a:hover {
+  color: var(--color-green-light);
+}
+
+/* コピーライト: WCAG AA 対応でコントラスト強化 */
+body.library-page--dark .footer-copy {
+  color: rgba(130, 165, 140, 0.75);
+}
+
+/* ===================================================================
+   § 15. Scroll Reveal アニメーション
+   [data-reveal] は必ず body.library-page--dark スコープに閉じる
+   ベースCSSの ml-card-appear アニメーションとの競合を防ぐため
+   .ml-card への animation: none 上書きと組み合わせて使用
+   =================================================================== */
+
+body.library-page--dark [data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.library-page--dark [data-reveal].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.library-page--dark [data-reveal="d1"] { transition-delay: 0.06s; }
+body.library-page--dark [data-reveal="d2"] { transition-delay: 0.12s; }
+body.library-page--dark [data-reveal="d3"] { transition-delay: 0.18s; }
+body.library-page--dark [data-reveal="d4"] { transition-delay: 0.24s; }
+body.library-page--dark [data-reveal="d5"] { transition-delay: 0.30s; }
+
+/* Hero 要素: ページロード時にアニメーション */
+body.library-page--dark .music-library-hero__inner > * {
+  animation: darkHeroReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+body.library-page--dark .music-library-hero__eyebrow    { animation-delay:  60ms; }
+body.library-page--dark .music-library-hero__title      { animation-delay: 160ms; }
+body.library-page--dark .music-library-hero__lead       { animation-delay: 280ms; }
+body.library-page--dark .music-library-hero__sublead    { animation-delay: 380ms; }
+body.library-page--dark .music-library-hero__search-wrap  { animation-delay: 480ms; }
+body.library-page--dark .music-library-hero__quick-tags   { animation-delay: 580ms; }
+
+@keyframes darkHeroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ===================================================================
+   § 16. アクセシビリティ
+   =================================================================== */
+
+/* フォーカスリング */
+body.library-page--dark :focus-visible {
+  outline: 2px solid rgba(126, 203, 149, 0.85);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+body.library-page--dark .ml-btn-play:focus-visible,
+body.library-page--dark .ml-btn-fav:focus-visible,
+body.library-page--dark .ml-btn-dl:focus-visible {
+  outline-offset: 2px;
+}
+
+/* reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  body.library-page--dark [data-reveal],
+  body.library-page--dark [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  body.library-page--dark .music-library-hero__inner > * {
+    animation: none !important;
+  }
+}
+
+/* mobile: GPU コスト抑制 */
+@media (hover: none) and (pointer: coarse) {
+  body.library-page--dark #scene-bg {
+    background-attachment: scroll;
+  }
+}
+
+/* ===================================================================
+   § 17. タグ別ボーダーアクセント
+   カードの色はすべて深緑で統一し、個性はボーダーの色だけで表現する。
+   opacity は控えめに保ち背景世界観との調和を優先。
+   =================================================================== */
+
+/* 和風・神社・東洋 → ランタン金 */
+body.library-page--dark .ml-card[data-tag-primary="japanese"],
+body.library-page--dark .ml-card[data-tag-primary="oriental"],
+body.library-page--dark .ml-card[data-tag-primary="shrine"]  {
+  border-color: rgba(196, 160, 65, 0.38);
+}
+body.library-page--dark .ml-card[data-tag-primary="japanese"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="oriental"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="shrine"]:hover  {
+  border-color: rgba(215, 180, 80, 0.58);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.68),
+    0 0 22px rgba(196, 160, 65, 0.14),
+    inset 0 1px 0 rgba(255, 230, 160, 0.06);
+}
+
+/* 戦闘・ボス → 熾火の赤 */
+body.library-page--dark .ml-card[data-tag-primary="battle"],
+body.library-page--dark .ml-card[data-tag-primary="boss"]   {
+  border-color: rgba(200, 90, 65, 0.32);
+}
+body.library-page--dark .ml-card[data-tag-primary="battle"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="boss"]:hover   {
+  border-color: rgba(220, 110, 80, 0.52);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.68),
+    0 0 22px rgba(200, 80, 60, 0.14),
+    inset 0 1px 0 rgba(255, 180, 160, 0.05);
+}
+
+/* ホラー・神秘・暗い → 紫煙 */
+body.library-page--dark .ml-card[data-tag-primary="horror"],
+body.library-page--dark .ml-card[data-tag-primary="mysterious"],
+body.library-page--dark .ml-card[data-tag-primary="dark"]     {
+  border-color: rgba(145, 80, 185, 0.30);
+}
+body.library-page--dark .ml-card[data-tag-primary="horror"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="mysterious"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="dark"]:hover     {
+  border-color: rgba(160, 95, 205, 0.50);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.68),
+    0 0 22px rgba(145, 80, 185, 0.14),
+    inset 0 1px 0 rgba(200, 160, 255, 0.05);
+}
+
+/* 勇壮・幻想・中世・ケルト → 月光青 */
+body.library-page--dark .ml-card[data-tag-primary="epic"],
+body.library-page--dark .ml-card[data-tag-primary="fantasy"],
+body.library-page--dark .ml-card[data-tag-primary="celtic"],
+body.library-page--dark .ml-card[data-tag-primary="medieval"] {
+  border-color: rgba(80, 115, 200, 0.30);
+}
+body.library-page--dark .ml-card[data-tag-primary="epic"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="fantasy"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="celtic"]:hover,
+body.library-page--dark .ml-card[data-tag-primary="medieval"]:hover {
+  border-color: rgba(95, 130, 220, 0.50);
+  box-shadow:
+    0 18px 52px rgba(0, 0, 0, 0.68),
+    0 0 22px rgba(80, 115, 200, 0.14),
+    inset 0 1px 0 rgba(160, 190, 255, 0.05);
+}
+
+/* 悲しい・記憶 → 鋼青 */
+body.library-page--dark .ml-card[data-tag-primary="sad"],
+body.library-page--dark .ml-card[data-tag-primary="memory"]  {
+  border-color: rgba(75, 118, 195, 0.28);
+}
+
+/* ===================================================================
+   § 18. お気に入りカード — 静かな特別感
+   :has() で .ml-btn-fav.is-fav を持つカードに暖色アクセントを付与
+   =================================================================== */
+
+body.library-page--dark .ml-card:has(.ml-btn-fav.is-fav) {
+  border-color: rgba(220, 145, 50, 0.38);
+  box-shadow:
+    0 4px 28px rgba(0, 0, 0, 0.55),
+    0 0 20px rgba(200, 120, 30, 0.12),
+    0 0 40px rgba(180, 90, 20, 0.06),
+    inset 0 1px 0 rgba(255, 210, 130, 0.07);
+}
+
+/* カード上部の琥珀ライン — "光が宿った曲" の印 */
+body.library-page--dark .ml-card:has(.ml-btn-fav.is-fav)::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 165, 55, 0.80) 0%,
+    rgba(255, 140, 40, 0.40) 45%,
+    transparent 80%
+  );
+  border-radius: 24px 24px 0 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+body.library-page--dark .ml-card:has(.ml-btn-fav.is-fav):hover {
+  border-color: rgba(255, 160, 55, 0.55);
+}
+
+/* ===================================================================
+   § 19. 呼吸アニメーション — 「ここは、音楽が眠る場所。」
+   .ml-intro が is-revealed になった後、ごく静かに呼吸する。
+   opacity: 0.92↔1.0 / scale: 1.000↔1.013 / translateY: 0↔-2px
+   =================================================================== */
+
+@keyframes breatheText {
+  0%, 100% {
+    opacity:   0.92;
+    transform: scale(1.000) translateY(0px);
+  }
+  50% {
+    opacity:   1.00;
+    transform: scale(1.013) translateY(-2px);
+  }
+}
+
+body.library-page--dark .ml-intro.is-revealed .ml-intro__main {
+  animation: breatheText 5.5s ease-in-out 0.9s infinite;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+/* ===================================================================
+   § 20. レスポンシブグリッド
+   =================================================================== */
+
+/* 1200px: 3列がデフォルトになったため個別指定不要 */
+
+@media (max-width: 820px) {
+  body.library-page--dark .ml-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: none;   /* 小画面はフル幅を使う */
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 500px) {
+  body.library-page--dark .ml-grid {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+  }
+}
+
+/* reduced-motion 追加: 呼吸・精霊アニメーション無効 */
+@media (prefers-reduced-motion: reduce) {
+  body.library-page--dark .ml-intro.is-revealed .ml-intro__main {
+    animation: none;
+  }
+}
+
+/* ===================================================================
+   § 12. お気に入りモーダル → fav-modal.css に移管（TOP/Library共用）
+   music-library.html は fav-modal.css を <link> で読み込むこと
+   =================================================================== */

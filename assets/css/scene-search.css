@@ -1,0 +1,543 @@
+/* ============================================================
+   H/MIX GALLERY - Scene Search UI Styles
+   自然文シーン検索 専用スタイル
+   ============================================================ */
+
+/* ===== 検索ボックスラッパー ===== */
+.scene-search-box-wrap {
+  margin-bottom: var(--space-3xl);
+}
+
+/* ===== ヒントテキスト ===== */
+.scene-search-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.scene-hint-btn {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.75rem;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+  color: var(--color-green);
+  background: var(--color-green-pale);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.scene-hint-btn:hover {
+  background: var(--color-green);
+  color: var(--color-bg);
+  border-color: var(--color-green);
+}
+
+/* ===== 入力行 ===== */
+.scene-search-input-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: stretch;
+}
+
+.scene-search-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.scene-search-icon {
+  position: absolute;
+  left: var(--space-lg);
+  color: var(--color-text-dim);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.scene-search-input {
+  width: 100%;
+  padding: var(--space-lg) var(--space-lg) var(--space-lg) calc(var(--space-lg) + 28px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  outline: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.scene-search-input::placeholder {
+  color: var(--color-text-dim);
+  font-size: 0.875rem;
+}
+
+.scene-search-input:focus {
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.08);
+}
+
+.scene-search-clear {
+  position: absolute;
+  right: var(--space-md);
+  background: transparent;
+  border: none;
+  color: var(--color-text-dim);
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-base);
+  display: flex;
+  align-items: center;
+}
+
+.scene-search-clear:hover {
+  color: var(--color-text);
+}
+
+.scene-search-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+  padding: var(--space-lg) var(--space-2xl);
+  flex-shrink: 0;
+}
+
+/* ===== 検索結果エリア ===== */
+.scene-results {
+  margin-top: var(--space-2xl);
+}
+
+/* 検索中・ゼロ件 */
+.scene-results-status {
+  text-align: center;
+  padding: var(--space-3xl) 0;
+  color: var(--color-text-dim);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+}
+
+.scene-results-status .status-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: var(--space-md);
+  opacity: 0.4;
+}
+
+/* 結果ヘッダー */
+.scene-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.scene-results-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  color: var(--color-green);
+  text-transform: uppercase;
+}
+
+.scene-results-count {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+}
+
+/* 結果グリッド */
+.scene-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* 結果カード */
+.scene-result-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  transition: border-color var(--transition-base), transform var(--transition-base);
+  animation: sceneCardIn 0.3s ease both;
+}
+
+.scene-result-card:hover {
+  border-color: var(--color-border-hover);
+  transform: translateY(-2px);
+}
+
+@keyframes sceneCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* カード内：スコアバッジ */
+.scene-card-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.scene-card-score-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--color-surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scene-card-score-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--color-green-dim), var(--color-green-mid));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.scene-card-score-num {
+  font-size: 0.65rem;
+  color: var(--color-text-dim);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* カード内：タイトル */
+.scene-card-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scene-card-track-title {
+  font-family: var(--font-serif-jp);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.scene-card-track-en {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--color-green-mid);
+  text-transform: uppercase;
+}
+
+/* カード内：説明文 */
+.scene-card-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* カード内：タグ */
+.scene-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.scene-card-tag {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-dim);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+}
+
+.scene-card-tag--mood {
+  color: var(--color-green);
+  border-color: var(--color-border-hover);
+  background: var(--color-green-pale);
+}
+
+/* カード内：アクションボタン */
+.scene-card-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.scene-card-play-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-green);
+  color: #f5f0e8;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.scene-card-play-btn:hover {
+  background: var(--color-green-mid);
+  box-shadow: 0 2px 12px rgba(45, 90, 61, 0.25);
+}
+
+.scene-card-play-btn.playing {
+  background: var(--color-surface-3);
+  color: var(--color-green);
+  border: 1px solid var(--color-border-hover);
+}
+
+.scene-card-detail-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+}
+
+.scene-card-detail-btn:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+}
+
+.scene-card-dl-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  color: var(--color-text-dim);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  text-decoration: none;
+  transition: all var(--transition-base);
+  margin-left: auto;
+}
+
+.scene-card-dl-btn:hover {
+  color: var(--color-green);
+  border-color: var(--color-border-hover);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .scene-search-input-row {
+    flex-direction: column;
+  }
+
+  .scene-search-btn {
+    justify-content: center;
+  }
+
+  .scene-results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .scene-search-hint {
+    font-size: 0.75rem;
+  }
+}
+
+/* ============================================================
+   v3 追加スタイル: ヒントボタン行・シーングリッドラベル・補助カテゴリリスト
+   ============================================================ */
+
+/* ===== ヒントボタン行（新デザイン） ===== */
+.scene-search-hint-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
+}
+
+.scene-hint-label {
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-top: 0.35rem;
+  flex-shrink: 0;
+}
+
+.scene-hint-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* ヒントボタン（新デザイン：アイコン付き・モバイル対応） */
+.scene-hint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-family: var(--font-sans);
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  white-space: nowrap;
+  min-height: 36px; /* モバイルタップ領域確保 */
+}
+
+.scene-hint-btn:hover,
+.scene-hint-btn:focus-visible {
+  background: var(--color-green-pale);
+  border-color: var(--color-green);
+  color: var(--color-green);
+  outline: none;
+}
+
+.scene-hint-btn:active {
+  transform: scale(0.97);
+}
+
+.scene-hint-icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* ===== シーングリッドラベル ===== */
+.scene-grid-wrap {
+  margin-top: var(--space-3xl);
+}
+
+.scene-grid-label {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xl);
+}
+
+/* ===== 補助カテゴリリスト（Legacy Category Links） ===== */
+.bgm-categories--compact {
+  padding: var(--space-3xl) 0;
+}
+
+.bgm-categories--compact .section-title--sm {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+.bgm-categories--compact .section-desc--sm {
+  font-size: 0.8rem;
+  color: var(--color-text-dim);
+}
+
+.legacy-category-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-sm);
+  margin-top: var(--space-2xl);
+}
+
+.legacy-cat-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-text-muted);
+  transition: all var(--transition-base);
+}
+
+.legacy-cat-link:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text);
+  background: var(--color-surface-2);
+}
+
+.legacy-cat-link:hover svg {
+  color: var(--color-green);
+  transform: translateX(3px);
+}
+
+.legacy-cat-link svg {
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+  transition: all var(--transition-base);
+  margin-left: auto;
+}
+
+.legacy-cat-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  width: 1.6rem;
+  text-align: center;
+}
+
+.legacy-cat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.legacy-cat-title {
+  font-size: 0.875rem;
+  font-family: var(--font-serif-jp);
+  color: var(--color-text);
+}
+
+.legacy-cat-en {
+  font-size: 0.7rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ===== RESPONSIVE 追加 ===== */
+@media (max-width: 600px) {
+  .scene-hint-btns {
+    gap: var(--space-xs);
+  }
+
+  .scene-hint-btn {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    min-height: 40px; /* モバイルでさらに大きく */
+  }
+
+  .legacy-category-list {
+    grid-template-columns: 1fr;
+  }
+}

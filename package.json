@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "dev": "node scripts/dev-static-server.js 4173",
+    "dev:quiet": "node scripts/dev-static-server.js 4173 --quiet",
+    "build:seo": "node scripts/inject-seo.js",
+    "build:body": "node scripts/build-track-pages.js",
+    "build:library-static": "node scripts/build-library-static-links.js",
+    "build:tracks": "npm run build:seo && npm run build:body && npm run build:library-static",
+    "build:counts": "node scripts/build-track-pages.js --counts-only",
+    "build:genre": "node scripts/build-genre-pages.js",
+    "backup:music": "node scripts/backup-music.js",
+    "generate:desc-en": "node scripts/generate-desc-en.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

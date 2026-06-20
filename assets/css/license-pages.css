@@ -1,0 +1,178 @@
+/* ============================================================
+   H/MIX — License / Info pages "beige" THEME OVERRIDE (V4 redesign)
+   現行のダークなヘッダー/プレイヤー/フッターはそのまま。
+   `body.lp-page` の本文領域だけを V4 ベージュ・デザインに上書きする。
+   JS（license-request.js 等）は無改変。既存クラスを再スタイルするだけ。
+   このファイルは license-request.css 等の "後" に読み込むこと。
+   ============================================================ */
+
+body.lp-page {
+  --lp-bg:#F4F0E6; --lp-ink:#211E18; --lp-soft:#4A453C; --lp-muted:#6E665A;
+  --lp-faint:#9A9183; --lp-line:#E6DFCF; --lp-line2:#EFE9DB; --lp-green:#16382A;
+  --lp-green2:#2E6B4F; --lp-gold:#98792A; --lp-gold-lt:#D8BC6A; --lp-navy:#2C3E5C; --lp-card:#fff;
+  --lp-serif:'Shippori Mincho','Noto Serif JP',serif;
+  --lp-sans:'Zen Kaku Gothic New','Noto Sans JP',sans-serif;
+  background: var(--lp-bg);
+}
+
+/* 本文コンテナをベージュに（ダーク背景/装飾を打ち消す） */
+body.lp-page #page-content { background: var(--lp-bg); color: var(--lp-ink); font-family: var(--lp-sans); }
+body.lp-page #page-content::before,
+body.lp-page #page-content::after { display:none !important; }
+body.lp-page .scenic-bg, body.lp-page #scenic-bg { display:none !important; }
+body.lp-page ::selection { background: var(--lp-green); color: var(--lp-bg); }
+
+/* ── HERO（情報ページ共通） ── */
+body.lp-page .info-hero {
+  background: var(--lp-bg) !important; color: var(--lp-ink);
+  border:none; box-shadow:none; padding: 64px 40px 26px; text-align:left; max-width:920px; margin:0 auto;
+}
+body.lp-page .info-hero::before, body.lp-page .info-hero::after { display:none !important; }
+body.lp-page .info-hero__eyebrow { color: var(--lp-gold); font-family: var(--lp-serif); font-style:italic; letter-spacing:.08em; }
+body.lp-page .info-hero__title { font-family: var(--lp-serif); color: var(--lp-ink); font-weight:700; }
+body.lp-page .info-hero__title-ja { color: var(--lp-ink); }
+body.lp-page .info-hero__updated { color: var(--lp-soft) !important; opacity:1 !important; }
+body.lp-page .info-hero__updated strong { color: var(--lp-green); }
+body.lp-page .lp-hero-fav {
+  background:#fff !important; border:1px solid #CFC6B2 !important; color: var(--lp-green) !important;
+  border-radius:999px; padding:.2rem .8rem; font-weight:700; cursor:pointer;
+}
+
+/* ── BODY / breadcrumb / note ── */
+body.lp-page .info-body { max-width: 920px; margin:0 auto; padding: 8px 40px 70px; background:transparent; }
+@media (max-width:760px){ body.lp-page .info-hero, body.lp-page .info-body { padding-left:22px; padding-right:22px; } }
+body.lp-page .info-breadcrumb { color: var(--lp-faint); }
+body.lp-page .info-breadcrumb a { color: var(--lp-faint); }
+body.lp-page .info-note {
+  background:#fff !important; border:1px solid var(--lp-line) !important; border-radius:12px;
+  color: var(--lp-soft) !important; padding:16px 20px;
+}
+body.lp-page .info-note a { color: var(--lp-green2) !important; font-weight:600; }
+body.lp-page .info-btn {
+  background: var(--lp-green) !important; color: var(--lp-bg) !important; border:1px solid var(--lp-green) !important;
+  border-radius:999px; font-weight:700;
+}
+body.lp-page .info-btn:hover { background:#1d4a37 !important; }
+
+/* ── 見出し系（lr-section） ── */
+body.lp-page .lr-section { background:transparent; border:none; padding:0; margin-bottom:26px; }
+body.lp-page .lr-section__heading { color: var(--lp-faint); font-size:11px; letter-spacing:.14em; font-weight:700; text-transform:uppercase; }
+
+/* ── 選択中の曲リスト ── */
+body.lp-page .selected-tracks { background:transparent; border:none; padding:0; margin-bottom:26px; }
+body.lp-page .selected-tracks__heading { color: var(--lp-faint); font-size:11px; letter-spacing:.14em; font-weight:700; }
+body.lp-page .selected-tracks__count { color: var(--lp-muted); }
+body.lp-page .selected-track-card {
+  background:#fff; border:1px solid var(--lp-line); border-radius:10px; padding:10px 14px;
+}
+body.lp-page .selected-track-card__preview {
+  background: var(--lp-green); color: var(--lp-bg); border:none; border-radius:50%;
+}
+body.lp-page .selected-track-card__title { color: var(--lp-ink); font-weight:600; }
+body.lp-page .selected-track-card__tags { color: var(--lp-faint); }
+body.lp-page .selected-track-card__remove { color:#A8593A; }
+body.lp-page .selected-tracks__placeholder {
+  background:#fff; border:1px dashed #CFC6B2; color: var(--lp-faint);
+}
+
+/* ── 曲名で追加 ＋ 予測候補 ── */
+body.lp-page .lr-add-track__box { background:#fff; border:1px solid #CFC6B2; border-radius:10px; }
+body.lp-page .lr-add-track__box svg { color: var(--lp-faint); }
+body.lp-page .lr-add-track__input { color: var(--lp-ink); }
+body.lp-page .lr-add-track__input::placeholder { color: var(--lp-faint); }
+body.lp-page .lr-suggest {
+  background:#fff; border:1px solid var(--lp-line); border-radius:12px;
+  box-shadow:0 18px 50px -18px rgba(33,30,24,.4);
+}
+body.lp-page .lr-suggest__item:hover { background:#EAF0EC; }
+body.lp-page .lr-suggest__title { color: var(--lp-ink); }
+body.lp-page .lr-suggest__tags  { color: var(--lp-faint); }
+body.lp-page .lr-suggest__empty { color: var(--lp-faint); }
+
+/* ── ライセンス種別カード ── */
+body.lp-page .lr-license-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+@media (max-width:760px){ body.lp-page .lr-license-cards { grid-template-columns:1fr; } }
+body.lp-page .lr-license-card {
+  background:#fff; border:1px solid var(--lp-line); border-radius:14px; color: var(--lp-ink);
+}
+body.lp-page .lr-license-card:hover { border-color:#CFC6B2; }
+body.lp-page .lr-license-card--selected { background:#EAF0EC !important; border-color: var(--lp-green) !important; box-shadow:0 0 0 2px var(--lp-green) inset; }
+body.lp-page .lr-license-card--selected, body.lp-page .lr-license-card--selected * { color: var(--lp-ink) !important; }
+body.lp-page .lr-license-card--selected .lr-license-card__badge { color: var(--lp-gold) !important; }
+body.lp-page .lr-license-card--selected .lr-license-card__price { color: var(--lp-green) !important; }
+body.lp-page .lr-license-card--recommended { border-color: var(--lp-gold); }
+body.lp-page .lr-license-card__badge { color: var(--lp-navy); background:transparent; padding:0; font-size:10.5px; letter-spacing:.1em; font-weight:700; }
+body.lp-page .lr-license-card--pro .lr-license-card__badge,
+body.lp-page .lr-license-card--store .lr-license-card__badge,
+body.lp-page .lr-license-card__badge--pro { color: var(--lp-gold); }
+body.lp-page .lr-license-card__name { color: var(--lp-ink); font-weight:700; font-size:16px; }
+body.lp-page .lr-license-card__price { color: var(--lp-ink); font-family: var(--lp-serif); font-weight:700; }
+body.lp-page .lr-license-card__features { color: var(--lp-muted); }
+body.lp-page .lr-license-card__features li { color: var(--lp-muted); }
+
+/* ── Professional 用途 / 店舗ブロック（パネル） ── */
+body.lp-page .lr-pro-usage,
+body.lp-page .lr-store-block { background:#fff; border:1px solid var(--lp-line); border-radius:14px; padding:20px; }
+body.lp-page .lr-label { color:#39352D; font-weight:700; }
+body.lp-page .lr-select, body.lp-page .lr-input {
+  background:#fff; border:1px solid #CFC6B2; color: var(--lp-ink); border-radius:10px;
+}
+body.lp-page .lr-select:focus, body.lp-page .lr-input:focus { border-color: var(--lp-green); }
+body.lp-page .lr-hint { color: var(--lp-muted); }
+body.lp-page .lr-hint a { color: var(--lp-green2) !important; }
+body.lp-page .lr-store-plan { background:#fff; border:1px solid var(--lp-line); }
+body.lp-page .lr-store-plan--selected { background:#EAF0EC; border-color: var(--lp-green); }
+body.lp-page .lr-store-plan__name { color: var(--lp-green); }
+body.lp-page .lr-store-plan__desc { color:#8A8273; }
+body.lp-page .lr-store-count__hint { color:#8A8273; }
+body.lp-page .lr-pack-hint { color: var(--lp-green2); }
+
+/* ── 購入者情報フォーム ── */
+body.lp-page .license-request-field .lr-label { color:#39352D; }
+body.lp-page .lr-error { color:#A8593A; }
+body.lp-page .lr-field-invalid .lr-input,
+body.lp-page .lr-field-invalid .lr-select { border-color:#A8593A; }
+body.lp-page .lr-error-msg { color:#A8593A; }
+
+/* ── 価格＋決済（ダークグリーン帯） ── */
+body.lp-page .license-request-actions {
+  background: var(--lp-green); border-radius:16px; padding:24px 26px; border:none;
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px;
+}
+body.lp-page .lr-price-display { color: var(--lp-bg); }
+body.lp-page .lr-price-label { color:#9FB29A; }
+body.lp-page .lr-price-amount { color: var(--lp-gold-lt); font-family: var(--lp-serif); }
+body.lp-page .lr-price-prompt { color:#9FB29A; }
+body.lp-page .lr-submit-btn {
+  background: var(--lp-gold-lt); color: var(--lp-green); border:none; border-radius:12px; font-weight:700;
+}
+body.lp-page .lr-submit-btn:disabled { opacity:.45; }
+body.lp-page .license-request-note { color: var(--lp-faint); }
+
+/* ── 空状態 ── */
+body.lp-page .lr-empty__title { color: var(--lp-ink); font-family: var(--lp-serif); }
+body.lp-page .lr-empty__desc { color: var(--lp-soft); }
+body.lp-page .lr-empty__or { color: var(--lp-faint); }
+
+/* ── 静的情報ページ（特商法/規約/プライバシ等）共通 ── */
+body.lp-page .lp__wrap { max-width: 960px; margin: 0 auto; padding: 0 40px; }
+@media (max-width:760px){ body.lp-page .lp__wrap { padding: 0 22px; } }
+body.lp-page .lp-hero { padding: 56px 0 8px; }
+body.lp-page .lp-crumb { display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--lp-faint); margin-bottom:22px; }
+body.lp-page .lp-crumb a { text-decoration:none; color:var(--lp-faint); }
+body.lp-page .lp-crumb .here { color: var(--lp-navy); }
+body.lp-page .lp-h1 { font-family: var(--lp-serif); font-weight:700; margin:0; font-size:clamp(31px,5vw,46px); line-height:1.25; color: var(--lp-ink); }
+body.lp-page .lp-back { display:inline-block; margin-top:26px; text-decoration:none; color:var(--lp-navy); font-weight:700; font-size:14px; }
+/* 定義リスト（特商法など） */
+body.lp-page .lp-dl { margin:0; background:#fff; border:1px solid var(--lp-line); border-radius:16px; overflow:hidden; }
+body.lp-page .lp-dl__row { display:grid; grid-template-columns:220px 1fr; border-bottom:1px solid var(--lp-line2); }
+body.lp-page .lp-dl__row:last-child { border-bottom:none; }
+body.lp-page .lp-dl__row dt { padding:18px 26px; font-weight:700; font-size:15px; background:#FBF9F3; color:#39352D; margin:0; }
+body.lp-page .lp-dl__row dd { padding:18px 26px; font-size:15.5px; color:#39352D; margin:0; line-height:1.85; }
+body.lp-page .lp-dl a { color: var(--lp-navy); font-weight:600; }
+@media (max-width:640px){ body.lp-page .lp-dl__row { grid-template-columns:1fr; } body.lp-page .lp-dl__row dt { padding-bottom:4px; } body.lp-page .lp-dl__row dd { padding-top:0; } }
+
+/* 言語切替（サイトの body.lang-en に追従。本文の lang="ja"/lang="en" を出し分け） */
+body.lp-page #page-content [lang="en"] { display:none; }
+body.lp-page.lang-en #page-content [lang="ja"] { display:none; }
+body.lp-page.lang-en #page-content [lang="en"] { display:revert; }

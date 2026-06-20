@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <!-- ============================================================
+    [PROTOTYPE] H/MIX TOOLS — トップページ
+    ・ COMPRESSOR の視覚言語を全面採用
+      (jade #40ceb4 + gold #d4a44c + 漆黒 + 星粒子 + ボルト + filigree)
+    ・ ファンタジー命名は不採用 (機能名のみ)
+    ・ 4 公開ツール + 3 予定ツール + ブランド一貫性パレット
+  ============================================================ -->
+  <!-- base 削除済: 本番 /tools/ に配置時、 ロゴ等は同階層 assets/、 各ツールはサブディレクトリ -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H/MIX TOOLS — 音楽制作ブラウザツール（無料）| H/MIX GALLERY</title>
+  <meta name="description" content="作曲家・秋山裕和が制作した、ブラウザで動く無料の音楽ツール集。コンプレッサー、ハイレゾ化、オーディオ比較、BPM・キー検出など。インストール不要。">
+  <meta name="keywords" content="音楽ツール,フリー,無料,オンライン,ブラウザ,コンプレッサー,ハイレゾ化,BPM,キー検出,DAW,音楽制作">
+  <link rel="canonical" href="https://www.hmix.net/tools/">
+
+  <meta property="og:title" content="H/MIX TOOLS — 音楽制作ブラウザツール">
+  <meta property="og:description" content="作曲家・秋山裕和の音楽ツール集。ブラウザで動く無料ツール。">
+  <meta property="og:image" content="https://www.hmix.net/tools/og.jpg">
+  <meta property="og:url" content="https://www.hmix.net/tools/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="H/MIX GALLERY">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "H/MIX TOOLS",
+    "url": "https://www.hmix.net/tools/",
+    "description": "音楽制作のためのブラウザツール集",
+    "publisher": { "@type": "Organization", "name": "H/MIX GALLERY", "url": "https://www.hmix.net/" },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": [
+        { "@type": "SoftwareApplication", "name": "H/MIX COMPRESSOR", "url": "https://www.hmix.net/tools/compressor/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Web Browser", "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"} },
+        { "@type": "SoftwareApplication", "name": "H/MIX HIRES UPSCALER", "url": "https://www.hmix.net/tools/upscaler/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Windows, macOS", "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"} },
+        { "@type": "SoftwareApplication", "name": "H/MIX AUDIO COMPARATOR", "url": "https://www.hmix.net/tools/comparator/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Web Browser", "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"} },
+        { "@type": "SoftwareApplication", "name": "H/MIX BPM & KEY FINDER", "url": "https://www.hmix.net/tools/bpm-key/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Web Browser", "offers": {"@type":"Offer","price":"0","priceCurrency":"JPY"} }
+      ]
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===================================================================
+       H/MIX TOOLS — COMPRESSOR design system inheritance
+    =================================================================== */
+    :root {
+      --t-bg-0: #03060d;
+      --t-bg-1: #050b18;
+      --t-bg-2: #0a3a26;
+      --t-bg-3: #0a1422;
+      --t-jade: #40ceb4;
+      --t-jade-soft: #7be0c8;
+      --t-jade-deep: #1f8c79;
+      --t-gold: #d4a44c;
+      --t-gold-bright: #f5d896;
+      --t-gold-deep: #8a6a2a;
+      --t-brass: #b48a44;
+      --t-ink: rgba(245, 240, 230, 0.94);
+      --t-ink-soft: rgba(218, 232, 228, 0.62);
+      --t-muted: rgba(180, 220, 195, 0.55);
+      --t-line: rgba(217, 181, 102, 0.32);
+      --t-line-soft: rgba(217, 181, 102, 0.16);
+      --t-line-jade: rgba(64, 206, 180, 0.28);
+      --t-glow-jade: 0 0 24px rgba(64, 206, 180, 0.30);
+      --t-glow-gold: 0 0 28px rgba(217, 181, 102, 0.25);
+    }
+
+    body.tools-page {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 50% -20%, rgba(64, 206, 180, 0.10), transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(217, 181, 102, 0.06), transparent 55%),
+        linear-gradient(180deg, var(--t-bg-1) 0%, var(--t-bg-0) 100%);
+      color: var(--t-ink);
+      font-family: 'Noto Serif JP', 'Yu Mincho', serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+    body.tools-page main { display: block; }
+
+    /* 星粒子フィールド (固定) */
+    body.tools-page::before {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(1px 1px at 8% 14%,  rgba(245,240,230,0.55), transparent 60%),
+        radial-gradient(1px 1px at 22% 71%, rgba(245,240,230,0.45), transparent 60%),
+        radial-gradient(1px 1px at 38% 22%, rgba(245,240,230,0.5),  transparent 60%),
+        radial-gradient(1px 1px at 54% 88%, rgba(245,240,230,0.4),  transparent 60%),
+        radial-gradient(1px 1px at 71% 32%, rgba(245,240,230,0.55), transparent 60%),
+        radial-gradient(1px 1px at 88% 64%, rgba(245,240,230,0.45), transparent 60%),
+        radial-gradient(1px 1px at 95% 18%, rgba(245,240,230,0.4),  transparent 60%),
+        radial-gradient(1px 1px at 15% 47%, rgba(245,240,230,0.45), transparent 60%),
+        radial-gradient(1px 1px at 67% 8%,  rgba(245,240,230,0.5),  transparent 60%);
+      opacity: 0.55;
+      z-index: 0;
+    }
+    body.tools-page > * { position: relative; z-index: 1; }
+
+    /* ===== 共通装飾 ===== */
+    /* brass corner bolt (compressor 由来) */
+    .bolt {
+      position: absolute;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #f0d28a, #8a6a2a 55%, #2a1f0c 100%);
+      box-shadow:
+        inset 0 1px 1px rgba(255, 230, 170, 0.5),
+        0 1px 3px rgba(0, 0, 0, 0.6);
+      pointer-events: none;
+    }
+    .bolt::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(45deg, transparent 45%, rgba(0,0,0,0.4) 49%, rgba(0,0,0,0.4) 51%, transparent 55%);
+      border-radius: 50%;
+    }
+    .bolt.tl { top: 10px; left: 10px; }
+    .bolt.tr { top: 10px; right: 10px; }
+    .bolt.bl { bottom: 10px; left: 10px; }
+    .bolt.br { bottom: 10px; right: 10px; }
+
+    /* art-nouveau filigree (compressor 由来) */
+    .filigree {
+      position: absolute;
+      width: 86px; height: 86px;
+      pointer-events: none;
+      opacity: 0.45;
+      color: var(--t-gold);
+    }
+    .filigree.tl { top: 6px; left: 6px; }
+    .filigree.tr { top: 6px; right: 6px; transform: scaleX(-1); }
+    .filigree.bl { bottom: 6px; left: 6px; transform: scaleY(-1); }
+    .filigree.br { bottom: 6px; right: 6px; transform: scale(-1, -1); }
+
+    /* ===================================================================
+       HERO
+    =================================================================== */
+    .tools-hero {
+      position: relative;
+      min-height: 78vh;
+      padding: 9rem 4rem 5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    .tools-hero::before, .tools-hero::after {
+      content: '';
+      position: absolute;
+      width: 1px; top: 12%; bottom: 12%;
+      background: linear-gradient(to bottom, transparent, var(--t-line), transparent);
+      pointer-events: none;
+    }
+    .tools-hero::before { left: 6%; }
+    .tools-hero::after { right: 6%; }
+
+    .tools-hero__crown {
+      display: flex; align-items: center; justify-content: center; gap: 1.4rem;
+      margin-bottom: 2.5rem;
+    }
+    .tools-hero__crown::before, .tools-hero__crown::after {
+      content: ''; width: 90px; height: 1px;
+      background: linear-gradient(to right, transparent, var(--t-gold), transparent);
+    }
+    .tools-hero__crown-mark {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem; letter-spacing: 0.62em;
+      color: var(--t-gold);
+      text-shadow: 0 0 12px rgba(245, 216, 150, 0.4);
+    }
+
+    .tools-hero__logo {
+      width: clamp(260px, 32vw, 380px);
+      margin-bottom: 1.8rem;
+      filter: drop-shadow(0 0 24px rgba(245, 216, 150, 0.25));
+    }
+    .tools-hero__title {
+      font-family: 'Cinzel', serif;
+      font-weight: 500;
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      letter-spacing: 0.32em;
+      color: var(--t-gold-bright);
+      margin: 0 0 1rem;
+      text-shadow: 0 0 26px rgba(245, 216, 150, 0.32);
+    }
+    .tools-hero__sub {
+      font-family: 'Noto Serif JP', serif; font-weight: 400;
+      font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+      letter-spacing: 0.2em;
+      color: var(--t-jade-soft);
+      margin: 0 0 2.2rem;
+    }
+    .tools-hero__lead {
+      max-width: 640px;
+      font-family: 'Noto Serif JP', serif; font-weight: 300;
+      font-size: 1rem; line-height: 2.05;
+      color: var(--t-ink-soft);
+      margin: 0 auto 3.2rem;
+    }
+    .tools-hero__lead em {
+      font-style: normal; color: var(--t-gold-bright); font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .tools-hero__stats {
+      display: flex; gap: 4rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .tools-stat { text-align: center; }
+    .tools-stat__num {
+      font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500;
+      font-size: 2.6rem;
+      color: var(--t-gold-bright);
+      line-height: 1;
+      text-shadow: 0 0 18px rgba(245, 216, 150, 0.3);
+    }
+    .tools-stat__label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem; letter-spacing: 0.32em;
+      color: var(--t-muted);
+      margin-top: 0.6rem;
+      text-transform: uppercase;
+    }
+    .tools-stat__sep {
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--t-line), transparent);
+    }
+
+    /* ===================================================================
+       FILTER BAR (sticky)
+    =================================================================== */
+    .tools-filter {
+      position: sticky; top: 0;
+      z-index: 30;
+      padding: 1.4rem 4rem;
+      background: linear-gradient(180deg, rgba(3, 6, 13, 0.95), rgba(3, 6, 13, 0.78));
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--t-line-soft);
+      border-bottom: 1px solid var(--t-line-soft);
+      display: flex; gap: 2rem; align-items: center;
+    }
+    .tools-filter__search {
+      position: relative;
+      flex: 0 0 320px;
+    }
+    .tools-filter__search input {
+      width: 100%;
+      padding: 0.78rem 1rem 0.78rem 2.6rem;
+      background: rgba(8, 18, 28, 0.7);
+      border: 1px solid var(--t-line-soft);
+      border-radius: 999px;
+      font-family: 'Noto Sans JP', sans-serif; font-size: 0.92rem;
+      color: var(--t-ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .tools-filter__search input::placeholder { color: var(--t-muted); }
+    .tools-filter__search input:focus {
+      border-color: var(--t-jade);
+      box-shadow: 0 0 0 3px rgba(64, 206, 180, 0.18);
+    }
+    .tools-filter__search svg {
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px;
+      color: var(--t-muted);
+    }
+    .tools-filter__chips { display: flex; gap: 0.6rem; flex-wrap: wrap; flex: 1; }
+    .chip {
+      padding: 0.55rem 1.1rem;
+      font-family: 'Cinzel', serif; font-size: 0.74rem; letter-spacing: 0.22em;
+      color: var(--t-ink-soft);
+      background: rgba(8, 18, 28, 0.55);
+      border: 1px solid var(--t-line-soft);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .chip:hover {
+      color: var(--t-gold-bright);
+      border-color: var(--t-line);
+    }
+    .chip[aria-pressed="true"] {
+      color: var(--t-bg-0);
+      background: linear-gradient(180deg, var(--t-gold-bright), var(--t-gold));
+      border-color: var(--t-gold-bright);
+      box-shadow: var(--t-glow-gold);
+    }
+    .chip__count {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.85rem; letter-spacing: 0;
+      opacity: 0.7;
+    }
+    .tools-filter__count {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.95rem;
+      color: var(--t-muted);
+      flex-shrink: 0;
+    }
+    .tools-filter__count em {
+      font-style: italic; color: var(--t-gold-bright);
+      font-size: 1.2rem; padding-right: 0.2rem;
+    }
+
+    /* ===================================================================
+       FEATURED SPOTLIGHT
+    =================================================================== */
+    .tools-featured {
+      padding: 5rem 4rem 2rem;
+    }
+    .tools-section__head {
+      max-width: 1280px; margin: 0 auto 3rem;
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 2rem;
+    }
+    .tools-section__title {
+      font-family: 'Cinzel', serif; font-weight: 500;
+      font-size: 1.4rem; letter-spacing: 0.4em;
+      color: var(--t-gold-bright);
+      margin: 0;
+      display: inline-flex; align-items: center; gap: 1rem;
+    }
+    .tools-section__title::before {
+      content: '✦'; color: var(--t-gold); font-size: 0.9rem;
+      text-shadow: 0 0 10px rgba(245, 216, 150, 0.4);
+    }
+    .tools-section__title-ja {
+      font-family: 'Noto Serif JP', serif; font-weight: 400;
+      font-size: 0.92rem; letter-spacing: 0.3em;
+      color: var(--t-jade-soft);
+      padding-left: 1.4rem;
+      border-left: 1px solid var(--t-line-soft);
+    }
+    .tools-section__lede {
+      font-family: 'Noto Serif JP', serif; font-weight: 300;
+      font-size: 0.88rem;
+      color: var(--t-muted);
+      max-width: 380px;
+      line-height: 1.85;
+    }
+
+    .featured-card {
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 0;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(11, 24, 36, 0.92), rgba(6, 14, 22, 0.94));
+      box-shadow:
+        0 0 0 1px rgba(217, 181, 102, 0.22),
+        0 0 0 2px rgba(0, 0, 0, 0.5),
+        0 0 0 3px rgba(180, 138, 68, 0.18),
+        0 30px 90px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(245, 216, 150, 0.10);
+    }
+    .featured-card__art {
+      position: relative;
+      min-height: 420px;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(64, 206, 180, 0.18), transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(217, 181, 102, 0.10), transparent 60%),
+        linear-gradient(135deg, #051420, #0a1f30);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2.4rem;
+    }
+    /* COMPRESSOR の実スクショ */
+    .featured-card__shot {
+      width: 100%; max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow:
+        0 0 0 1px rgba(217, 181, 102, 0.22),
+        0 0 30px rgba(64, 206, 180, 0.18),
+        0 18px 56px rgba(0, 0, 0, 0.7);
+      display: block;
+      transition: transform 0.6s cubic-bezier(0.2, 0.6, 0.3, 1);
+    }
+    .featured-card:hover .featured-card__shot {
+      transform: scale(1.025);
+    }
+    .featured-card__art-particles {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(2px 2px at 18% 28%, rgba(245,216,150,0.6), transparent 60%),
+        radial-gradient(1.5px 1.5px at 76% 18%, rgba(64,206,180,0.7), transparent 60%),
+        radial-gradient(1px 1px at 32% 82%, rgba(245,216,150,0.55), transparent 60%),
+        radial-gradient(1.5px 1.5px at 84% 68%, rgba(64,206,180,0.55), transparent 60%);
+      animation: particles-drift 8s ease-in-out infinite;
+    }
+    @keyframes particles-drift {
+      0%, 100% { transform: translateY(0); opacity: 0.7; }
+      50% { transform: translateY(-12px); opacity: 1; }
+    }
+
+    .featured-card__body {
+      padding: 3.6rem 3.2rem 3.2rem;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative;
+    }
+    .featured-card__eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem; letter-spacing: 0.5em;
+      color: var(--t-gold);
+      margin-bottom: 1rem;
+      display: inline-flex; align-items: center; gap: 0.8rem;
+    }
+    .featured-card__eyebrow::before {
+      content: '★'; color: var(--t-gold-bright); font-size: 0.85rem;
+    }
+    .featured-card__name {
+      font-family: 'Cinzel', serif; font-weight: 500;
+      font-size: 2.1rem; letter-spacing: 0.18em;
+      color: var(--t-gold-bright);
+      margin: 0 0 0.4rem;
+      text-shadow: 0 0 18px rgba(245, 216, 150, 0.3);
+    }
+    .featured-card__name-ja {
+      font-family: 'Noto Serif JP', serif; font-weight: 400;
+      font-size: 1.05rem; letter-spacing: 0.3em;
+      color: var(--t-jade-soft);
+      margin-bottom: 1.8rem;
+      padding-bottom: 1.4rem;
+      border-bottom: 1px solid var(--t-line-soft);
+    }
+    .featured-card__desc {
+      font-family: 'Noto Serif JP', serif; font-weight: 300;
+      font-size: 1rem; line-height: 2;
+      color: var(--t-ink-soft);
+      margin-bottom: 2rem;
+    }
+    .featured-card__meta {
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
+      margin-bottom: 2.4rem;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.36rem 0.85rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.66rem; letter-spacing: 0.22em;
+      border-radius: 999px;
+      border: 1px solid var(--t-line-soft);
+      color: var(--t-ink-soft);
+      background: rgba(8, 18, 28, 0.5);
+      text-transform: uppercase;
+    }
+    .badge--web { color: var(--t-jade-soft); border-color: var(--t-line-jade); }
+    .badge--web::before { content: '◆'; color: var(--t-jade); font-size: 0.7rem; }
+    .badge--desktop { color: var(--t-gold-bright); border-color: var(--t-line); }
+    .badge--desktop::before { content: '⬇'; color: var(--t-gold); font-size: 0.8rem; }
+    .badge--tag { color: var(--t-muted); }
+    .badge--live { color: var(--t-jade); }
+    .badge--live::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--t-jade); box-shadow: 0 0 6px var(--t-jade);
+      animation: live-pulse 2s ease-in-out infinite;
+    }
+    .badge--coming { color: var(--t-gold); }
+    .badge--coming::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--t-gold);
+    }
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; }
+    .cta {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      padding: 0.95rem 1.8rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.82rem; letter-spacing: 0.3em;
+      text-decoration: none; cursor: pointer;
+      border-radius: 999px;
+      transition: all 0.2s;
+    }
+    .cta--primary {
+      color: var(--t-bg-0);
+      background: linear-gradient(180deg, var(--t-gold-bright), var(--t-gold));
+      border: 1px solid var(--t-gold-bright);
+      box-shadow: var(--t-glow-gold), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .cta--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(245, 216, 150, 0.5), inset 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .cta--ghost {
+      color: var(--t-jade-soft);
+      border: 1px solid var(--t-line-jade);
+      background: rgba(64, 206, 180, 0.06);
+    }
+    .cta--ghost:hover {
+      color: var(--t-jade);
+      border-color: var(--t-jade);
+      background: rgba(64, 206, 180, 0.12);
+    }
+
+    /* ===================================================================
+       TOOL CARDS GRID
+    =================================================================== */
+    .tools-grid-section {
+      padding: 4rem 4rem 6rem;
+    }
+    .tools-grid {
+      max-width: 1280px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.6rem;
+    }
+    .tool-card {
+      position: relative;
+      padding: 2rem 2rem 1.6rem;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(11, 24, 36, 0.78), rgba(6, 14, 22, 0.86));
+      border: 1px solid var(--t-line-soft);
+      box-shadow:
+        inset 0 1px 0 rgba(245, 216, 150, 0.06),
+        0 8px 26px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      text-decoration: none; color: inherit;
+      transition: all 0.3s cubic-bezier(0.2, 0.6, 0.3, 1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 1px;
+      background: linear-gradient(to right,
+        transparent, rgba(217, 181, 102, 0.3) 30%,
+        rgba(64, 206, 180, 0.3) 70%, transparent);
+    }
+    .tool-card:hover {
+      border-color: var(--t-line);
+      transform: translateY(-4px);
+      box-shadow:
+        inset 0 1px 0 rgba(245, 216, 150, 0.1),
+        0 14px 40px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(217, 181, 102, 0.32);
+    }
+    .tool-card:focus-visible {
+      outline: 2px solid var(--t-jade);
+      outline-offset: 3px;
+    }
+    .tool-card__icon {
+      width: 64px; height: 64px;
+      margin-bottom: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(64, 206, 180, 0.10), rgba(217, 181, 102, 0.06));
+      border: 1px solid var(--t-line-soft);
+      color: var(--t-gold-bright);
+    }
+    .tool-card__icon svg {
+      width: 32px; height: 32px;
+      filter: drop-shadow(0 0 8px rgba(245, 216, 150, 0.3));
+    }
+    .tool-card__name {
+      font-family: 'Cinzel', serif; font-weight: 500;
+      font-size: 1.05rem; letter-spacing: 0.18em;
+      color: var(--t-gold-bright);
+      margin: 0 0 0.3rem;
+    }
+    .tool-card__name-ja {
+      font-family: 'Noto Serif JP', serif; font-weight: 400;
+      font-size: 0.82rem; letter-spacing: 0.22em;
+      color: var(--t-jade-soft);
+      margin-bottom: 1.1rem;
+      padding-bottom: 0.9rem;
+      border-bottom: 1px solid var(--t-line-soft);
+    }
+    .tool-card__desc {
+      font-family: 'Noto Serif JP', serif; font-weight: 300;
+      font-size: 0.86rem; line-height: 1.85;
+      color: var(--t-ink-soft);
+      margin-bottom: 1.4rem;
+      flex: 1;
+    }
+    .tool-card__meta {
+      display: flex; gap: 0.4rem; flex-wrap: wrap;
+      margin-bottom: 1.4rem;
+    }
+    .tool-card__cta {
+      font-family: 'Cinzel', serif;
+      font-size: 0.74rem; letter-spacing: 0.32em;
+      color: var(--t-gold-bright);
+      padding-top: 0.9rem;
+      border-top: 1px solid var(--t-line-soft);
+      display: inline-flex; align-items: center; justify-content: space-between;
+      gap: 0.6rem;
+      transition: color 0.2s;
+    }
+    .tool-card__cta::after {
+      content: '→';
+      color: var(--t-jade);
+      transition: transform 0.2s;
+    }
+    .tool-card:hover .tool-card__cta::after {
+      transform: translateX(4px);
+    }
+
+    /* hidden state for filter */
+    .tool-card[hidden] { display: none; }
+
+    /* ===================================================================
+       COMING SOON
+    =================================================================== */
+    .tools-coming {
+      padding: 4rem 4rem 6rem;
+      position: relative;
+    }
+    .tools-coming::before {
+      content: ''; position: absolute;
+      top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--t-line-soft), transparent);
+    }
+    .coming-card {
+      opacity: 0.65;
+      cursor: default;
+      pointer-events: none;
+      border-style: dashed;
+      border-color: rgba(217, 181, 102, 0.22);
+      background:
+        repeating-linear-gradient(45deg,
+          rgba(8, 18, 28, 0.3) 0, rgba(8, 18, 28, 0.3) 12px,
+          rgba(11, 24, 36, 0.5) 12px, rgba(11, 24, 36, 0.5) 24px);
+    }
+    .coming-card .tool-card__cta {
+      color: var(--t-muted);
+      border-top-color: rgba(217, 181, 102, 0.15);
+    }
+    .coming-card .tool-card__cta::after { content: '◯'; color: var(--t-gold-deep); }
+
+    /* ===================================================================
+       BRAND CONSISTENCY (palette + typography 見本)
+    =================================================================== */
+    .tools-brand-note {
+      padding: 5rem 4rem;
+      max-width: 1280px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .tools-brand-note::before {
+      content: ''; position: absolute;
+      top: 0; left: 4%; right: 4%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--t-line-soft), transparent);
+    }
+    .brand-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+    .brand-block {
+      padding: 2rem;
+      background: rgba(11, 24, 36, 0.4);
+      border: 1px solid var(--t-line-soft);
+      border-radius: 12px;
+      position: relative;
+    }
+    .brand-block__title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem; letter-spacing: 0.36em;
+      color: var(--t-gold);
+      margin: 0 0 1.4rem;
+    }
+    .brand-block__title::after {
+      content: '';
+      display: block;
+      margin-top: 0.6rem;
+      width: 36px; height: 1px;
+      background: var(--t-gold);
+    }
+    .palette-row {
+      display: flex; gap: 0.8rem; flex-wrap: wrap;
+    }
+    .swatch {
+      flex: 1 1 calc(33% - 0.6rem);
+      min-width: 90px;
+      padding: 0.9rem 1rem;
+      border-radius: 8px;
+      font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.18em;
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .swatch__hex {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.78rem; letter-spacing: 0.05em;
+      opacity: 0.75; display: block; margin-top: 0.3rem;
+    }
+    .swatch--bg { background: var(--t-bg-1); color: var(--t-ink-soft); }
+    .swatch--jade { background: var(--t-jade); color: #062018; }
+    .swatch--gold { background: var(--t-gold); color: #2a1f0c; }
+    .swatch--ink { background: rgba(245, 240, 230, 0.92); color: var(--t-bg-0); }
+    .swatch--brass { background: var(--t-brass); color: #2a1f0c; }
+    .swatch--bg2 { background: var(--t-bg-2); color: var(--t-jade-soft); }
+
+    .typo-row { display: flex; flex-direction: column; gap: 1.1rem; }
+    .typo-sample {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--t-line-soft);
+    }
+    .typo-sample:last-child { border-bottom: 0; }
+    .typo-sample__name {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 0.72rem;
+      color: var(--t-muted);
+      margin-bottom: 0.3rem;
+    }
+    .typo-sample__demo--cinzel { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 0.22em; color: var(--t-gold-bright); }
+    .typo-sample__demo--noto { font-family: 'Noto Serif JP', serif; font-size: 1.05rem; letter-spacing: 0.12em; color: var(--t-ink); }
+    .typo-sample__demo--corm { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.15rem; color: var(--t-jade-soft); }
+
+    /* ===================================================================
+       FOOTER (mini)
+    =================================================================== */
+    .tools-foot {
+      padding: 3rem 4rem 5rem;
+      border-top: 1px solid var(--t-line-soft);
+      text-align: center;
+    }
+    .tools-foot__motto {
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+      font-size: 1.1rem; letter-spacing: 0.06em;
+      color: var(--t-ink-soft);
+      margin: 0 0 1.4rem;
+    }
+    .tools-foot__motto em { color: var(--t-gold-bright); font-style: italic; }
+    .tools-foot__links {
+      display: flex; gap: 2.5rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .tools-foot__links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.74rem; letter-spacing: 0.3em;
+      color: var(--t-gold);
+      text-decoration: none;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .tools-foot__links a:hover {
+      color: var(--t-gold-bright);
+      border-bottom-color: var(--t-gold);
+    }
+    .tools-foot__credit {
+      margin-top: 2rem;
+      font-family: 'Noto Serif JP', serif; font-weight: 300;
+      font-size: 0.78rem; letter-spacing: 0.18em;
+      color: var(--t-muted);
+    }
+
+    /* ===================================================================
+       Responsive
+    =================================================================== */
+    @media (max-width: 880px) {
+      .tools-hero { padding: 7rem 2rem 4rem; }
+      .tools-filter { padding: 1.2rem 2rem; flex-direction: column; align-items: stretch; gap: 1rem; }
+      .tools-filter__search { flex: 1; }
+      .tools-featured, .tools-grid-section, .tools-coming, .tools-brand-note { padding-left: 2rem; padding-right: 2rem; }
+      .featured-card { grid-template-columns: 1fr; }
+      .featured-card__art { min-height: 280px; }
+      .featured-card__body { padding: 2.4rem 2rem; }
+      .tools-section__head { flex-direction: column; align-items: flex-start; }
+      .tools-hero__stats { gap: 2.5rem; }
+      .brand-grid { grid-template-columns: 1fr; gap: 1.6rem; }
+      .tools-foot { padding: 3rem 2rem 4rem; }
+      .tools-foot__links { gap: 1.4rem; }
+    }
+
+    /* fade-in on scroll */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(0.2, 0.6, 0.3, 1); }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body class="tools-page top-page">
+
+  <main>
+
+    <!-- ============================================================
+         HERO
+    ============================================================ -->
+    <section class="tools-hero">
+      <div class="bolt tl"></div>
+      <div class="bolt tr"></div>
+      <div class="bolt bl"></div>
+      <div class="bolt br"></div>
+      <svg class="filigree tl" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+        <circle cx="60" cy="32" r="1.8" fill="currentColor"/>
+        <path d="M8,52 Q22,52 30,46 Q42,38 50,46 Q58,54 70,50" stroke="currentColor" stroke-width="0.8" opacity="0.7"/>
+      </svg>
+      <svg class="filigree tr" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+        <circle cx="60" cy="32" r="1.8" fill="currentColor"/>
+      </svg>
+      <svg class="filigree bl" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+      </svg>
+      <svg class="filigree br" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+      </svg>
+
+      <div class="tools-hero__crown">
+        <span class="tools-hero__crown-mark">H/MIX</span>
+      </div>
+
+      <img class="tools-hero__logo"
+           src="assets/hmix-logo.png"
+           alt="H/MIX GALLERY">
+
+      <h1 class="tools-hero__title">TOOLS</h1>
+      <p class="tools-hero__sub">音楽制作のための、ブラウザで動く道具箱</p>
+
+      <p class="tools-hero__lead">
+        作曲家・<em>秋山裕和</em> の作業現場で生まれた音楽ツールを、<br>
+        そのまま無料公開しています。<br>
+        全てブラウザで完結 — インストール不要、プライバシー安全。
+      </p>
+
+      <div class="tools-hero__stats">
+        <div class="tools-stat">
+          <div class="tools-stat__num">04</div>
+          <div class="tools-stat__label">Tools Live</div>
+        </div>
+        <div class="tools-stat__sep"></div>
+        <div class="tools-stat">
+          <div class="tools-stat__num">03</div>
+          <div class="tools-stat__label">Coming Soon</div>
+        </div>
+        <div class="tools-stat__sep"></div>
+        <div class="tools-stat">
+          <div class="tools-stat__num">¥0</div>
+          <div class="tools-stat__label">All Free</div>
+        </div>
+        <div class="tools-stat__sep"></div>
+        <div class="tools-stat">
+          <div class="tools-stat__num">∞</div>
+          <div class="tools-stat__label">Privacy Safe</div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         FILTER BAR
+    ============================================================ -->
+    <div class="tools-filter">
+      <div class="tools-filter__search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="toolSearch" placeholder="ツールを検索 — Search tools…" autocomplete="off">
+      </div>
+      <div class="tools-filter__chips" role="tablist" aria-label="ツール種別">
+        <button class="chip" data-filter="all" aria-pressed="true">すべて <span class="chip__count">4</span></button>
+        <button class="chip" data-filter="web" aria-pressed="false">Web <span class="chip__count">3</span></button>
+        <button class="chip" data-filter="desktop" aria-pressed="false">Desktop <span class="chip__count">1</span></button>
+      </div>
+      <div class="tools-filter__count"><em id="toolCount">4</em><span> tools shown</span></div>
+    </div>
+
+
+    <!-- ============================================================
+         FEATURED SPOTLIGHT — COMPRESSOR
+    ============================================================ -->
+    <section class="tools-featured">
+      <div class="tools-section__head">
+        <div>
+          <h2 class="tools-section__title">FEATURED <span class="tools-section__title-ja">注目のツール</span></h2>
+        </div>
+        <p class="tools-section__lede">
+          視覚で学ぶ、新しい音作り体験。<br>
+          公開前の最終レビューを終えた、最新ツール。
+        </p>
+      </div>
+
+      <article class="featured-card reveal" data-type="web">
+        <div class="featured-card__art featured-card__art--shot">
+          <div class="featured-card__art-particles"></div>
+          <img class="featured-card__shot"
+               src="assets/compressor-shot-2026-05-06.png"
+               alt="H/MIX COMPRESSOR スクリーンショット — 漏斗ビジュアルとプリセット FATTUR ノーマル">
+        </div>
+        <div class="featured-card__body">
+          <div class="featured-card__eyebrow">FEATURED · LATEST RELEASE</div>
+          <h3 class="featured-card__name">H/MIX COMPRESSOR</h3>
+          <p class="featured-card__name-ja">コンプレッサー</p>
+          <p class="featured-card__desc">
+            視覚で学べるコンプレッサー。粒子と漏斗で「圧縮」の動きが見える、初心者にもわかる音作り体験。プリセットを切り替えるだけで、プロが使う設定を体感できる Web プラグイン。
+          </p>
+          <div class="featured-card__meta">
+            <span class="badge badge--live">LIVE</span>
+            <span class="badge badge--web">Web App</span>
+            <span class="badge badge--tag">音作り</span>
+            <span class="badge badge--tag">学習用</span>
+            <span class="badge badge--tag">プリセット 12</span>
+          </div>
+          <div class="cta-row">
+            <a class="cta cta--primary" href="compressor/">使ってみる →</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+
+    <!-- ============================================================
+         TOOLS GRID — All other live tools
+    ============================================================ -->
+    <section class="tools-grid-section" aria-label="公開中のツール">
+      <div class="tools-section__head">
+        <div>
+          <h2 class="tools-section__title">CURRENTLY OPEN <span class="tools-section__title-ja">公開中のツール</span></h2>
+        </div>
+        <p class="tools-section__lede">
+          すべて作曲家・秋山裕和 の作業現場で実際に使われたツールです。
+        </p>
+      </div>
+
+      <div class="tools-grid" id="toolsGrid">
+
+        <!-- HIRES UPSCALER -->
+        <a class="tool-card reveal" href="upscaler/download.html" data-type="desktop" data-name="hires upscaler ハイレゾ化">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 24 L12 16 L18 22 L28 8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="4" cy="24" r="1.6" fill="currentColor"/>
+              <circle cx="12" cy="16" r="1.6" fill="currentColor"/>
+              <circle cx="18" cy="22" r="1.6" fill="currentColor"/>
+              <circle cx="28" cy="8" r="1.6" fill="currentColor"/>
+              <path d="M22 8 L28 8 L28 14" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">HIRES UPSCALER</h3>
+          <p class="tool-card__name-ja">ハイレゾ化</p>
+          <p class="tool-card__desc">
+            AI で音源をハイレゾ化。MP3 / WAV を 96 kHz / 192 kHz・24bit に。和楽器の倍音特性に最適化。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--live">LIVE</span>
+            <span class="badge badge--desktop">Win / macOS</span>
+            <span class="badge badge--tag">バッチ</span>
+          </div>
+          <span class="tool-card__cta">DOWNLOAD</span>
+        </a>
+
+        <!-- AUDIO COMPARATOR -->
+        <a class="tool-card reveal" href="comparator/" data-type="web" data-name="audio comparator 音源比較">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M4 16 Q7 10 10 16 T16 16" stroke-linecap="round"/>
+              <path d="M16 16 Q19 22 22 16 T28 16" stroke-linecap="round" opacity="0.6"/>
+              <line x1="16" y1="6" x2="16" y2="26" stroke-dasharray="2 2" opacity="0.5"/>
+              <text x="8" y="6" font-family="Cinzel" font-size="5" fill="currentColor">A</text>
+              <text x="22" y="6" font-family="Cinzel" font-size="5" fill="currentColor" opacity="0.7">B</text>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">AUDIO COMPARATOR</h3>
+          <p class="tool-card__name-ja">オーディオ比較</p>
+          <p class="tool-card__desc">
+            2 つの音源を波形・スペクトル・ラウドネスで詳細に比較。A/B ブラインドテスト機能付き。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--live">LIVE</span>
+            <span class="badge badge--web">Web App</span>
+            <span class="badge badge--tag">A/B 試聴</span>
+          </div>
+          <span class="tool-card__cta">OPEN</span>
+        </a>
+
+        <!-- BPM & KEY FINDER -->
+        <a class="tool-card reveal" href="bpm-key/" data-type="web" data-name="bpm key finder テンポ キー">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <!-- メトロノーム -->
+              <path d="M11 28 L21 28 L19 8 L13 8 Z" stroke-linejoin="round"/>
+              <line x1="16" y1="22" x2="22" y2="6" stroke-linecap="round"/>
+              <circle cx="22" cy="6" r="1.6" fill="currentColor"/>
+              <!-- 音符 -->
+              <circle cx="9" cy="20" r="1.4" fill="currentColor" opacity="0.7"/>
+              <line x1="10.4" y1="20" x2="10.4" y2="14" opacity="0.7"/>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">BPM &amp; KEY FINDER</h3>
+          <p class="tool-card__name-ja">テンポ・キー検出</p>
+          <p class="tool-card__desc">
+            楽曲の BPM と調性を自動検出。Krumhansl プロファイル + 自己相関で 0.1 BPM 精度。DJ・作曲・リミックスに。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--live">LIVE</span>
+            <span class="badge badge--web">Web App</span>
+            <span class="badge badge--tag">解析</span>
+          </div>
+          <span class="tool-card__cta">OPEN</span>
+        </a>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         COMING SOON
+    ============================================================ -->
+    <section class="tools-coming" aria-label="開発中のツール">
+      <div class="tools-section__head">
+        <div>
+          <h2 class="tools-section__title">COMING SOON <span class="tools-section__title-ja">開発中のツール</span></h2>
+        </div>
+        <p class="tools-section__lede">
+          これから順次公開していきます。
+        </p>
+      </div>
+
+      <div class="tools-grid">
+
+        <article class="tool-card coming-card">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="M22 10 A 10 10 0 1 1 6 16" stroke-linecap="round"/>
+              <path d="M18 6 L22 10 L18 14" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="16" cy="22" r="1.6" fill="currentColor" opacity="0.7"/>
+              <line x1="14" y1="22" x2="18" y2="22" stroke-dasharray="2 1" opacity="0.7"/>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">LOOP FINDER</h3>
+          <p class="tool-card__name-ja">ループポイント検出</p>
+          <p class="tool-card__desc">
+            音源の「継ぎ目なくループする位置」を自己相関で自動検出。DAW 向けタイミング書き出し対応。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--coming">SOON</span>
+            <span class="badge badge--web">Web App</span>
+          </div>
+          <span class="tool-card__cta">準備中</span>
+        </article>
+
+        <article class="tool-card coming-card">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <line x1="6" y1="12" x2="26" y2="12" stroke-linecap="round"/>
+              <line x1="6" y1="20" x2="26" y2="20" stroke-linecap="round"/>
+              <rect x="9" y="6" width="3" height="20" fill="currentColor" opacity="0.4"/>
+              <rect x="15" y="9" width="3" height="14" fill="currentColor" opacity="0.6"/>
+              <rect x="21" y="11" width="3" height="10" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">LUFS NORMALIZER</h3>
+          <p class="tool-card__name-ja">ラウドネス正規化</p>
+          <p class="tool-card__desc">
+            YouTube / Spotify 配信基準（-14 / -16 LUFS）に一括補正。動画投稿者の音量差をワンクリックで解消。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--coming">SOON</span>
+            <span class="badge badge--web">Web App</span>
+          </div>
+          <span class="tool-card__cta">準備中</span>
+        </article>
+
+        <article class="tool-card coming-card">
+          <div class="tool-card__icon">
+            <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6">
+              <!-- 琴の弦をイメージ -->
+              <line x1="4" y1="8" x2="28" y2="8" stroke-linecap="round" opacity="0.85"/>
+              <line x1="4" y1="13" x2="28" y2="13" stroke-linecap="round" opacity="0.7"/>
+              <line x1="4" y1="18" x2="28" y2="18" stroke-linecap="round" opacity="0.55"/>
+              <line x1="4" y1="23" x2="28" y2="23" stroke-linecap="round" opacity="0.4"/>
+              <!-- 柱 (じ) -->
+              <path d="M11 6 L11 25" stroke-linecap="round" opacity="0.9"/>
+              <path d="M21 6 L21 25" stroke-linecap="round" opacity="0.9"/>
+              <!-- 桜 -->
+              <circle cx="16" cy="28" r="1.4" fill="currentColor" opacity="0.85"/>
+            </svg>
+          </div>
+          <h3 class="tool-card__name">WAGAKKI SYNTH</h3>
+          <p class="tool-card__name-ja">和楽器シンセ</p>
+          <p class="tool-card__desc">
+            尺八・琴・三味線・和太鼓をブラウザで演奏。MIDI 対応、和音階プリセット内蔵。
+          </p>
+          <div class="tool-card__meta">
+            <span class="badge badge--coming">SOON</span>
+            <span class="badge badge--web">Web App</span>
+          </div>
+          <span class="tool-card__cta">準備中</span>
+        </article>
+
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         BRAND CONSISTENCY NOTE
+    ============================================================ -->
+    <section class="tools-brand-note">
+      <div class="tools-section__head">
+        <div>
+          <h2 class="tools-section__title">BRAND SYSTEM <span class="tools-section__title-ja">ブランドの一貫性</span></h2>
+        </div>
+        <p class="tools-section__lede">
+          全ツール共通のデザイントークン。<br>
+          視覚的な「家族感」を担保しています。
+        </p>
+      </div>
+
+      <div class="brand-grid">
+        <div class="brand-block">
+          <h3 class="brand-block__title">PALETTE</h3>
+          <div class="palette-row">
+            <div class="swatch swatch--bg">Bg<span class="swatch__hex">#050b18</span></div>
+            <div class="swatch swatch--bg2">Forest<span class="swatch__hex">#0a3a26</span></div>
+            <div class="swatch swatch--jade">Jade<span class="swatch__hex">#40ceb4</span></div>
+            <div class="swatch swatch--gold">Gold<span class="swatch__hex">#d4a44c</span></div>
+            <div class="swatch swatch--brass">Brass<span class="swatch__hex">#b48a44</span></div>
+            <div class="swatch swatch--ink">Ink<span class="swatch__hex">#f5f0e6</span></div>
+          </div>
+        </div>
+
+        <div class="brand-block">
+          <h3 class="brand-block__title">TYPOGRAPHY</h3>
+          <div class="typo-row">
+            <div class="typo-sample">
+              <div class="typo-sample__name">Cinzel — 英語見出し</div>
+              <div class="typo-sample__demo--cinzel">H/MIX TOOLS</div>
+            </div>
+            <div class="typo-sample">
+              <div class="typo-sample__name">Noto Serif JP — 日本語本文・見出し</div>
+              <div class="typo-sample__demo--noto">音楽制作のための、ブラウザで動く道具箱</div>
+            </div>
+            <div class="typo-sample">
+              <div class="typo-sample__name">Cormorant Garamond — 数字・italic アクセント</div>
+              <div class="typo-sample__demo--corm">04 Tools — Crafted with care</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ============================================================
+         FOOTER
+    ============================================================ -->
+    <footer class="tools-foot">
+      <p class="tools-foot__motto">
+        <em>Crafted in the studio of</em> 秋山裕和 <em>· Free, forever.</em>
+      </p>
+      <div class="tools-foot__links">
+        <a href="https://www.hmix.net/">← H/MIX GALLERY</a>
+        <a href="https://www.hmix.net/howto.html">HOW TO</a>
+        <a href="mailto:hmixtube@gmail.com">CONTACT</a>
+      </div>
+      <p class="tools-foot__credit">© H/MIX GALLERY · 秋山裕和</p>
+    </footer>
+
+  </main>
+
+
+<script>
+  // ============================================================
+  //  Filter & search
+  // ============================================================
+  (function() {
+    const grid = document.getElementById('toolsGrid');
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.tool-card'));
+    const featured = document.querySelector('.featured-card');
+    const allItems = featured ? [featured, ...cards] : cards;
+    const chips = document.querySelectorAll('.chip');
+    const search = document.getElementById('toolSearch');
+    const counter = document.getElementById('toolCount');
+
+    function applyFilter() {
+      const activeChip = document.querySelector('.chip[aria-pressed="true"]');
+      const filter = activeChip ? activeChip.dataset.filter : 'all';
+      const q = (search.value || '').toLowerCase().trim();
+      let visible = 0;
+      allItems.forEach(item => {
+        const type = item.dataset.type || '';
+        const name = (item.dataset.name || item.textContent || '').toLowerCase();
+        const matchType = filter === 'all' || filter === type;
+        const matchSearch = !q || name.includes(q);
+        const ok = matchType && matchSearch;
+        item.hidden = !ok;
+        if (ok) visible++;
+      });
+      counter.textContent = visible;
+    }
+
+    chips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        chips.forEach(c => c.setAttribute('aria-pressed', 'false'));
+        chip.setAttribute('aria-pressed', 'true');
+        applyFilter();
+      });
+    });
+    search.addEventListener('input', applyFilter);
+  })();
+
+  // ============================================================
+  //  Reveal on scroll
+  // ============================================================
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(e => e.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.18 });
+    els.forEach(e => io.observe(e));
+    // also reveal grid cards
+    document.querySelectorAll('.tool-card').forEach(c => {
+      c.classList.add('reveal');
+      io.observe(c);
+    });
+  })();
+</script>
+
+</body>
+</html>

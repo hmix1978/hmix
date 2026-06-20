@@ -1,0 +1,905 @@
+/* ============================================================
+   GENRE LANDING PAGE — H/MIX GALLERY
+   ============================================================ */
+
+/* genre ページではシアターモーダルを非表示 */
+[data-page-type="genre"] ~ #theater-modal {
+  display: none !important;
+}
+
+.genre-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+/* パンくず */
+.genre-breadcrumb {
+  font-size: 0.78rem;
+  color: rgba(170, 210, 185, 0.5);
+  margin-bottom: 2rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.genre-breadcrumb a {
+  color: rgba(170, 210, 185, 0.6);
+  text-decoration: none;
+}
+.genre-breadcrumb a:hover { color: rgba(154, 223, 180, 0.9); }
+.genre-breadcrumb__sep {
+  margin: 0 0.4rem;
+  opacity: 0.4;
+}
+
+/* ヒーロー */
+.genre-hero {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding: 2rem 0;
+}
+.genre-hero__title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: rgba(220, 235, 220, 0.95);
+  margin: 0 0 0.4rem;
+  letter-spacing: 0.04em;
+}
+.genre-hero__subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  color: rgba(170, 210, 185, 0.5);
+  letter-spacing: 0.12em;
+  margin: 0 0 0.8rem;
+}
+.genre-hero__count {
+  font-size: 0.82rem;
+  color: rgba(154, 223, 180, 0.7);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* 説明文 */
+.genre-intro {
+  margin-bottom: 2.5rem;
+  padding: 0 0.5rem;
+}
+.genre-intro p {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.92rem;
+  font-weight: 300;
+  line-height: 2;
+  color: rgba(200, 215, 200, 0.85);
+}
+
+/* セクションタイトル */
+.genre-section-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(170, 210, 185, 0.7);
+  margin: 0 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(80, 140, 100, 0.15);
+  letter-spacing: 0.04em;
+}
+
+/* 代表曲リスト */
+.genre-track-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+}
+.genre-track {
+  border-bottom: 1px solid rgba(80, 140, 100, 0.08);
+}
+.genre-track__link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.5rem;
+  text-decoration: none;
+  transition: background 0.15s;
+  border-radius: 4px;
+}
+.genre-track__link:hover {
+  background: rgba(80, 140, 100, 0.06);
+}
+.genre-track__title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.9rem;
+  color: rgba(220, 235, 220, 0.9);
+  flex: 1;
+}
+.genre-track__title-en {
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  color: rgba(170, 210, 185, 0.4);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.genre-track__duration {
+  font-size: 0.75rem;
+  color: rgba(170, 210, 185, 0.4);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* CTA */
+.genre-cta {
+  text-align: center;
+  margin: 1.5rem 0 2.5rem;
+}
+.genre-cta__btn {
+  display: inline-block;
+  padding: 0.7rem 2rem;
+  border: 1px solid rgba(80, 160, 110, 0.3);
+  border-radius: 4px;
+  color: rgba(154, 223, 180, 0.85);
+  font-size: 0.85rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.genre-cta__btn:hover {
+  background: rgba(80, 160, 110, 0.1);
+  border-color: rgba(80, 160, 110, 0.5);
+  color: rgba(154, 223, 180, 1);
+  text-decoration: none;
+}
+
+/* こんな用途に */
+.genre-usecase-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.genre-usecase-list li {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid rgba(80, 140, 100, 0.15);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: rgba(170, 210, 185, 0.65);
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* 用途別の探し方 */
+.genre-use-detail {
+  margin-bottom: 2.5rem;
+}
+.genre-use-detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+}
+.genre-use-detail-card {
+  padding: 1rem;
+  border: 1px solid rgba(80, 140, 100, 0.16);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.018);
+}
+.genre-use-detail-card h3 {
+  margin: 0 0 0.45rem;
+  color: rgba(220, 235, 225, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.55;
+}
+.genre-use-detail-card p {
+  margin: 0;
+  color: rgba(205, 220, 210, 0.72);
+  font-size: 0.84rem;
+  line-height: 1.85;
+}
+
+/* 関連ジャンル */
+.genre-related {
+  margin-bottom: 2rem;
+}
+.genre-related__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.genre-related__link {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(80, 140, 100, 0.2);
+  border-radius: 4px;
+  color: rgba(154, 223, 180, 0.7);
+  font-size: 0.82rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.genre-related__link:hover {
+  background: rgba(80, 140, 100, 0.08);
+  border-color: rgba(80, 140, 100, 0.4);
+  color: rgba(154, 223, 180, 1);
+  text-decoration: none;
+}
+
+/* FAQ */
+.genre-faq {
+  margin-bottom: 2.5rem;
+}
+.genre-faq-list {
+  display: grid;
+  gap: 0.55rem;
+}
+.genre-faq-item {
+  border: 1px solid rgba(80, 140, 100, 0.16);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.018);
+}
+.genre-faq-item summary {
+  cursor: pointer;
+  padding: 0.8rem 1rem;
+  color: rgba(220, 235, 225, 0.9);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  list-style: none;
+}
+.genre-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.genre-faq-item summary::before {
+  content: "Q.";
+  margin-right: 0.45rem;
+  color: rgba(154, 223, 180, 0.82);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+}
+.genre-faq-item p {
+  margin: 0;
+  padding: 0 1rem 0.95rem 2.05rem;
+  color: rgba(205, 220, 210, 0.72);
+  font-size: 0.84rem;
+  line-height: 1.85;
+}
+.genre-faq-item a {
+  color: rgba(154, 223, 180, 0.95);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* レスポンシブ */
+@media (max-width: 600px) {
+  .genre-page { padding: 1.5rem 1rem 4rem; }
+  .genre-hero__title { font-size: 1.4rem; }
+  .genre-track__title-en { display: none; }
+  .genre-track__link { padding: 0.6rem 0.3rem; }
+}
+
+/* ============================================================
+   OLD-SITE ROUTE EDITORIAL SKIN
+   旧サイト風導線として見えるよう、MusicTop と同じ背景/表組み文法へ寄せる。
+   ============================================================ */
+
+body.library-page--dark,
+body.library-page--dark:has([data-page-type="genre"]) {
+  background-color: #3e3e3e;
+  background-image: url("/img/bg3.jpg");
+  background-repeat: repeat-x;
+  background-attachment: fixed;
+  background-position: center var(--header-height, 64px);
+  background-origin: border-box;
+}
+
+html:has(body.library-page--dark [data-page-type="genre"]) {
+  background-color: #3e3e3e;
+  background-image: url("/img/bg3.jpg");
+  background-repeat: repeat-x;
+  background-attachment: fixed;
+  background-position: center var(--header-height, 64px);
+  background-origin: border-box;
+}
+
+body.library-page--dark:has([data-page-type="genre"]) {
+  background-color: #3e3e3e !important;
+  background-image: url("/img/bg3.jpg") !important;
+}
+
+body.genre-route-page {
+  padding-top: 164px;
+  background-color: #3e3e3e !important;
+  background-image: url("/img/bg3.jpg") !important;
+  background-repeat: repeat-x;
+  background-attachment: fixed;
+  background-position: center var(--header-height, 64px);
+  background-origin: border-box;
+}
+
+[data-page-type="genre"] {
+  width: 1120px;
+  max-width: calc(100% - 16px);
+  margin: 0 auto 36px;
+  border: 1px solid #1f1f1f;
+  background: #fff;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.34);
+}
+
+.genre-page {
+  max-width: none;
+  padding: 0 5px 34px;
+  color: #242424;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+}
+
+.genre-breadcrumb {
+  margin: 0 -5px 0;
+  padding: 8px 18px;
+  border-bottom: 1px solid #aaa99f;
+  background: #e4e2d8;
+  color: #5d5d55;
+}
+
+.genre-breadcrumb a {
+  color: #336b22;
+  font-weight: 700;
+}
+
+.genre-breadcrumb a:hover {
+  color: #cc7a00;
+}
+
+.genre-breadcrumb__sep {
+  color: #77776f;
+  opacity: 1;
+}
+
+.genre-hero {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  white-space: nowrap;
+}
+
+.genre-three-column {
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr) 178px;
+  gap: 5px;
+  align-items: start;
+}
+
+.genre-main-column {
+  min-width: 0;
+  padding: 0 10px 18px;
+  background: #fff;
+}
+
+.genre-side {
+  border: 1px solid #dddcd4;
+  background: #eeede9;
+  padding: 8px 7px 14px;
+}
+
+.genre-side-box {
+  margin-bottom: 9px;
+  border: 1px solid #fff;
+  background: #b9b8ac;
+  padding: 4px;
+}
+
+.genre-side-box h2 {
+  margin: 0 0 5px;
+  padding: 5px 8px;
+  background-color: #666;
+  background-image: url("/img/side_h3.gif");
+  background-repeat: repeat-x;
+  background-position: center top;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.genre-side-box ul {
+  margin: 0;
+  padding: 0;
+  background: #f8f8f5;
+}
+
+.genre-side-box li {
+  list-style: none;
+  border-bottom: 1px solid #e7e5dc;
+}
+
+.genre-side-box a {
+  display: block;
+  padding: 5px 8px 5px 16px;
+  color: #49623a;
+  font-size: 12px;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.genre-side-box a:hover,
+.genre-side-box a:focus-visible,
+.genre-side-box a[aria-current="page"] {
+  background: #648e31;
+  color: #fff;
+  outline: none;
+}
+
+.genre-side-promo {
+  display: block;
+  position: relative;
+  min-height: 320px;
+  margin-bottom: 9px;
+  border: 1px solid #fff;
+  background: #182b1e;
+  color: #fff;
+  text-decoration: none;
+  overflow: hidden;
+}
+
+.genre-side-promo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--promo-img);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.35s ease;
+}
+
+.genre-side-promo:hover::before,
+.genre-side-promo:focus-visible::before {
+  transform: scale(1.04);
+}
+
+.genre-side-promo:focus-visible {
+  outline: 3px solid #bed06f;
+  outline-offset: 2px;
+}
+
+.genre-side-promo > span {
+  display: none;
+}
+
+.genre-youtube-banner {
+  display: block;
+  margin-bottom: 9px;
+  border: 1px solid #fff;
+  background: #fff;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.genre-youtube-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.genre-youtube-banner:focus-visible {
+  outline: 3px solid #bed06f;
+  outline-offset: 2px;
+}
+
+.genre-x-timeline {
+  margin-bottom: 9px;
+  padding: 6px;
+  border: 1px solid #fff;
+  background: #f8f7f1;
+}
+
+.genre-x-timeline__fallback {
+  display: block;
+  padding: 8px;
+  border: 1px solid #d5d2c6;
+  background: #fff;
+  color: #24552e;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.genre-side-promo__body {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 52px 10px 11px;
+  background: linear-gradient(transparent, rgba(12, 34, 21, 0.94) 50%);
+}
+
+.genre-side-promo__kicker {
+  display: inline-block;
+  margin-bottom: 5px;
+  padding: 2px 5px;
+  border: 1px solid rgba(214, 232, 172, 0.45);
+  background: rgba(33, 65, 38, 0.78);
+  color: #e7f6c5;
+  font-size: 10px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.genre-side-promo strong {
+  display: block;
+  color: #fff;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+  font-size: 15px;
+  line-height: 1.25;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+.genre-side-promo span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(239, 248, 227, 0.92);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.genre-hero__title {
+  margin: 0;
+  color: #fff;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  font-size: 25px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.genre-hero__subtitle {
+  margin: 5px 0 0;
+  color: rgba(236, 250, 226, 0.78);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+.genre-hero__count {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 2px 8px;
+  border: 1px solid rgba(214, 232, 172, 0.48);
+  background: rgba(33, 65, 38, 0.72);
+  color: #e7f6c5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.genre-legacy-notice {
+  margin: 12px 0 14px;
+  padding: 11px 14px;
+  border: 1px solid #d7d1bd;
+  border-left: 5px solid #2f5a25;
+  background: #f5f0e5;
+  color: #352e26;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.genre-legacy-notice strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #2f5a25;
+  font-size: 14px;
+}
+
+.genre-intro {
+  margin: 0 0 16px;
+  padding: 0;
+}
+
+.genre-intro p {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid #ededdf;
+  background: repeating-linear-gradient(#fff 0, #fff 20px, #f1f1ec 21px);
+  color: #333;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.genre-section-title {
+  margin: 18px 0 9px;
+  padding: 5px 10px;
+  border-left: 7px solid #aace6f;
+  border-top: 2px solid #eaeaea;
+  border-bottom: 2px solid #eaeaea;
+  background: #e9f3ee;
+  color: #3f3f3f;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.genre-track-list {
+  display: block;
+  width: 100%;
+  margin: 0 0 14px;
+  border-top: 2px solid #173c26;
+  border-left: 1px solid #d9d9d3;
+  background: #fff;
+}
+
+.genre-track {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  border-bottom: 0;
+  background: #fff;
+}
+
+.genre-track:nth-child(even) {
+  background: #f8f8f5;
+}
+
+.genre-track__link {
+  display: grid;
+  grid-template-columns: minmax(14rem, 1fr) minmax(8rem, 0.6fr) 4rem;
+  gap: 8px;
+  align-items: center;
+  min-height: 39px;
+  padding: 7px 9px 7px 28px;
+  border: 0;
+  border-right: 1px solid #d9d9d3;
+  border-bottom: 1px solid #d9d9d3;
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 14px 50%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 14px 50%, #dff0d6 0 6px, #82b96a 7px, transparent 8px);
+}
+
+.genre-track__link:hover,
+.genre-track__link:focus-visible {
+  background:
+    radial-gradient(circle at 14px 50%, #fff 0 2px, transparent 3px),
+    radial-gradient(circle at 14px 50%, #dff0d6 0 6px, #82b96a 7px, transparent 8px),
+    #eef6e8;
+  outline: none;
+}
+
+.genre-track__title {
+  color: #336b22;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.genre-track__title-en {
+  color: #6b7562;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+
+.genre-track__duration {
+  min-width: 0;
+  color: #77776f;
+  font-size: 12px;
+}
+
+.genre-track__fav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  border: 0;
+  border-right: 1px solid #d9d9d3;
+  border-bottom: 1px solid #d9d9d3;
+  background: #f8f8f5;
+  color: #4b6f3c;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.genre-track__fav:hover,
+.genre-track__fav:focus-visible {
+  background: #e9f3ee;
+  color: #cc7a00;
+  outline: 2px solid #bed06f;
+  outline-offset: -2px;
+}
+
+.genre-track__fav-on {
+  display: none;
+}
+
+.genre-track__fav.is-fav .genre-track__fav-off {
+  display: none;
+}
+
+.genre-track__fav.is-fav .genre-track__fav-on {
+  display: inline;
+  color: #cc7a00;
+}
+
+.genre-cta {
+  margin: 12px 0 22px;
+}
+
+.genre-cta__btn,
+.genre-related__link {
+  border: 1px solid #cfcfc9;
+  border-radius: 0;
+  background: #2d5a3d;
+  color: #fff;
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, "Noto Sans JP", sans-serif;
+  font-size: 12px;
+}
+
+.genre-cta__btn:hover,
+.genre-related__link:hover,
+.genre-cta__btn:focus-visible,
+.genre-related__link:focus-visible {
+  background: #406f2e;
+  color: #fff;
+}
+
+.genre-usecase-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0;
+  border-top: 2px solid #173c26;
+  border-left: 1px solid #d9d9d3;
+}
+
+.genre-usecase-list li {
+  border: 0;
+  border-right: 1px solid #d9d9d3;
+  border-bottom: 1px solid #d9d9d3;
+  border-radius: 0;
+  background: #f8f8f5;
+  color: #49623a;
+  font-size: 12px;
+}
+
+.genre-use-detail-list {
+  gap: 0;
+  border-top: 2px solid #173c26;
+  border-left: 1px solid #d9d9d3;
+}
+
+.genre-use-detail-card {
+  border: 0;
+  border-right: 1px solid #d9d9d3;
+  border-bottom: 1px solid #d9d9d3;
+  border-radius: 0;
+  background: #f8f8f5;
+}
+
+.genre-use-detail-card h3 {
+  color: #243a2a;
+}
+
+.genre-use-detail-card p {
+  color: #4d574f;
+}
+
+.genre-related__links {
+  gap: 5px;
+}
+
+.genre-faq-list {
+  gap: 0;
+  border-top: 2px solid #173c26;
+  border-left: 1px solid #d9d9d3;
+}
+
+.genre-faq-item {
+  border: 0;
+  border-right: 1px solid #d9d9d3;
+  border-bottom: 1px solid #d9d9d3;
+  border-radius: 0;
+  background: #f8f8f5;
+}
+
+.genre-faq-item summary {
+  color: #243a2a;
+}
+
+.genre-faq-item summary::before {
+  color: #2d5a3d;
+}
+
+.genre-faq-item p {
+  color: #4d574f;
+}
+
+.genre-faq-item a {
+  color: #2d5a3d;
+}
+
+@media (max-width: 720px) {
+  body.genre-route-page {
+    padding-top: 112px;
+  }
+
+  [data-page-type="genre"] {
+    margin-top: 0;
+  }
+
+  .genre-page {
+    padding: 0 10px 28px;
+  }
+
+  .genre-breadcrumb {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+
+  .genre-track-list,
+  .genre-track,
+  .genre-track__fav {
+    display: block;
+  }
+
+  .genre-track {
+    position: relative;
+  }
+
+  .genre-track__link {
+    grid-template-columns: 1fr 3.2rem;
+    padding-right: 48px;
+  }
+
+  .genre-track__title-en {
+    display: none;
+  }
+
+  .genre-track__fav {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    bottom: 1px;
+    width: 42px;
+    min-width: 42px;
+  }
+}
+
+@media (max-width: 940px) {
+  [data-page-type="genre"] {
+    width: calc(100% - 16px);
+  }
+
+  .genre-three-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .genre-main-column {
+    order: 1;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 10px 18px;
+  }
+
+  .genre-side--left {
+    order: 2;
+  }
+
+  .genre-side--right {
+    order: 3;
+  }
+
+  .genre-side {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .genre-side-box ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(142px, 1fr));
+  }
+
+  .genre-side-promo {
+    min-height: 220px;
+  }
+}

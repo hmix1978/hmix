@@ -1,0 +1,597 @@
+/* ═══════════════════════════════════════════════════════════
+   H/MIX GALLERY — Composer Page CSS
+   秋山裕和 / Hirokazu Akiyama
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── CSS Variables (inherit from style.css) ─────────────── */
+:root {
+  --color-bg: #0d1a0f;
+  --color-bg-alt: #111f13;
+  --color-bg-card: #162018;
+  --color-bg-dark: #0a1509;
+  --color-gold: #c9a84c;
+  --color-gold-pale: rgba(201, 168, 76, 0.08);
+  --color-gold-dim: rgba(201, 168, 76, 0.25);
+  --color-text: #e8e0d0;
+  --color-text-muted: #9a9080;
+  --color-text-dim: #6a6055;
+  --color-border: rgba(201, 168, 76, 0.15);
+  --color-border-hover: rgba(201, 168, 76, 0.35);
+  --font-display: 'Cinzel', 'Noto Serif JP', serif;
+  --font-body: 'Noto Serif JP', serif;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --radius: 8px;
+}
+
+/* ─── Base ───────────────────────────────────────────────── */
+.composer-page {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.8;
+}
+
+.composer-main {
+  padding-top: 80px;
+}
+
+/* ─── Breadcrumb ─────────────────────────────────────────── */
+.breadcrumb {
+  padding: 0.75rem 2rem;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 1100px;
+  margin: 0 auto;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.breadcrumb-list a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.breadcrumb-list a:hover {
+  color: var(--color-gold);
+}
+
+/* ─── HERO ───────────────────────────────────────────────── */
+.composer-hero {
+  padding: 6rem 2rem 5rem;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(201, 168, 76, 0.06) 0%, transparent 70%),
+    var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.composer-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.composer-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.composer-emblem {
+  color: var(--color-gold);
+  margin-bottom: 2rem;
+  opacity: 0.6;
+}
+
+.composer-name-ja {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 400;
+  color: var(--color-text);
+  letter-spacing: 0.1em;
+  margin: 0 0 0.4rem;
+  line-height: 1.2;
+}
+
+.composer-name-en {
+  font-family: var(--font-display);
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  letter-spacing: 0.3em;
+  color: var(--color-gold);
+  margin: 0 0 0.5rem;
+}
+
+.composer-role {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  margin: 0 0 2rem;
+}
+
+.composer-tagline {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  line-height: 1.9;
+  margin: 0;
+}
+
+.tagline-en {
+  font-size: 0.85rem;
+  color: var(--color-text-dim);
+  letter-spacing: 0.05em;
+}
+
+/* ─── Section Base ───────────────────────────────────────── */
+.composer-section {
+  padding: var(--space-2xl) 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.composer-section--dark {
+  background: var(--color-bg-dark);
+}
+
+.section-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-heading-center {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.section-heading-ja {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-weight: 400;
+  color: var(--color-text);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.3rem;
+}
+
+.section-heading-en {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+/* ─── Story ──────────────────────────────────────────────── */
+.composer-story {
+  display: grid;
+  gap: var(--space-xl);
+}
+
+.story-heading {
+  margin-bottom: var(--space-lg);
+}
+
+.story-heading-ja {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--color-text);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.25rem;
+}
+
+.story-heading-en {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.story-text p {
+  margin: 0 0 1.2rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.story-text--en p {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.story-divider {
+  text-align: center;
+  color: var(--color-gold-dim);
+  font-size: 1.5rem;
+  padding: var(--space-md) 0;
+}
+
+/* ─── Stats ──────────────────────────────────────────────── */
+.composer-stats-section {
+  padding: var(--space-xl) 2rem;
+  background: var(--color-gold-pale);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.composer-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: var(--color-gold);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 0.3rem;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.stat-divider {
+  color: var(--color-border);
+  font-size: 2rem;
+}
+
+/* ─── Philosophy ─────────────────────────────────────────── */
+.philosophy-text {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.philosophy-text p {
+  margin: 0 0 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.philosophy-quote {
+  border: none;
+  border-left: 3px solid var(--color-gold-dim);
+  margin: var(--space-lg) auto;
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(201, 168, 76, 0.04);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 2;
+  max-width: 600px;
+}
+
+.philosophy-en {
+  font-size: 0.85rem !important;
+  color: var(--color-text-dim) !important;
+}
+
+/* ─── Popular Tracks ─────────────────────────────────────── */
+.popular-tracks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--space-md);
+}
+
+.popular-track-card {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.popular-track-card:hover {
+  border-color: var(--color-gold-dim);
+  background: rgba(201, 168, 76, 0.04);
+}
+
+.popular-track-icon {
+  font-size: 1.8rem;
+  text-align: center;
+  line-height: 1;
+}
+
+.popular-track-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--color-text);
+  margin: 0 0 0.15rem;
+  letter-spacing: 0.05em;
+}
+
+.popular-track-title-en {
+  font-size: 0.75rem;
+  color: var(--color-gold);
+  letter-spacing: 0.08em;
+  margin: 0 0 0.3rem;
+}
+
+.popular-track-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.popular-track-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-end;
+}
+
+.btn-play-small {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  background: var(--color-gold-pale);
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold-dim);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-play-small:hover {
+  background: rgba(201, 168, 76, 0.15);
+  border-color: var(--color-gold);
+}
+
+.btn-detail-small {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-detail-small:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
+}
+
+/* ─── H/MIX Intro ────────────────────────────────────────── */
+.hmix-intro {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hmix-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 400;
+  color: var(--color-gold);
+  letter-spacing: 0.15em;
+  margin: 0 0 0.3rem;
+}
+
+.hmix-subtitle {
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-lg);
+}
+
+.hmix-desc-ja {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.9;
+  margin: 0 0 var(--space-md);
+}
+
+.hmix-desc-en {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  margin: 0 0 var(--space-xl);
+}
+
+.hmix-links {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-hmix-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  background: var(--color-gold-pale);
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold-dim);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-hmix-primary:hover {
+  background: rgba(201, 168, 76, 0.15);
+  border-color: var(--color-gold);
+}
+
+.btn-hmix-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-hmix-secondary:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
+}
+
+/* ─── License ────────────────────────────────────────────── */
+.license-info {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.license-text-ja {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.9;
+  margin: 0 0 var(--space-md);
+}
+
+.license-text-en {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+  margin: 0 0 var(--space-xl);
+}
+
+.license-text-ja a,
+.license-text-en a {
+  color: var(--color-gold);
+  text-decoration: none;
+}
+
+.license-text-ja a:hover,
+.license-text-en a:hover {
+  text-decoration: underline;
+}
+
+.btn-license {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.4rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  background: transparent;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-license:hover {
+  color: var(--color-text);
+  border-color: var(--color-border-hover);
+}
+
+/* ─── Fade-in Animation ──────────────────────────────────── */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .composer-hero {
+    padding: 4rem 1.5rem 3rem;
+  }
+
+  .composer-section {
+    padding: var(--space-xl) 1.5rem;
+  }
+
+  .popular-tracks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .popular-track-card {
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .popular-track-actions {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .composer-stats {
+    gap: var(--space-lg);
+  }
+
+  .stat-divider {
+    display: none;
+  }
+
+  .hmix-links {
+    flex-direction: column;
+    align-items: center;
+  }
+}

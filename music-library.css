@@ -1,0 +1,710 @@
+/* ============================================================
+   H/MIX GALLERY — Music Library CSS v2
+   デザインシステム統一版
+   世界観濃度: 55%（実用重視 × 同じ世界の空気）
+   Palette: #F5F0E8 和紙 × #2D5A3D 深森の緑 × #2A2018 テキスト
+   ============================================================ */
+
+/* --- ページ全体 --- */
+.ml-page {
+  background: #F5F0E8;
+  min-height: 100vh;
+}
+
+/* ============================================================
+   霧ヘッダー（160px・森の霧グラデーション）
+   ============================================================ */
+.ml-hero {
+  height: 160px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10, 24, 14, 0.72) 0%,
+      rgba(20, 45, 26, 0.58) 50%,
+      rgba(35, 65, 40, 0.40) 100%
+    ),
+    radial-gradient(
+      ellipse 80% 100% at 50% 100%,
+      rgba(45, 90, 61, 0.30) 0%,
+      transparent 70%
+    );
+  background-color: #1a3020;
+  border-bottom: 1px solid rgba(45, 90, 61, 0.20);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 霧レイヤー */
+.ml-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 80% at 50% 120%,
+      rgba(45, 90, 61, 0.18) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+}
+
+/* 薄い霧の横流れ */
+.ml-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 40% 30% at 20% 60%,
+      rgba(200, 230, 210, 0.04) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 30% 25% at 75% 40%,
+      rgba(200, 230, 210, 0.03) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+.ml-hero-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.ml-hero-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(180, 210, 190, 0.75);
+  margin: 0 0 8px;
+}
+
+.ml-hero-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 500;
+  color: #F5F4ED;
+  margin: 0 0 8px;
+  letter-spacing: 0.06em;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.60),
+    0 0 30px rgba(0, 0, 0, 0.30);
+}
+
+.ml-hero-sub {
+  font-size: 0.85rem;
+  color: rgba(220, 240, 220, 0.70);
+  margin: 0;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+}
+
+/* ============================================================
+   検索バー
+   ============================================================ */
+.ml-search-section {
+  background: #ECE7DD;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(45, 90, 61, 0.12);
+}
+
+.ml-search-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #F9F6F0;
+  border: 1.5px solid rgba(45, 90, 61, 0.20);
+  border-radius: 999px;
+  padding: 0 16px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ml-search-wrap:focus-within {
+  border-color: #2D5A3D;
+  box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.10);
+}
+
+.ml-search-icon {
+  font-size: 1rem;
+  color: #7A9E6E;
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.ml-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 13px 0;
+  font-size: 0.92rem;
+  color: #2A2018;
+  outline: none;
+  font-family: inherit;
+}
+
+.ml-search-input::placeholder {
+  color: #b0a898;
+}
+
+.ml-search-clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b0a898;
+  font-size: 0.85rem;
+  padding: 4px 6px;
+  border-radius: 999px;
+  transition: color 0.2s;
+  display: none;
+}
+
+.ml-search-clear:hover {
+  color: #2A2018;
+}
+
+.ml-search-clear.visible {
+  display: block;
+}
+
+/* ============================================================
+   フィルターセクション
+   ============================================================ */
+.ml-filter-section {
+  background: #F5F0E8;
+  border-bottom: 1px solid rgba(45, 90, 61, 0.10);
+  padding: 18px 24px;
+}
+
+.ml-filter-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ml-filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.ml-filter-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A9E6E;
+  margin: 0 0 8px;
+}
+
+.ml-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* 共通タグボタン（仕様書通り） */
+.ml-tag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1.5px solid rgba(45, 90, 61, 0.22);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: #2D5A3D;
+  background: #EDF3EC;
+  cursor: pointer;
+  transition: all 0.18s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.ml-tag-btn:hover {
+  border-color: #2D5A3D;
+  background: rgba(45, 90, 61, 0.10);
+}
+
+.ml-tag-btn input[type="checkbox"] {
+  display: none;
+}
+
+.ml-tag-btn.active {
+  background: #2D5A3D;
+  border-color: #2D5A3D;
+  color: #F5F0E8;
+}
+
+.ml-filter-actions {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.ml-filter-clear-btn {
+  background: none;
+  border: 1.5px solid rgba(45, 90, 61, 0.22);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font-size: 0.78rem;
+  color: #7A9E6E;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.ml-filter-clear-btn:hover {
+  border-color: #2D5A3D;
+  color: #2D5A3D;
+}
+
+/* ============================================================
+   結果件数バー
+   ============================================================ */
+.ml-result-bar {
+  background: #ECE7DD;
+  border-bottom: 1px solid rgba(45, 90, 61, 0.10);
+  padding: 10px 24px;
+}
+
+.ml-result-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ml-result-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2D5A3D;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+.ml-result-hint {
+  font-size: 0.78rem;
+  color: #9a8e7e;
+}
+
+/* ============================================================
+   メインコンテンツ（和紙背景 + 薄い霧）
+   ============================================================ */
+.ml-main {
+  background: #F5F0E8;
+  min-height: 60vh;
+  padding: 32px 24px 60px;
+  position: relative;
+}
+
+/* 薄い霧レイヤー（世界観55%） */
+.ml-main::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(10, 24, 14, 0.04) 0%,
+      transparent 60%
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   カードグリッド
+   ============================================================ */
+.ml-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 1024px) {
+  .ml-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .ml-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ml-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+/* ============================================================
+   楽曲カード（共通カード仕様）
+   ============================================================ */
+.ml-card {
+  background: #F9F6F0;
+  border: 1px solid rgba(45, 90, 61, 0.14);
+  border-radius: 16px;
+  padding: 20px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 6px 24px rgba(42, 32, 24, 0.07);
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+  position: relative;
+  overflow: hidden;
+
+  /* フェードイン出現 */
+  opacity: 0;
+  transform: translateY(16px);
+  animation: ml-card-appear 0.8s ease forwards;
+}
+
+/* カード上部の薄いグリーンライン */
+.ml-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #2D5A3D, #7A9E6E);
+  opacity: 0.25;
+  transition: opacity 0.25s;
+}
+
+.ml-card:hover {
+  box-shadow: 0 8px 28px rgba(42, 32, 24, 0.13);
+  transform: translateY(-2px);
+  border-color: rgba(45, 90, 61, 0.28);
+}
+
+.ml-card:hover::before {
+  opacity: 0.55;
+}
+
+.ml-card.playing {
+  border-color: rgba(45, 90, 61, 0.40);
+  box-shadow: 0 8px 28px rgba(45, 90, 61, 0.15);
+}
+
+.ml-card.playing::before {
+  opacity: 0.80;
+}
+
+@keyframes ml-card-appear {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* カード上部 */
+.ml-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.ml-card-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.ml-card-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #2A2018;
+  margin: 0 0 3px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ml-card-title-en {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  color: #8a7e6e;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.05em;
+}
+
+.ml-card-duration {
+  font-size: 0.72rem;
+  color: #9a8e7e;
+  flex-shrink: 0;
+  padding-top: 2px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.04em;
+}
+
+/* タグ（共通タグ仕様） */
+.ml-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ml-card-tag {
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #EDF3EC;
+  color: #2D5A3D;
+  border: 1px solid rgba(45, 90, 61, 0.18);
+  white-space: nowrap;
+}
+
+/* 再生中インジケーター */
+.ml-card-playing-bar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ml-card.playing .ml-card-playing-bar {
+  opacity: 1;
+}
+
+.ml-card-playing-bar span {
+  display: inline-block;
+  width: 3px;
+  background: #2D5A3D;
+  border-radius: 2px;
+  animation: ml-bar-wave 0.8s ease-in-out infinite;
+}
+
+.ml-card-playing-bar span:nth-child(1) { height: 8px;  animation-delay: 0s; }
+.ml-card-playing-bar span:nth-child(2) { height: 14px; animation-delay: 0.1s; }
+.ml-card-playing-bar span:nth-child(3) { height: 10px; animation-delay: 0.2s; }
+.ml-card-playing-bar span:nth-child(4) { height: 6px;  animation-delay: 0.3s; }
+
+@keyframes ml-bar-wave {
+  0%, 100% { transform: scaleY(0.6); }
+  50%       { transform: scaleY(1); }
+}
+
+/* ボタン行 */
+.ml-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Play ボタン（Primary仕様） */
+.ml-btn-play {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  background: #2D5A3D;
+  color: #F5F0E8;
+  border: none;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.20s, transform 0.15s, box-shadow 0.20s;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+}
+
+.ml-btn-play:hover {
+  background: #3d7a52;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 90, 61, 0.25);
+}
+
+.ml-btn-play:active {
+  transform: scale(0.97);
+}
+
+.ml-btn-play.playing {
+  background: #1a3d28;
+}
+
+.ml-btn-play .play-icon {
+  font-size: 0.85rem;
+}
+
+/* Detail ボタン（Secondary仕様） */
+.ml-btn-detail {
+  padding: 9px 14px;
+  background: transparent;
+  color: #2D5A3D;
+  border: 1.5px solid rgba(45, 90, 61, 0.35);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.20s;
+  font-family: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.04em;
+}
+
+.ml-btn-detail:hover {
+  background: #2D5A3D;
+  border-color: #2D5A3D;
+  color: #F5F0E8;
+}
+
+/* ============================================================
+   空の結果
+   ============================================================ */
+.ml-empty {
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.ml-empty-icon {
+  font-size: 3rem;
+  margin: 0 0 16px;
+  opacity: 0.4;
+}
+
+.ml-empty-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  color: #5a5040;
+  margin: 0 0 8px;
+  font-weight: 500;
+}
+
+.ml-empty-sub {
+  font-size: 0.85rem;
+  color: #9a8e7e;
+  margin: 0;
+}
+
+/* ============================================================
+   Load More ボタン
+   ============================================================ */
+.ml-loadmore-wrap {
+  max-width: 1200px;
+  margin: 40px auto 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ml-loadmore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 40px;
+  background: transparent;
+  border: 1.5px solid rgba(45, 90, 61, 0.35);
+  border-radius: 999px;
+  color: #2D5A3D;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.22s;
+  font-family: inherit;
+  letter-spacing: 0.06em;
+}
+
+.ml-loadmore-btn:hover {
+  background: #2D5A3D;
+  border-color: #2D5A3D;
+  color: #F5F0E8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ml-loadmore-count {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+.ml-loadmore-wrap.hidden {
+  display: none;
+}
+
+/* ============================================================
+   URLパラメータ適用時のアニメーション
+   ============================================================ */
+.ml-tag-btn.active {
+  animation: ml-tag-pop 0.25s ease;
+}
+
+@keyframes ml-tag-pop {
+  0%   { transform: scale(0.9); }
+  60%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================================
+   レスポンシブ調整
+   ============================================================ */
+@media (max-width: 768px) {
+  .ml-hero {
+    height: 130px;
+  }
+
+  .ml-search-section,
+  .ml-filter-section,
+  .ml-result-bar {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .ml-main {
+    padding: 24px 16px 48px;
+  }
+
+  .ml-filter-container {
+    gap: 12px;
+  }
+
+  .ml-filter-group {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .ml-card-actions {
+    flex-direction: column;
+  }
+
+  .ml-btn-detail {
+    justify-content: center;
+  }
+}

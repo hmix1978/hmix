@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firebase UID 取得ツール — H/MIX Theater</title>
+<style>
+  :root {
+    --gold: #d4a44c;
+    --gold-warm: #f5d896;
+    --green-jade: #7ba583;
+    --bg: #0a0f0c;
+    --text: rgba(245, 240, 230, 0.92);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(42, 74, 58, 0.15), transparent 60%),
+      radial-gradient(ellipse at 70% 80%, rgba(60, 48, 32, 0.1), transparent 60%),
+      #0a0f0c;
+    font-family: 'Noto Serif JP', 'Hiragino Mincho ProN', serif;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 620px;
+    background: linear-gradient(180deg, rgba(26, 48, 40, 0.35), rgba(13, 18, 16, 0.55));
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(212, 164, 76, 0.22);
+    border-radius: 4px;
+    padding: 48px 40px;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+    position: relative;
+  }
+  .container::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20%; right: 20%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-warm), transparent);
+  }
+  h1 {
+    font-size: 22px;
+    letter-spacing: 0.25em;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: #fff;
+  }
+  .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    color: var(--gold-warm);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .description {
+    font-size: 14px;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+    color: rgba(245, 240, 230, 0.7);
+    margin-bottom: 24px;
+  }
+  .step {
+    padding: 14px 18px;
+    background: rgba(20, 18, 16, 0.4);
+    border-left: 2px solid var(--green-jade);
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(245, 240, 230, 0.8);
+  }
+  button.login-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 0.25em;
+    color: #0a0f0c;
+    background: linear-gradient(135deg, var(--gold-warm) 0%, var(--gold) 100%);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+  button.login-btn:hover {
+    box-shadow: 0 0 30px rgba(245, 216, 150, 0.5);
+    transform: translateY(-1px);
+  }
+  button.login-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .result {
+    display: none;
+    margin-top: 28px;
+    padding: 24px;
+    background: rgba(42, 74, 58, 0.25);
+    border: 1px solid rgba(212, 164, 76, 0.3);
+    border-radius: 3px;
+  }
+  .result.visible { display: block; }
+  .result h2 {
+    font-size: 15px;
+    letter-spacing: 0.25em;
+    color: var(--gold-warm);
+    margin: 0 0 16px;
+  }
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(212, 164, 76, 0.1);
+  }
+  .field-label {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: rgba(212, 164, 76, 0.75);
+    min-width: 80px;
+    text-transform: uppercase;
+  }
+  .field-value {
+    flex: 1;
+    font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 12px;
+    color: #fff;
+    word-break: break-all;
+    padding: 6px 10px;
+    background: rgba(10, 15, 12, 0.5);
+    border-radius: 2px;
+    border: 1px solid rgba(212, 164, 76, 0.15);
+  }
+  .copy-btn {
+    background: none;
+    border: 1px solid rgba(212, 164, 76, 0.4);
+    color: var(--gold-warm);
+    padding: 5px 10px;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    font-family: 'Cinzel', serif;
+    text-transform: uppercase;
+    transition: all 0.3s;
+  }
+  .copy-btn:hover {
+    background: rgba(212, 164, 76, 0.15);
+    border-color: var(--gold-warm);
+  }
+  .copy-btn.copied {
+    background: rgba(123, 165, 131, 0.2);
+    border-color: var(--green-jade);
+    color: var(--green-jade);
+  }
+  .next-steps {
+    margin-top: 24px;
+    padding: 16px;
+    background: linear-gradient(90deg, rgba(212, 164, 76, 0.1), rgba(123, 165, 131, 0.08));
+    border: 1px solid rgba(232, 196, 120, 0.3);
+    border-radius: 3px;
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .next-steps strong { color: var(--gold-warm); }
+  .error {
+    margin-top: 20px;
+    padding: 14px;
+    background: rgba(120, 40, 40, 0.3);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: 3px;
+    color: #ffaaaa;
+    font-size: 13px;
+  }
+  code {
+    font-family: 'SF Mono', 'Courier New', monospace;
+    background: rgba(0,0,0,0.4);
+    padding: 2px 6px;
+    border-radius: 2px;
+    color: var(--gold-warm);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Firebase UID 取得ツール</h1>
+  <div class="subtitle">For H/MIX Theater · Admin Setup</div>
+
+  <div class="description">
+    Googleアカウントでログインして、自分のFirebase UID (28文字の英数字)を取得します。<br>
+    取得したUIDは、FirestoreのadminsコレクションにドキュメントIDとして登録します。
+  </div>
+
+  <div class="step">
+    <strong>確認:</strong> Firebase Console の Authentication で、Googleプロバイダが有効になっていること。<br>
+    ローカルで開いている場合、URLが <code>http://localhost:...</code> であること (file:// では動きません)。
+  </div>
+
+  <button class="login-btn" id="loginBtn">Googleでログインする</button>
+
+  <div class="result" id="result">
+    <h2>✓ ログイン成功</h2>
+
+    <div class="field-row">
+      <span class="field-label">UID</span>
+      <span class="field-value" id="uid">—</span>
+      <button class="copy-btn" data-copy="uid">コピー</button>
+    </div>
+
+    <div class="field-row">
+      <span class="field-label">Email</span>
+      <span class="field-value" id="email">—</span>
+    </div>
+
+    <div class="field-row">
+      <span class="field-label">Name</span>
+      <span class="field-value" id="name">—</span>
+    </div>
+
+    <div class="next-steps">
+      <strong>次のステップ:</strong><br>
+      1. 上の <strong>UID</strong> をコピー<br>
+      2. Firebase Console → Firestore Database → データ タブ<br>
+      3. 「+ コレクションを開始」 → ID: <code>admins</code><br>
+      4. 新しいドキュメントのID欄にUIDを貼り付け<br>
+      5. フィールド追加: <code>since</code> (timestamp, 現在時刻) と <code>name</code> (string, 秋山裕和)<br>
+      6. 「保存」 → 完了
+    </div>
+  </div>
+
+  <div class="error" id="error" style="display:none;"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {
+  getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBczT5L6PRDJOVAGy3DQ61l-UFbAqI6ESg",
+  authDomain: "hmix-footprints.firebaseapp.com",
+  projectId: "hmix-footprints",
+  storageBucket: "hmix-footprints.firebasestorage.app",
+  messagingSenderId: "477684733173",
+  appId: "1:477684733173:web:ae0d0986a92a426b08e1bc"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const $ = id => document.getElementById(id);
+const loginBtn = $('loginBtn');
+const result = $('result');
+const errEl = $('error');
+
+loginBtn.addEventListener('click', async () => {
+  errEl.style.display = 'none';
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'ログイン中...';
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'ログインエラー: ' + (e.message || e);
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Googleでログインする';
+  }
+});
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    result.classList.add('visible');
+    $('uid').textContent = user.uid;
+    $('email').textContent = user.email || '—';
+    $('name').textContent = user.displayName || '—';
+    loginBtn.textContent = 'ログイン済み';
+    loginBtn.disabled = true;
+  }
+});
+
+// コピー機能
+document.querySelectorAll('.copy-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const targetId = btn.dataset.copy;
+    const text = $(targetId).textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      btn.textContent = 'コピー済み';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'コピー';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch (e) {
+      console.warn(e);
+    }
+  });
+});
+</script>
+</body>
+</html>

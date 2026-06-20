@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>H/MIX × Midjourney Prompt Generator</title>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --panel: #16161a;
+      --border: rgba(255,255,255,0.07);
+      --gold: #c9a84c;
+      --blue: #4a9eff;
+      --green: #4caf7d;
+      --red: #e05c5c;
+      --text: #d4d0c8;
+      --text-dim: rgba(212,208,200,0.5);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; font-size: 13px; min-height: 100vh; }
+
+    header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+    .header-sub { font-size: 0.75rem; color: var(--text-dim); }
+
+    .main { display: flex; gap: 0; height: calc(100vh - 57px); }
+
+    /* Tag Selector Panel */
+    .tag-panel {
+      width: 320px;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 16px;
+      border-right: 1px solid var(--border);
+    }
+    .tag-section { margin-bottom: 20px; }
+    .tag-section-title {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      color: var(--text-dim); letter-spacing: 0.1em;
+      margin-bottom: 8px; padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag-chip {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 3px 10px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .tag-chip:hover { border-color: var(--gold); color: var(--text); }
+    .tag-chip.on {
+      background: rgba(201,168,76,0.2);
+      border-color: var(--gold);
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* Prompt Panel */
+    .prompt-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .prompt-label {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      color: var(--text-dim); letter-spacing: 0.1em; margin-bottom: 6px;
+    }
+
+    .section-box {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .style-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .style-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.15s;
+    }
+    .style-btn:hover { border-color: var(--blue); color: var(--text); }
+    .style-btn.on { background: rgba(74,158,255,0.15); border-color: var(--blue); color: var(--blue); font-weight: 600; }
+
+    .aspect-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aspect-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      transition: all 0.15s;
+    }
+    .aspect-btn.on { background: rgba(76,175,125,0.15); border-color: var(--green); color: var(--green); font-weight: 600; }
+
+    .prompt-output {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: #a0b8ff;
+      min-height: 80px;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+    .prompt-output.empty { color: var(--text-dim); font-style: italic; font-family: 'Segoe UI', sans-serif; }
+
+    .btn-row { display: flex; gap: 8px; }
+    .btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: rgba(255,255,255,0.12); }
+    .btn--gold { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+    .btn--gold:hover { background: #e0bc60; }
+    .btn--red { border-color: var(--red); color: var(--red); }
+    .btn--red:hover { background: rgba(224,92,92,0.1); }
+
+    .selected-tags {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      min-height: 28px;
+    }
+    .sel-chip {
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.4);
+      color: var(--gold);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .sel-chip-remove { cursor: pointer; opacity: 0.6; font-size: 0.8rem; }
+    .sel-chip-remove:hover { opacity: 1; }
+
+    #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--green); color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 9999; }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .custom-input {
+      width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 0.78rem;
+      margin-top: 6px;
+    }
+    .custom-input:focus { outline: none; border-color: rgba(201,168,76,0.4); }
+
+    .quality-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+    .quality-label { font-size: 0.7rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-title">🎨 H/MIX × Midjourney Prompt Generator</div>
+    <div class="header-sub">タグを選んで、楽曲イメージに合う画像プロンプトを生成</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Tag Selector -->
+  <div class="tag-panel">
+    <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:12px;">タグをクリックして選択 → プロンプトに追加されます</div>
+
+    <div class="tag-section">
+      <div class="tag-section-title">🎭 Feeling（感情）</div>
+      <div class="tag-grid" id="tags-feeling"></div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-title">🎼 Style（様式）</div>
+      <div class="tag-grid" id="tags-style"></div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-title">🌄 Scene（場面）</div>
+      <div class="tag-grid" id="tags-scene"></div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-title">📖 Story（物語）</div>
+      <div class="tag-grid" id="tags-story"></div>
+    </div>
+  </div>
+
+  <!-- Prompt Panel -->
+  <div class="prompt-panel">
+
+    <!-- Selected Tags -->
+    <div class="section-box">
+      <div class="prompt-label">選択中のタグ</div>
+      <div class="selected-tags" id="selected-tags">
+        <span style="color:var(--text-dim); font-size:0.72rem; align-self:center;">タグを選択してください...</span>
+      </div>
+    </div>
+
+    <!-- Art Style -->
+    <div class="section-box">
+      <div class="prompt-label">アートスタイル</div>
+      <div class="style-options" id="style-options">
+        <button class="style-btn on" data-style="digital fantasy illustration, detailed, cinematic lighting">ファンタジーイラスト</button>
+        <button class="style-btn" data-style="anime key visual, vibrant, studio ghibli inspired">アニメ風</button>
+        <button class="style-btn" data-style="oil painting, impressionist, textured brush strokes">油絵風</button>
+        <button class="style-btn" data-style="dark fantasy concept art, dramatic, photorealistic">ダークファンタジー</button>
+        <button class="style-btn" data-style="watercolor painting, soft edges, delicate washes">水彩画</button>
+        <button class="style-btn" data-style="pixel art, retro RPG style, 16bit">ピクセルアート</button>
+        <button class="style-btn" data-style="ukiyo-e woodblock print style">浮世絵風</button>
+        <button class="style-btn" data-style="atmospheric matte painting, epic scale">マットペイント</button>
+      </div>
+      <input type="text" class="custom-input" id="custom-style" placeholder="カスタムスタイルを追加（任意）...">
+    </div>
+
+    <!-- Aspect Ratio -->
+    <div class="section-box">
+      <div class="prompt-label">アスペクト比 / クオリティ</div>
+      <div class="aspect-options">
+        <button class="aspect-btn on" data-ar="--ar 16:9">16:9（横）</button>
+        <button class="aspect-btn" data-ar="--ar 1:1">1:1（正方形）</button>
+        <button class="aspect-btn" data-ar="--ar 9:16">9:16（縦）</button>
+        <button class="aspect-btn" data-ar="--ar 4:3">4:3</button>
+        <button class="aspect-btn" data-ar="--ar 2:1">2:1（ワイド）</button>
+        <button class="aspect-btn" data-ar="--ar 3:4">3:4（縦長）</button>
+      </div>
+      <div class="quality-row">
+        <span class="quality-label">Quality:</span>
+        <button class="aspect-btn on" data-q="--q 1">q1（標準）</button>
+        <button class="aspect-btn" data-q="--q 2">q2（高品質）</button>
+        <button class="aspect-btn" data-q="--q .5">q0.5（高速）</button>
+        <span class="quality-label" style="margin-left:12px;">Stylize:</span>
+        <button class="aspect-btn on" data-s="--s 750">s750（標準）</button>
+        <button class="aspect-btn" data-s="--s 1000">s1000（高創造性）</button>
+        <button class="aspect-btn" data-s="--s 250">s250（忠実）</button>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="section-box">
+      <div class="prompt-label">生成プロンプト</div>
+      <div class="prompt-output empty" id="prompt-output">タグとスタイルを選択すると、ここにプロンプトが表示されます</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn--gold" onclick="copyPrompt()">📋 プロンプトをコピー</button>
+      <button class="btn" onclick="clearAll()">🗑 すべてリセット</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast">コピーしました！</div>
+
+<script>
+  // ─── Tag Definitions ──────────────────────────────────────────────────────
+  const TAGS = {
+    feeling: [
+      { id: 'gentle',    ja: '優しい',     en: 'a peaceful and breathtaking landscape bathed in soft morning sunlight, lush green meadows with blooming wildflowers, gentle glowing dust in the air, deeply emotional and serene atmosphere' },
+      { id: 'sad',       ja: '悲しい',     en: 'a melancholic and bittersweet scene, rain-soaked cobblestones reflecting faint lamplight, a lone figure standing still, quiet sorrow filling the air' },
+      { id: 'happy',     ja: '楽しい',     en: 'a vibrant and joyful festival scene, colorful lanterns illuminating laughing faces, warm golden light, lively and energetic atmosphere' },
+      { id: 'epic',      ja: '勇壮',       en: 'an epic and heroic vista, a lone warrior standing at the edge of a cliff overlooking a vast battlefield, dramatic storm clouds, cinematic and powerful' },
+      { id: 'dark',      ja: '暗い',       en: 'a dark and ominous environment, deep shadows consuming the landscape, a single cold beam of moonlight piercing the darkness, foreboding and oppressive atmosphere' },
+      { id: 'mysterious', ja: '神秘',      en: 'an ethereal and mystical realm, soft glowing orbs drifting through ancient mist-shrouded ruins, an otherworldly blue light emanating from the depths' },
+      { id: 'suspense',  ja: '緊迫',       en: 'an intensely tense scene, two figures facing each other in a narrow rain-soaked alley, hands on weapons, the air crackling with danger' },
+      { id: 'horror',    ja: 'ホラー',     en: 'a deeply unsettling horror scene, distorted shadows crawling across decaying walls, an eerie pale figure at the end of a long dark corridor' },
+      { id: 'cute',      ja: 'かわいい',   en: 'an adorable and whimsical scene, tiny woodland creatures in a miniature forest cottage, soft pastel colors, warm candlelight, cozy and heartwarming' },
+    ],
+    style: [
+      { id: 'fantasy',   ja: 'ファンタジー', en: 'high fantasy world, towering spires of a magical castle rising above enchanted clouds, dragons soaring in the distance' },
+      { id: 'japanese',  ja: '和風',         en: 'traditional Japanese aesthetic, a moonlit garden with cherry blossoms falling over a stone lantern and a koi pond' },
+      { id: 'celtic',    ja: 'ケルト',        en: 'ancient Celtic atmosphere, rolling green hills with standing stones, a bard playing by a roaring fire under a starry sky' },
+      { id: 'medieval',  ja: '中世',          en: 'medieval European setting, a grand stone castle on a hilltop, armored knights and torch-lit corridors' },
+      { id: 'oriental',  ja: 'アジアン',      en: 'East Asian atmosphere, ancient pagodas rising through morning mist, silk banners and jade lanterns along stone paths' },
+      { id: 'futuristic', ja: '近未来',       en: 'near-future cityscape at night, neon-lit streets reflecting in wet pavement, holographic advertisements, cyberpunk aesthetic' },
+      { id: 'electronic', ja: '電子音',       en: 'digital and holographic world, glowing circuit patterns floating in a dark void, data streams cascading like waterfalls' },
+      { id: 'modern',    ja: '現代的',         en: 'contemporary urban setting, a quiet city rooftop at dusk, warm apartment windows glowing below' },
+      { id: 'musicbox',  ja: 'オルゴール',     en: 'a delicate antique music box open on a dusty windowsill, tiny dancing figurines, soft warm light, nostalgic and fragile' },
+    ],
+    scene: [
+      { id: 'battle',    ja: '戦闘',       en: 'an intense battle scene, warriors clashing amid flames and falling banners, dynamic motion and chaos' },
+      { id: 'boss',      ja: 'ボス',       en: 'a towering and terrifying boss monster filling the frame, a tiny adventurer silhouetted against its immense glowing form' },
+      { id: 'town',      ja: '街',         en: 'a bustling medieval market town, colorful stalls and cobblestone streets, people going about their daily lives' },
+      { id: 'village',   ja: '村',         en: 'a peaceful rural village nestled among rolling hills, thatched rooftops, smoke rising from chimneys, children playing' },
+      { id: 'field',     ja: 'フィールド', en: 'a vast open field stretching to the horizon, golden grass swaying in the wind under an enormous sky' },
+      { id: 'forest',    ja: '森',         en: 'an ancient enchanted forest, massive gnarled trees with glowing moss, dappled rays of light filtering through the canopy' },
+      { id: 'night',     ja: '夜',         en: 'a breathtaking night scene, a vast star-filled sky reflected in a still lake, moonlight casting silver light across still water' },
+      { id: 'travel',    ja: '旅',         en: 'a lone traveler on a winding road through dramatic mountains, a pack on their back, the road ahead glowing in golden sunlight' },
+      { id: 'dungeon',   ja: 'ダンジョン', en: 'a menacing underground dungeon, dark stone corridors lit only by flickering torchlight, shadows hiding unknown dangers' },
+      { id: 'ruins',     ja: '遺跡',       en: 'ancient forgotten ruins reclaimed by nature, moss-covered stone arches, vines creeping over crumbling walls, an air of mystery' },
+      { id: 'cave',      ja: '洞窟',       en: 'a stunning underground cave, towering stalactites, glowing crystals embedded in the walls casting an otherworldly blue light' },
+      { id: 'festival',  ja: '祭り',       en: 'a spectacular night festival, thousands of glowing lanterns floating into a dark sky above a crowd of celebrating people' },
+      { id: 'opening',   ja: 'オープニング', en: 'a grand cinematic opening shot, a vast mythical world revealed from above, sunlight breaking over distant mountains' },
+      { id: 'ending',    ja: 'エンディング', en: 'a peaceful and emotional ending scene, two figures watching a glorious sunset over a calm sea, a sense of closure and warmth' },
+      { id: 'onsen',     ja: '温泉',       en: 'a serene outdoor hot spring in winter, steam rising over snow-dusted rocks, lanterns glowing warmly in the quiet night' },
+      { id: 'shrine',    ja: '神社',       en: 'a sacred Shinto shrine deep in a cedar forest, stone torii gates lined with lanterns leading to a misty temple' },
+      { id: 'samurai',   ja: 'サムライ',   en: 'a stoic samurai standing in the rain, hand resting on katana, cherry blossoms falling around them' },
+      { id: 'snow',      ja: '雪',         en: 'a silent snow-covered landscape, thick white snowflakes falling softly over a frozen village, cold and serene' },
+      { id: 'mansion',   ja: '洋館',       en: 'a gothic Victorian mansion on a dark hill, its windows glowing faintly, mist creeping across the overgrown garden' },
+      { id: 'morning',   ja: '朝',         en: 'a tranquil morning scene, golden sunrise light streaming across dewy meadows, mist drifting over a quiet river valley' },
+      { id: 'church',    ja: '教会',       en: 'the interior of an ancient cathedral, towering stained glass windows casting multicolored light on stone floors, solemn and sacred' },
+    ],
+    story: [
+      { id: 'memory',    ja: '思い出',     en: 'a nostalgic memory, a faded warm-toned vision of childhood, blurred at the edges like an old photograph' },
+      { id: 'reunion',   ja: '再会',       en: 'an emotional and tearful reunion, two figures embracing in a glowing golden light, after a long and painful separation' },
+      { id: 'farewell',  ja: '別れ',       en: 'a bittersweet farewell, a figure watching a train disappear into the distance, the last light of evening, silent grief' },
+      { id: 'victory',   ja: '勝利',       en: 'a triumphant victory scene, a hero raising their sword to the sky, cheering crowds below, banners waving in the wind' },
+      { id: 'defeat',    ja: '敗北',       en: 'the aftermath of defeat, a warrior on their knees in a scorched battlefield, broken weapon before them, despair and silence' },
+      { id: 'peaceful',  ja: '平和',       en: 'absolute serenity, a gentle countryside scene, farmers working in sun-drenched fields, children laughing by a clear stream' },
+      { id: 'dream',     ja: '夢',         en: 'a dreamlike and surreal landscape, floating islands drifting through pink clouds, impossible architecture, soft and hypnotic' },
+      { id: 'conspiracy', ja: '陰謀',      en: 'a shadowy conspiracy, cloaked figures meeting in secret beneath a flickering torch, maps and daggers on the table' },
+      { id: 'dailylife', ja: '日常',       en: 'the warm comfort of daily life, a cozy kitchen in the morning, the smell of bread baking, familiar objects in soft light' },
+      { id: 'destiny',   ja: '運命',       en: 'the weight of destiny, a chosen hero standing before an ancient prophecy carved in stone, divine light illuminating them' },
+      { id: 'omen',      ja: '予兆',       en: 'a dark and ominous omen, massive storm clouds gathering on the horizon over a silent landscape, the calm before catastrophe' },
+      { id: 'resolve',   ja: '決意',       en: 'fierce and unwavering resolve, a warrior clenching their fist in front of a roaring fire, eyes full of determination' },
+      { id: 'bonds',     ja: '絆',         en: 'the power of unbreakable bonds, two friends reaching out their hands to each other across an impossible distance' },
+      { id: 'pursuit',   ja: '追跡',       en: 'a desperate chase through narrow city streets at night, shadows blurring, the pursuer closing in relentlessly' },
+      { id: 'hope',      ja: '希望',       en: 'a single ray of light breaking through storm clouds over a devastated landscape, a glimmer of hope in the darkness' },
+      { id: 'flashback', ja: '回想',       en: 'a blurred dream-like memory flashback, warm sepia tones dissolving into a distant past scene' },
+      { id: 'despair',   ja: '絶望',       en: 'consuming despair, a figure alone in an endless void, hunched over, arms around themselves, completely broken' },
+    ]
+  };
+
+  // ─── State ────────────────────────────────────────────────────────────────
+  let selected = new Set();
+  let activeStyle = 'masterpiece, cinematic lighting, ultra detailed concept art, 8k';
+  let activeAR = '--ar 16:9';
+  let activeQ = '--q 1';
+  let activeS = '--s 750';
+  let activeV = '--v 6.0';
+  let activeStyleRaw = '';
+
+  // ─── Render Tags ──────────────────────────────────────────────────────────
+  function renderTags() {
+    for (const cat in TAGS) {
+      const container = document.getElementById(`tags-${cat}`);
+      container.innerHTML = '';
+      TAGS[cat].forEach(tag => {
+        const chip = document.createElement('button');
+        chip.className = 'tag-chip' + (selected.has(tag.id) ? ' on' : '');
+        chip.textContent = tag.ja;
+        chip.dataset.id = tag.id;
+        chip.onclick = () => toggleTag(tag.id);
+        container.appendChild(chip);
+      });
+    }
+  }
+
+  function toggleTag(id) {
+    if (selected.has(id)) {
+      selected.delete(id);
+    } else {
+      selected.add(id);
+    }
+    renderTags();
+    renderSelectedChips();
+    updatePrompt();
+  }
+
+  function renderSelectedChips() {
+    const container = document.getElementById('selected-tags');
+    if (selected.size === 0) {
+      container.innerHTML = '<span style="color:var(--text-dim); font-size:0.72rem; align-self:center;">タグを選択してください...</span>';
+      return;
+    }
+    container.innerHTML = '';
+    selected.forEach(id => {
+      const tag = findTag(id);
+      if (!tag) return;
+      const chip = document.createElement('div');
+      chip.className = 'sel-chip';
+      chip.innerHTML = `${tag.ja} <span class="sel-chip-remove" onclick="toggleTag('${id}')">✕</span>`;
+      container.appendChild(chip);
+    });
+  }
+
+  function findTag(id) {
+    for (const cat in TAGS) {
+      const found = TAGS[cat].find(t => t.id === id);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  // ─── Style Buttons ────────────────────────────────────────────────────────
+  document.querySelectorAll('.style-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      activeStyle = btn.dataset.style;
+      updatePrompt();
+    });
+  });
+
+  document.getElementById('custom-style').addEventListener('input', updatePrompt);
+
+  // ─── AR Buttons ───────────────────────────────────────────────────────────
+  document.querySelectorAll('[data-ar]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-ar]').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      activeAR = btn.dataset.ar;
+      updatePrompt();
+    });
+  });
+
+  document.querySelectorAll('[data-q]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-q]').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      activeQ = btn.dataset.q;
+      updatePrompt();
+    });
+  });
+
+  document.querySelectorAll('[data-s]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-s]').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      activeS = btn.dataset.s;
+      updatePrompt();
+    });
+  });
+
+  function updatePrompt() {
+    const el = document.getElementById('prompt-output');
+
+    if (selected.size === 0) {
+      el.textContent = 'タグとスタイルを選択すると、ここにプロンプトが表示されます';
+      el.classList.add('empty');
+      return;
+    }
+
+    const parts = [];
+    selected.forEach(id => {
+      const tag = findTag(id);
+      if (tag) parts.push(tag.en);
+    });
+
+    const customStyle = document.getElementById('custom-style').value.trim();
+    const styleStr = customStyle ? `${activeStyle}, ${customStyle}` : activeStyle;
+    const styleRaw = activeStyleRaw ? ` ${activeStyleRaw}` : '';
+
+    const prompt = `/imagine prompt: ${parts.join(', ')}, ${styleStr} ${activeAR} ${activeQ} ${activeS}${styleRaw} ${activeV}`;
+
+    el.textContent = prompt;
+    el.classList.remove('empty');
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('prompt-output').textContent;
+    if (!text || document.getElementById('prompt-output').classList.contains('empty')) {
+      showToast('タグを選択してください');
+      return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('プロンプトをコピーしました！Midjourneyに貼り付けてください ✨');
+    });
+  }
+
+  function clearAll() {
+    selected.clear();
+    document.getElementById('custom-style').value = '';
+    renderTags();
+    renderSelectedChips();
+    updatePrompt();
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ─── Init ─────────────────────────────────────────────────────────────────
+  renderTags();
+  renderSelectedChips();
+  updatePrompt();
+</script>
+</body>
+</html>

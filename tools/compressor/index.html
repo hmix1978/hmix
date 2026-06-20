@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>H/MIX COMPRESSOR — 視覚で学ぶコンプレッサー</title>
+  <meta name="description" content="無料のオンラインコンプレッサー。ブラウザに音楽ファイルを読み込んで、視覚で学びながら音作りを試せる。秋山裕和 (H/MIX GALLERY) によるWebプラグイン。">
+  <meta name="keywords" content="コンプレッサー,無料,オンライン,フリー,音作り,DAW,ブラウザ,Web,音楽,H/MIX">
+  <link rel="canonical" href="https://www.hmix.net/tools/compressor/">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <meta property="og:title" content="H/MIX COMPRESSOR — 視覚で学ぶコンプレッサー">
+  <meta property="og:description" content="ブラウザで動く無料コンプレッサー。粒子と漏斗で「圧縮」を視覚化、初心者にも分かる音作り体験。">
+  <meta property="og:image" content="https://www.hmix.net/tools/compressor/og.jpg">
+  <meta property="og:url" content="https://www.hmix.net/tools/compressor/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="H/MIX GALLERY">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "H/MIX COMPRESSOR",
+    "applicationCategory": "MultimediaApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+    "creator": {
+      "@type": "Person",
+      "name": "秋山裕和",
+      "url": "https://www.hmix.net/composer.html"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "H/MIX GALLERY",
+      "url": "https://www.hmix.net/"
+    }
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+JP:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<noscript>
+  <div style="padding:40px;color:#f5d896;background:#0a3a26;font-family:serif;text-align:center;font-size:16px;">
+    このコンプレッサーは JavaScript で動作します。<br>
+    ブラウザの設定で JavaScript を有効にしてください。
+  </div>
+</noscript>
+
+<div class="ext-aurora" aria-hidden="true"></div>
+
+<div class="viewport-host" id="viewportHost">
+  <div class="scaler" id="scaler">
+
+    <!-- ============= PANEL ============= -->
+    <div class="panel">
+
+      <!-- decorative bolts -->
+      <div class="bolt tl"></div>
+      <div class="bolt tr"></div>
+      <div class="bolt bl"></div>
+      <div class="bolt br"></div>
+
+      <!-- decorative filigree (svg) -->
+      <svg class="filigree tl" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+        <circle cx="60" cy="32" r="1.8" fill="currentColor"/>
+        <path d="M8,52 Q22,52 30,46 Q42,38 50,46 Q58,54 70,50" stroke="currentColor" stroke-width="0.8" opacity="0.7"/>
+      </svg>
+      <svg class="filigree tr" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+        <circle cx="60" cy="32" r="1.8" fill="currentColor"/>
+      </svg>
+      <svg class="filigree bl" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+      </svg>
+      <svg class="filigree br" viewBox="0 0 100 100" fill="none">
+        <path d="M0,40 Q4,16 18,8 Q32,2 38,18 Q44,34 60,32 Q80,30 92,16" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="38" cy="18" r="2.5" fill="currentColor"/>
+      </svg>
+
+      <!-- ============= HEADER ============= -->
+      <header class="header">
+        <div class="header-left">
+          <div class="brand-mark">
+            <img src="assets/hmix-logo-256.png" alt="H/MIX GALLERY">
+            <div class="brand-text">
+              <span class="brand-name">H/MIX COMPRESSOR</span>
+              <span class="brand-sub">〜 視覚で学ぶコンプレッサー 〜</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-center">
+          <div class="preset-bay" id="presetBay">
+            <button class="preset-arrow" id="presetPrev" title="prev preset">‹</button>
+            <div class="preset-name" id="presetName" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false" title="click to choose">何もしない<small>OFF</small></div>
+            <button class="preset-arrow" id="presetNext" title="next preset">›</button>
+            <div class="preset-menu" id="presetMenu"></div>
+            <div class="preset-hint" id="presetHint">
+              <div class="preset-hint-arrow">▲</div>
+              <div class="preset-hint-text">まずはここから<br><small>プリセットを選んで音を体験</small></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="ab-bay">
+            <button class="ab-btn is-active" data-slot="A" title="スロット A の設定を呼び出す">A</button>
+            <button class="ab-btn" data-slot="B" title="スロット B の設定を呼び出す">B</button>
+            <button class="ab-copy" id="abCopy" title="現在の設定をスロットに保存 (A/B 比較用)">保存</button>
+          </div>
+          <button class="cap-btn" id="btnAutoGain"><span class="gem"></span><span class="lbl" data-loc-key="autoGain">オートゲイン</span></button>
+          <button class="cap-btn" id="btnAutoMakeup"><span class="gem"></span><span class="lbl" data-loc-key="autoMakeup">オートメイクアップ</span></button>
+          <button class="cap-btn is-active" id="btnProtectLimit" title="出力 0 dBFS を超えないようリミッターで保護"><span class="gem"></span><span class="lbl" data-loc-key="protectLimit">保護リミッター</span></button>
+          <button class="cap-btn" data-tone="warn" id="btnBypass"><span class="gem"></span><span class="lbl" data-loc-key="bypass">バイパス</span></button>
+          <button class="cap-btn" id="btnReset"><span class="lbl" data-loc-key="reset">リセット</span></button>
+          <div class="lang-bay">
+            <button data-lang="ja" class="is-active">JA</button>
+            <button data-lang="en">EN</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- ============= MAIN GRID ============= -->
+      <div class="main-grid">
+
+        <!-- LEFT VU -->
+        <div class="vu-col">
+          <div class="vu-cap" id="vuInCap">INPUT<small>入力</small></div>
+          <div class="vu-row">
+            <div class="vu-scale">
+              <span>0</span><span>-6</span><span>-12</span><span>-24</span><span>-48</span>
+            </div>
+            <div class="vu-meter">
+              <div class="vu-fill" id="vuInFill"></div>
+              <div class="vu-peak-fast" id="vuInPeakFast"></div>
+              <div class="vu-peak" id="vuInPeak"></div>
+              <div class="vu-ticks"></div>
+            </div>
+          </div>
+          <div class="vu-num" id="vuInNum">-∞ dB</div>
+        </div>
+
+        <!-- CENTER -->
+        <div class="center-col">
+
+          <!-- BARRIER WINDOW -->
+          <div class="window-card">
+            <div class="gem-mount tl chip"></div>
+            <div class="gem-mount tr chip"></div>
+            <div class="gem-mount bl chip"></div>
+            <div class="gem-mount br chip"></div>
+            <canvas id="window"></canvas>
+            <div class="live-narration" id="liveNarration">
+              <div class="ln-head" id="liveHead">いま何が起きてる?</div>
+              <div class="ln-body" id="liveBody">音を再生すると、ここに動きを解説します。</div>
+            </div>
+          </div>
+
+          <!-- MIDDLE ROW : INPUT GAIN — GR — MIX -->
+          <div class="mid-row">
+            <div class="knob-cell" data-param="inputGain">
+              <div class="physical-knob"></div>
+              <div class="knob-meta">
+                <span class="kc-label" data-loc-key="inputGain">INPUT GAIN</span>
+                <span class="kc-sub" data-loc-key="inputGainJp">入力音量</span>
+                <span class="kc-val">+0.0 dB</span>
+              </div>
+            </div>
+
+            <div class="gr-meter-stack">
+              <div class="gr-meter">
+                <div class="gr-cap"><span id="grLabel">GAIN REDUCTION</span><small id="grLabelJp">圧縮された量</small></div>
+                <div class="gr-bar"><div class="gr-fill" id="grFill"></div><div class="gr-ticks"></div></div>
+                <div class="gr-value" id="grValue">-0.0 dB</div>
+              </div>
+              <div class="makeup-row">
+                <label><span id="makeupLabel">MAKE-UP</span><small id="makeupLabelJp">音量を戻す</small></label>
+                <input type="range" id="makeupSlider" min="0" max="20" step="0.5" value="0">
+                <span class="mu-val" id="makeupValue">+0.0 dB</span>
+                <span style="font-family:'Cinzel',serif;font-size:9px;color:var(--muted);letter-spacing:0.18em;">0 ─ +20 dB</span>
+              </div>
+            </div>
+
+            <!-- MIX knob 削除 (原音と混ぜる用途は無いため) -->
+            <div class="knob-cell knob-cell-empty"></div>
+          </div>
+
+          <!-- MINI CARDS ROW : THRESHOLD — ATTACK — RELEASE — RATIO -->
+          <div class="mini-row">
+            <div class="mini-card" data-param="threshold" data-status="idle">
+              <div class="mc-text">
+                <span class="mc-cap">THRESHOLD</span>
+                <span class="mc-jp">圧縮を始める音量</span>
+                <span class="mc-val">0.0<span class="mc-unit">dB</span></span>
+                <span class="mc-status">大きい音だけ圧縮</span>
+              </div>
+              <div class="physical-knob"></div>
+            </div>
+            <div class="mini-card" data-param="attack" data-status="good">
+              <div class="mc-text">
+                <span class="mc-cap">ATTACK</span>
+                <span class="mc-jp">立ち上がりの速さ</span>
+                <span class="mc-val">20<span class="mc-unit">ms</span></span>
+                <span class="mc-status">自然な速さ</span>
+              </div>
+              <div class="physical-knob"></div>
+            </div>
+            <div class="mini-card" data-param="release" data-status="good">
+              <div class="mc-text">
+                <span class="mc-cap">RELEASE</span>
+                <span class="mc-jp">戻りの長さ</span>
+                <span class="mc-val">200<span class="mc-unit">ms</span></span>
+                <span class="mc-status">自然な長さ</span>
+              </div>
+              <div class="physical-knob"></div>
+            </div>
+            <div class="mini-card" data-param="ratio" data-status="idle">
+              <div class="mc-text">
+                <span class="mc-cap">RATIO</span>
+                <span class="mc-jp">圧縮の強さ</span>
+                <span class="mc-val">1.0<span class="mc-unit">: 1</span></span>
+                <span class="mc-status">圧縮なし</span>
+              </div>
+              <div class="physical-knob"></div>
+            </div>
+          </div>
+
+          <!-- BOTTOM TOGGLE ROW (簡略化: HPF と LEARN のみ) -->
+          <div class="toggle-row">
+            <div class="toggle" data-tog="hpf" title="サイドチェーン低域カット: 検出器のみに HPF を掛け、 ベースで圧縮が暴れるのを防ぐ (聴こえる音は full range)"><span class="t-gem"></span><div class="t-label"><span class="t-cap">SC HPF</span><span class="t-jp">サイドチェーン低域カット</span></div><span class="t-freq" id="scFreqDisplay" title="クリックで周波数切替 (40 / 80 / 120 / 200 Hz)">80 Hz</span></div>
+            <div class="toggle learn" data-tog="learn"><span class="t-gem"></span><div class="t-label"><span class="t-cap">LEARN</span><span class="t-jp">使い方ツアー</span></div></div>
+          </div>
+
+          <!-- PLAYER BAR (曲名 + シーク + 再生) -->
+          <div class="player-bar">
+            <button class="player-bar__play" id="playerPlay" disabled aria-label="再生/一時停止">▶</button>
+            <div class="player-bar__center">
+              <div class="player-bar__title-row">
+                <span class="player-bar__cat" id="playerCat">READY</span>
+                <span class="player-bar__title" id="playerTitle">下のデモを選ぶか、ファイルをアップロード</span>
+              </div>
+              <div class="player-bar__seek" id="playerSeek">
+                <div class="player-bar__seek-bar" id="playerSeekBar">
+                  <div class="player-bar__seek-fill" id="playerFill"></div>
+                  <div class="player-bar__seek-handle" id="playerHandle"></div>
+                </div>
+                <span class="player-bar__time" id="playerTime">0:00 / 0:00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SOURCE ROW (DEMO 3 曲 + UPLOAD + EXPORT) -->
+          <div class="source-row">
+            <span class="src-cap">DEMO</span>
+            <button class="demo-pill" data-track="n142" data-title="Overture!">Overture!</button>
+            <button class="demo-pill" data-track="n74"  data-title="Moment">Moment</button>
+            <button class="demo-pill" data-track="n79"  data-title="瞬光の切先">瞬光の切先</button>
+            <span class="source-row__sep"></span>
+            <span class="src-cap">UPLOAD</span>
+            <label class="file-pill">
+              <input type="file" id="fileInput" accept="audio/*">
+              <span id="fileLabel">▲ オーディオファイルを選択</span>
+            </label>
+            <button class="export-btn" id="exportWavBtn" disabled data-loc-key="exportWav" title="現在の設定を適用してWAVを書き出す">WAVを書き出し</button>
+            <span class="export-status" id="exportStatus" aria-live="polite"></span>
+            <audio id="audio-user" preload="metadata"></audio>
+          </div>
+
+        </div>
+
+        <!-- RIGHT VU -->
+        <div class="vu-col">
+          <div class="vu-cap" id="vuOutCap">OUTPUT<small>出力</small></div>
+          <div class="vu-row">
+            <div class="vu-meter">
+              <div class="vu-fill" id="vuOutFill"></div>
+              <div class="vu-peak-fast" id="vuOutPeakFast"></div>
+              <div class="vu-peak" id="vuOutPeak"></div>
+              <div class="vu-ticks"></div>
+            </div>
+            <div class="vu-scale">
+              <span>0</span><span>-6</span><span>-12</span><span>-24</span><span>-48</span>
+            </div>
+          </div>
+          <div class="vu-num" id="vuOutNum">-∞ dB</div>
+        </div>
+
+      </div><!-- /main-grid -->
+    </div><!-- /panel -->
+
+  </div><!-- /scaler -->
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

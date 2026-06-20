@@ -1,0 +1,16 @@
+TABLE{font-size : 9pt;}
+BODY {
+	font-size : 9pt;
+	background-image:url(http://hmix.net/images/greenhaikei.jpg);
+	background-position:center;
+	margin: 0px;
+	background-color: #00CC00;
+	background-repeat: repeat-y;
+}
+a { text-decoration:none; }
+a:hover { background-color: #cceeff; }
+a:link { color: #009900 ;} 
+a:visited { color: #009900 ;} 
+h1 {
+	font-size: 24px;
+}

@@ -1,0 +1,66 @@
+/* ============================================================
+   H/MIX GALLERY — Tutorial Hints
+   "気配" としての機能紹介。説明ではなく、詩的な誘い。
+   ============================================================ */
+
+.tutorial-hint {
+  position: absolute;
+  z-index: 1100;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.tutorial-hint.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.tutorial-hint__bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(10, 22, 16, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(100, 180, 130, 0.20);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: rgba(180, 225, 200, 0.85);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+
+/* パルスアニメーション（対象ボタンへの誘導） */
+.tutorial-pulse {
+  animation: tutorialPulse 2.5s ease-in-out 1;
+}
+
+@keyframes tutorialPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(154, 223, 180, 0.25); }
+  50%  { box-shadow: 0 0 0 8px rgba(154, 223, 180, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(154, 223, 180, 0); }
+}
+
+/* 完了メッセージ */
+.tutorial-hint--complete .tutorial-hint__bubble {
+  border-color: rgba(154, 223, 180, 0.35);
+  color: rgba(154, 223, 180, 0.90);
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-hint {
+    transition: opacity 0.3s ease;
+    transform: none !important;
+  }
+  .tutorial-pulse {
+    animation: none !important;
+  }
+}

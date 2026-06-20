@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XV5T8CSJTJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XV5T8CSJTJ');
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>音の劇場 - H/MIX GALLERY | 星図の旅・夜風・旅する少女</title>
+<meta name="description" content="作曲家 秋山裕和による H/MIX GALLERY の音楽シアター入口。森の野外シアターで、タグの星々から音楽を旅する「星図の旅」、1時間のBGMフィルム「夜風」、短編映像「旅する少女」へ。">
+<link rel="canonical" href="https://www.hmix.net/theater/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H/MIX GALLERY">
+<meta property="og:title" content="音の劇場 - H/MIX GALLERY">
+<meta property="og:description" content="星図の旅・夜風・旅する少女 — H/MIX GALLERY の音楽シアター入口。">
+<meta property="og:url" content="https://www.hmix.net/theater/">
+<meta property="og:image" content="https://www.hmix.net/theater/banners/starmap.webp">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@hmix_net">
+<meta name="twitter:title" content="音の劇場 - H/MIX GALLERY">
+<meta name="twitter:description" content="星図の旅・夜風・旅する少女 — H/MIX GALLERY の音楽シアター入口。">
+<meta name="twitter:image" content="https://www.hmix.net/theater/banners/starmap.webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  html,body{ margin:0; padding:0; height:100%; background:#08140e; overflow:hidden; -webkit-font-smoothing:antialiased; }
+  @keyframes flick{ 0%,100%{ opacity:1; } 46%{ opacity:.94; } 48%{ opacity:1; } 71%{ opacity:.97; } 73%{ opacity:1; } 88%{ opacity:.99; } }
+  @keyframes grainShift{ 0%{ transform:translate(0,0); } 100%{ transform:translate(-10%,7%); } }
+  @keyframes glowPulse{ 0%,100%{ opacity:.55; } 50%{ opacity:.8; } }
+  @keyframes introUp{ 0%{ opacity:0; transform:translateY(12px); } 100%{ opacity:1; transform:translateY(0); } }
+  @keyframes pa{ 0%{ transform:translate(0,14px); opacity:0; } 16%{ opacity:.7; } 80%{ opacity:.4; } 100%{ transform:translate(-16px,-30vh); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; } }
+  /* デザイン指定の hover（DC の style-hover を CSS 化） */
+  #ft-cta:hover{ filter:brightness(1.08); transform:translateY(-2px); box-shadow:0 16px 46px -10px rgba(230,200,122,.6); }
+  #ft-cal-btn:hover{ border-color:rgba(230,200,122,.6) !important; color:rgba(238,240,234,.96) !important; }
+  .ft-prog:hover{ opacity:1 !important; transform:translateY(-6px) !important; }
+  .ft-prog:hover [data-thumb]{ filter:brightness(1) !important; }
+  #ft-media-close:hover{ color:#e7ca7c; border-color:rgba(230,200,122,.5); }
+  #ft-bg-switch:hover{ border-color:rgba(230,200,122,.7); color:#fff; }
+  /* 「背景を変えられる」と気づいてもらうための演出 */
+  #ft-bg-switch{ animation: ftBgHint 1.6s ease-out .9s 4 both; }
+  #ft-bg-switch:hover{ animation:none; }
+  @keyframes ftBgHint{
+    0%,100%{ box-shadow:0 0 0 0 rgba(230,200,122,0); border-color:rgba(140,180,150,.5); }
+    45%{ box-shadow:0 0 26px rgba(230,200,122,.5); border-color:rgba(230,200,122,.9); }
+  }
+  #ft-bg-switch .ft-bg-cta{ color:#e7ca7c; font-weight:600; }
+  #ft-bg-switch .ft-bg-sep{ color:rgba(206,226,210,.42); margin:0 1px; }
+  #ft-bg-switch svg{ color:#e7ca7c; }
+  #ft-bg-name{ color:rgba(232,244,234,.96); }
+  #ft-home:hover{ color:#e7ca7c; }
+  /* シアター内蔵YouTubeプレーヤー（自前操作バー・離脱防止シールド） */
+  #ft-yt-ui{ position:absolute; inset:0; z-index:1; opacity:1; transition:opacity .4s ease; }
+  #ft-yt-ui.ft-ui-hide{ opacity:0; }
+  #ft-yt-dim{ position:absolute; inset:0; z-index:1; display:none; place-items:center;
+    background:radial-gradient(ellipse at center, rgba(5,9,7,.26), rgba(5,9,7,.72)); }
+  #ft-yt-dim.on{ display:grid; }
+  #ft-yt-dim .ic{ width:clamp(52px,6.5vw,82px); height:clamp(52px,6.5vw,82px); border-radius:50%; display:grid; place-items:center;
+    color:#e7ca7c; background:rgba(10,18,13,.5); border:1px solid rgba(230,200,122,.5); box-shadow:0 0 30px rgba(230,200,122,.28); }
+  #ft-yt-dim .ic svg{ width:40%; height:40%; margin-left:6%; }
+  #ft-yt-shield{ position:absolute; inset:0; z-index:2; cursor:pointer; background:transparent; }
+  #ft-yt-bar{ position:absolute; left:0; right:0; bottom:0; z-index:3; display:flex; align-items:center; gap:clamp(6px,.7vw,11px);
+    padding:14px clamp(10px,1.4vw,18px) 11px; box-sizing:border-box; font-family:'Noto Sans JP',sans-serif;
+    background:linear-gradient(180deg, rgba(5,9,7,0), rgba(5,9,7,.5) 38%, rgba(5,9,7,.85)); }
+  #ft-yt-ui.ft-ui-hide #ft-yt-bar{ pointer-events:none; }
+  .ft-yt-btn{ flex:0 0 auto; width:clamp(28px,2.4vw,34px); height:clamp(28px,2.4vw,34px); display:grid; place-items:center; cursor:pointer;
+    background:rgba(10,18,13,.5); border:1px solid rgba(160,190,165,.32); border-radius:50%; color:#e7ca7c;
+    -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px); transition:.2s; padding:0; }
+  .ft-yt-btn:hover{ border-color:rgba(230,200,122,.7); color:#fff; background:rgba(20,32,24,.6); }
+  .ft-yt-btn.on{ border-color:rgba(230,200,122,.85); color:#0b1410; background:rgba(230,200,122,.92); }
+  .ft-yt-btn svg{ width:56%; height:56%; }
+  .ft-yt-range{ -webkit-appearance:none; appearance:none; height:4px; border-radius:3px; background:rgba(220,230,222,.24); cursor:pointer; outline:none; }
+  .ft-yt-range::-webkit-slider-thumb{ -webkit-appearance:none; width:12px; height:12px; border-radius:50%; background:#e7ca7c; box-shadow:0 0 8px rgba(230,200,122,.55); }
+  .ft-yt-range::-moz-range-thumb{ width:12px; height:12px; border:0; border-radius:50%; background:#e7ca7c; }
+  #ft-yt-seek{ flex:1 1 auto; min-width:40px; }
+  #ft-yt-time{ flex:0 0 auto; font-size:clamp(10px,.85vw,12px); letter-spacing:.03em; color:rgba(232,240,234,.82); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #ft-yt-vol{ flex:0 0 auto; width:clamp(44px,5vw,68px); }
+  #ft-media:fullscreen, #ft-media:-webkit-full-screen{ left:0!important; top:0!important; width:100%!important; height:100%!important; }
+  #ft-media:fullscreen #ft-media-inner, #ft-media:-webkit-full-screen #ft-media-inner{ -webkit-mask-image:none!important; mask-image:none!important; }
+</style>
+</head>
+<body>
+
+<div id="forest" style="--gold:#caa44e; --green:#3f8060; position:fixed; inset:0; overflow:hidden; background:#08140e; font-family:'Noto Sans JP', sans-serif; color:rgba(238,240,234,.9);">
+
+  <!-- 舞台(画面全面を覆う) -->
+  <div id="ft-stage" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); aspect-ratio:6688/3764; width:max(100vw, 177.68vh); height:auto;">
+
+    <img id="ft-bg-img" src="theater-night-q95.webp" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;">
+
+    <div id="ft-glow" style="position:absolute; left:50.86%; top:47.64%; width:62.8%; height:58.3%; transform:translate(-50%,-50%); border-radius:50%; filter:blur(60px); background:radial-gradient(circle at 50% 46%, rgba(170,205,160,.38), rgba(110,160,120,.13) 46%, transparent 72%); pointer-events:none; animation:glowPulse 9s ease-in-out infinite;"></div>
+
+    <button id="ft-screen" type="button" aria-label="再生" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; padding:0; border:none; cursor:pointer; overflow:hidden; background:#070f0c; box-shadow:inset 0 0 0 1px rgba(180,210,180,.14), inset 0 0 70px rgba(0,0,0,.6);">
+      <img id="ft-screen-img" data-screen-img alt="" src="/theater/banners/starmap.webp?v=20260614b" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.06) brightness(1.03); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;">
+      <div style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 16%, transparent 70%, rgba(0,0,0,.34));"></div>
+      <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(120% 120% at 18% 8%, rgba(130,170,150,.14), transparent 52%);"></div>
+      <div style="position:absolute; inset:-25%; pointer-events:none; opacity:.05; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;); background-size:170px; animation:grainShift 3.2s steps(4) infinite;"></div>
+      <div style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(108deg, transparent 42%, rgba(220,235,210,.06) 50%, transparent 58%); animation:flick 6s linear infinite;"></div>
+      <div id="ft-flash" style="position:absolute; inset:0; pointer-events:none; opacity:0; background:#000;"></div>
+    </button>
+
+    <div id="ft-cal-layer" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; z-index:9; display:none; cursor:move; outline:1.5px dashed rgba(255,255,255,.65); outline-offset:-1px;">
+      <div data-corner="nw" style="position:absolute; left:-7px; top:-7px; width:16px; height:16px; background:rgba(255,255,255,.95); border-radius:3px; box-shadow:0 0 0 1px rgba(0,0,0,.55); cursor:nwse-resize;"></div>
+      <div data-corner="ne" style="position:absolute; right:-7px; top:-7px; width:16px; height:16px; background:rgba(255,255,255,.95); border-radius:3px; box-shadow:0 0 0 1px rgba(0,0,0,.55); cursor:nesw-resize;"></div>
+      <div data-corner="sw" style="position:absolute; left:-7px; bottom:-7px; width:16px; height:16px; background:rgba(255,255,255,.95); border-radius:3px; box-shadow:0 0 0 1px rgba(0,0,0,.55); cursor:nesw-resize;"></div>
+      <div data-corner="se" style="position:absolute; right:-7px; bottom:-7px; width:16px; height:16px; background:rgba(255,255,255,.95); border-radius:3px; box-shadow:0 0 0 1px rgba(0,0,0,.55); cursor:nwse-resize;"></div>
+    </div>
+
+    <!-- スクリーン内メディア（自サーバー動画 / YouTube をスクリーン枠で再生） -->
+    <div id="ft-media" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; z-index:8; display:none; overflow:hidden; background:#05080a; box-shadow:inset 0 0 0 1px rgba(180,210,180,.14), inset 0 0 70px rgba(0,0,0,.6);">
+      <div id="ft-media-inner" style="position:absolute; inset:0; -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;"></div>
+      <button id="ft-media-close" type="button" aria-label="とじる" style="position:absolute; top:7px; right:7px; z-index:2; cursor:pointer; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:rgba(6,12,9,.62); border:1px solid rgba(200,220,205,.3); color:rgba(230,235,225,.85); font-size:13px; line-height:1; -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);">✕</button>
+    </div>
+
+    <div style="position:absolute; inset:0; z-index:3; pointer-events:none;">
+      <div style="position:absolute; left:40%; top:60%; width:2px; height:2px; border-radius:50%; background:rgba(220,230,200,.6); box-shadow:0 0 6px 1px rgba(200,225,150,.3); animation:pa 22s linear infinite;"></div>
+      <div style="position:absolute; left:56%; top:64%; width:1.6px; height:1.6px; border-radius:50%; background:rgba(220,230,200,.5); box-shadow:0 0 5px 1px rgba(200,225,150,.25); animation:pa 28s linear infinite; animation-delay:7s;"></div>
+      <div style="position:absolute; left:63%; top:58%; width:2.2px; height:2.2px; border-radius:50%; background:rgba(220,230,200,.55); box-shadow:0 0 6px 1px rgba(200,225,150,.28); animation:pa 25s linear infinite; animation-delay:13s;"></div>
+    </div>
+
+  </div>
+
+  <!-- 下部の可読スクリム(ビューポート) -->
+  <div style="position:absolute; inset:0; z-index:4; pointer-events:none; background:linear-gradient(180deg, transparent 52%, rgba(6,16,11,.5) 72%, rgba(5,12,9,.95) 100%);"></div>
+
+  <!-- 下部ゾーン: 左に作品情報 / 右に今夜の上映(ビューポート) -->
+  <div id="ft-bottom" style="position:absolute; left:0; right:0; bottom:3.6%; z-index:6; display:flex; align-items:flex-end; justify-content:space-between; gap:clamp(28px,5vw,80px); padding:0 clamp(26px,5vw,90px);">
+    <div id="ft-info" style="flex:1 1 50%; min-width:0;">
+      <div style="opacity:1;">
+        <div style="display:flex; align-items:center; gap:13px; margin-bottom:12px;">
+          <span id="ft-tag" style="font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.16em; color:#0e1f16; background:linear-gradient(135deg, #e6c87a, var(--gold,#caa44e)); border-radius:4px; padding:3px 12px; box-shadow:0 2px 14px -4px rgba(202,164,78,.6);">特集上映</span>
+          <span id="ft-meta" style="font-size:12px; letter-spacing:.12em; color:rgba(196,214,196,.64);">インタラクティブ体験 · 星図をめぐる</span>
+        </div>
+        <h2 id="ft-title" style="margin:0; font-size:clamp(28px,3.4vw,50px); font-weight:700; letter-spacing:.03em; line-height:1.06; color:rgba(245,246,238,.99); text-shadow:0 3px 26px rgba(0,0,0,.9);">星図の旅</h2>
+        <p id="ft-line" style="margin:15px 0 0; max-width:28em; font-family:'Noto Serif JP',serif; font-size:clamp(13px,1.2vw,15px); font-weight:300; letter-spacing:.05em; line-height:1.8; color:rgba(206,222,206,.7); text-shadow:0 2px 14px rgba(0,0,0,.85);">タグの星々をたどり、まだ知らない一曲と出会う旅。</p>
+        <button id="ft-cta" type="button" style="margin-top:24px; display:inline-flex; align-items:center; gap:11px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:.05em; color:#10231a; cursor:pointer; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:8px; padding:14px 32px; box-shadow:0 12px 36px -10px rgba(202,164,78,.5); transition:.25s;"><span style="font-size:13px;">▶</span> <span id="ft-cta-label">入場する</span></button>
+      </div>
+    </div>
+    <div style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
+      <div style="display:flex; align-items:center; gap:11px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.28em; color:rgba(150,194,165,.72);">今夜の上映<span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(150,194,165,.4), transparent);"></span></div>
+      <div id="ft-rail" style="display:flex; align-items:flex-start; gap:clamp(10px,1vw,16px);"></div>
+    </div>
+  </div>
+
+  <!-- 上部バー(ビューポート) -->
+  <header style="position:absolute; top:0; left:0; right:0; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:clamp(14px,1.8vw,26px) clamp(20px,2.6vw,40px); pointer-events:none;">
+    <!-- 劇場のタイトル。ここは劇場入口なので「劇場の入口」へ（サイトTOPには飛ばさない） -->
+    <a href="/theater/" style="pointer-events:auto; display:flex; align-items:baseline; gap:9px; text-decoration:none;">
+      <span style="font-family:'Bebas Neue',sans-serif; font-size:clamp(20px,1.7vw,26px); letter-spacing:.06em; color:#e7ca7c; text-shadow:0 2px 16px rgba(0,0,0,.8);">H/MIX</span>
+      <span style="font-family:'Bebas Neue',sans-serif; font-size:clamp(13px,1.05vw,16px); letter-spacing:.34em; color:rgba(150,194,165,.82); text-shadow:0 2px 16px rgba(0,0,0,.8);">THEATER</span>
+    </a>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <!-- 背景の切り替え（森の劇場 ほか）。位置調整は開発用で非表示（?cal=1 / Shift+C） -->
+      <button id="ft-bg-switch" type="button" title="クリックで背景（劇場の景色）を切り替えます" style="pointer-events:auto; display:inline-flex; align-items:center; gap:8px; font-family:'Noto Sans JP',sans-serif; font-size:12px; letter-spacing:.06em; color:rgba(206,226,210,.85); cursor:pointer; background:rgba(8,16,11,.5); border:1px solid rgba(140,180,150,.5); border-radius:30px; padding:7px 15px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:.25s;">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
+        <span class="ft-bg-cta">背景を変える</span>
+        <span class="ft-bg-sep">·</span>
+        <span id="ft-bg-name">森の野外劇場</span>
+      </button>
+      <a id="ft-home" href="/" style="pointer-events:auto; font-family:'Bebas Neue',sans-serif; font-size:clamp(12px,1vw,15px); letter-spacing:.24em; color:rgba(150,194,165,.82); text-decoration:none; text-shadow:0 2px 16px rgba(0,0,0,.8); transition:color .25s;">HOME</a>
+    </div>
+  </header>
+
+  <!-- 位置調整パネル(ビューポート) -->
+  <div id="ft-cal-panel" style="position:absolute; top:clamp(58px,8%,90px); right:clamp(16px,2.5vw,40px); z-index:30; display:none; flex-direction:column; gap:10px; padding:16px 18px; width:230px; background:rgba(9,18,13,.93); border:1px solid rgba(230,200,122,.32); border-radius:12px; backdrop-filter:blur(10px); box-shadow:0 20px 50px -16px rgba(0,0,0,.8);">
+    <div style="font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.22em; color:#e7ca7c;">SCREEN 位置調整</div>
+    <div id="ft-readout" style="font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.08em; color:rgba(238,240,234,.85); line-height:1.7; white-space:pre;">—</div>
+    <div style="font-size:10.5px; line-height:1.7; letter-spacing:.04em; color:rgba(180,200,185,.55);">ドラッグで移動 · 四隅でサイズ · 矢印キーで微調整(Shiftでサイズ)</div>
+    <div style="display:flex; gap:8px; margin-top:2px;">
+      <button id="ft-reset" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:rgba(200,220,205,.85); background:rgba(63,128,96,.16); border:1px solid rgba(80,140,105,.4); border-radius:7px; padding:9px 0;">リセット</button>
+      <button id="ft-cal-done" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:#10231a; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:7px; padding:9px 0;">完了</button>
+    </div>
+  </div>
+
+  <!-- 開幕の暗転（黒） -->
+  <div id="ft-veil" style="position:fixed; inset:0; z-index:95; pointer-events:none; background:#000; opacity:1; transition:opacity 1.5s ease;"></div>
+
+</div>
+
+<script src="/assets/js/tracks.js"></script>
+<script>
+(function(){
+  var B = '/theater/banners/';
+  var entries = [
+    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html' },
+    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/' },
+    { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
+    { key:'playlist', title:'プレイリスト', tag:'特集', meta:'シアターで観る・聴く', line:'制作実績や厳選プレイリストを、この劇場の中で。', cta:'ひらく', img:B+'youtube-latest.webp', playlist:true }
+  ];
+  // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
+  // 既定値は目安。?cal=1 または Shift+C で微調整 → 背景ごとに localStorage 保存。
+  var BGS = [
+    { key:'forest',   title:'森の野外劇場', img:'theater-night-q95.webp' },
+    { key:'pier',     title:'海辺の夜想',   img:'bg/pier.webp' },
+    { key:'cosmos',   title:'星海の劇場',   img:'bg/cosmos.webp' },
+    { key:'ruins',    title:'緑の遺跡',     img:'bg/ruins.webp' },
+    { key:'fireside', title:'暖炉の私室',   img:'bg/fireside.webp' }
+  ];
+  // スクリーン枠は背景ごとに専用。?cal=1 / Shift+C で各背景を調整 → その背景だけに保存。
+  // 既定は森の確定値。暖炉は絵のスクリーンが高め・大きめなので別の初期値。
+  var DEF = { l:25.11, t:25.23, w:51.5, h:44.82 };
+  var DEFAULT_FRAMES = {
+    forest:   { l:25.11, t:25.23, w:51.5, h:44.82 },
+    pier:     { l:25.11, t:25.23, w:51.5, h:44.82 },
+    cosmos:   { l:25.11, t:25.23, w:51.5, h:44.82 },
+    ruins:    { l:25.11, t:25.23, w:51.5, h:44.82 },
+    fireside: { l:22.0,  t:17.0,  w:56.0, h:53.5 }
+  };
+  var state = { active:0, mediaOpen:false, calibrating:false };
+  var bgIndex = loadBgIndex();
+  var frames = loadFrames();
+  var box = frames[BGS[bgIndex].key];   // 現在背景の専用枠
+  var drag = null;
+
+  var $ = function(id){ return document.getElementById(id); };
+  var stage=$('ft-stage'), glow=$('ft-glow'), screen=$('ft-screen'), screenImg=$('ft-screen-img'),
+      flash=$('ft-flash'), calLayer=$('ft-cal-layer'), calPanel=$('ft-cal-panel'), calBtn=$('ft-cal-btn'),
+      calLabel=$('ft-cal-label'), readout=$('ft-readout'), veil=$('ft-veil'),
+      rail=$('ft-rail'), media=$('ft-media'), mediaInner=$('ft-media-inner'),
+      bgImg=$('ft-bg-img'), bgName=$('ft-bg-name'), bgSwitch=$('ft-bg-switch'),
+      elTag=$('ft-tag'), elMeta=$('ft-meta'), elTitle=$('ft-title'), elLine=$('ft-line'), elCtaLabel=$('ft-cta-label');
+  var railEls = [];
+
+  function loadBgIndex(){ try{ var k=localStorage.getItem('forest.bg.v1'); for(var i=0;i<BGS.length;i++) if(BGS[i].key===k) return i; }catch(_){} return 0; }
+  function curKey(){ return BGS[bgIndex].key; }
+  function loadFrames(){
+    var out={};
+    BGS.forEach(function(g){ out[g.key]=Object.assign({}, DEFAULT_FRAMES[g.key]||DEF); });
+    BGS.forEach(function(g){ try{ var s=localStorage.getItem('forest.frame.'+g.key); if(s){ var o=JSON.parse(s); if(o&&typeof o.l==='number') out[g.key]=o; } }catch(_){} });
+    // 旧・単一共通設定(v1/v2)があれば、未保存の背景に引き継ぐ
+    try{ var sc=localStorage.getItem('forest.screenBox.v2')||localStorage.getItem('forest.screenBox.v1'); if(sc){ var oc=JSON.parse(sc); if(oc&&typeof oc.l==='number'){ BGS.forEach(function(g){ if(!localStorage.getItem('forest.frame.'+g.key)) out[g.key]=Object.assign({}, oc); }); } } }catch(_){}
+    return out;
+  }
+  function saveBox(){ try{ localStorage.setItem('forest.frame.'+curKey(), JSON.stringify(box)); }catch(_){} }
+  function switchBg(i){
+    bgIndex = ((i % BGS.length) + BGS.length) % BGS.length;
+    var g = BGS[bgIndex];
+    box = frames[g.key];   // この背景の専用枠（適用は画像準備後）
+    try{ localStorage.setItem('forest.bg.v1', g.key); }catch(_){}
+    // 背景画像とスクリーン枠（＋タイトル）を「同時」に切り替える。
+    // 新画像を先読みし、準備できた瞬間に同フレームで差し替え＋枠適用（先に枠だけ動かない）。
+    var tok = (switchBg._t = (switchBg._t || 0) + 1);
+    function apply(){
+      if(switchBg._t !== tok) return;            // 連打時は最新のみ適用
+      if(bgImg) bgImg.setAttribute('src', g.img);
+      if(bgName) bgName.textContent = g.title;
+      applyBox(); updateReadout();
+    }
+    var pre = new Image();
+    pre.onload = apply; pre.onerror = apply;
+    pre.src = g.img;
+    if(pre.complete) apply();                    // キャッシュ済みなら即時
+  }
+
+  function applyBox(){
+    var b = box;
+    if(screen){ screen.style.left=b.l+'%'; screen.style.top=b.t+'%'; screen.style.width=b.w+'%'; screen.style.height=b.h+'%'; }
+    if(calLayer){ calLayer.style.left=b.l+'%'; calLayer.style.top=b.t+'%'; calLayer.style.width=b.w+'%'; calLayer.style.height=b.h+'%'; }
+    if(media){ media.style.left=b.l+'%'; media.style.top=b.t+'%'; media.style.width=b.w+'%'; media.style.height=b.h+'%'; }
+    if(glow){ glow.style.left=(b.l+b.w/2)+'%'; glow.style.top=(b.t+b.h/2)+'%'; glow.style.width=(b.w*1.22)+'%'; glow.style.height=(b.h*1.3)+'%'; }
+  }
+  function applyCalUI(){
+    var on = state.calibrating;
+    if(calLayer) calLayer.style.display = on ? 'block' : 'none';
+    if(calPanel) calPanel.style.display = on ? 'flex' : 'none';
+    if(calLabel) calLabel.textContent = on ? '調整を終える' : '位置調整';
+    if(calBtn) calBtn.style.borderColor = on ? 'rgba(230,200,122,.7)' : 'rgba(80,140,105,.35)';
+  }
+  function updateReadout(){ if(readout){ var b=box; readout.textContent = '【'+BGS[bgIndex].title+'】\nL '+b.l.toFixed(1)+'  T '+b.t.toFixed(1)+'\nW '+b.w.toFixed(1)+'  H '+b.h.toFixed(1); } }
+
+  function buildRail(){
+    rail.innerHTML='';
+    railEls = entries.map(function(e, i){
+      var btn = document.createElement('button');
+      btn.type='button'; btn.className='ft-prog';
+      btn.style.cssText='display:flex; flex-direction:column; align-items:center; gap:8px; width:clamp(98px,7.4vw,134px); padding:0; background:none; border:none; cursor:pointer; opacity:.5; transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);';
+      btn.innerHTML =
+        '<div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:4px; overflow:hidden; background:#0a120e; box-shadow:0 14px 28px -14px rgba(0,0,0,.85);">' +
+          '<img alt="" data-thumb src="'+e.img+'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.72);">' +
+          '<div data-rb style="position:absolute; inset:0; border-radius:4px; box-shadow:inset 0 0 0 0 transparent; transition:box-shadow .4s ease;"></div>' +
+        '</div>' +
+        '<div style="font-size:11.5px; font-weight:500; letter-spacing:.04em; color:rgba(214,226,212,.82); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">'+e.title+'</div>' +
+        '<div data-underline style="width:0; height:2px; border-radius:2px; background:var(--gold,#caa44e); transition:width .4s ease;"></div>';
+      btn.addEventListener('click', function(){ select(i); });
+      rail.appendChild(btn);
+      return btn;
+    });
+  }
+  function styleRail(i){
+    var el = railEls[i]; if(!el) return;
+    var on = i === state.active;
+    el.style.opacity = on ? '1' : '.5';
+    el.style.transform = on ? 'translateY(-6px)' : 'none';
+    var rb = el.querySelector('[data-rb]'); if(rb) rb.style.boxShadow = on ? 'inset 0 0 0 2px var(--gold,#caa44e)' : 'inset 0 0 0 0 transparent';
+    var ul = el.querySelector('[data-underline]'); if(ul) ul.style.width = on ? '36px' : '0';
+    var im = el.querySelector('[data-thumb]'); if(im) im.style.filter = on ? 'brightness(1)' : 'brightness(.72)';
+  }
+  function styleAllRail(){ for(var i=0;i<entries.length;i++) styleRail(i); }
+
+  function renderInfo(){
+    var c = entries[state.active] || entries[0];
+    if(elTag) elTag.textContent = c.tag;
+    if(elMeta) elMeta.textContent = c.meta;
+    if(elTitle) elTitle.textContent = c.title;
+    if(elLine) elLine.textContent = c.line;
+    if(elCtaLabel) elCtaLabel.textContent = c.cta;
+  }
+
+  function reelChange(){
+    var e = entries[state.active];
+    if(flash){ flash.style.transition='none'; flash.style.opacity='1'; }
+    setTimeout(function(){
+      if(screenImg) screenImg.setAttribute('src', e.img);
+      if(flash){ flash.style.transition='opacity .6s ease'; flash.style.opacity='0'; }
+    }, 150);
+  }
+
+  function open(e){
+    if(state.calibrating) return;
+    if(!e) return;
+    if(e.playlist){ openPlaylistMode(); return; }        // シアター内プレイリスト（遷移しない）
+    if(e.yt){ playInScreen('yt', e.yt); return; }       // YouTube をスクリーン内で
+    if(e.film){ playInScreen('video', e.film); return; } // 自サーバー動画をスクリーン内で
+    if(e.href){ fadeNavigate(e.href, e.blank); return; } // 全画面コンテンツはフェードして遷移
+  }
+  // スクリーン枠の中で再生（動画 / YouTube）
+  function playInScreen(kind, src){
+    if(!media || !mediaInner) return;
+    if(kind === 'video'){
+      mediaInner.innerHTML = '<video id="ft-screen-video" controls autoplay playsinline preload="auto" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;"></video>';
+      var v = document.getElementById('ft-screen-video');
+      if(v){ v.src = src; var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+    } else if(kind === 'yt'){
+      buildYTPlayer(src);   // プレイリスト/単曲を「シアター専用プレーヤー」で枠内再生（離脱防止・自前操作）
+    }
+    state.mediaOpen = true;
+    media.style.display = 'block';
+  }
+  function closeMedia(){
+    state.mediaOpen = false;
+    clearInterval(ytProgT); clearTimeout(ytIdleT);
+    try{ if(ytPlayer && ytPlayer.destroy) ytPlayer.destroy(); }catch(e){}
+    ytPlayer = null;
+    var ui = document.getElementById('ft-yt-ui'); if(ui && ui.parentNode) ui.parentNode.removeChild(ui);
+    try{ if(document.fullscreenElement) (document.exitFullscreen||function(){}).call(document); }catch(e){}
+    if(mediaInner) mediaInner.innerHTML = '';   // video/iframe を破棄して再生停止
+    if(media) media.style.display = 'none';
+  }
+
+  // ============ シアター内蔵 YouTube プレーヤー ============
+  // YouTube IFrame API ＋ 自前操作バー（音量/シーク/前後/全画面）。
+  // sandbox（popup/top遷移なし）＋ controls=0 ＋ クリックシールドで、操作しても外へ出ない。
+  var ytPlayer = null, ytApiLoading = false, ytReadyCbs = [], ytProgT = 0, ytIdleT = 0;
+  var YT_SVG = {
+    play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>',
+    prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zM20 6v12l-9-6z"/></svg>',
+    next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM4 6l9 6-9 6z"/></svg>',
+    vol:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 9v6h3l4 4V5L8 9H5z" fill="currentColor" stroke="none"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>',
+    mute:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 9v6h3l4 4V5L8 9H5z" fill="currentColor" stroke="none"/><path d="M16 9l5 6M21 9l-5 6"/></svg>',
+    fs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>',
+    fit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="1"/><path d="M8 9l-2 3 2 3M16 9l2 3-2 3"/></svg>'
+  };
+  // 映像の表示モード（contain=ぴったり/cover=フィル）。枠が約2:1で16:9動画が小さく見える対策
+  var ytCover=false; try{ ytCover=(localStorage.getItem('hmix.theater.ytFit')==='cover'); }catch(e){}
+  function applyFit(){
+    var f=document.getElementById('ft-yt-frame'); if(!f) return;
+    if(!ytCover){ f.style.transform=''; return; }
+    var r=media.getBoundingClientRect(); if(!r.width||!r.height){ f.style.transform=''; return; }
+    var fa=r.width/r.height, va=16/9, k=(fa>=va)?(fa/va):(va/fa);
+    f.style.transformOrigin='center'; f.style.transform='scale('+(Math.max(1,k)).toFixed(3)+')';
+  }
+  function ytFmt(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60), ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  function loadYTApi(cb){
+    if(window.YT && window.YT.Player){ cb(); return; }
+    ytReadyCbs.push(cb);
+    if(ytApiLoading) return; ytApiLoading = true;
+    var prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function(){ if(prev){ try{prev();}catch(e){} } var cbs=ytReadyCbs.splice(0); for(var i=0;i<cbs.length;i++){ try{cbs[i]();}catch(e){} } };
+    var s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s);
+  }
+  function buildYTPlayer(src){
+    var isList = /^(PL|UU|OL|FL|RD|LL)/.test(src) || src.length > 20;
+    var origin = encodeURIComponent(location.protocol + '//' + location.host);
+    var base = 'https://www.youtube-nocookie.com/embed/';
+    var common = 'enablejsapi=1&controls=0&rel=0&playsinline=1&modestbranding=1&autoplay=1&iv_load_policy=3&fs=0&disablekb=1&origin=' + origin;
+    var url = isList ? (base + 'videoseries?list=' + src + '&loop=1&' + common)
+                     : (base + src + '?playlist=' + src + '&loop=1&' + common);
+    mediaInner.innerHTML = '<iframe id="ft-yt-frame" allow="autoplay; encrypted-media; picture-in-picture" sandbox="allow-scripts allow-same-origin allow-presentation" src="' + url + '" style="position:absolute; inset:0; width:100%; height:100%; border:0; background:#000;"></iframe>';
+
+    var ui = document.createElement('div'); ui.id = 'ft-yt-ui';
+    ui.innerHTML =
+      '<div id="ft-yt-dim" class="on"><span class="ic">' + YT_SVG.play + '</span></div>' +
+      '<div id="ft-yt-shield"></div>' +
+      '<div id="ft-yt-bar">' +
+        '<button class="ft-yt-btn" id="ft-yt-play" type="button" aria-label="再生/一時停止">' + YT_SVG.play + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-prev" type="button" aria-label="前の曲">' + YT_SVG.prev + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-next" type="button" aria-label="次の曲">' + YT_SVG.next + '</button>' +
+        '<input id="ft-yt-seek" class="ft-yt-range" type="range" min="0" max="1000" value="0" step="1" aria-label="シーク">' +
+        '<span id="ft-yt-time">0:00 / 0:00</span>' +
+        '<button class="ft-yt-btn" id="ft-yt-mute" type="button" aria-label="ミュート">' + YT_SVG.vol + '</button>' +
+        '<input id="ft-yt-vol" class="ft-yt-range" type="range" min="0" max="100" value="100" step="1" aria-label="音量">' +
+        '<button class="ft-yt-btn'+(ytCover?' on':'')+'" id="ft-yt-fit" type="button" aria-label="表示（ぴったり／フィル）" title="ぴったり／フィル">' + YT_SVG.fit + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-fs" type="button" aria-label="全画面">' + YT_SVG.fs + '</button>' +
+      '</div>';
+    media.appendChild(ui);
+
+    var seek = ui.querySelector('#ft-yt-seek'), vol = ui.querySelector('#ft-yt-vol'),
+        timeEl = ui.querySelector('#ft-yt-time'), playBtn = ui.querySelector('#ft-yt-play'),
+        muteBtn = ui.querySelector('#ft-yt-mute'), shield = ui.querySelector('#ft-yt-shield');
+    var seeking = false;
+    function toggle(){ if(!ytPlayer || !ytPlayer.getPlayerState) return; if(ytPlayer.getPlayerState() === 1) ytPlayer.pauseVideo(); else ytPlayer.playVideo(); }
+    shield.addEventListener('click', toggle);
+    playBtn.addEventListener('click', toggle);
+    ui.querySelector('#ft-yt-prev').addEventListener('click', function(){ ytRel(-1); });
+    ui.querySelector('#ft-yt-next').addEventListener('click', function(){ ytRel(1); });
+    seek.addEventListener('input', function(){ seeking = true; });
+    seek.addEventListener('change', function(){ if(ytPlayer && ytPlayer.getDuration){ ytPlayer.seekTo((ytPlayer.getDuration()||0) * (seek.value/1000), true); } seeking = false; });
+    vol.addEventListener('input', function(){ if(ytPlayer){ ytPlayer.setVolume(+vol.value); if(+vol.value > 0 && ytPlayer.isMuted && ytPlayer.isMuted()){ ytPlayer.unMute(); muteBtn.innerHTML = YT_SVG.vol; } } });
+    muteBtn.addEventListener('click', function(){ if(!ytPlayer || !ytPlayer.isMuted) return; if(ytPlayer.isMuted()){ ytPlayer.unMute(); if(+vol.value === 0){ vol.value = 100; ytPlayer.setVolume(100); } muteBtn.innerHTML = YT_SVG.vol; } else { ytPlayer.mute(); muteBtn.innerHTML = YT_SVG.mute; } });
+    var fitBtn=ui.querySelector('#ft-yt-fit');
+    fitBtn.addEventListener('click', function(){ ytCover=!ytCover; try{ localStorage.setItem('hmix.theater.ytFit', ytCover?'cover':'contain'); }catch(e){} fitBtn.classList.toggle('on', ytCover); applyFit(); });
+    ui.querySelector('#ft-yt-fs').addEventListener('click', toggleYTFs);
+    var onFsFit=function(){ setTimeout(applyFit, 60); };
+    document.addEventListener('fullscreenchange', onFsFit);
+    document.addEventListener('webkitfullscreenchange', onFsFit);
+
+    function showUI(){ ui.classList.remove('ft-ui-hide'); clearTimeout(ytIdleT); ytIdleT = setTimeout(function(){ if(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1) ui.classList.add('ft-ui-hide'); }, 2800); }
+    media.addEventListener('pointermove', showUI);
+    showUI();
+
+    clearInterval(ytProgT);
+    ytProgT = setInterval(function(){
+      if(!ytPlayer || !ytPlayer.getDuration) return;
+      var d = ytPlayer.getDuration() || 0, c = ytPlayer.getCurrentTime() || 0;
+      if(!seeking && d > 0) seek.value = Math.round(c / d * 1000);
+      timeEl.textContent = ytFmt(c) + ' / ' + ytFmt(d);
+    }, 500);
+
+    loadYTApi(function(){
+      if(!document.getElementById('ft-yt-frame')) return;   // 既に閉じられていたら作らない
+      ytPlayer = new YT.Player('ft-yt-frame', { events: {
+        'onReady': function(ev){
+          try{ ev.target.setVolume(+vol.value); }catch(e){}
+          try{ applyFit(); }catch(e){}
+          // プレイリストはAPI側で読み込み直して「次へ/前へ」を有効化（sandboxは維持）
+          if(isList){
+            try{ ev.target.loadPlaylist({ list: src, listType:'playlist', index:0 }); }catch(e){}
+            var tries=0; (function poll(){ if(tries++>14) return; try{ ytSyncList(); }catch(e){} if(!ytVidIds.length) setTimeout(poll, 450); })();
+          }
+        },
+        'onStateChange': function(ev){
+          var playing = (ev.data === 1);
+          playBtn.innerHTML = playing ? YT_SVG.pause : YT_SVG.play;
+          var dim = ui.querySelector('#ft-yt-dim');
+          if(dim){ if(playing || ev.data === 3) dim.classList.remove('on'); else dim.classList.add('on'); }
+          if(playing){ showUI(); try{ hideNoEmbed(); }catch(e){} }
+          try{ ytSyncList(); }catch(e){}
+        },
+        'onError': function(ev){
+          // 101/150 = 権利者が埋め込みを許可していない（100=削除/非公開）→ 印を付けて次へ
+          if(ev.data===101 || ev.data===150 || ev.data===100){
+            var vid=curVideoId(); if(vid){ ytNoEmbed[vid]=1; ytLastCur=-1; try{ ytSyncList(); }catch(e){} }
+            try{ showNoEmbed(); }catch(e){}
+            setTimeout(function(){ ytRel(1); }, 2600);
+          }
+        }
+      }});
+    });
+  }
+  function toggleYTFs(){
+    var el = media, d = document;
+    var fsEl = d.fullscreenElement || d.webkitFullscreenElement;
+    if(!fsEl){ (el.requestFullscreen || el.webkitRequestFullscreen || function(){}).call(el); }
+    else { (d.exitFullscreen || d.webkitExitFullscreen || function(){}).call(d); }
+  }
+  // 全画面コンテンツ（星図の旅 / 夜風）へ、軽くフェードしてから遷移
+  function fadeNavigate(url, blank){
+    if(blank){ window.open(url, '_blank', 'noopener'); return; }
+    if(veil){
+      veil.style.display = 'block';
+      veil.style.transition = 'opacity .5s ease';
+      requestAnimationFrame(function(){ veil.style.opacity = '1'; });
+    }
+    setTimeout(function(){ window.location.href = url; }, 520);
+  }
+
+  function select(i){
+    if(i === state.active) return;
+    closeMedia();              // 別の作品に切り替えたら再生中メディアは閉じる
+    state.active = i;
+    renderInfo(); reelChange(); styleAllRail();
+  }
+
+  function toggleCal(){ state.calibrating = !state.calibrating; applyCalUI(); updateReadout(); }
+  function resetBox(){ var d=DEFAULT_FRAMES[curKey()]||DEF; box.l=d.l; box.t=d.t; box.w=d.w; box.h=d.h; applyBox(); saveBox(); updateReadout(); }
+
+  function onCalDown(ev){
+    if(!state.calibrating) return;
+    var corner = ev.target && ev.target.getAttribute ? ev.target.getAttribute('data-corner') : null;
+    drag = { corner:corner, sx:ev.clientX, sy:ev.clientY, box:Object.assign({}, box) };
+    ev.preventDefault();
+  }
+  function onDocMove(ev){
+    if(!drag || !stage) return;
+    var r = stage.getBoundingClientRect();
+    var dx = (ev.clientX - drag.sx) / r.width * 100;
+    var dy = (ev.clientY - drag.sy) / r.height * 100;
+    var o = drag.box, b = box, c = drag.corner;
+    if(!c){ b.l = o.l + dx; b.t = o.t + dy; }
+    else {
+      if(c.indexOf('w') >= 0){ b.l = o.l + dx; b.w = o.w - dx; }
+      if(c.indexOf('e') >= 0){ b.w = o.w + dx; }
+      if(c.indexOf('n') >= 0){ b.t = o.t + dy; b.h = o.h - dy; }
+      if(c.indexOf('s') >= 0){ b.h = o.h + dy; }
+    }
+    if(b.w < 6) b.w = 6; if(b.h < 6) b.h = 6;
+    applyBox(); updateReadout();
+  }
+  function onDocUp(){ if(drag){ drag = null; saveBox(); } }
+
+  function onKey(ev){
+    if((ev.key === 'A' || ev.key === 'a') && ev.shiftKey){ toggleAdmin(); return; }   // 秋山用 裏フォーム
+    if(state.playlistMode && ev.key === 'Escape'){ closePlaylistMode(); return; }
+    if(state.mediaOpen && ev.key === 'Escape'){ closeMedia(); return; }
+    if((ev.key === 'C' || ev.key === 'c') && ev.shiftKey){ toggleCal(); return; }  // 開発用: 位置調整の隠し起動
+    if(!state.calibrating) return;
+    if(ev.key === 'Escape'){ toggleCal(); return; }
+    var b = box, moved = false, s = ev.shiftKey;
+    if(ev.key === 'ArrowLeft'){ if(s) b.w -= 0.1; else b.l -= 0.1; moved = true; }
+    else if(ev.key === 'ArrowRight'){ if(s) b.w += 0.1; else b.l += 0.1; moved = true; }
+    else if(ev.key === 'ArrowUp'){ if(s) b.h -= 0.1; else b.t -= 0.1; moved = true; }
+    else if(ev.key === 'ArrowDown'){ if(s) b.h += 0.1; else b.t += 0.1; moved = true; }
+    if(moved){ ev.preventDefault(); applyBox(); saveBox(); updateReadout(); }
+  }
+
+  function projectorOn(){
+    if(veil){
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ veil.style.opacity = '0'; }); });
+      setTimeout(function(){ if(veil) veil.style.display = 'none'; }, 1600);
+    }
+    setTimeout(function(){
+      if(flash){ flash.style.transition='none'; flash.style.opacity='.85'; requestAnimationFrame(function(){ flash.style.transition='opacity .7s ease'; flash.style.opacity='0'; }); }
+    }, 850);
+  }
+
+  // ===== シアター内プレイリスト（全画面にしない・この部屋の中で完結） =====
+  var FAVK = 'hmix_favorites';
+  function favSet(){ try{ return new Set(JSON.parse(localStorage.getItem(FAVK)||'[]').map(String)); }catch(_){ return new Set(); } }
+  function favSave(s){ try{ localStorage.setItem(FAVK, JSON.stringify(Array.from(s))); window.dispatchEvent(new Event('favorites:updated')); }catch(_){} }
+  function isFav(id){ return favSet().has(String(id)); }
+  function toggleFavId(id){ var s=favSet(); id=String(id); if(s.has(id)) s.delete(id); else s.add(id); favSave(s); return s.has(id); }
+  function allTags(t){ return [].concat(t.feeling||[], t.style||[], t.scene||[], t.story||[]).map(String); }
+  function tracksByTags(tags){ var T=window.TRACKS||[]; tags=tags.map(String);
+    return T.filter(function(t){ var a=allTags(t); for(var i=0;i<tags.length;i++) if(a.indexOf(tags[i])>=0) return true; return false; }); }
+  function fmtDur(t){ if(t.duration) return t.duration; var s=t.durationSec||0,m=Math.floor(s/60),ss=Math.round(s%60); return m+':'+(ss<10?'0':'')+ss; }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  var PLAYLISTS = [
+    { id:'works', type:'youtube', name:'制作実績 — 採用作品', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', yt:'PLRuMOP8RWDC96MDBohKVZG7UnmxQgRbqZ', titles:{"rZi1Seibaho":"雪組公演『るろうに剣心』制作発表会　ダイジェスト","F7WyPHQs8lo":"【公式PV】天倫の桜 | 佐倉市サムライRPG","9bFwkLfXA1Q":"テレビCM動画「クリーニング専科」（8のつく日は提携カードで8%オフ篇）（Crevo制作実績）","5oJLIptjyXQ":"テレビCM動画「TAKU Hi! ウーサー」（Crevo制作実績）","pLditcHvs5U":"2019 大曲の花火 ー秋の章ー 第4幕 フィナーレ花火「竹取物語」","wev_Mvk_KEk":"GUARDIAN OF THE FOREST FOR ATTA","_D000p1lPNY":"【MV】砂咲き山～風の松原ver.","XtPllO-Nhgw":"【短編映画】佐倉市市制施行70周年記念ムービー「未来へ」（上村奈帆 脚本・監督）※日本語字幕対応（2024/11/11）","2tZ498s3IxM":"【テーマ曲】はら、はらり","x_Ob4rE7YPo":"GC1【初めての話】ファンキー・中村とパウチが放つ怪談&バラエティ。2019年最新版です！ #実話怪談 #怪談 #怖い話","DX6Xe25Tnzw":"てらとまつRADIO＃01 天使降臨。(ゲスト：大空直美)","G5HlvWAtCMY":"アニメ『刀剣乱舞-花丸-』 ティザーPV第2弾","UkvJ8VcoQ08":"臨海副都心の新たなランドマークの設置について～ お台場海浜公園に噴水「東京アクアシンフォニー」を整備 ～","icshbddktDE":"ピアノめちゃめちゃ似合った（和風BGM）Pianocover  秋山裕和 (Hirokazu Akiyama)　「四ツ目神」 神曲　癒し音楽　＃月夜蝶","bgsd3qP0hSw":"YouTubeで100万回聞くやつLv.999999【ストリートピアノ】","rdglI0Skkts":"誰でもヒカキンになれるおもちゃ『ヒカキンボックス』がついに登場！【HIKAKIN BOX】","R1ATV8dfmM8":"Alice Mare OST - El Paradiso","i1EPBp3rdEo":"ヒミコ～知られざる旅 主題歌 「いつかの大地へ」MV","9zj7nmbn9ac":"『はら、はらり』劇場PV～牡丹","u8btriUVWFw":"《ダンスパフォーマンス》【オリジナル楽曲】日本開花（舞台「天地に咲く～幕末篇」より）エンディング","a-NbqHVmwPs":"【ネタバレ注意】アルパカにいさん Lv10〜ED(人間と神編) TR","c1efjlDg1mM":"iPhoneアプリ『繚乱三国演義』のチュートリアル（序盤プレイ）動画","Tz0yUUcGocQ":"オービットサーガ 公式プレイ動画","23EblubLBMg":"マッドファーザーより風寂の散歩道","HzrJtxAIYMI":"【MV】花よ、川よ、この大地よ","REiNeiVKoPc":"やむにやまれぬ蒼2024｜映像配信トレーラー","c-W34JOuckk":"やむにやまれぬ蒼2024～150年後の君へ～｜PV第2弾","tH3vj0iBpSE":"炎舞〜舞台【やむにやまれぬ蒼】より〜","kHJbcQL6qe8":"H/MIX GALLERY 14年ぶりの大リニューアル｜フリーBGM 302曲 / 和風・ファンタジー音楽素材"} },
+    { id:'wahoror', type:'tracks', name:'和風ホラー 名曲選', sub:'タグ自動 · 和風 / ホラー', icon:'♪', cls:'plM', tags:['japanese_horror','oriental'] },
+    { id:'battle',  type:'tracks', name:'戦闘・ボス戦',     sub:'タグ自動 · 戦闘 / ボス',  icon:'♪', cls:'plM', tags:['battle','boss'] },
+    { id:'suspense',type:'tracks', name:'緊迫・サスペンス',  sub:'タグ自動 · 緊迫 / 闇',    icon:'⟳', cls:'plA', tags:['suspense','dark'] }
+  ];
+  var plBuilt=false, plActive=0, plAudio=null, plPlayingId=null;
+  var ytVidIds=[], ytTitles={};
+
+  function buildPlaylistUI(){
+    if(plBuilt) return; plBuilt=true;
+    var css =
+      '#ft-pl{position:fixed; inset:0; z-index:12; pointer-events:none; display:none;}'+
+      '#ft-pl.on{display:block;}'+
+      '#ft-pl-panel{position:absolute; right:2.2%; top:15%; width:min(30%,430px); max-height:64%; pointer-events:auto;'+
+        'background:linear-gradient(180deg, rgba(8,15,11,.78), rgba(6,11,9,.86)); border:1px solid rgba(150,190,160,.22);'+
+        'border-radius:14px; -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); box-shadow:0 24px 60px -22px rgba(0,0,0,.7); display:flex; flex-direction:column; overflow:hidden;}'+
+      '#ft-pl-head{padding:15px 16px 10px;}'+
+      '#ft-pl-head h4{margin:0; font-family:"Noto Serif JP",serif; font-size:15px; font-weight:600; color:#f3ecd9; letter-spacing:.05em;}'+
+      '#ft-pl-head p{margin:4px 0 0; font-size:10.5px; color:rgba(190,210,195,.6); letter-spacing:.04em;}'+
+      '#ft-pl-body{overflow:auto; padding:4px 12px 12px;}'+
+      '.pl-row{display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:10px; margin-bottom:7px; background:rgba(12,20,15,.5); border:1px solid rgba(120,160,135,.16);}'+
+      '.pl-row.playing{border-color:rgba(231,202,124,.6); background:rgba(40,33,20,.4);}'+
+      '.pl-h{font-size:15px; width:18px; text-align:center; flex:0 0 auto; cursor:pointer; color:#e7ca7c; background:none; border:none; padding:0; line-height:1;}'+
+      '.pl-h.on{color:#e7677a;}'+
+      '.pl-ix{font-family:"Bebas Neue",sans-serif; font-size:13px; color:rgba(190,210,195,.55); width:18px; flex:0 0 auto;}'+
+      '.pl-nm{flex:1 1 auto; min-width:0; font-size:13px; color:#eaf1ea; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}'+
+      '.pl-nm small{display:block; color:rgba(190,210,195,.5); font-size:10px; margin-top:2px;}'+
+      '.pl-dur{font-size:11px; color:rgba(200,220,205,.7); flex:0 0 auto;}'+
+      '.pl-mini{font-size:10.5px; padding:5px 9px; border-radius:16px; border:1px solid rgba(160,190,165,.32); color:#e7ca7c; white-space:nowrap; flex:0 0 auto; text-decoration:none; cursor:pointer; background:none; line-height:1;}'+
+      '.pl-mini.play{background:rgba(231,202,124,.14);}'+
+      '.pl-note{font-size:12px; line-height:1.85; color:rgba(206,222,206,.72); padding:6px 4px;}'+
+      '.pl-note a{color:#e7ca7c;}'+
+      '#ft-pl-dock{position:absolute; left:0; right:0; bottom:0; pointer-events:auto; padding:12px clamp(20px,3vw,40px) 16px; background:linear-gradient(180deg, rgba(5,9,7,0), rgba(5,9,7,.55) 45%, rgba(5,9,7,.85));}'+
+      '#ft-pl-dock .dk{display:flex; align-items:center; gap:12px; margin-bottom:10px;}'+
+      '#ft-pl-dock .dk b{font-family:"Bebas Neue",sans-serif; letter-spacing:.28em; font-size:11px; color:rgba(150,194,165,.78); font-weight:400;}'+
+      '#ft-pl-close{margin-left:auto; font-size:11.5px; color:rgba(206,226,210,.8); background:rgba(10,18,13,.5); border:1px solid rgba(140,180,150,.4); border-radius:20px; padding:6px 13px; cursor:pointer;}'+
+      '#ft-pl-sel{display:flex; gap:11px; flex-wrap:wrap;}'+
+      '.plc{display:flex; gap:10px; align-items:center; padding:9px 13px; border-radius:12px; cursor:pointer; background:rgba(10,18,13,.5); border:1px solid rgba(120,160,135,.2); -webkit-backdrop-filter:blur(6px);}'+
+      '.plc.sel{border-color:rgba(231,202,124,.8); background:linear-gradient(135deg, rgba(42,34,20,.7), rgba(12,20,15,.7)); box-shadow:0 0 22px -8px rgba(231,202,124,.5);}'+
+      '.plc .pic{width:34px; height:34px; border-radius:8px; display:grid; place-items:center; font-size:15px; flex:0 0 auto;}'+
+      '.plc .plY{background:linear-gradient(135deg,#3a1410,#5a1c14); color:#ffb3a0;}'+
+      '.plc .plM{background:linear-gradient(135deg,#10231a,#1c3a2a); color:#9fe0c0;}'+
+      '.plc .plA{background:linear-gradient(135deg,#0e1a2a,#16283a); color:#a8d0f1;}'+
+      '.plc .nm{font-size:12.5px; color:#eaf1ea; font-weight:500;}'+
+      '.plc .mt{font-size:10px; color:rgba(190,210,195,.6); margin-top:3px;}'+
+      '#ft-pl-art{position:absolute; inset:0; display:grid; place-items:center; text-align:center; background:radial-gradient(80% 80% at 50% 40%, #1b2b31, #070b0c);}'+
+      '#ft-pl-art .big{font-size:46px; color:rgba(231,202,124,.85);}'+
+      '#ft-pl-art .nm{font-family:"Noto Serif JP",serif; font-size:18px; color:#f3ecd9; margin-top:10px;}'+
+      '#ft-pl-art .np{font-size:12px; color:rgba(206,222,206,.7); margin-top:14px;}'+
+      '.pl-vrow{display:flex; align-items:center; gap:11px; padding:8px; border-radius:10px; margin-bottom:7px; cursor:pointer; background:rgba(12,20,15,.5); border:1px solid rgba(120,160,135,.16); transition:.18s;}'+
+      '.pl-vrow:hover{border-color:rgba(231,202,124,.45); background:rgba(20,32,24,.6);}'+
+      '.pl-vrow.playing{border-color:rgba(231,202,124,.85); background:rgba(40,33,20,.55);}'+
+      '.pl-vth{position:relative; width:104px; height:58px; flex:0 0 auto; border-radius:6px; overflow:hidden; background:#0a120e;}'+
+      '.pl-vth img{width:100%; height:100%; object-fit:cover; display:block;}'+
+      '.pl-vplay{position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-size:17px; opacity:0; background:rgba(0,0,0,.35); transition:.18s;}'+
+      '.pl-vrow:hover .pl-vplay, .pl-vrow.playing .pl-vplay{opacity:1;}'+
+      '.pl-vrow.playing .pl-vplay{background:rgba(0,0,0,.12);}'+
+      '.pl-vmeta{flex:1 1 auto; min-width:0;}'+
+      '.pl-vix{font-family:"Bebas Neue",sans-serif; letter-spacing:.16em; font-size:10px; color:rgba(231,202,124,.82);}'+
+      '.pl-vt{font-size:12.5px; color:#eaf1ea; margin-top:3px; line-height:1.4; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;}'+
+      '.pl-vnow{flex:0 0 auto; font-family:"Bebas Neue",sans-serif; font-size:9px; letter-spacing:.14em; color:#10231a; background:linear-gradient(135deg,#e7ca7c,#caa44e); border-radius:10px; padding:3px 7px; opacity:0;}'+
+      '.pl-vrow.playing .pl-vnow{opacity:1;}'+
+      '.pl-vrow.noembed{opacity:.5;}'+
+      '.pl-vrow.noembed .pl-vt::after{content:" · 埋め込み不可"; color:#e7677a; font-size:10px;}'+
+      /* 世界観重視: マウスが数秒止まったらUIを隠す */
+      '#ft-pl-panel, #ft-pl-dock, header{transition:opacity .6s ease;}'+
+      'body.ft-ui-idle #ft-pl-panel, body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
+      'body.ft-ui-idle header{opacity:0; pointer-events:none;}'+
+      'body.ft-ui-idle{cursor:none;}'+
+      'body.ft-ui-idle #ft-used{opacity:0; pointer-events:none;}'+
+      /* 左カード: この映像で使われている曲 */
+      '#ft-used{position:fixed; left:2.2%; top:15%; width:min(25%,370px); max-height:64%; z-index:12; pointer-events:auto; display:none; flex-direction:column; transition:opacity .6s ease;'+
+        'background:linear-gradient(180deg, rgba(8,15,11,.78), rgba(6,11,9,.86)); border:1px solid rgba(150,190,160,.22); border-radius:14px; -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); box-shadow:0 24px 60px -22px rgba(0,0,0,.7); overflow:hidden;}'+
+      '#ft-used.on{display:flex;}'+
+      '#ft-used.admin{border-color:rgba(231,202,124,.5);}'+
+      '#ft-used .uh{padding:14px 16px 8px; font-family:"Noto Serif JP",serif; font-size:14px; font-weight:600; color:#f3ecd9; letter-spacing:.04em;}'+
+      '#ft-used .uh small{display:block; font-family:"Noto Sans JP",sans-serif; font-weight:400; font-size:10px; color:rgba(190,210,195,.6); margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}'+
+      '#ft-used .ubody{overflow:auto; padding:2px 12px 10px;}'+
+      '.u-row{display:flex; align-items:center; gap:9px; padding:8px 9px; border-radius:9px; margin-bottom:6px; background:rgba(12,20,15,.5); border:1px solid rgba(120,160,135,.16);}'+
+      '.u-t{font-size:10px; font-family:"Bebas Neue",sans-serif; letter-spacing:.06em; color:rgba(231,202,124,.8); flex:0 0 auto; min-width:30px;}'+
+      '.u-nm{flex:1 1 auto; min-width:0; font-size:12.5px; color:#eaf1ea; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}'+
+      '.u-tag{font-size:9px; color:#a8d0f1; border:1px solid rgba(95,150,220,.45); border-radius:10px; padding:2px 6px; flex:0 0 auto;}'+
+      '.u-mini{font-size:10px; padding:4px 8px; border-radius:14px; border:1px solid rgba(160,190,165,.32); color:#e7ca7c; text-decoration:none; cursor:pointer; background:none; flex:0 0 auto; line-height:1;}'+
+      '.u-h{cursor:pointer; color:#e7ca7c; background:none; border:none; font-size:14px; flex:0 0 auto; line-height:1; padding:0;}'+
+      '.u-h.on{color:#e7677a;}'+
+      '.u-empty{padding:6px 4px 12px; font-size:11.5px; color:rgba(190,210,195,.5);}'+
+      '.u-admin{border-top:1px dashed rgba(160,190,165,.28); margin:2px 12px 0; padding:12px 0 14px;}'+
+      '.u-admin .lab{font-size:10px; letter-spacing:.12em; color:rgba(231,202,124,.9); font-family:"Bebas Neue",sans-serif; margin-bottom:8px;}'+
+      '.u-search{width:100%; box-sizing:border-box; background:rgba(5,10,8,.7); border:1px solid rgba(140,180,150,.4); border-radius:8px; color:#eaf1ea; font-size:12.5px; padding:8px 10px; outline:none;}'+
+      '.u-cands{margin-top:6px; max-height:150px; overflow:auto;}'+
+      '.u-cand{padding:7px 9px; border-radius:7px; font-size:12px; color:#dfeae0; cursor:pointer;}'+
+      '.u-cand:hover{background:rgba(231,202,124,.14);}'+
+      '.u-cand small{color:rgba(190,210,195,.55); margin-left:6px;}'+
+      '.u-arow{display:flex; gap:8px; align-items:center; margin-top:10px; flex-wrap:wrap;}'+
+      '.u-btn{font-size:11px; padding:7px 11px; border-radius:18px; border:1px solid rgba(160,190,165,.4); color:#e7ca7c; background:rgba(10,18,13,.5); cursor:pointer;}'+
+      '.u-btn.gold{background:linear-gradient(135deg,#e7ca7c,#caa44e); color:#10231a; border:none; font-weight:700;}'+
+      '.u-time{font-size:11px; color:#e7ca7c; font-variant-numeric:tabular-nums;}';
+    var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+
+    var pl=document.createElement('div'); pl.id='ft-pl';
+    pl.innerHTML=
+      '<div id="ft-pl-panel"><div id="ft-pl-head"><h4></h4><p></p></div><div id="ft-pl-body"></div></div>'+
+      '<div id="ft-pl-dock"><div class="dk"><b>PLAYLISTS — プレイリスト</b><button id="ft-pl-close" type="button">✕ 閉じる</button></div><div id="ft-pl-sel"></div></div>';
+    document.body.appendChild(pl);
+    var used=document.createElement('div'); used.id='ft-used'; document.body.appendChild(used);
+    document.getElementById('ft-pl-close').addEventListener('click', closePlaylistMode);
+
+    var sel=document.getElementById('ft-pl-sel');
+    PLAYLISTS.forEach(function(p, i){
+      if(p.type==='tracks'){ p._tracks = tracksByTags(p.tags); if(p._tracks.length < 3){ p._hidden=true; return; } }
+      var c=document.createElement('div'); c.className='plc'; c.setAttribute('data-i', i);
+      var cnt = p.type==='tracks' ? (p._tracks.length+'曲') : 'YouTube';
+      c.innerHTML='<div class="pic '+p.cls+'">'+p.icon+'</div><div><div class="nm">'+p.name+'</div><div class="mt">'+p.sub+' · '+cnt+'</div></div>';
+      c.addEventListener('click', function(){ renderPlaylist(i); });
+      sel.appendChild(c);
+    });
+  }
+
+  function openPlaylistMode(){
+    buildPlaylistUI();
+    state.playlistMode = true;
+    var b=document.getElementById('ft-bottom'); if(b) b.style.display='none';
+    document.getElementById('ft-pl').classList.add('on');
+    renderPlaylist(0);
+    uiWake();
+  }
+  function closePlaylistMode(){
+    state.playlistMode = false;
+    if(plAudio){ try{ plAudio.pause(); }catch(_){} } plPlayingId=null;
+    closeMedia();
+    var p=document.getElementById('ft-pl'); if(p) p.classList.remove('on');
+    var u=document.getElementById('ft-used'); if(u) u.classList.remove('on');
+    var b=document.getElementById('ft-bottom'); if(b) b.style.display='';
+    clearTimeout(idleT); document.body.classList.remove('ft-ui-idle');
+  }
+  // 世界観重視: プレイリストモード中、マウスが数秒止まったらUIを隠す
+  var idleT=0;
+  function uiWake(){
+    document.body.classList.remove('ft-ui-idle');
+    clearTimeout(idleT);
+    if(!state.playlistMode || adminMode) return;   // 登録作業中(admin)は消さない
+    idleT = setTimeout(function(){ if(state.playlistMode && !adminMode) document.body.classList.add('ft-ui-idle'); }, 3000);
+  }
+  document.addEventListener('pointermove', uiWake, { passive:true });
+  document.addEventListener('pointerdown', uiWake, { passive:true });
+  function renderPlaylist(i){
+    var p=PLAYLISTS[i]; if(!p || p._hidden) return; plActive=i;
+    var cards=document.querySelectorAll('#ft-pl-sel .plc');
+    for(var k=0;k<cards.length;k++){ cards[k].classList.toggle('sel', cards[k].getAttribute('data-i')==String(i)); }
+    var head=document.querySelector('#ft-pl-head h4'), sub=document.querySelector('#ft-pl-head p'), body=document.getElementById('ft-pl-body');
+    if(plAudio){ try{ plAudio.pause(); }catch(_){} } plPlayingId=null;
+    closeMedia();   // 前のYouTube/動画を破棄してクリーンに切替
+
+    if(p.type==='youtube'){
+      ytVidIds=[]; ytLastCur=-1;
+      head.textContent='収録映像';
+      sub.textContent='読み込み中…';
+      body.innerHTML='<div class="pl-note">映像一覧を読み込み中…</div>';
+      playInScreen('yt', p.yt);   // 額縁内で再生 → ytSyncList が一覧を描画
+    } else {
+      var uc=document.getElementById('ft-used'); if(uc) uc.classList.remove('on');   // 楽曲型では左カード非表示
+      head.textContent=p.name; sub.textContent=p.sub+' · '+p._tracks.length+'曲';
+      media.style.display='block'; state.mediaOpen=true;
+      mediaInner.innerHTML='<div id="ft-pl-art"><div><div class="big">♪</div><div class="nm">'+p.name+'</div><div class="np" id="ft-pl-np">▶ で試聴</div></div></div>';
+      body.innerHTML='';
+      p._tracks.slice(0,40).forEach(function(t, idx){
+        var row=document.createElement('div'); row.className='pl-row'; row.setAttribute('data-id', t.id);
+        var tags=allTags(t).slice(0,2).join(' / ');
+        row.innerHTML=
+          '<button class="pl-h'+(isFav(t.id)?' on':'')+'" title="お気に入り">'+(isFav(t.id)?'♥':'♡')+'</button>'+
+          '<span class="pl-ix">'+(idx<9?'0':'')+(idx+1)+'</span>'+
+          '<span class="pl-nm">'+t.title+'<small>'+tags+'</small></span>'+
+          '<span class="pl-dur">'+fmtDur(t)+'</span>'+
+          '<a class="pl-mini" href="/music/'+t.id+'.html">詳細→</a>'+
+          '<button class="pl-mini play" type="button">▶</button>';
+        row.querySelector('.pl-h').addEventListener('click', function(){ var on=toggleFavId(t.id); this.classList.toggle('on',on); this.textContent=on?'♥':'♡'; });
+        row.querySelector('.play').addEventListener('click', function(){ previewTrack(t, row); });
+        body.appendChild(row);
+      });
+    }
+  }
+  function clearPlayingRows(){ var r=document.querySelectorAll('#ft-pl-body .pl-row.playing'); for(var i=0;i<r.length;i++) r[i].classList.remove('playing'); }
+  function previewTrack(t, row){
+    if(!plAudio){ plAudio=new Audio(); plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; }); }
+    var np=document.getElementById('ft-pl-np');
+    if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent='▶ で試聴'; return; }
+    plAudio.src=t.mp3; var pr=plAudio.play(); if(pr&&pr.catch) pr.catch(function(){});
+    plPlayingId=t.id; clearPlayingRows(); if(row) row.classList.add('playing'); if(np) np.textContent='♪ '+t.title;
+  }
+
+  // ===== この映像で使われている曲（左カード）＋ 秋山用 裏フォーム =====
+  var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={};
+  function loadUsed(){ try{ return JSON.parse(localStorage.getItem(USEDK)||'{}'); }catch(_){ return {}; } }
+  function saveUsed(m){ try{ localStorage.setItem(USEDK, JSON.stringify(m)); }catch(_){} }
+  function baseUsed(vid){ var p=PLAYLISTS[plActive]; return (p&&p.tracks&&p.tracks[vid])?p.tracks[vid].slice():[]; }
+  function usedFor(vid){ var m=loadUsed(); return m[vid]!=null ? m[vid] : baseUsed(vid); }
+  function trackById(id){ var T=window.TRACKS||[]; for(var i=0;i<T.length;i++) if(String(T[i].id)===String(id)) return T[i]; return null; }
+  function fmtSec(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60),ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  // 現在の動画ID：playlistIndex 経由を最優先（切替直後も確実）。getVideoData はフォールバック
+  function curVideoId(){
+    try{ if(ytPlayer&&ytPlayer.getPlaylist&&ytPlayer.getPlaylistIndex){
+      var ids=ytPlayer.getPlaylist()||[], idx=ytPlayer.getPlaylistIndex();
+      if(ids.length && idx>=0 && ids[idx]) return ids[idx];
+    } }catch(e){}
+    try{ var d=ytPlayer&&ytPlayer.getVideoData&&ytPlayer.getVideoData(); return (d&&d.video_id)||null; }catch(e){ return null; }
+  }
+  // 次/前：nextVideo は既存iframeバインドだと不安定なため、確実に動く playVideoAt で送る
+  function ytRel(delta){
+    if(!ytPlayer||!ytPlayer.getPlaylist||!ytPlayer.playVideoAt) return;
+    var ids; try{ ids=ytPlayer.getPlaylist()||[]; }catch(e){ return; }
+    if(!ids.length) return;
+    var idx=0; try{ idx=ytPlayer.getPlaylistIndex(); }catch(e){}
+    if(idx<0) idx=0;
+    try{ ytPlayer.playVideoAt((idx+delta+ids.length)%ids.length); }catch(e){}
+  }
+  function addUsed(vid, e){ if(!vid) return; var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].push(e); saveUsed(m); renderUsed(vid); }
+  function delUsed(vid, i){ var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].splice(i,1); saveUsed(m); renderUsed(vid); }
+
+  function renderUsed(vid){
+    var card=document.getElementById('ft-used'); if(!card) return;
+    var p=PLAYLISTS[plActive];
+    if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); return; }
+    var list=usedFor(vid)||[];
+    if(!list.length && !adminMode){ card.classList.remove('on'); return; }
+    card.classList.add('on'); card.classList.toggle('admin', adminMode);
+    var d; try{ d=ytPlayer&&ytPlayer.getVideoData&&ytPlayer.getVideoData(); }catch(e){}
+    var vt=(d&&d.title)||'';
+    var h='<div class="uh">この映像で使われている曲<small>'+esc(vt)+'</small></div><div class="ubody">';
+    if(!list.length) h+='<div class="u-empty">まだ登録がありません'+(adminMode?'（下で追加）':'')+'</div>';
+    list.forEach(function(u,i){
+      var t=(u.t!=null)?fmtSec(u.t):'';
+      if(u.id){ var tr=trackById(u.id);
+        h+='<div class="u-row"><span class="u-t">'+t+'</span><button class="u-h'+(isFav(u.id)?' on':'')+'" data-fav="'+u.id+'">'+(isFav(u.id)?'♥':'♡')+'</button><span class="u-nm">'+esc(tr?tr.title:u.id)+'</span><a class="u-mini" href="/music/'+u.id+'.html">詳細</a><button class="u-mini" data-play="'+u.id+'">▶</button>'+(adminMode?'<button class="u-mini" data-del="'+i+'">✕</button>':'')+'</div>';
+      } else {
+        h+='<div class="u-row"><span class="u-t">'+t+'</span><span class="u-nm">'+esc(u.name||'未公開曲')+'</span><span class="u-tag">未公開</span>'+(adminMode?'<button class="u-mini" data-del="'+i+'">✕</button>':'')+'</div>';
+      }
+    });
+    h+='</div>';
+    if(adminMode){
+      h+='<div class="u-admin"><div class="lab">🔒 使用楽曲の登録（秋山用） · 現在 <span class="u-time" id="u-now">'+fmtSec(adminNow)+'</span></div>'+
+         '<input class="u-search" id="u-search" placeholder="曲名を数文字入力 → 候補から選ぶ" autocomplete="off">'+
+         '<div class="u-cands" id="u-cands"></div>'+
+         '<div class="u-arow"><button class="u-btn" id="u-unrel">＋ 未公開曲</button><button class="u-btn gold" id="u-export">JSONをコピー</button></div></div>';
+    }
+    card.innerHTML=h; wireUsed(card, vid);
+  }
+  function wireUsed(card, vid){
+    [].forEach.call(card.querySelectorAll('[data-fav]'), function(el){ el.addEventListener('click', function(){ var on=toggleFavId(el.getAttribute('data-fav')); el.classList.toggle('on',on); el.textContent=on?'♥':'♡'; }); });
+    [].forEach.call(card.querySelectorAll('[data-play]'), function(el){ el.addEventListener('click', function(){ var t=trackById(el.getAttribute('data-play')); if(t) previewTrack(t, null); }); });
+    [].forEach.call(card.querySelectorAll('[data-del]'), function(el){ el.addEventListener('click', function(){ delUsed(vid, +el.getAttribute('data-del')); }); });
+    if(adminMode){
+      var s=card.querySelector('#u-search'), box=card.querySelector('#u-cands');
+      if(s){ s.addEventListener('input', function(){
+        var q=(s.value||'').trim().toLowerCase(); if(!q){ box.innerHTML=''; return; }
+        var T=window.TRACKS||[], r=[];
+        for(var i=0;i<T.length && r.length<8;i++){ var t=T[i]; if((t.title&&t.title.toLowerCase().indexOf(q)>=0)||(t.title_en&&t.title_en.toLowerCase().indexOf(q)>=0)||String(t.id).toLowerCase()===q) r.push(t); }
+        box.innerHTML=r.map(function(t){ return '<div class="u-cand" data-id="'+t.id+'">'+esc(t.title)+'<small>'+esc(t.title_en||'')+' · '+t.id+'</small></div>'; }).join('');
+        [].forEach.call(box.querySelectorAll('.u-cand'), function(el){ el.addEventListener('click', function(){ addUsed(vid, {id:el.getAttribute('data-id'), t:Math.floor(adminNow||0)}); }); });
+      }); }
+      var un=card.querySelector('#u-unrel'); if(un) un.addEventListener('click', function(){ var nm=prompt('未公開曲の名前'); if(nm) addUsed(vid, {name:nm, unreleased:true, t:Math.floor(adminNow||0)}); });
+      var ex=card.querySelector('#u-export'); if(ex) ex.addEventListener('click', function(){ var txt=JSON.stringify(loadUsed()); try{ navigator.clipboard.writeText(txt); ex.textContent='コピーしました ✓'; setTimeout(function(){ ex.textContent='JSONをコピー'; },1600); }catch(e){ prompt('コピーしてください', txt); } });
+    }
+  }
+  function toggleAdmin(){
+    adminMode=!adminMode;
+    if(adminMode){ if(!adminTimer) adminTimer=setInterval(function(){ try{ if(ytPlayer&&ytPlayer.getCurrentTime){ adminNow=ytPlayer.getCurrentTime()||0; var n=document.getElementById('u-now'); if(n) n.textContent=fmtSec(adminNow); } }catch(e){} }, 500); document.body.classList.remove('ft-ui-idle'); }
+    else { clearInterval(adminTimer); adminTimer=0; }
+    renderUsed(curVideoId());
+  }
+  function showNoEmbed(){
+    if(!media) return; var m=document.getElementById('ft-yt-msg');
+    if(!m){ m=document.createElement('div'); m.id='ft-yt-msg';
+      m.style.cssText='position:absolute; inset:0; z-index:4; display:grid; place-items:center; text-align:center; padding:0 8%; background:rgba(5,9,7,.86); color:rgba(238,240,234,.92); font-family:"Noto Sans JP",sans-serif; font-size:13px; line-height:1.8;';
+      media.appendChild(m); }
+    m.innerHTML='この映像は権利者の設定により<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">次の映像へ移動します…</span>';
+    m.style.display='grid';
+  }
+  function hideNoEmbed(){ var m=document.getElementById('ft-yt-msg'); if(m) m.style.display='none'; }
+
+  // YouTube プレイリストの「収録映像セレクター」を右パネルに描画（API getPlaylist から）
+  function ytSyncList(){
+    if(!state.playlistMode) return;
+    var p=PLAYLISTS[plActive]; if(!p || p.type!=='youtube') return;
+    if(!ytPlayer || !ytPlayer.getPlaylist) return;
+    var ids; try{ ids=ytPlayer.getPlaylist()||[]; }catch(e){ return; }
+    if(!ids.length) return;
+    var cur=0; try{ cur=ytPlayer.getPlaylistIndex(); }catch(e){}
+    try{ var d=ytPlayer.getVideoData&&ytPlayer.getVideoData(); if(d&&d.video_id&&d.title) ytTitles[d.video_id]=d.title; }catch(e){}
+    var body=document.getElementById('ft-pl-body'); if(!body) return;
+    if(ytVidIds.join(',')!==ids.join(',')){            // 初回 / 変化時にフル描画
+      ytVidIds=ids.slice();
+      var head=document.querySelector('#ft-pl-head h4'), sub=document.querySelector('#ft-pl-head p');
+      if(head) head.textContent='収録映像';
+      if(sub) sub.textContent=ids.length+'本 · クリックで再生';
+      body.innerHTML='';
+      ids.forEach(function(vid, idx){
+        var row=document.createElement('div'); row.className='pl-vrow'; row.setAttribute('data-vid', vid);
+        row.innerHTML=
+          '<div class="pl-vth"><img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg" alt=""><span class="pl-vplay">▶</span></div>'+
+          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div></div>'+
+          '<div class="pl-vnow">NOW</div>';
+        row.addEventListener('click', function(){ try{ ytPlayer.playVideoAt(idx); }catch(e){} });
+        body.appendChild(row);
+      });
+    }
+    var rows=body.querySelectorAll('.pl-vrow');
+    for(var i=0;i<rows.length;i++){
+      var v=rows[i].getAttribute('data-vid');
+      var ttl=(p.titles&&p.titles[v])||ytTitles[v]; if(ttl){ var tEl=rows[i].querySelector('.pl-vt'); if(tEl) tEl.textContent=ttl; }
+      rows[i].classList.toggle('noembed', !!ytNoEmbed[v]);
+      var on=(i===cur); rows[i].classList.toggle('playing', on);
+      if(on) try{ rows[i].scrollIntoView({block:'nearest'}); }catch(e){}
+    }
+    if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(curVideoId()); }catch(e){} }
+  }
+
+  // wire
+  screen.addEventListener('click', function(){ open(entries[state.active]); });
+  $('ft-cta').addEventListener('click', function(){ open(entries[state.active]); });
+  if(calBtn) calBtn.addEventListener('click', toggleCal);
+  if(bgSwitch) bgSwitch.addEventListener('click', function(){ switchBg(bgIndex + 1); });
+  $('ft-cal-done').addEventListener('click', toggleCal);
+  $('ft-reset').addEventListener('click', resetBox);
+  calLayer.addEventListener('pointerdown', onCalDown);
+  $('ft-media-close').addEventListener('click', function(){ if(state.playlistMode) closePlaylistMode(); else closeMedia(); });
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('pointermove', onDocMove);
+  document.addEventListener('pointerup', onDocUp);
+
+  // mount
+  buildRail();
+  renderInfo();
+  switchBg(bgIndex);   // 背景画像・タイトルを同期（枠は共通）
+  applyBox(); applyCalUI(); updateReadout(); styleAllRail(); projectorOn();
+  // 開発用: ?cal=1 / #cal で位置調整を起動（通常UIには出さない）
+  if(/[?&]cal=1\b/.test(location.search) || location.hash === '#cal'){ toggleCal(); }
+})();
+</script>
+</body>
+</html>

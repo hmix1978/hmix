@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>旧サイト風に探す - H/MIX GALLERY サンプル</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Cinzel:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css?v=20260614-fonts">
+  <style>
+    body.classic-page {
+      background: #f6f0e6;
+      color: #2d261d;
+      font-family: "Noto Sans JP", sans-serif;
+    }
+
+    body.classic-page .site-header {
+      background: rgba(248, 242, 231, 0.96);
+      border-bottom: 1px solid rgba(75, 95, 65, 0.18);
+      backdrop-filter: blur(10px);
+    }
+
+    body.classic-page .site-logo,
+    body.classic-page .nav-link,
+    body.classic-page .logo-text {
+      color: #243923;
+    }
+
+    body.classic-page .logo-sub {
+      color: rgba(36, 57, 35, 0.58);
+    }
+
+    .classic-main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 104px 0 72px;
+    }
+
+    .classic-breadcrumb {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 24px;
+      font-size: 0.82rem;
+      color: rgba(52, 66, 45, 0.66);
+    }
+
+    .classic-breadcrumb a {
+      color: #2d5a3d;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .classic-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 28px;
+      align-items: end;
+      padding: 0 0 26px;
+      border-bottom: 3px double rgba(66, 86, 50, 0.28);
+    }
+
+    .classic-kicker {
+      margin: 0 0 8px;
+      color: #6f5b2f;
+      font-family: "Cinzel", serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .classic-title {
+      margin: 0 0 10px;
+      color: #20351f;
+      font-family: "Noto Serif JP", serif;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .classic-lead {
+      max-width: 760px;
+      margin: 0;
+      color: rgba(45, 38, 29, 0.78);
+      font-size: 0.98rem;
+      line-height: 1.9;
+    }
+
+    .classic-hero-box {
+      padding: 16px;
+      border: 1px solid rgba(45, 90, 61, 0.2);
+      border-radius: 6px;
+      background: rgba(255, 252, 245, 0.8);
+    }
+
+    .classic-hero-box strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #2d5a3d;
+      font-family: "Noto Serif JP", serif;
+      font-size: 1rem;
+    }
+
+    .classic-hero-box p {
+      margin: 0;
+      color: rgba(45, 38, 29, 0.72);
+      font-size: 0.84rem;
+      line-height: 1.75;
+    }
+
+    .classic-layout {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      margin-top: 28px;
+    }
+
+    .classic-side {
+      position: sticky;
+      top: 84px;
+      padding: 16px;
+      border: 1px solid rgba(45, 90, 61, 0.16);
+      border-radius: 6px;
+      background: rgba(255, 252, 245, 0.82);
+    }
+
+    .classic-side-title {
+      margin: 0 0 10px;
+      color: #20351f;
+      font-family: "Noto Serif JP", serif;
+      font-size: 1rem;
+    }
+
+    .classic-side-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .classic-side-list a {
+      display: block;
+      padding: 6px 8px;
+      border-radius: 4px;
+      color: #2d5a3d;
+      font-size: 0.86rem;
+    }
+
+    .classic-side-list a:hover {
+      background: rgba(45, 90, 61, 0.08);
+    }
+
+    .classic-content {
+      display: grid;
+      gap: 26px;
+    }
+
+    .classic-section {
+      border-top: 1px solid rgba(45, 90, 61, 0.2);
+      padding-top: 18px;
+    }
+
+    .classic-section:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .classic-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .classic-section-title {
+      margin: 0;
+      color: #20351f;
+      font-family: "Noto Serif JP", serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+    }
+
+    .classic-section-note {
+      margin: 0;
+      color: rgba(45, 38, 29, 0.58);
+      font-size: 0.82rem;
+    }
+
+    .classic-link-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .classic-link {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: baseline;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid rgba(45, 90, 61, 0.14);
+      border-radius: 5px;
+      background: rgba(255, 252, 245, 0.66);
+      color: #233a23;
+      line-height: 1.35;
+    }
+
+    .classic-link:hover {
+      border-color: rgba(45, 90, 61, 0.34);
+      background: rgba(237, 245, 232, 0.9);
+    }
+
+    .classic-link span {
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .classic-link small {
+      color: rgba(45, 38, 29, 0.55);
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .classic-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-top: 2px solid rgba(45, 90, 61, 0.28);
+      background: rgba(255, 252, 245, 0.64);
+    }
+
+    .classic-table th,
+    .classic-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(45, 90, 61, 0.14);
+      vertical-align: top;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    .classic-table th {
+      width: 162px;
+      color: #20351f;
+      font-family: "Noto Serif JP", serif;
+      font-weight: 700;
+      background: rgba(45, 90, 61, 0.06);
+    }
+
+    .classic-table td {
+      color: rgba(45, 38, 29, 0.76);
+    }
+
+    .classic-table a {
+      color: #2d5a3d;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .classic-callout {
+      padding: 16px 18px;
+      border: 1px solid rgba(138, 112, 64, 0.28);
+      border-left: 5px solid #8a7040;
+      border-radius: 5px;
+      background: #fff8e8;
+    }
+
+    .classic-callout p {
+      margin: 0;
+      color: rgba(45, 38, 29, 0.78);
+      font-size: 0.9rem;
+      line-height: 1.85;
+    }
+
+    .classic-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .classic-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 16px;
+      border: 1px solid rgba(45, 90, 61, 0.28);
+      border-radius: 4px;
+      background: #fffdf7;
+      color: #2d5a3d;
+      font-weight: 700;
+      font-size: 0.88rem;
+    }
+
+    .classic-action--primary {
+      background: #2d5a3d;
+      color: #fffdf7;
+    }
+
+    .classic-footer {
+      margin-top: 44px;
+      padding: 20px 0 0;
+      border-top: 1px solid rgba(45, 90, 61, 0.18);
+      color: rgba(45, 38, 29, 0.58);
+      font-size: 0.82rem;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .classic-hero,
+      .classic-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .classic-side {
+        position: static;
+      }
+
+      .classic-side-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .classic-link-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .classic-main {
+        width: min(100% - 20px, 1120px);
+        padding-top: 88px;
+      }
+
+      .classic-side-list,
+      .classic-link-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .classic-section-head {
+        display: block;
+      }
+
+      .classic-section-note {
+        margin-top: 4px;
+      }
+
+      .classic-table th,
+      .classic-table td {
+        display: block;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="classic-page">
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-logo" aria-label="H/MIX GALLERY ホーム">
+        <span class="logo-text">H/MIX GALLERY</span>
+        <span class="logo-sub">Free Music Library</span>
+      </a>
+      <nav class="site-nav" aria-label="メインナビゲーション">
+        <ul class="nav-list">
+          <li><a href="/" class="nav-link">Home</a></li>
+          <li><a href="/music-library.html" class="nav-link">Music Library</a></li>
+          <li><a href="/music-classic.html" class="nav-link">シンプル一覧</a></li>
+          <li class="nav-item nav-item--dropdown"><a href="/terms.html" class="nav-link">利用規約</a><ul class="nav-submenu" aria-label="ご利用規約メニュー"><li><a href="/terms.html" class="nav-submenu__link" data-ja="規約を読む" data-en="Read the Terms">規約を読む</a></li><li><a href="/license-request.html" class="nav-submenu__link" data-ja="商用ライセンスを購入" data-en="Buy Commercial License">商用ライセンスを購入</a></li><li><a href="/professional-license.html" class="nav-submenu__link" data-ja="Professional 料金ガイド" data-en="Professional Pricing">Professional 料金ガイド</a></li><li><a href="/tokushoho.html" class="nav-submenu__link" data-ja="特定商取引法" data-en="Commercial Transactions Act">特定商取引法</a></li><li><a href="/privacy.html" class="nav-submenu__link" data-ja="プライバシーポリシー" data-en="Privacy Policy">プライバシーポリシー</a></li></ul></li>
+          <li><a href="/contact.html" class="nav-link nav-link--cta">Contact</a></li>
+        </ul>
+        <button class="nav-toggle" aria-label="メニューを開く" aria-expanded="false"><span></span><span></span><span></span></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="classic-main">
+    <nav class="classic-breadcrumb" aria-label="パンくず">
+      <a href="/">Home</a>
+      <span>></span>
+      <a href="/music-library.html">音楽図書館</a>
+      <span>></span>
+      <strong>シンプル一覧</strong>
+    </nav>
+
+    <section class="classic-hero">
+      <div>
+        <p class="classic-kicker">Classic Finder Sample</p>
+        <h1 class="classic-title">旧サイトのように、言葉から探す</h1>
+        <p class="classic-lead">雰囲気・イメージ・場面の単語を一覧で見渡して、すぐに曲へ移動できるシンプル版の入口です。現行のタグで選曲しつつ、旧サイトに慣れた人が迷わない構成を目指したサンプルです。</p>
+      </div>
+      <div class="classic-hero-box">
+        <strong>サンプルの考え方</strong>
+        <p>凝った演出は控えめにして、曲探しの手がかりを最初から全部見せます。詳細検索したい人は Music Library へ進めます。</p>
+      </div>
+    </section>
+
+    <div class="classic-layout">
+      <aside class="classic-side" aria-label="ページ内メニュー">
+        <h2 class="classic-side-title">探し方</h2>
+        <ul class="classic-side-list">
+          <li><a href="#feeling">フィーリング別</a></li>
+          <li><a href="#image">イメージ別</a></li>
+          <li><a href="#scene">シーン別</a></li>
+          <li><a href="#old">旧カテゴリ風</a></li>
+          <li><a href="#list">曲一覧</a></li>
+        </ul>
+      </aside>
+
+      <div class="classic-content">
+        <section class="classic-callout">
+          <p>「昔のH/MIXみたいに探したい」人のための入口。トップページや Music Library 上部に小さく置くより、まずはこの1ページを追加して反応を見るのがよさそうです。</p>
+          <div class="classic-actions">
+            <a class="classic-action classic-action--primary" href="/music-library.html">高機能検索へ</a>
+            <a class="classic-action" href="/genre/japanese.html">和風BGMを見る</a>
+          </div>
+        </section>
+
+        <section class="classic-section" id="feeling">
+          <div class="classic-section-head">
+            <h2 class="classic-section-title">フィーリング別</h2>
+            <p class="classic-section-note">曲の気分から探す</p>
+          </div>
+          <div class="classic-link-grid">
+            <a class="classic-link" href="/genre/healing.html"><span>優しい・癒し</span><small>140曲</small></a>
+            <a class="classic-link" href="/genre/sad.html"><span>悲しい・切ない</span><small>63曲</small></a>
+            <a class="classic-link" href="/genre/happy.html"><span>楽しい・かわいい</span><small>84曲</small></a>
+            <a class="classic-link" href="/genre/epic.html"><span>壮大・勇壮</span><small>75曲</small></a>
+            <a class="classic-link" href="/genre/suspense.html"><span>サスペンス・緊張</span><small>93曲</small></a>
+            <a class="classic-link" href="/genre/horror.html"><span>怖い・ホラー</span><small>83曲</small></a>
+            <a class="classic-link" href="/music-library.html?feeling=mysterious"><span>神秘的</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?feeling=dark"><span>暗い・不穏</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?feeling=cute"><span>かわいい</span><small>タグ検索</small></a>
+          </div>
+        </section>
+
+        <section class="classic-section" id="image">
+          <div class="classic-section-head">
+            <h2 class="classic-section-title">イメージ別</h2>
+            <p class="classic-section-note">作品の世界観から探す</p>
+          </div>
+          <div class="classic-link-grid">
+            <a class="classic-link" href="/genre/japanese.html"><span>和風</span><small>71曲</small></a>
+            <a class="classic-link" href="/genre/fantasy.html"><span>ファンタジー</span><small>256曲</small></a>
+            <a class="classic-link" href="/genre/celtic.html"><span>ケルト・北欧風</span><small>21曲</small></a>
+            <a class="classic-link" href="/genre/electronic.html"><span>近未来・電子音</span><small>22曲</small></a>
+            <a class="classic-link" href="/genre/battle.html"><span>戦闘・バトル</span><small>41曲</small></a>
+            <a class="classic-link" href="/music-library.html?scene=opening"><span>オープニング・予告</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?feeling=cute"><span>可愛い</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=festival"><span>お祭り・イベント</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?style=musicbox"><span>オルゴール</span><small>タグ検索</small></a>
+          </div>
+        </section>
+
+        <section class="classic-section" id="scene">
+          <div class="classic-section-head">
+            <h2 class="classic-section-title">シーン別</h2>
+            <p class="classic-section-note">使いたい場面から探す</p>
+          </div>
+          <div class="classic-link-grid">
+            <a class="classic-link" href="/music-library.html?scene=battle"><span>通常戦闘</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=boss"><span>ボス戦</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=town"><span>町</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=village"><span>村</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=field"><span>フィールド</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=forest"><span>森</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=night"><span>夜</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=travel"><span>旅</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=dungeon"><span>ダンジョン</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=ruins"><span>遺跡</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=shrine"><span>神社・寺院</span><small>タグ検索</small></a>
+            <a class="classic-link" href="/music-library.html?scene=ending"><span>エンディング</span><small>タグ検索</small></a>
+          </div>
+        </section>
+
+        <section class="classic-section" id="old">
+          <div class="classic-section-head">
+            <h2 class="classic-section-title">旧カテゴリ風の入口</h2>
+            <p class="classic-section-note">昔の分類名に近い言葉で整理</p>
+          </div>
+          <table class="classic-table">
+            <tbody>
+              <tr>
+                <th>和風の曲</th>
+                <td>琴・三味線・尺八・太鼓など。<a href="/genre/japanese.html">和風BGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>優しい曲・癒し</th>
+                <td>穏やかで温かいBGM。<a href="/genre/healing.html">癒しBGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>悲しい曲・切ない曲</th>
+                <td>別れ、回想、喪失感のある曲。<a href="/genre/sad.html">悲しいBGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>楽しい曲・かわいい曲</th>
+                <td>明るく軽やかな曲。<a href="/genre/happy.html">楽しいBGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>激しい曲・勇壮な曲</th>
+                <td>戦闘・壮大・スピード感。<a href="/genre/battle.html">バトルBGMを見る</a> / <a href="/genre/epic.html">壮大BGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>サスペンス</th>
+                <td>不穏・緊張・潜入・推理。<a href="/genre/suspense.html">サスペンスBGMを見る</a></td>
+              </tr>
+              <tr>
+                <th>ホラー</th>
+                <td>怪談・お化け屋敷・恐怖演出。<a href="/genre/horror.html">ホラーBGMを見る</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="classic-section" id="list">
+          <div class="classic-section-head">
+            <h2 class="classic-section-title">曲一覧・その他</h2>
+            <p class="classic-section-note">一覧から直接探したい人向け</p>
+          </div>
+          <div class="classic-link-grid">
+            <a class="classic-link" href="/music/index.html"><span>全曲一覧</span><small>曲ID順</small></a>
+            <a class="classic-link" href="/music-library.html?sort=title"><span>曲名順で探す</span><small>検索画面</small></a>
+            <a class="classic-link" href="/music-library.html?sort=duration-asc"><span>短い曲から探す</span><small>検索画面</small></a>
+            <a class="classic-link" href="/music-library.html?sort=duration-desc"><span>長い曲から探す</span><small>検索画面</small></a>
+            <a class="classic-link" href="/popular.html"><span>人気曲</span><small>おすすめ</small></a>
+            <a class="classic-link" href="/terms.html"><span>利用規約</span><small>使う前に</small></a>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <p class="classic-footer">Sample page only. H/MIX GALLERY / Hirokazu Akiyama</p>
+  </main>
+
+  <script src="/assets/js/app.js"></script>
+</body>
+</html>

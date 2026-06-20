@@ -1,0 +1,536 @@
+/**
+ * H/MIX GALLERY — track-detail.css
+ * 個別曲ページのスタイル
+ */
+
+/* ─── 変数 ──────────────────────────────────────────── */
+:root {
+  --td-bg:         #0e1410;
+  --td-surface:    #141c17;
+  --td-border:     rgba(180, 200, 170, 0.12);
+  --td-text:       #d4cfc0;
+  --td-text-sub:   rgba(212, 207, 192, 0.55);
+  --td-accent:     #7ab87a;
+  --td-accent-dim: rgba(122, 184, 122, 0.18);
+  --td-gold:       #c8a96e;
+  --td-radius:     12px;
+}
+
+/* ─── ページ基盤 ─────────────────────────────────────── */
+body {
+  background: var(--td-bg);
+  color: var(--td-text);
+}
+
+/* ─── パンくず ──────────────────────────────────────── */
+.track-breadcrumb {
+  font-size: 0.78rem;
+  color: var(--td-text-sub);
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.04em;
+}
+.track-breadcrumb a {
+  color: var(--td-text-sub);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.track-breadcrumb a:hover {
+  color: var(--td-accent);
+}
+.track-breadcrumb span[aria-hidden] {
+  margin: 0 0.4em;
+  opacity: 0.4;
+}
+
+/* ─── セクション ─────────────────────────────────────── */
+.track-detail {
+  padding: 6rem 0 4rem;
+  min-height: 80vh;
+}
+.track-detail-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── Not Found ──────────────────────────────────────── */
+.track-not-found {
+  text-align: center;
+  padding: 4rem 0;
+}
+.track-not-found-msg {
+  font-size: 1.1rem;
+  color: var(--td-text-sub);
+  margin-bottom: 2rem;
+}
+
+/* ─── メインレイアウト ───────────────────────────────── */
+.track-main {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .track-main {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* ─── ジャケット ─────────────────────────────────────── */
+.track-jacket-wrap {
+  position: sticky;
+  top: 5rem;
+}
+.track-jacket {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--td-radius);
+  background: var(--td-surface);
+  border: 1px solid var(--td-border);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.4s;
+}
+.track-jacket.playing {
+  box-shadow: 0 0 40px rgba(122, 184, 122, 0.25), 0 0 80px rgba(122, 184, 122, 0.10);
+}
+
+/* ジャケット背景グラデーション（data-tag-primary で切り替え） */
+.track-jacket[data-tag="horror"],
+.track-jacket[data-tag="scary"],
+.track-jacket[data-tag="japanese_horror"],
+.track-jacket[data-tag="western_horror"]  { background: linear-gradient(135deg, #1a0a1f 0%, #2d0d35 50%, #0d0a1a 100%); }
+.track-jacket[data-tag="battle"]     { background: linear-gradient(135deg, #1f0a0a 0%, #3a1010 50%, #1a0808 100%); }
+.track-jacket[data-tag="boss"]       { background: linear-gradient(135deg, #1a0a0a 0%, #3d1515 50%, #0d0808 100%); }
+.track-jacket[data-tag="sad"]        { background: linear-gradient(135deg, #0a0e1f 0%, #1a2040 50%, #080c1a 100%); }
+.track-jacket[data-tag="mysterious"] { background: linear-gradient(135deg, #0a0a1f 0%, #1a1040 50%, #060610 100%); }
+.track-jacket[data-tag="dark"]       { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a20 50%, #080808 100%); }
+.track-jacket[data-tag="epic"]       { background: linear-gradient(135deg, #1a1200 0%, #3a2800 50%, #100c00 100%); }
+.track-jacket[data-tag="japanese"]   { background: linear-gradient(135deg, #0a1a0a 0%, #1a3020 50%, #060e08 100%); }
+.track-jacket[data-tag="oriental"]   { background: linear-gradient(135deg, #1a0e00 0%, #3a2000 50%, #100800 100%); }
+.track-jacket[data-tag="shrine"]     { background: linear-gradient(135deg, #0d1a0d 0%, #1a3018 50%, #080e08 100%); }
+.track-jacket[data-tag="fantasy"]    { background: linear-gradient(135deg, #0a0e1a 0%, #101a30 50%, #080c14 100%); }
+.track-jacket[data-tag="celtic"]     { background: linear-gradient(135deg, #0a1a10 0%, #142a1a 50%, #080e0a 100%); }
+.track-jacket[data-tag="gentle"]     { background: linear-gradient(135deg, #0e1a0e 0%, #1a2a1a 50%, #0a100a 100%); }
+
+.track-jacket-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.track-jacket-id {
+  font-family: 'Cinzel', serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.12);
+  letter-spacing: 0.1em;
+  user-select: none;
+}
+
+/* ビジュアライザーバー */
+.track-jacket-bars {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.track-jacket.playing .track-jacket-bars {
+  opacity: 1;
+}
+.track-jacket-bars span {
+  display: block;
+  width: 4px;
+  height: 20px;
+  background: var(--td-accent);
+  border-radius: 2px;
+  transform-origin: bottom;
+  animation: none;
+}
+.track-jacket.playing .track-jacket-bars span:nth-child(1) { animation: barPulse 0.8s ease-in-out infinite; }
+.track-jacket.playing .track-jacket-bars span:nth-child(2) { animation: barPulse 0.8s ease-in-out 0.15s infinite; }
+.track-jacket.playing .track-jacket-bars span:nth-child(3) { animation: barPulse 0.8s ease-in-out 0.30s infinite; }
+.track-jacket.playing .track-jacket-bars span:nth-child(4) { animation: barPulse 0.8s ease-in-out 0.45s infinite; }
+.track-jacket.playing .track-jacket-bars span:nth-child(5) { animation: barPulse 0.8s ease-in-out 0.60s infinite; }
+@keyframes barPulse {
+  0%, 100% { transform: scaleY(0.3); }
+  50%       { transform: scaleY(1.0); }
+}
+
+/* ─── プレイヤー ─────────────────────────────────────── */
+.track-player {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.track-play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: var(--td-accent-dim);
+  border: 1px solid var(--td-accent);
+  border-radius: 8px;
+  color: var(--td-accent);
+  font-size: 0.95rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.track-play-btn:hover {
+  background: rgba(122, 184, 122, 0.28);
+  box-shadow: 0 0 16px rgba(122, 184, 122, 0.2);
+}
+.track-play-btn.playing {
+  background: rgba(122, 184, 122, 0.3);
+  box-shadow: 0 0 20px rgba(122, 184, 122, 0.25);
+}
+.track-play-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* プログレスバー */
+.track-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.track-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.track-progress-fill {
+  height: 100%;
+  background: var(--td-accent);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s linear;
+}
+.track-time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--td-text-sub);
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+}
+
+/* ─── テキスト情報 ───────────────────────────────────── */
+.track-info {
+  padding-top: 0.5rem;
+}
+.track-info-id {
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  color: var(--td-text-sub);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+.track-info-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #e8e4d8;
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+}
+@media (max-width: 480px) {
+  .track-info-title { font-size: 1.5rem; }
+}
+.track-info-desc {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--td-text-sub);
+  margin-bottom: 2rem;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ─── タグ ───────────────────────────────────────────── */
+.track-tags-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--td-border);
+  border-radius: var(--td-radius);
+}
+.track-tag-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+.track-tag-category {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  color: var(--td-text-sub);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  min-width: 48px;
+  padding-top: 0.15rem;
+  flex-shrink: 0;
+}
+.track-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.track-tag-chip {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  background: var(--td-accent-dim);
+  border: 1px solid rgba(122, 184, 122, 0.25);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: var(--td-accent);
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.track-tag-chip:hover {
+  background: rgba(122, 184, 122, 0.28);
+  border-color: var(--td-accent);
+}
+
+/* ─── ライセンスボックス ─────────────────────────────── */
+.track-license-box {
+  padding: 1.5rem;
+  background: rgba(200, 169, 110, 0.06);
+  border: 1px solid rgba(200, 169, 110, 0.2);
+  border-radius: var(--td-radius);
+  margin-bottom: 2rem;
+}
+.track-license-heading {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  color: var(--td-gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.track-license-text {
+  font-size: 0.85rem;
+  line-height: 1.8;
+  color: var(--td-text-sub);
+  font-family: 'Noto Sans JP', sans-serif;
+  margin-bottom: 1.2rem;
+}
+.track-license-text a {
+  color: var(--td-gold);
+  text-decoration: underline;
+}
+.track-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  background: rgba(200, 169, 110, 0.1);
+  border: 1px solid rgba(200, 169, 110, 0.4);
+  border-radius: 8px;
+  color: var(--td-gold);
+  font-size: 0.85rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.track-download-btn:hover {
+  background: rgba(200, 169, 110, 0.18);
+}
+.track-download-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ─── YouTubeライセンスバッジ ────────────────────────── */
+.track-youtube-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(255, 0, 0, 0.08);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #ff8080;
+  font-family: 'Noto Sans JP', sans-serif;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.2rem;
+}
+.track-youtube-badge::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 10px;
+  background: #ff0000;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ─── 商用ライセンスCTAボックス ─────────────────────── */
+.track-license-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(122, 184, 122, 0.06);
+  border: 1px solid rgba(122, 184, 122, 0.25);
+  border-radius: var(--td-radius);
+  margin-bottom: 1.5rem;
+}
+.track-license-cta-text {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--td-text-sub);
+  font-family: 'Noto Sans JP', sans-serif;
+  margin: 0;
+}
+.track-license-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--td-accent-dim);
+  border: 1px solid var(--td-accent);
+  border-radius: 8px;
+  color: var(--td-accent);
+  font-size: 0.88rem;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+  align-self: flex-start;
+}
+.track-license-cta-btn:hover {
+  background: rgba(122, 184, 122, 0.28);
+  box-shadow: 0 0 16px rgba(122, 184, 122, 0.2);
+}
+.track-license-cta-btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ─── 戻るリンク ─────────────────────────────────────── */
+.track-back-row {
+  margin-top: 1rem;
+}
+.track-back-link {
+  font-size: 0.82rem;
+  color: var(--td-text-sub);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.track-back-link:hover {
+  color: var(--td-accent);
+}
+
+/* ─── 関連曲セクション ───────────────────────────────── */
+.track-related {
+  padding: 4rem 0;
+  border-top: 1px solid var(--td-border);
+}
+.track-related-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+.track-related-heading {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--td-text);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  letter-spacing: 0.1em;
+}
+.track-related-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.2rem;
+}
+@media (max-width: 480px) {
+  .track-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 関連曲カード */
+.related-card {
+  background: var(--td-surface);
+  border: 1px solid var(--td-border);
+  border-radius: var(--td-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--td-text);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+}
+.related-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-color: rgba(122, 184, 122, 0.3);
+}
+.related-card-jacket {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, #141c17 0%, #1e2a20 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.related-card-jacket-id {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.1);
+  letter-spacing: 0.1em;
+}
+.related-card-body {
+  padding: 0.8rem;
+}
+.related-card-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.related-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.related-card-tag {
+  font-size: 0.65rem;
+  color: var(--td-text-sub);
+  background: rgba(255,255,255,0.04);
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+}

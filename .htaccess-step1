@@ -1,0 +1,11 @@
+# =============================================================
+# H/MIX GALLERY — .htaccess (Step 1: HTTPS + www 正規化)
+# テスト用：まずこれだけアップしてサイトが生きているか確認
+# =============================================================
+
+RewriteEngine On
+
+# http → https / non-www → www に 301 統一
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} !^www\.hmix\.net$ [NC]
+RewriteRule ^(.*)$ https://www.hmix.net/$1 [R=301,L]

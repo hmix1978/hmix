@@ -1,0 +1,65 @@
+# =============================================================
+# H/MIX GALLERY — .htaccess (完成版)
+# HTTPS + www 正規化 ＋ SEO 301リダイレクト
+# 最終更新: 2026-04-08
+# =============================================================
+
+RewriteEngine On
+
+# ── HTTPS + www 正規化 ─────────────────────────────────────────
+# http → https / non-www → www に 301 統一
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} !^www\.hmix\.net$ [NC]
+RewriteRule ^(.*)$ https://www.hmix.net/$1 [R=301,L]
+
+# ── カテゴリ（世界観 / image） ────────────────────────────────
+
+Redirect 301 /music_gallery/image/asian.htm      https://www.hmix.net/music-library.html?style=japanese
+Redirect 301 /music_gallery/image/buttle.htm     https://www.hmix.net/music-library.html?scene=battle
+Redirect 301 /music_gallery/image/index.htm      https://www.hmix.net/music-library.html?style=fantasy
+Redirect 301 /music_gallery/image/horror.htm     https://www.hmix.net/music-library.html?feeling=horror
+Redirect 301 /music_gallery/image/world.htm      https://www.hmix.net/music-library.html?style=fantasy
+Redirect 301 /music_gallery/image/grand.htm      https://www.hmix.net/music-library.html?feeling=epic
+Redirect 301 /music_gallery/image/future.htm     https://www.hmix.net/music-library.html?style=fantasy
+Redirect 301 /music_gallery/image/game.htm       https://www.hmix.net/music-library.html
+
+# ── カテゴリ（感情 / feeling） ────────────────────────────────
+
+Redirect 301 /music_gallery/feeling/cures.htm    https://www.hmix.net/music-library.html?feeling=gentle
+Redirect 301 /music_gallery/feeling/sadness.htm  https://www.hmix.net/music-library.html?feeling=sad
+Redirect 301 /music_gallery/feeling/happy.htm    https://www.hmix.net/music-library.html?feeling=happy
+Redirect 301 /music_gallery/feeling/hard.htm     https://www.hmix.net/music-library.html?scene=battle
+Redirect 301 /music_gallery/feeling/suspense.htm https://www.hmix.net/music-library.html?feeling=suspense
+
+# ── カテゴリ（用途・季節） ────────────────────────────────────
+
+Redirect 301 /music_gallery/image/opening.htm    https://www.hmix.net/music-library.html?feeling=epic
+Redirect 301 /music_gallery/image/cute.htm       https://www.hmix.net/music-library.html?feeling=happy
+Redirect 301 /music_gallery/image/halloween.htm  https://www.hmix.net/music-library.html?feeling=horror
+Redirect 301 /music_gallery/image/christmas.htm  https://www.hmix.net/music-library.html?scene=festival
+Redirect 301 /music_gallery/image/marriage.htm   https://www.hmix.net/music-library.html?feeling=gentle
+Redirect 301 /music_gallery/image/relaxation.htm https://www.hmix.net/music-library.html?feeling=gentle
+
+# ── 楽曲一覧・メインページ ────────────────────────────────────
+
+Redirect 301 /music_gallery/list/          https://www.hmix.net/music-library.html
+Redirect 301 /music_gallery/music_top.htm  https://www.hmix.net/music-library.html
+
+# ── 規約・問い合わせ（正規URL統一） ──────────────────────────
+
+Redirect 301 /music_gallery/index.htm https://www.hmix.net/terms.html
+Redirect 301 /music_gallery/info.htm  https://www.hmix.net/terms.html
+Redirect 301 /music_gallery/faq.htm   https://www.hmix.net/terms.html
+Redirect 301 /contact.htm             https://www.hmix.net/contact.html
+Redirect 301 /wwwmail/                https://www.hmix.net/contact.html
+
+# ── その他の旧ページ ─────────────────────────────────────────
+
+Redirect 301 /music_gallery/sound_effect.htm   https://www.hmix.net/music-library.html
+Redirect 301 /music_gallery/iphone.htm         https://www.hmix.net/music-library.html
+Redirect 301 /history.htm                      https://www.hmix.net/composer.html
+Redirect 301 /link_autolink/about_link.htm     https://www.hmix.net/music-library.html
+
+# ── 旧 .htm → 新 .html（同一コンテンツの正規URL統一） ────────
+
+Redirect 301 /profile.htm https://www.hmix.net/composer.html

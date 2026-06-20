@@ -1,0 +1,57 @@
+node_modules/
+
+# ── 認証情報 / 秘匿物 ──────────────────────────
+*credentials*.json
+*-credentials.json
+.env
+.env.*
+!.env.example
+.env.ftp
+
+# ── エディタ / OS ─────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ── Python キャッシュ (tracks_data.py, generate_music_pages.py 周辺) ──
+__pycache__/
+*.pyc
+*.pyo
+
+# ── ログ ─────────────────────────────────────
+*.log
+npm-debug.log*
+
+# Codex / local analysis
+.codegraph/
+
+# Local production secrets and deployment scratch
+.env.ftp
+-Encoding
+deploy-*.txt
+server-*.log
+dev-server-*.log
+.htaccess_empty_test
+
+# Local archives and backups
+backups/
+_archive_*/
+archive-restored/
+_mockup/
+*.bak-*
+*.bak
+スクリーンショット*
+
+# Large local media/tooling kept outside the GitHub source sync.
+# Use FTP/local storage or Git LFS only after an explicit decision.
+music/
+tools/upscaler/
+theater/*/assets/audio/
+*.wav
+*.exe
+*.zip
+
+# Temporary planning output
+*.tmp.json

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Corner ornament - bottom right — mirrored from TL diagonally -->
+
+  <path d="M120,117 L40,117" stroke="#9adfb4" stroke-width="1.0" fill="none" opacity="0.40"/>
+  <path d="M117,120 L117,40" stroke="#9adfb4" stroke-width="1.0" fill="none" opacity="0.40"/>
+
+  <path d="M120,110 L60,110 C52,110 46,104 46,96 C46,88 52,84 58,88 C64,92 62,98 56,100"
+        stroke="#9adfb4" stroke-width="0.8" fill="none" opacity="0.35"/>
+  <path d="M110,120 L110,60 C110,52 104,46 96,46 C88,46 84,52 88,58 C92,64 98,62 100,56"
+        stroke="#9adfb4" stroke-width="0.8" fill="none" opacity="0.35"/>
+
+  <path d="M120,103 L72,103 C68,103 64,100 64,96"
+        stroke="#9adfb4" stroke-width="0.4" fill="none" opacity="0.22"/>
+  <path d="M103,120 L103,72 C103,68 100,64 96,64"
+        stroke="#9adfb4" stroke-width="0.4" fill="none" opacity="0.22"/>
+
+  <path d="M92,92 C82,102 68,102 64,92 C60,82 70,72 80,76 C90,80 94,86 92,92"
+        stroke="#9adfb4" stroke-width="0.8" fill="none" opacity="0.30"/>
+  <path d="M82,88 C78,92 72,92 72,86 C72,80 78,80 80,84"
+        stroke="#9adfb4" stroke-width="0.6" fill="none" opacity="0.25"/>
+  <circle cx="76" cy="86" r="1.5" fill="#d4a44c" opacity="0.25"/>
+
+  <path d="M108,108 C98,116 90,112 96,102 C102,92 114,98 108,108Z"
+        fill="#9adfb4" opacity="0.07"/>
+  <path d="M112,102 C106,110 98,108 102,100 C106,92 116,96 112,102Z"
+        fill="#9adfb4" opacity="0.06"/>
+  <path d="M102,112 C96,118 90,116 94,108 C98,100 108,104 102,112Z"
+        fill="#9adfb4" opacity="0.05"/>
+  <line x1="108" y1="108" x2="100" y2="104" stroke="#9adfb4" stroke-width="0.3" opacity="0.15"/>
+
+  <path d="M84,112 C80,116 76,114 78,110 C80,106 86,108 84,112"
+        stroke="#9adfb4" stroke-width="0.5" fill="none" opacity="0.20"/>
+  <path d="M68,114 C65,117 62,115 64,112"
+        stroke="#9adfb4" stroke-width="0.4" fill="none" opacity="0.15"/>
+  <path d="M112,84 C116,80 114,76 110,78 C106,80 108,86 112,84"
+        stroke="#9adfb4" stroke-width="0.5" fill="none" opacity="0.20"/>
+  <path d="M114,68 C117,65 115,62 112,64"
+        stroke="#9adfb4" stroke-width="0.4" fill="none" opacity="0.15"/>
+
+  <circle cx="96" cy="117" r="1.0" fill="#9adfb4" opacity="0.22"/>
+  <circle cx="76" cy="117" r="0.8" fill="#9adfb4" opacity="0.18"/>
+  <circle cx="56" cy="117" r="0.8" fill="#9adfb4" opacity="0.14"/>
+  <circle cx="117" cy="96" r="1.0" fill="#9adfb4" opacity="0.22"/>
+  <circle cx="117" cy="76" r="0.8" fill="#9adfb4" opacity="0.18"/>
+  <circle cx="117" cy="56" r="0.8" fill="#9adfb4" opacity="0.14"/>
+
+  <path d="M110,110 L107,107 L104,110 L107,113 Z" fill="none" stroke="#d4a44c" stroke-width="0.5" opacity="0.25"/>
+  <circle cx="107" cy="110" r="0.8" fill="#d4a44c" opacity="0.22"/>
+
+  <circle cx="56" cy="100" r="1.5" fill="#d4a44c" opacity="0.18"/>
+  <circle cx="100" cy="56" r="1.5" fill="#d4a44c" opacity="0.18"/>
+
+  <line x1="90" y1="115" x2="90" y2="118" stroke="#9adfb4" stroke-width="0.3" opacity="0.14"/>
+  <line x1="70" y1="115" x2="70" y2="118" stroke="#9adfb4" stroke-width="0.3" opacity="0.12"/>
+  <line x1="50" y1="115" x2="50" y2="118" stroke="#9adfb4" stroke-width="0.3" opacity="0.10"/>
+  <line x1="115" y1="90" x2="118" y2="90" stroke="#9adfb4" stroke-width="0.3" opacity="0.14"/>
+  <line x1="115" y1="70" x2="118" y2="70" stroke="#9adfb4" stroke-width="0.3" opacity="0.12"/>
+  <line x1="115" y1="50" x2="118" y2="50" stroke="#9adfb4" stroke-width="0.3" opacity="0.10"/>
+</svg>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tracks-loader.js 動作確認</title>
+  <style>
+    body { font-family: monospace; background: #1a1a1a; color: #d4d4d4; padding: 2rem; margin: 0; }
+    h1   { color: #9cdcfe; font-size: 1rem; margin-bottom: 1.5rem; }
+    .suite { margin-bottom: 2rem; }
+    .suite-title { color: #c586c0; font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .result { padding: 0.3rem 0.5rem; margin: 0.2rem 0; border-radius: 3px; font-size: 0.82rem; }
+    .pass  { background: #1e3a1e; color: #4ec94e; }
+    .fail  { background: #3a1e1e; color: #f14c4c; }
+    .info  { background: #1e2a3a; color: #9cdcfe; }
+    .warn  { background: #3a2e1e; color: #ce9178; }
+    #status { font-size: 0.9rem; margin-bottom: 1.5rem; color: #888; }
+    #summary { font-size: 0.9rem; margin-top: 1.5rem; padding: 0.75rem; border-radius: 4px; }
+    .summary-pass { background: #1e3a1e; color: #4ec94e; }
+    .summary-fail { background: #3a1e1e; color: #f14c4c; }
+    .note { color: #888; font-size: 0.78rem; margin-top: 2rem; border-top: 1px solid #333; padding-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<h1>tracks-loader.js 動作確認</h1>
+<div id="status">実行中...</div>
+<div id="results"></div>
+<div id="summary"></div>
+<p class="note">
+  このファイルは tracks-loader.js の単体確認用です。<br>
+  確認後は削除してください。既存ページへの影響はありません。
+</p>
+
+<script src="./assets/js/tracks-loader.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const $results = document.getElementById('results');
+  const $status  = document.getElementById('status');
+  const $summary = document.getElementById('summary');
+
+  let passed = 0;
+  let failed = 0;
+
+  function suite(title) {
+    const div = document.createElement('div');
+    div.className = 'suite';
+    div.innerHTML = '<div class="suite-title">▶ ' + title + '</div>';
+    $results.appendChild(div);
+    return div;
+  }
+
+  function result(parent, type, msg) {
+    const div = document.createElement('div');
+    div.className = 'result ' + type;
+    const icon = { pass: '✓', fail: '✗', info: 'ℹ', warn: '⚠' }[type] || '·';
+    div.textContent = icon + '  ' + msg;
+    parent.appendChild(div);
+    if (type === 'pass') passed++;
+    if (type === 'fail') failed++;
+  }
+
+  function assert(parent, condition, passMsg, failMsg) {
+    result(parent, condition ? 'pass' : 'fail', condition ? passMsg : failMsg);
+  }
+
+  // ─── Suite 1: グローバルAPI の存在確認 ──────────────────────────────
+  (function () {
+    const s = suite('1. グローバルAPI の存在確認');
+
+    assert(s, typeof window.loadTracks === 'function',
+      'window.loadTracks が関数として存在する',
+      'window.loadTracks が存在しない');
+
+    assert(s, typeof window.prefetchTracks === 'function',
+      'window.prefetchTracks が関数として存在する',
+      'window.prefetchTracks が存在しない');
+
+    assert(s, typeof window.HMIX_BASE_PATH === 'string',
+      'window.HMIX_BASE_PATH が即時設定されている: "' + window.HMIX_BASE_PATH + '"',
+      'window.HMIX_BASE_PATH が設定されていない');
+
+    // まだ loadTracks() を呼んでいないので TRACKS は未設定のはず
+    assert(s, typeof window.TRACKS === 'undefined',
+      'loadTracks() 呼び出し前は window.TRACKS が undefined（正常）',
+      'loadTracks() 前に window.TRACKS が設定されている（予期しない状態）');
+  })();
+
+  // ─── Suite 2: prefetchTracks() ────────────────────────────────────────
+  (function () {
+    const s = suite('2. prefetchTracks() の呼び出し');
+    try {
+      window.prefetchTracks();
+      result(s, 'pass', 'prefetchTracks() が例外なく呼び出せた（バックグラウンドfetch開始）');
+    } catch (e) {
+      result(s, 'fail', 'prefetchTracks() で例外: ' + e.message);
+    }
+    // 二重呼び出しも安全か確認
+    try {
+      window.prefetchTracks();
+      result(s, 'pass', 'prefetchTracks() 二重呼び出しも例外なし（キャッシュ/進行中チェック正常）');
+    } catch (e) {
+      result(s, 'fail', 'prefetchTracks() 二重呼び出しで例外: ' + e.message);
+    }
+  })();
+
+  // ─── Suite 3: loadTracks() — 非同期取得 ──────────────────────────────
+  $status.textContent = '実行中... (fetch中)';
+
+  const s3 = suite('3. loadTracks() — 非同期取得');
+
+  window.loadTracks()
+    .then(function (tracks) {
+
+      // 件数
+      assert(s3, tracks.length === 302,
+        '302曲を取得: ' + tracks.length + '曲',
+        '件数が不一致: ' + tracks.length + '曲（期待値: 302）');
+
+      // 戻り値が配列
+      assert(s3, Array.isArray(tracks),
+        '戻り値が Array',
+        '戻り値が Array でない: ' + typeof tracks);
+
+      // window.TRACKS が設定されている（後方互換）
+      assert(s3, window.TRACKS === tracks,
+        'window.TRACKS が設定されている（後方互換OK）',
+        'window.TRACKS が設定されていない（後方互換NG）');
+
+      // ─── Suite 4: フィールド構造の確認 ────────────────────────────
+      const s4 = suite('4. データ構造・フィールド確認');
+      const first = tracks[0];
+
+      const requiredKeys = ['id', 'title', 'description', 'feeling', 'style', 'scene', 'story', 'mp3'];
+      const missingKeys = requiredKeys.filter(function (k) { return !(k in first); });
+      assert(s4, missingKeys.length === 0,
+        'n1 に必須フィールドがすべて存在: ' + requiredKeys.join(', '),
+        'n1 に欠けているフィールド: ' + missingKeys.join(', '));
+
+      ['feeling', 'style', 'scene', 'story'].forEach(function (k) {
+        assert(s4, Array.isArray(first[k]),
+          '"' + k + '" が Array',
+          '"' + k + '" が Array でない');
+      });
+
+      result(s4, 'info', 'n1 タイトル: ' + first.title);
+      result(s4, 'info', 'n1 description: ' + first.description.substring(0, 40) + '...');
+      result(s4, 'info', 'n1 feeling: [' + first.feeling.join(', ') + ']');
+
+      // ─── Suite 5: mp3パス再構築の確認 ─────────────────────────────
+      const s5 = suite('5. mp3パス再構築の確認');
+
+      // 代表的なIDパターンをチェック
+      var checks = [
+        { id: 'n1',  expected: '/music/n/n1.mp3'  },
+        { id: 'n147', expected: '/music/n/n147.mp3' },
+        { id: 'c1',  expected: '/music/c/c1.mp3'  },
+        { id: 'k1',  expected: '/music/k/k1.mp3'  },
+        { id: 'm2',  expected: '/music/m/m2.mp3'  },
+      ];
+
+      checks.forEach(function (check) {
+        var t = tracks.find(function (t) { return t.id === check.id; });
+        if (!t) {
+          result(s5, 'warn', check.id + ' がデータに存在しない（スキップ）');
+          return;
+        }
+        var base = window.HMIX_BASE_PATH || '';
+        var expectedFull = base + check.expected;
+        assert(s5, t.mp3 === expectedFull,
+          check.id + ' → ' + t.mp3,
+          check.id + ' mp3不一致: got "' + t.mp3 + '" expected "' + expectedFull + '"');
+      });
+
+      // 全曲のmp3パスがパターンに従っているか
+      var badMp3 = tracks.filter(function (t) {
+        var expected = (window.HMIX_BASE_PATH || '') + '/music/' + t.id.charAt(0) + '/' + t.id + '.mp3';
+        return t.mp3 !== expected;
+      });
+      assert(s5, badMp3.length === 0,
+        '全302曲のmp3パスがルールに従っている',
+        'mp3パスが不一致の曲: ' + badMp3.map(function (t) { return t.id; }).join(', '));
+
+      // ─── Suite 6: キャッシュ動作の確認 ────────────────────────────
+      const s6 = suite('6. キャッシュ動作の確認');
+
+      window.loadTracks().then(function (tracks2) {
+        assert(s6, tracks2 === tracks,
+          '2回目の loadTracks() は同一参照を返す（キャッシュ正常）',
+          '2回目の loadTracks() が別オブジェクトを返した（キャッシュ未機能）');
+
+        // ─── Suite 7: 'tracks:ready' イベントの確認 ───────────────
+        const s7 = suite('7. tracks:ready イベントの確認');
+        result(s7, 'info',
+          "'tracks:ready' イベントは初回 loadTracks() 完了時に発火します");
+        result(s7, 'info',
+          'このテストでは既にデータ取得済みのため、以下で手動購読のテストを実施');
+
+        // 再度ページロード時の動作をシミュレート: イベントリスナーをあらかじめ登録して確認
+        // （既にキャッシュ済みなので発火しないが、APIの存在確認として）
+        var listenerCalled = false;
+        window.addEventListener('tracks:ready', function () { listenerCalled = true; }, { once: true });
+        result(s7, 'info', "'tracks:ready' リスナー登録OK（次回取得時に発火）");
+        result(s7, 'pass', 'CustomEvent / dispatchEvent は標準APIであり利用可能');
+
+        // ─── 最終サマリー ─────────────────────────────────────────
+        $status.textContent = '完了';
+        $summary.className = 'summary ' + (failed === 0 ? 'summary-pass' : 'summary-fail');
+        $summary.textContent = failed === 0
+          ? '✓ 全' + (passed) + 'テスト通過'
+          : '✗ ' + failed + ' 件失敗 / ' + (passed + failed) + ' 件中';
+
+      }).catch(function (e) {
+        result(s6, 'fail', '2回目の loadTracks() で例外: ' + e.message);
+      });
+
+    })
+    .catch(function (err) {
+      result(s3, 'fail', 'loadTracks() が失敗: ' + err.message);
+      result(s3, 'warn', 'ローカルサーバー経由でアクセスしているか確認してください（file:// 不可）');
+      $status.textContent = '失敗';
+      $summary.className = 'summary summary-fail';
+      $summary.textContent = '✗ fetch失敗 — ローカルサーバーで開いてください';
+    });
+
+})();
+</script>
+</body>
+</html>

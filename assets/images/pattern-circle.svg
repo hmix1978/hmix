@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- 外円 -->
+  <circle cx="100" cy="100" r="96" fill="none" stroke="#6b5c3e" stroke-width="0.8"/>
+  <!-- 内円 -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#6b5c3e" stroke-width="0.5"/>
+  <circle cx="100" cy="100" r="64" fill="none" stroke="#6b5c3e" stroke-width="0.5"/>
+  <circle cx="100" cy="100" r="48" fill="none" stroke="#6b5c3e" stroke-width="0.5"/>
+  <!-- 8方向の線 -->
+  <line x1="100" y1="4" x2="100" y2="196" stroke="#6b5c3e" stroke-width="0.4"/>
+  <line x1="4" y1="100" x2="196" y2="100" stroke="#6b5c3e" stroke-width="0.4"/>
+  <line x1="43.4" y1="43.4" x2="156.6" y2="156.6" stroke="#6b5c3e" stroke-width="0.4"/>
+  <line x1="156.6" y1="43.4" x2="43.4" y2="156.6" stroke="#6b5c3e" stroke-width="0.4"/>
+  <!-- 八角形 -->
+  <polygon points="100,20 150,43 180,93 163,148 113,178 87,178 37,148 20,93 50,43" fill="none" stroke="#6b5c3e" stroke-width="0.6"/>
+  <!-- 中心の小さな円 -->
+  <circle cx="100" cy="100" r="6" fill="none" stroke="#6b5c3e" stroke-width="0.8"/>
+  <circle cx="100" cy="100" r="2" fill="#6b5c3e"/>
+  <!-- 8方向の小さな菱形 -->
+  <polygon points="100,22 103,28 100,34 97,28" fill="#6b5c3e" opacity="0.6"/>
+  <polygon points="178,100 172,103 166,100 172,97" fill="#6b5c3e" opacity="0.6"/>
+  <polygon points="100,178 103,172 100,166 97,172" fill="#6b5c3e" opacity="0.6"/>
+  <polygon points="22,100 28,103 34,100 28,97" fill="#6b5c3e" opacity="0.6"/>
+</svg>

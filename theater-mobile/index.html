@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja" translate="no" class="notranslate">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>星渡し — TAG COCKPIT mobile / H/MIX THEATER</title>
+<meta name="description" content="H/MIX GALLERY 音の劇場のモバイル版。シーンや感情のタグから、フリーBGMを星図のように旅できます。">
+<meta name="robots" content="index, follow">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#050409">
+<link rel="canonical" href="https://www.hmix.net/theater-mobile/">
+<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+JP:wght@200;300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mobile.css">
+<link rel="stylesheet" href="css/cockpit.css">
+</head>
+<body data-screen="atlas" data-atlasmode="hybrid" data-sheet="0">
+
+<div class="device">
+  <div class="screen" id="app">
+    <canvas id="starCanvas"></canvas>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+
+    <!-- ============================= ATLAS ============================= -->
+    <section class="view" id="view-atlas" data-screen-label="星図">
+      <div class="statusbar"></div>
+      <div class="topbar">
+        <a class="tb-link" href="../theater/scenes.html">◂ シアター</a>
+        <span class="tb-mark">星 渡 し</span>
+        <button class="search-btn" id="searchToggle" aria-label="検索">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+        </button>
+      </div>
+      <div class="atlas-head">
+        <div class="kicker">THE ATLAS</div>
+        <h1>シーンや感情の<b>星図</b>を旅する</h1>
+        <div class="sub">SELECT A TAG TO DIVE</div>
+      </div>
+      <div class="search-wrap" id="searchWrap">
+        <input type="search" id="searchInput" placeholder="タグを検索 — 例: 夜, 戦闘, 別れ" autocomplete="off" enterkeyhint="search">
+      </div>
+      <div class="atlas-body">
+        <div class="atlas-sky" id="atlasSky">
+          <div class="sky-field" id="skyField"></div>
+          <div class="sky-hint" id="skyHint">ドラッグで星空をめぐる · 星をタップして潜る</div>
+        </div>
+        <div class="atlas-list" id="atlasList"></div>
+      </div>
+      <div class="atlas-legend">
+        <span><i style="background:var(--r-feel)"></i>感情</span>
+        <span><i style="background:var(--r-story)"></i>物語</span>
+        <span><i style="background:var(--r-place)"></i>情景・様式</span>
+      </div>
+    </section>
+
+    <!-- ============================= COCKPIT ============================= -->
+    <section class="view" id="view-cockpit" data-screen-label="操縦席">
+      <div class="statusbar"></div>
+      <div class="cp-top">
+        <button class="cp-back" id="cpBack" type="button">◄ 星図</button>
+        <span class="cp-route" id="cpRoute">星 渡 し · TAG TRANSIT</span>
+        <a class="cp-exit" href="../theater/scenes.html">劇場へ ✕</a>
+      </div>
+      <div class="cp-hero" id="cpHero">
+        <div class="hero-cat" id="heroCat">STORY TAG</div>
+        <div class="hero-en" id="heroEn">—</div>
+        <div class="hero-meta" id="heroMeta">—</div>
+        <div class="hero-poem" id="heroPoem">—</div>
+      </div>
+      <div class="cp-wings">
+        <button class="wing" id="wingWarp" type="button">
+          <span class="wk">TAG TRANSIT</span>
+          <span class="wm">タグを旅する</span>
+          <span class="ws" id="warpSub">▸ 次の星へワープ</span>
+        </button>
+        <button class="wing scenery" id="wingScene" type="button">
+          <span class="wk">INTO THE SCENERY</span>
+          <span class="wm">景色の中へ</span>
+          <span class="ws">✦ この星の景色へ</span>
+        </button>
+      </div>
+      <div class="nowbar" id="nowbar">
+        <div class="nb-prog" id="nbProg"></div>
+        <div class="nb-swatch" id="nbSwatch">♪</div>
+        <div class="nb-info">
+          <div class="nb-title" id="nbTitle">タグを選んで航行を開始</div>
+          <div class="nb-sub" id="nbSub">STANDBY</div>
+        </div>
+        <button class="nb-play" id="nbPlay" type="button" aria-label="再生 / 一時停止"></button>
+      </div>
+    </section>
+
+    <!-- ============================= SCENERY ============================= -->
+    <section class="view" id="view-scenery" data-screen-label="景色の中へ" hidden>
+      <div class="sd-world"><img id="sdImg" alt="" draggable="false"></div>
+      <div class="sd-scrim"></div>
+      <div class="sd-breathe"></div>
+      <div class="sd-fp" id="sdFp"></div>
+      <button class="sd-exit l" id="sdBack" type="button">◄ 操縦席へ</button>
+      <button class="sd-exit r" id="sdAtlas" type="button">✦ 星図へ</button>
+      <div class="sd-head" id="sdHead">
+        <div class="k">INTO THE SCENERY</div>
+        <div class="jp" id="sdJp">—</div>
+        <div class="en" id="sdEn">—</div>
+      </div>
+      <div class="sd-foot" id="sdFoot">
+        <div class="sd-t-title" id="sdTitle">—</div>
+        <div class="sd-t-sub" id="sdSub">—</div>
+        <div class="sd-seek">
+          <span class="t cur" id="sdCur">0:00</span>
+          <div class="sd-bar" id="sdBar"><span class="track"></span><span class="fill" id="sdFill"></span><span class="knob" id="sdKnob"></span></div>
+          <span class="t dur" id="sdDur">0:00</span>
+        </div>
+        <div class="sd-transport">
+          <button class="sd-btn sd-prev" id="sdPrev" type="button" aria-label="前へ"></button>
+          <button class="sd-btn big sd-play" id="sdPlay" type="button" aria-label="再生 / 一時停止"></button>
+          <button class="sd-btn sd-next" id="sdNext" type="button" aria-label="次へ"></button>
+          <button class="sd-btn sm fav sd-fav" id="sdFav" type="button" aria-label="お気に入り"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= FULL PLAYER SHEET ============================= -->
+    <div class="sheet-scrim" id="sheetScrim"></div>
+    <div class="sheet" id="sheet">
+      <div class="sheet-handle" id="sheetHandle"><i></i></div>
+      <div class="np">
+        <div class="np-meta">
+          <span class="sector" id="npSector">SECTOR — / 58</span>
+          <span class="state" id="npState"><span class="dot"></span><span class="txt">STANDBY</span></span>
+        </div>
+        <div class="np-title" id="npTitle">—</div>
+        <div class="np-sub" id="npSub">タグを選んで航行を開始</div>
+        <div class="np-seek">
+          <span class="t cur" id="npCur">0:00</span>
+          <div class="np-bar" id="npBar"><span class="track"></span><span class="fill" id="npFill"></span><span class="knob" id="npKnob"></span></div>
+          <span class="t dur" id="npDur">0:00</span>
+        </div>
+        <div class="np-transport">
+          <button class="tbtn sm shuffle" id="btnShuffle" type="button" aria-label="シャッフル"></button>
+          <button class="tbtn prev" id="btnPrev" type="button" aria-label="前へ"></button>
+          <button class="tbtn play" id="btnPlay" type="button" aria-label="再生 / 一時停止"></button>
+          <button class="tbtn next" id="btnNext" type="button" aria-label="次へ"></button>
+          <button class="tbtn sm repeat" id="btnRepeat" type="button" aria-label="リピート"></button>
+          <button class="tbtn sm fav" id="btnFav" type="button" aria-label="お気に入り"></button>
+        </div>
+      </div>
+      <div class="sheet-tabs" id="sheetTabs" role="tablist">
+        <button data-tab="manifest" aria-selected="true"><span class="ti">≣</span>この星のうた</button>
+        <button data-tab="fav" aria-selected="false"><span class="ti">♡</span>お気に入り</button>
+        <button data-tab="trip" aria-selected="false"><span class="ti">◇</span>しおり</button>
+        <button data-tab="mem" aria-selected="false"><span class="ti">◷</span>記憶</button>
+      </div>
+      <div class="sheet-body" id="sheetBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================= TWEAKS ============================= -->
+<div id="tweaks">
+  <h3>TWEAKS <button class="tw-close" id="twClose" type="button">✕</button></h3>
+  <div class="tw-sec">
+    <label>プレイヤーの開き方</label>
+    <div class="tw-radio" id="twSheet">
+      <button data-v="sheet">ボトムシート</button>
+      <button data-v="auto">自動で全開</button>
+    </div>
+    <div class="tw-note">ダイブ後に全画面プレイヤーを自動で開くか。</div>
+  </div>
+  <div class="tw-sec">
+    <label>質感（背景の濃さ）</label>
+    <div class="tw-radio" id="twMood">
+      <button data-v="deep">深い夜</button>
+      <button data-v="clear">視認性</button>
+    </div>
+    <div class="tw-note">没入と読みやすさのバランス。</div>
+  </div>
+  <div class="tw-sec">
+    <label>既定アクセント（星図）</label>
+    <div class="tw-swatches" id="twAccent">
+      <button data-v="216,180,106" style="background:rgb(216,180,106)"></button>
+      <button data-v="160,200,255" style="background:rgb(160,200,255)"></button>
+      <button data-v="170,220,240" style="background:rgb(170,220,240)"></button>
+      <button data-v="206,168,236" style="background:rgb(206,168,236)"></button>
+    </div>
+    <div class="tw-note">ダイブ中はタグの情景色で上書きされます。</div>
+  </div>
+  <div class="tw-sec">
+    <label class="tw-toggle" id="twEffects"><span>演出（パーティクル）</span><span class="sw"></span></label>
+    <div class="tw-note">漢字の再構成・生きた光片・ワープ。</div>
+  </div>
+</div>
+
+<script>
+window.MTWEAKS = /*EDITMODE-BEGIN*/{
+  "atlasMode": "hybrid",
+  "sheetOpen": "sheet",
+  "mood": "deep",
+  "accent": "216,180,106",
+  "effects": true
+}/*EDITMODE-END*/;
+</script>
+<script src="../assets/js/tracks.js"></script>
+<script>
+window.HMIX_FOOTPRINTS = window.HMIX_FOOTPRINTS || {};
+window.HMIX_FOOTPRINTS.forTrack = (function () {
+  var FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBczT5L6PRDJOVAGy3DQ61l-UFbAqI6ESg",
+    authDomain: "hmix-footprints.firebaseapp.com",
+    projectId: "hmix-footprints",
+    storageBucket: "hmix-footprints.firebasestorage.app",
+    messagingSenderId: "477684733173",
+    appId: "1:477684733173:web:ae0d0986a92a426b08e1bc"
+  };
+  var initPromise = null;
+  var cache = {};
+  function ensureFirestore() {
+    if (initPromise) return initPromise;
+    initPromise = Promise.all([
+      import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
+      import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js')
+    ]).then(function (mods) {
+      var app = mods[0].initializeApp(FIREBASE_CONFIG);
+      return { db: mods[1].getFirestore(app), fs: mods[1] };
+    }).catch(function (e) {
+      initPromise = null;
+      throw e;
+    });
+    return initPromise;
+  }
+  return function forTrack(trackId) {
+    if (!trackId) return Promise.resolve([]);
+    if (cache[trackId]) return cache[trackId];
+    cache[trackId] = ensureFirestore().then(function (ctx) {
+      var fs = ctx.fs;
+      return fs.getDocs(fs.query(
+        fs.collection(ctx.db, 'footprints'),
+        fs.where('trackId', '==', String(trackId)),
+        fs.where('hidden', '==', false),
+        fs.orderBy('createdAt', 'desc'),
+        fs.limit(12)
+      ));
+    }).then(function (snap) {
+      return snap.docs.map(function (doc) {
+        var d = doc.data();
+        return { text: d.message || d.body || '', author: d.author || d.nickname || '' };
+      }).filter(function (f) { return f.text; });
+    }).catch(function () {
+      delete cache[trackId];
+      return [];
+    });
+    return cache[trackId];
+  };
+})();
+</script>
+<script src="js/data.js"></script>
+<script src="js/m-stars.js"></script>
+<script src="js/m-player.js"></script>
+<script src="js/m-atlas.js"></script>
+<script src="js/m-cockpit.js"></script>
+<script src="js/m-scenery.js"></script>
+<script src="js/m-app.js"></script>
+</body>
+</html>
