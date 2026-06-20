@@ -721,8 +721,10 @@
     if(p.type==='youtube'){
       ytVidIds=[]; ytLastCur=-1;
       head.textContent='収録映像';
-      sub.textContent='読み込み中…';
-      body.innerHTML='<div class="pl-note">映像一覧を読み込み中…</div>';
+      sub.textContent='YouTubeに接続中…';
+      if(!renderYTRows(p, Object.keys(p.titles||{}), 0, true)){
+        body.innerHTML='<div class="pl-note">映像一覧を読み込み中…</div>';
+      }
       playInScreen('yt', p.yt);   // 額縁内で再生 → ytSyncList が一覧を描画
     } else {
       var uc=document.getElementById('ft-used'); if(uc) uc.classList.remove('on');   // 楽曲型では左カード非表示
@@ -844,6 +846,44 @@
   }
   function hideNoEmbed(){ var m=document.getElementById('ft-yt-msg'); if(m) m.style.display='none'; }
 
+  function renderYTRows(p, ids, cur, pending){
+    ids = ids || [];
+    if(!ids.length) return false;
+    var body=document.getElementById('ft-pl-body'); if(!body) return false;
+    var head=document.querySelector('#ft-pl-head h4'), sub=document.querySelector('#ft-pl-head p');
+    if(head) head.textContent='収録映像';
+    if(sub) sub.textContent=ids.length+'本 · '+(pending?'YouTube接続中':'クリックで再生');
+    if(ytVidIds.join(',')!==ids.join(',')){
+      ytVidIds=ids.slice();
+      body.innerHTML='';
+      ids.forEach(function(vid, idx){
+        var row=document.createElement('div'); row.className='pl-vrow'; row.setAttribute('data-vid', vid);
+        row.innerHTML=
+          '<div class="pl-vth"><img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg" alt=""><span class="pl-vplay">▶</span></div>'+
+          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div></div>'+
+          '<div class="pl-vnow">NOW</div>';
+        row.addEventListener('click', function(){
+          try{ if(ytPlayer&&ytPlayer.playVideoAt) ytPlayer.playVideoAt(idx); }catch(e){}
+          markYTCurrent(idx); try{ renderUsed(vid); }catch(e){}
+        });
+        body.appendChild(row);
+      });
+    }
+    markYTCurrent(cur);
+    return true;
+  }
+  function markYTCurrent(cur){
+    var rows=document.querySelectorAll('#ft-pl-body .pl-vrow');
+    for(var i=0;i<rows.length;i++){
+      var v=rows[i].getAttribute('data-vid');
+      var p=PLAYLISTS[plActive], ttl=(p&&p.titles&&p.titles[v])||ytTitles[v];
+      if(ttl){ var tEl=rows[i].querySelector('.pl-vt'); if(tEl) tEl.textContent=ttl; }
+      rows[i].classList.toggle('noembed', !!ytNoEmbed[v]);
+      var on=(i===cur); rows[i].classList.toggle('playing', on);
+      if(on) try{ rows[i].scrollIntoView({block:'nearest'}); }catch(e){}
+    }
+  }
+
   // YouTube プレイリストの「収録映像セレクター」を右パネルに描画（API getPlaylist から）
   function ytSyncList(){
     if(!state.playlistMode) return;
@@ -853,31 +893,7 @@
     if(!ids.length) return;
     var cur=0; try{ cur=ytPlayer.getPlaylistIndex(); }catch(e){}
     try{ var d=ytPlayer.getVideoData&&ytPlayer.getVideoData(); if(d&&d.video_id&&d.title) ytTitles[d.video_id]=d.title; }catch(e){}
-    var body=document.getElementById('ft-pl-body'); if(!body) return;
-    if(ytVidIds.join(',')!==ids.join(',')){            // 初回 / 変化時にフル描画
-      ytVidIds=ids.slice();
-      var head=document.querySelector('#ft-pl-head h4'), sub=document.querySelector('#ft-pl-head p');
-      if(head) head.textContent='収録映像';
-      if(sub) sub.textContent=ids.length+'本 · クリックで再生';
-      body.innerHTML='';
-      ids.forEach(function(vid, idx){
-        var row=document.createElement('div'); row.className='pl-vrow'; row.setAttribute('data-vid', vid);
-        row.innerHTML=
-          '<div class="pl-vth"><img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg" alt=""><span class="pl-vplay">▶</span></div>'+
-          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div></div>'+
-          '<div class="pl-vnow">NOW</div>';
-        row.addEventListener('click', function(){ try{ ytPlayer.playVideoAt(idx); }catch(e){} });
-        body.appendChild(row);
-      });
-    }
-    var rows=body.querySelectorAll('.pl-vrow');
-    for(var i=0;i<rows.length;i++){
-      var v=rows[i].getAttribute('data-vid');
-      var ttl=(p.titles&&p.titles[v])||ytTitles[v]; if(ttl){ var tEl=rows[i].querySelector('.pl-vt'); if(tEl) tEl.textContent=ttl; }
-      rows[i].classList.toggle('noembed', !!ytNoEmbed[v]);
-      var on=(i===cur); rows[i].classList.toggle('playing', on);
-      if(on) try{ rows[i].scrollIntoView({block:'nearest'}); }catch(e){}
-    }
+    renderYTRows(p, ids, cur, false);
     if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(curVideoId()); }catch(e){} }
   }
 

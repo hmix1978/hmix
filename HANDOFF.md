@@ -1,6 +1,40 @@
 # H/MIX GALLERY — 引継ぎメモ
 更新: 2026-04-03
 
+## Current Handoff - 2026-06-21 - Mac
+
+Owner side: Mac
+Branch: main
+Latest commit before work: 921a277 Initial import: H/MIX GALLERY source (Mac/Win sync). Secrets removed; .env.ftp/large media gitignored.
+
+### Done
+- Cloned the private `hmix.git` source into `/Users/hmix/Documents/projects/hmix-git`.
+- Followed `MAC_WIN_SYNC.md`: checked status, pulled `main`, read handoff, and ran the project count check.
+- Continued after P1a-P1f by stabilizing the theater playlist panel:
+  - The YouTube works playlist now renders its right-panel movie list immediately from the baked title map.
+  - When the YouTube IFrame API becomes available, the list still syncs back to `getPlaylist()` / `getPlaylistIndex()` and keeps P1e next/prev behavior.
+  - Clicking a fallback row marks the current movie and keeps the used-track card in sync until the player API is ready.
+
+### Files touched
+- `theater/index.html`
+- `HANDOFF.md`
+
+### Verification
+- `npm run build:counts` passed.
+- Inline `<script>` syntax check passed with `inline scripts ok: 2`.
+
+### Deployment
+- Not done. This P1 playlist work remains local/GitHub only until Hiro explicitly approves production deployment.
+
+### Next
+- Confirm YouTube next/prev playback on a real interactive browser session.
+- Register used-track mappings via `Shift+A`, export `hmix.theater.usedTracks`, and bake stable mappings into the source.
+- Continue manual playlist curation and wide-screen right-panel overlap adjustment.
+
+### Risks / Holds
+- Headless browser verification on this Mac could not launch bundled Chromium/Chrome cleanly, so the final playback check should be done in a normal browser window.
+- `popular.html` remains on hold per `MAC_WIN_SYNC.md`.
+
 ---
 
 ## ⚠️ Cowork へ — 削除禁止ファイル
