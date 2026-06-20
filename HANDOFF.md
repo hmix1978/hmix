@@ -5,34 +5,35 @@
 
 Owner side: Mac
 Branch: main
-Latest commit before work: 921a277 Initial import: H/MIX GALLERY source (Mac/Win sync). Secrets removed; .env.ftp/large media gitignored.
+Latest commit before work: f434684 Stabilize theater playlist fallback
 
 ### Done
-- Cloned the private `hmix.git` source into `/Users/hmix/Documents/projects/hmix-git`.
-- Followed `MAC_WIN_SYNC.md`: checked status, pulled `main`, read handoff, and ran the project count check.
-- Continued after P1a-P1f by stabilizing the theater playlist panel:
-  - The YouTube works playlist now renders its right-panel movie list immediately from the baked title map.
-  - When the YouTube IFrame API becomes available, the list still syncs back to `getPlaylist()` / `getPlaylistIndex()` and keeps P1e next/prev behavior.
-  - Clicking a fallback row marks the current movie and keeps the used-track card in sync until the player API is ready.
+- Added a standalone theater effect tuning page:
+  - `theater/effects-lab.html`
+  - Full theater preview using the existing theater night and starmap assets.
+  - Adjustable effect meters for dust, fireflies, stars, projection beam, screen glow, aurora, curtain glow, fog, rain, petals, film grain, vignette, speed, size, and hue.
+  - Four presets: forest screening, star atlas, rainy night, and festival afterglow.
+  - Current settings can be copied as JSON for later migration into the main theater page.
 
 ### Files touched
-- `theater/index.html`
+- `theater/effects-lab.html`
 - `HANDOFF.md`
 
 ### Verification
 - `npm run build:counts` passed.
-- Inline `<script>` syntax check passed with `inline scripts ok: 2`.
+- Local HTTP check passed: `http://127.0.0.1:4173/theater/effects-lab.html` returned `200 OK`.
+- Inline `<script>` syntax check passed with `effects-lab scripts ok: 1`.
 
 ### Deployment
-- Not done. This P1 playlist work remains local/GitHub only until Hiro explicitly approves production deployment.
+- Not done. This effect lab remains local/GitHub only until Hiro explicitly approves production deployment.
 
 ### Next
-- Confirm YouTube next/prev playback on a real interactive browser session.
-- Register used-track mappings via `Shift+A`, export `hmix.theater.usedTracks`, and bake stable mappings into the source.
-- Continue manual playlist curation and wide-screen right-panel overlap adjustment.
+- Hiro should review the lab page visually and pick favorite presets / ranges.
+- After approval, migrate the chosen effect layers into `theater/index.html`.
+- Continue P1 playlist used-track mapping and wide-screen panel adjustment.
 
 ### Risks / Holds
-- Headless browser verification on this Mac could not launch bundled Chromium/Chrome cleanly, so the final playback check should be done in a normal browser window.
+- Codex could not directly control the in-app browser window due app safety restrictions, so visual review is pending in the normal browser.
 - `popular.html` remains on hold per `MAC_WIN_SYNC.md`.
 
 ---
