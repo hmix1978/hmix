@@ -551,6 +551,11 @@
       if(flash){ flash.style.transition='none'; flash.style.opacity='.85'; requestAnimationFrame(function(){ flash.style.transition='opacity .7s ease'; flash.style.opacity='0'; }); }
     }, 850);
   }
+  // bfcache（戻る）対策: fadeNavigate で暗転(veil黒)のまま離脱→ブラウザが黒い状態で復元し、
+  // projectorOn が再実行されず「戻ると真っ黒」になるのを防ぐ。復元時は即座にveilを消す。
+  window.addEventListener('pageshow', function(e){
+    if(e.persisted && veil){ veil.style.transition='none'; veil.style.opacity='0'; veil.style.display='none'; }
+  });
 
   // ===== シアター内プレイリスト（全画面にしない・この部屋の中で完結） =====
   var FAVK = 'hmix_favorites';

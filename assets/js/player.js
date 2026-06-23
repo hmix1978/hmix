@@ -170,8 +170,9 @@
   const RECENT_KEY = 'hmix_recent_tracks';
   const RECENT_MAX = 20;
 
+  // FavStore（window.HMIX_FAV）= 単一の心臓へ委譲。localStorage直接アクセスはしない。
   function getFavSet() {
-    try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]')); }
+    try { return new Set(window.HMIX_FAV ? window.HMIX_FAV.ids() : []); }
     catch(e) { return new Set(); }
   }
 
@@ -188,14 +189,22 @@
   }
 
   function saveFavSet(set) {
-    try { localStorage.setItem(FAV_KEY, JSON.stringify([...set])); } catch(e) {}
-    window.dispatchEvent(new CustomEvent('favorites:updated', {
-      detail: { count: set.size, ids: [...set] }
-    }));
+    if (!window.HMIX_FAV) return;
+    var want = new Set([...set].map(String));
+    var have = new Set(window.HMIX_FAV.ids());
+    have.forEach(function (id) { if (!want.has(id)) window.HMIX_FAV.remove(id); });
+    want.forEach(function (id) { if (!have.has(id)) window.HMIX_FAV.add(id); });
+    // 発火は FavStore 側（favorites:updated）が担う
   }
 
   function toggleFav(id) {
     if (!id) return;
+    if (window.HMIX_FAV) {
+      // 0-5 Undo: 削除はトースト経由で確定、追加は即時
+      if (window.HMIX_FAV.has(String(id))) window.HMIX_FAV.removeWithUndo(String(id));
+      else window.HMIX_FAV.add(String(id));
+      return;
+    }
     const set = getFavSet();
     if (set.has(id)) set.delete(id); else set.add(id);
     saveFavSet(set);
@@ -206,6 +215,13 @@
   let elSeekbar, elProgress, elThumb, elTime;
   let elRepeat, elShuffle, elVolume;
   let elFavBtn, elFavCount;
+  let _prevFavCount = -1;   // Phase2: 件数変化検出で脈動演出
+  // 「ひとつの心臓」の鼓動: 要素を一瞬脈打たせる（reduced-motionはCSS側で無効化）
+  function favPulse(el){
+    if (!el) return;
+    el.classList.remove('fav-pulse'); void el.offsetWidth; el.classList.add('fav-pulse');
+    setTimeout(function(){ if (el) el.classList.remove('fav-pulse'); }, 680);
+  }
 
   // ===== 初期化 =====
   function init() {
@@ -694,6 +710,12 @@
     if (elFavCount) {
       elFavCount.textContent = count > 0 ? String(count) : '0';
     }
+    // Phase2 脈拍: 件数が変わったらバッジが脈打つ。増えた時は♥も灯す。
+    if (_prevFavCount !== -1 && count !== _prevFavCount) {
+      favPulse(elFavCount);
+      if (count > _prevFavCount) favPulse(elFavBtn);
+    }
+    _prevFavCount = count;
   }
 
   function updateRepeatUI() {

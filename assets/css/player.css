@@ -853,3 +853,24 @@ body {
     max-width: 340px;
   }
 }
+
+/* ============================================================
+   Phase2 「ひとつの心臓」の脈拍: お気に入り件数バッジ/♥の鼓動演出
+   favorites:updated で件数が変わると脈打ち、追加時は♥に金の灯が灯る。
+   ============================================================ */
+@keyframes favPulse {
+  0%   { transform: scale(1); }
+  28%  { transform: scale(1.4); }
+  55%  { transform: scale(.9); }
+  100% { transform: scale(1); }
+}
+@keyframes favGlow {
+  0%   { box-shadow: 0 0 0 0 rgba(255,200,110,.6); }
+  100% { box-shadow: 0 0 0 14px rgba(255,200,110,0); }
+}
+.fav-pulse { animation: favPulse .65s cubic-bezier(.22,1,.36,1); will-change: transform; }
+#player-fav-count.fav-pulse { color: #ffcf6e; text-shadow: 0 0 8px rgba(255,200,110,.7); }
+#player-btn-fav.fav-pulse { animation: favPulse .65s cubic-bezier(.22,1,.36,1), favGlow .7s ease-out; border-radius: 50%; }
+@media (prefers-reduced-motion: reduce) {
+  .fav-pulse, #player-btn-fav.fav-pulse { animation: none !important; }
+}

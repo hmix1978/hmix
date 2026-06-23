@@ -436,6 +436,9 @@
   bFav.innerHTML=I.heartO;
   bFav.addEventListener('click',()=>{ const b=$('.np-fav'); if(b){ b.click(); syncTrack();
     const fp=panels.find(p=>p.dataset.panel==='fav'); if(fp&&!fp.hidden) renderFavPanel(); } });
+  // 「ひとつの心臓」: 他サーフェスでの♡変更を受けて景色ダイブの♡も同期（cockpit更新後に走るようdefer）
+  window.addEventListener('favorites:updated', ()=>{ setTimeout(()=>{ try{ syncTrack();
+    const fp=panels.find(p=>p.dataset.panel==='fav'); if(fp&&!fp.hidden) renderFavPanel(); }catch(e){} }, 0); });
 
   /* ---- シークバー (本体の audio を直接操作) ----------------- */
   function updateSeek(){
@@ -531,9 +534,8 @@
   /* 「商用ライセンスを取得」→ お気に入りパネルを開き、チェックボックスへ誘導 */
   const sdLic=sd.querySelector('.sd-lic');
   if(sdLic) sdLic.addEventListener('click',()=>{
-    const favBtn=mbtns.find(b=>b.dataset.panel==='fav');
-    const favPanel=panels.find(p=>p.dataset.panel==='fav');
-    if(favPanel&&favPanel.hidden&&favBtn) favBtn.click(); else renderFavPanel();
+    // 景色の中では通常のお気に入りボックス（fav-modal）を開いてライセンス申請へ
+    if(window.HMIX_FAV_MODAL&&window.HMIX_FAV_MODAL.open) window.HMIX_FAV_MODAL.open();
   });
   const sdLicBtn=sd.querySelector('.sd-license');
   if(sdLicBtn) sdLicBtn.addEventListener('click',()=>{
@@ -552,6 +554,7 @@
 
   function renderFavPanel(){
     const panel=panels.find(p=>p.dataset.panel==='fav');
+    if(!panel) return;
     const ul=panel.querySelector('.sd-plist');
     ul.innerHTML='';
     const ids=favIds();

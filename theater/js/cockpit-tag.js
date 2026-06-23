@@ -31,6 +31,7 @@
   const load=(k,d)=>{ try{ const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } };
   const save=(k,v)=>{ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
   let favs = new Set(load(KF,[]));     // track ids
+  let favSelfEmit=false;               // 自分のfavorites:updated発火を識別（同期ループ防止）
   let hist = load(KH,[]);              // track ids, most-recent first
   let trip = load(KT,[]);              // tag ids, most-recent first
 
@@ -255,7 +256,16 @@
     if(favs.has(id)) favs.delete(id); else favs.add(id);
     save(KF,[...favs]);
     renderNP(); renderFav(); markPlaying();
+    // 「ひとつの心臓」: 全サーフェスへ鼓動を伝える
+    try{ favSelfEmit=true; window.dispatchEvent(new CustomEvent('favorites:updated',{detail:{count:favs.size, ids:[...favs]}})); }
+    finally{ favSelfEmit=false; }
   }
+  // 他サーフェス（ライブラリ/プレイヤー/曲ページ/夜風等）での変更を受けて操縦席を同期
+  window.addEventListener('favorites:updated', function(){
+    if(favSelfEmit) return;               // 自分の発火は無視（二重描画/ループ防止）
+    favs = new Set(load(KF,[]));
+    renderNP(); renderFav(); markPlaying();
+  });
   function pushHistory(id){
     hist = [id, ...hist.filter(x=>x!==id)].slice(0,40);
     save(KH,hist); renderMem();
@@ -425,6 +435,17 @@
   }));
   const cvClose=document.querySelector('.cv-close');
   if(cvClose) cvClose.addEventListener('click',closeVision);
+
+  /* 共通お気に入りハブ(#hmix-fav-hub): コックピットでは世界観を保つ八角形ビジョンを開く。
+     景色の中(body[data-scene=on])では横取りせず通常のお気に入りボックス(fav-modal)に委譲する。
+     ※hubはfav-modal.jsが後から生成するためdocumentのcaptureで委譲する。 */
+  document.addEventListener('click', function(e){
+    var hub = (e.target && e.target.closest) ? e.target.closest('#hmix-fav-hub') : null;
+    if(!hub) return;
+    if(document.body.dataset.scene==='on') return; // 景色の中→通常モーダルに任せる
+    e.stopImmediatePropagation(); e.preventDefault();
+    if(visionOpen==='fav') closeVision(); else openVision('fav');
+  }, true);
 
   /* 「商用ライセンスを取得」→ お気に入りを開き、チェックボックスへ誘導 */
   const npLic=document.querySelector('.np-lic');

@@ -197,6 +197,57 @@ function transformHtml(html, track, tagNames) {
     (m, pre, _old, post) => `${pre} data-track-id="${esc(id)}"${post}`
   );
 
+  // ── コンバージョン導線: ヒーローに「この曲を商用利用する」CTAを追加（お気に入りの隣・冪等） ──
+  // 5AI評価の最優先=「気に入った曲→ライセンス購入」への目立つ導線。曲IDを引き継いで既存Stripe導線へ。
+  if (!/td2-hero__license/.test(html)) {
+    const heroCta =
+      `\n            <a class="td2-hero__license editorial-fav-cta" href="/license-request.html#tracks=${esc(id)}" data-license-cta="${esc(id)}">` +
+      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>` +
+      `<span class="editorial-fav-label">この曲を商用利用する</span></a>`;
+    if (/class="hero-actions"/.test(html)) {
+      // n系デザイン（.hero-actions 内・お気に入りの隣）
+      html = html.replace(
+        /(<div[^>]*class="hero-actions"[^>]*>[\s\S]*?<\/button>)(\s*<\/div>)/,
+        (m, pre, post) => `${pre}${heroCta}${post}`
+      );
+    } else if (/class="td2-hero__actions/.test(html)) {
+      // z系デザイン（td2-hero__actions 内・#hero-fav-btn の直後・td2スタイル流用）
+      const heroCtaZ =
+        `\n          <a class="td2-hero__license td2-hero__fav" href="/license-request.html#tracks=${esc(id)}" data-license-cta="${esc(id)}" aria-label="この曲を商用利用する">` +
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>` +
+        `<span>この曲を商用利用する</span></a>`;
+      html = html.replace(
+        /(<button[^>]*id="hero-fav-btn"[^>]*>[\s\S]*?<\/button>)/,
+        (m, favBtn) => `${favBtn}${heroCtaZ}`
+      );
+    }
+  }
+
+  // ── コンバージョン導線: 商用セクションのフッタに購入CTAを追加（規約ボタンの前・冪等） ──
+  if (!/td2-comm-cta/.test(html)) {
+    const commCta =
+      `<a class="td2-comm-cta dl-btn" style="text-decoration:none;width:auto" href="/license-request.html#tracks=${esc(id)}">` +
+      `<svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg>` +
+      `この曲を商用利用する（¥2,200〜）-></a>\n          `;
+    if (/class="comm-foot/.test(html)) {
+      // n系デザイン（.comm-foot の規約ボタンの前）
+      html = html.replace(
+        /(<div[^>]*class="comm-foot[^"]*"[^>]*>\s*)(<a[^>]*class="ghost-btn")/,
+        (m, pre, post) => `${pre}${commCta}${post}`
+      );
+    } else if (/td2-license__commercial/.test(html)) {
+      // z系デザイン（.td2-license__commercial の「ご利用規約を確認」ボタンの前・td2スタイル流用）
+      const commCtaZ =
+        `<a class="td2-license-btn td2-comm-cta" href="/license-request.html#tracks=${esc(id)}">` +
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>` +
+        `この曲を商用利用する（¥2,200〜）-></a>\n          `;
+      html = html.replace(
+        /(<a[^>]*class="td2-license-btn"[^>]*href="[^"]*terms[^"]*")/,
+        (m) => `${commCtaZ}${m}`
+      );
+    }
+  }
+
   return html;
 }
 

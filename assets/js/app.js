@@ -42,16 +42,10 @@ if (navToggle && navList) {
     navToggle.classList.toggle('active', isOpen);
   });
 
+  // aria初期化のみ（クリックのトグルは下の委譲ハンドラに一本化）
+  // ※以前はここでも click を張っており、委譲ハンドラと二重発火→即開閉でモバイルのドロップダウンが開かなかった
   navList.querySelectorAll('.nav-item--dropdown > .nav-link').forEach((dropdownLink) => {
     dropdownLink.setAttribute('aria-expanded', 'false');
-    dropdownLink.addEventListener('click', (e) => {
-      if (!navList.classList.contains('open')) return;
-      e.preventDefault();
-      e.stopPropagation();
-      const item = dropdownLink.closest('.nav-item--dropdown');
-      const isOpen = item.classList.toggle('nav-item--submenu-open');
-      dropdownLink.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
   });
 
   // メニュー項目クリックで閉じる

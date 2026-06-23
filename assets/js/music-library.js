@@ -199,22 +199,23 @@
   let _globalListenersInitialized = false; // グローバルリスナーの二重登録防止
 
   // ─── お気に入り ──────────────────────────────────
-  const FAV_KEY = 'hmix_favorites';
-  const favorites = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
+  // FavStore（window.HMIX_FAV）= 単一の心臓。localStorage直接アクセスはしない。
+  const favorites = new Set(window.HMIX_FAV ? window.HMIX_FAV.ids() : []);
 
   function saveFavorites() {
-    localStorage.setItem(FAV_KEY, JSON.stringify([...favorites]));
-    // Phase 1.5B: ids を detail に含める → 受信側が localStorage 再読不要になる
-    window.dispatchEvent(new CustomEvent('favorites:updated', {
-      detail: { count: favorites.size, ids: [...favorites] }
-    }));
+    // in-memoryキャッシュ favorites を FavStore へ差分反映（発火はFavStore側）。
+    if (!window.HMIX_FAV) return;
+    var want = new Set([...favorites].map(String));
+    var have = new Set(window.HMIX_FAV.ids());
+    have.forEach(function (id) { if (!want.has(id)) window.HMIX_FAV.remove(id); });
+    want.forEach(function (id) { if (!have.has(id)) window.HMIX_FAV.add(id); });
   }
 
   // favorites:updated（player.js など外部から発火）→ カードUI を再同期
   function syncFavButtons() {
     // localStorage を正とし、in-memory Set を更新
     try {
-      const fresh = new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]'));
+      const fresh = new Set(window.HMIX_FAV ? window.HMIX_FAV.ids() : []);
       favorites.clear();
       fresh.forEach(id => favorites.add(id));
     } catch(e) {}
@@ -1347,13 +1348,15 @@
       btn.classList.remove('is-fav');
       btn.textContent = '♡';
       btn.setAttribute('aria-pressed', 'false');
+      // 0-5 Undo: 削除は即commitせず「元に戻す」トースト経由で確定
+      if (window.HMIX_FAV) window.HMIX_FAV.removeWithUndo(trackId); else saveFavorites();
     } else {
       favorites.add(trackId);
       btn.classList.add('is-fav');
       btn.textContent = '♥';
       btn.setAttribute('aria-pressed', 'true');
+      if (window.HMIX_FAV) window.HMIX_FAV.add(trackId); else saveFavorites();
     }
-    saveFavorites();
   }
 
   function togglePlay(id) {

@@ -1,3 +1,25 @@
+# ★ Current Handoff — 2026-06-24 — Windows（最新・まずここを読む）
+
+> Mac側へ: `git pull origin main` → 下記を把握 → 続行。古い節は履歴。`.env.ftp`はGit管理外（Macに別途設定要）。
+
+## このコミットの主変更（すべて本番 hmix.net 反映済み）
+1. **お気に入りの心臓一本化（Phase 0）**: `assets/js/fav-store.js`（新規・`window.HMIX_FAV`）。リッチ構造`hmix_favorites_v2`＋後方互換ミラー`hmix_favorites`、setItemラップで未改修コードも自動和解、冪等マイグレータ＋90日バックアップ／LWW＋tombstone＋LexoRank／Undo。テスト`node scripts/test-fav-store.js`(34)。主要消費者(music-library/player/fav-modal/track-detail)をHMIX_FAV直結＋削除はUndo化。
+2. **音楽手帖UI（P1）本番稼働**: `assets/js/fav-notebook.js`＋`assets/css/fav-notebook.css`（新規・`window.HMIX_NOTEBOOK`）。見開き3ペイン/章/A-B/メモ/金CTA/モバイルボトムシート。`fav-modal.js`の`openModal()`＋♡ハブを「手帖があれば手帖／無ければ旧モーダル」に変更＝**全保存リスト入口が手帖に統一**。申請は`/license-request.html#tracks=`へ。
+3. **星巡り(theater/tag-cockpit.html)**: コックピット右下♡→八角形ビジョン(cockpit-tag.js capture委譲)、景色は従来モーダル、景色固有fav箱削除しハブ一本化＋左下退避。**theater配下に手帖は注入していない**。
+4. **PJAX制作ツールボックス＆メモ引き継ぎ**(`player-panel.js`): ナビリンクで誤って閉じていたのを修正(`a[href]`は閉じない)。遷移後も開・タブ・メモ(`hmix_memos_v1`)・波形/EQ維持。
+5. **professional-license.html**: 料金表`.ptbl`CSS欠落の崩れ修正。TOPの旧お気に入りショーケース削除。
+
+## ⚠️ Mac側で必ず注意（重要）
+- **`music/`は丸ごと.gitignore（生成物扱い）**。305曲ページとmp3はGit未追跡。本番の`music/*.html`には favbox読込(fav-store/fav-notebook/css)・track-detail.js?v=20260623h・player-panel.js?v=20260624a・fav-modal.js?v=20260624c が**注入済みだがコミットされていない**。
+- **`scripts/build-track-pages.js`はfavbox読込を生成しない** → 曲ページを再生成してデプロイすると**favboxが消えた旧状態に戻る（リグレッション）**。再生成する場合は生成後にfavbox読込の再注入が必要（build-track-pages.js側テンプレ追加がTODO）。
+- 共有JS/CSSを変えたら各ページの`?v=`バンプ必須（7日キャッシュ）。WinはBash安全判定が時々落ちる→PowerShellの`curl.exe -T ... --output NUL`で代替（Macは通常のbash curlでOK）。
+
+## 検討中（次の論点）
+- 移転初日ログ: 転送38.6GB/日(月1.1TB)の**91.7%がmp3**。対策案=①Cloudflare(無料)でmp3エッジキャッシュ=本命 ②.htaccessホットリンク保護 ③robots/UAでボット(YisouSpider/AhrefsBot/curl)抑制 ④単一IP 211.1.105.65(651MB)調査。SEOは直リンクでなく検索＋YouTube(16%)＋ページ(schema済)で。mp3への`X-Robots-Tag: noindex`/`Link: rel=canonical`は検討段階(cross-type canonicalは効果不確実)。
+- favbox残: 申請4ステップ手帖内化／Firebase同期(P1-3)／soft gateメール／インボイスPDF。正典=`hmix-works/お気に入りボックス-確定仕様-熟成版.md`。
+
+---
+
 # H/MIX GALLERY — 引継ぎメモ
 更新: 2026-04-03
 

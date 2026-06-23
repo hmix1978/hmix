@@ -5798,6 +5798,9 @@
       // プレイヤー内もスキップ（DL/詳細ボタン等）
       var player = document.getElementById('global-player');
       if (player && player.contains(e.target)) return;
+      // ページ内リンク遷移(PJAX)では閉じない＝ツールボックスとメモを遷移後も開いたまま引き継ぐ。
+      // パネル/プレイヤーは #page-content の外側に常駐するためDOMごと生き残る。
+      if (e.target.closest && e.target.closest('a[href]')) return;
       // それ以外 → 閉じる
       _panel.classList.remove('is-open');
       _toggleBtn.classList.remove('is-open');

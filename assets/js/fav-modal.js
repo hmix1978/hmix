@@ -57,18 +57,19 @@
     );
   }
 
+  // FavStore（window.HMIX_FAV）= 単一の心臓へ委譲。localStorage直接アクセスはしない。
   function getFavIds() {
-    try { return new Set(JSON.parse(localStorage.getItem(FAV_KEY) || '[]').map(String)); }
+    try { return new Set((window.HMIX_FAV ? window.HMIX_FAV.ids() : []).map(String)); }
     catch (e) { return new Set(); }
   }
 
   function saveFavIds(set) {
-    try {
-      localStorage.setItem(FAV_KEY, JSON.stringify([...set]));
-      window.dispatchEvent(new CustomEvent('favorites:updated', {
-        detail: { count: set.size, ids: [...set] }
-      }));
-    } catch (e) {}
+    if (!window.HMIX_FAV) return;
+    var want = new Set([...set].map(String));
+    var have = new Set(window.HMIX_FAV.ids());
+    have.forEach(function (id) { if (!want.has(id)) window.HMIX_FAV.remove(id); });
+    want.forEach(function (id) { if (!have.has(id)) window.HMIX_FAV.add(id); });
+    // 発火は FavStore 側（favorites:updated）が担う
   }
 
   // ── DOM ──────────────────────────────────────────────
@@ -114,6 +115,11 @@
 
   // ── 開く / 閉じる ──────────────────────────────────
   function openModal() {
+    // 音楽手帖（見開きUI）が読み込まれていれば、全ての保存リスト入口を手帖に統一する
+    // （ハブ／プレイヤーの保存リスト／フッター／ライセンス選択 等）。未読込なら従来モーダル。
+    if (window.HMIX_NOTEBOOK && window.HMIX_NOTEBOOK.open) {
+      try { window.HMIX_NOTEBOOK.open(); return; } catch (e) { /* fallback to legacy */ }
+    }
     applyStaticLang();
     renderList();
     modal.hidden = false;
@@ -138,6 +144,8 @@
       if (favIds.has(id)) validCount++;
     });
     applyLicenseBtn.disabled = validCount === 0;
+    // 「心臓→ライセンス」の血管: 選択があるとボタンが脈動し矢印が出る（消えていた導線の正式版）
+    applyLicenseBtn.classList.toggle('is-ready', validCount > 0);
     var countEl = applyLicenseBtn.querySelector('.fav-modal__apply-count');
     if (countEl) countEl.textContent = validCount > 0
       ? (getLang() === 'en' ? ' (' + validCount + ')' : '（' + validCount + '曲）') : '';
@@ -371,5 +379,65 @@
 
   // ── 外部 API ─────────────────────────────────────
   window.HMIX_FAV_MODAL = { open: openModal, close: closeModal };
+
+  // ============================================================
+  // 「ひとつの心臓」常駐ハート・ハブ ＋ 飛ぶハート ＋ 初回オンボーディング
+  // お気に入りをサイトの主役に：どのページからでも同じ箱へ・脈打つ心臓。
+  // ============================================================
+  var HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+  var hub, hubCountEl, _hubPrev = -1, _lastPt = null, ONBOARD_KEY = 'hmix_fav_onboarded';
+  function hubFavCount(){ try { return getFavIds().size; } catch(e){ return 0; } }
+  function buildHub(){
+    if (document.getElementById('hmix-fav-hub') || !document.body) return;
+    hub = document.createElement('button');
+    hub.id = 'hmix-fav-hub'; hub.type = 'button';
+    hub.setAttribute('aria-label', getLang()==='en' ? 'Your favorites box' : 'お気に入りボックス');
+    hub.innerHTML = '<span class="hfh-heart" aria-hidden="true">'+HEART_SVG+'</span><span class="hfh-count" id="hmix-fav-hub-count">0</span>';
+    hub.addEventListener('click', function(){
+      // 音楽手帖（見開きUI）が読み込まれていれば手帖を開く。無ければ従来モーダルにフォールバック。
+      try {
+        if (window.HMIX_NOTEBOOK && window.HMIX_NOTEBOOK.open) { window.HMIX_NOTEBOOK.open(); return; }
+        openModal();
+      } catch(e){
+        try { openModal(); } catch(e2){ location.href = (window.HMIX_BASE_PATH||'') + '/music-library.html'; }
+      }
+    });
+    document.body.appendChild(hub);
+    hubCountEl = document.getElementById('hmix-fav-hub-count');
+    refreshHub(true);
+  }
+  function refreshHub(silent){
+    if (!hub) return;
+    var n = hubFavCount();
+    if (hubCountEl) hubCountEl.textContent = String(n);
+    hub.classList.toggle('has-fav', n > 0);
+    if (!silent && _hubPrev !== -1 && n !== _hubPrev){
+      hub.classList.remove('hfh-pulse'); void hub.offsetWidth; hub.classList.add('hfh-pulse');
+      setTimeout(function(){ if(hub) hub.classList.remove('hfh-pulse'); }, 720);
+      if (n > _hubPrev){ if (_lastPt) flyHeart(_lastPt.x, _lastPt.y); maybeOnboard(); }
+    }
+    _hubPrev = n;
+  }
+  function flyHeart(x, y){
+    if (!hub) return;
+    var r = hub.getBoundingClientRect(), tx = r.left + r.width/2, ty = r.top + r.height/2;
+    var f = document.createElement('div'); f.className = 'hfh-fly'; f.innerHTML = HEART_SVG;
+    f.style.left = x + 'px'; f.style.top = y + 'px';
+    document.body.appendChild(f);
+    requestAnimationFrame(function(){ f.style.transform = 'translate('+(tx-x)+'px,'+(ty-y)+'px) scale(.32) rotate(8deg)'; f.style.opacity = '0.15'; });
+    setTimeout(function(){ if (f.parentNode) f.parentNode.removeChild(f); }, 900);
+  }
+  function maybeOnboard(){
+    try{ if (localStorage.getItem(ONBOARD_KEY)) return; localStorage.setItem(ONBOARD_KEY, '1'); }catch(e){ return; }
+    if (!hub) return;
+    var tip = document.createElement('div'); tip.className = 'hfh-tip';
+    tip.textContent = getLang()==='en' ? 'Saved! Your favorites gather here — from any page.' : 'お気に入りに保存しました。どのページからでも、ここに集まります。';
+    document.body.appendChild(tip);
+    requestAnimationFrame(function(){ tip.classList.add('on'); });
+    setTimeout(function(){ tip.classList.remove('on'); setTimeout(function(){ if(tip.parentNode) tip.parentNode.removeChild(tip); }, 500); }, 5200);
+  }
+  document.addEventListener('pointerdown', function(e){ _lastPt = { x: e.clientX, y: e.clientY }; }, true);
+  window.addEventListener('favorites:updated', function(){ refreshHub(false); });
+  if (document.body) buildHub(); else document.addEventListener('DOMContentLoaded', buildHub);
 
 })();

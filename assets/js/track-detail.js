@@ -334,35 +334,19 @@
     if (heroFav) {
       function updateHeroFav() {
         try {
-          var favs = JSON.parse(localStorage.getItem('hmix_favorites') || '[]');
-          var isFav = favs.indexOf(track.id) !== -1;
+          var isFav = window.HMIX_FAV ? window.HMIX_FAV.has(track.id) : false;
           heroFav.classList.toggle('active', isFav);
           heroFav.setAttribute('aria-pressed', String(isFav));
         } catch(e) {}
       }
 
       heroFav.addEventListener('click', function() {
-        try {
-          var favs = JSON.parse(localStorage.getItem('hmix_favorites') || '[]');
-          var idx = favs.indexOf(track.id);
-          if (idx === -1) { favs.push(track.id); }
-          else { favs.splice(idx, 1); }
-          localStorage.setItem('hmix_favorites', JSON.stringify(favs));
-          updateHeroFav();
-          // Sync player fav count
-          var countEl = el('player-fav-count');
-          if (countEl) countEl.textContent = favs.length;
-          // Sync player btn-fav
-          var playerFav = el('player-btn-fav');
-          if (playerFav) {
-            var isNowFav = favs.indexOf(track.id) !== -1;
-            playerFav.setAttribute('aria-pressed', String(isNowFav));
-            var hOff = playerFav.querySelector('.icon-heart-off');
-            var hOn  = playerFav.querySelector('.icon-heart-on');
-            if (hOff) hOff.style.display = isNowFav ? 'none' : '';
-            if (hOn)  hOn.style.display  = isNowFav ? '' : 'none';
-          }
-        } catch(e) {}
+        // 実処理は unifiedHeroFav (capture) が単一ソースとして担う（この経路は保険）。
+        // player-fav-count / player-btn-fav は player.js が favorites:updated で更新する。
+        if (!window.HMIX_FAV) return;
+        var id = String(track.id);
+        if (window.HMIX_FAV.has(id)) window.HMIX_FAV.removeWithUndo(id); else window.HMIX_FAV.add(id);
+        updateHeroFav();
       });
 
       updateHeroFav();
@@ -372,7 +356,10 @@
     var heroPlayBtn = el('hero-play-btn');
     if (heroPlayBtn) {
       heroPlayBtn.addEventListener('click', function() {
-        if (window.HMIX_PLAYER) {
+        // 同じ曲が再生中なら停止、それ以外は再生（トグル）
+        if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) {
+          window.HMIX_PLAYER.playTrackById(track.id);
+        } else if (window.HMIX_PLAYER) {
           window.HMIX_PLAYER.playTrack(track, window.TRACKS || []);
         }
       });
@@ -720,19 +707,25 @@
       if (timeCurrent) timeCurrent.textContent = '0:00';
     }
 
+    function setLocalPlayIcon(on){
+      if (jacket) jacket.classList.toggle('playing', on);
+      if (playBtn) playBtn.classList.toggle('playing', on);
+      if (playIcon) playIcon.innerHTML = on ? '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>' : '<polygon points="5 3 19 12 5 21 5 3"/>';
+      if (playLabel) playLabel.textContent = on ? '停止する' : '試聴する';
+    }
     if (playBtn) {
       playBtn.addEventListener('click', () => {
+        if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) {
+          // グローバルプレイヤーをトグル（同じ曲再生中なら停止）。ローカルaudioは使わない＝停止が確実に効く
+          window.HMIX_PLAYER.playTrackById(track.id);
+          isPlaying = !isPlaying;
+          setLocalPlayIcon(isPlaying);
+          return;
+        }
         if (window.HMIX_PLAYER) {
           const allTracks = (typeof window.TRACKS !== 'undefined') ? window.TRACKS : [];
-          if (isPlaying) { stopPlay(); }
-          else {
-            window.HMIX_PLAYER.playTrack(track, allTracks);
-            isPlaying = true;
-            if (jacket) jacket.classList.add('playing');
-            if (playBtn) playBtn.classList.add('playing');
-            if (playIcon) playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-            if (playLabel) playLabel.textContent = '停止する';
-          }
+          window.HMIX_PLAYER.playTrack(track, allTracks);
+          isPlaying = true; setLocalPlayIcon(true);
           return;
         }
         if (isPlaying) stopPlay();
@@ -1116,11 +1109,16 @@
       heroBtn.dataset.editorialPlayBound = 'true';
       heroBtn.addEventListener('click', function() {
         try {
-          if (window.HMIX_PLAYER) window.HMIX_PLAYER.playTrack(track, window.TRACKS || []);
+          // 同じ曲が再生中なら停止、それ以外は再生（トグル）。アイコンは hmix:player:state 監視で同期。
+          if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) {
+            window.HMIX_PLAYER.playTrackById(track.id);
+          } else if (window.HMIX_PLAYER) {
+            window.HMIX_PLAYER.playTrack(track, window.TRACKS || []);
+            setEditorialPlaying(true);
+          }
         } catch (err) {
-          console.warn('[track-detail] Player start failed:', err);
+          console.warn('[track-detail] Player toggle failed:', err);
         }
-        setEditorialPlaying(true);
       });
     }
 
@@ -1425,5 +1423,54 @@
     loadCreditModal();
     loadFootprints();
   }
+
+  // ─── 「ひとつの心臓」: 曲詳細ヒーロー♡の統一ハンドラ ───────────────
+  // 既存は描画経路（renderTrack / renderTrackV2 / initEditorialV2）が分岐し、
+  // 一部経路でヒーロー♡が全くトグルされない既存バグがあった（本番でも♡無反応）。
+  // 経路非依存の単一ハンドラに集約し、トグル復活＋全サーフェス同期(favorites:updated)を保証する。
+  // capture+stopImmediatePropagation で各経路の旧ハンドラの二重発火を抑止。
+  (function unifiedHeroFav() {
+    // FavStore（window.HMIX_FAV）= 単一の心臓へ委譲。localStorage直接アクセスはしない。
+    function favHas(id) {
+      if (window.HMIX_FAV) return window.HMIX_FAV.has(String(id));
+      try { return JSON.parse(localStorage.getItem('hmix_favorites') || '[]').indexOf(String(id)) !== -1; } catch (e) { return false; }
+    }
+    function heroBtn() { return document.getElementById('hero-fav-btn'); }
+    function syncBtn() {
+      var btn = heroBtn(); if (!btn) return;
+      var id = (typeof getTrackId === 'function') ? getTrackId() : null; if (!id) return;
+      var on = favHas(id);
+      btn.classList.toggle('active', on);
+      btn.classList.toggle('is-fav', on);
+      btn.setAttribute('aria-pressed', String(on));
+      var off = btn.querySelector('.td2-hero__fav-off'); var onEl = btn.querySelector('.td2-hero__fav-on');
+      if (off) off.style.display = on ? 'none' : '';
+      if (onEl) onEl.style.display = on ? '' : 'none';
+    }
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('#hero-fav-btn');
+      if (!btn) return;
+      e.stopImmediatePropagation(); // 各描画経路の旧♡ハンドラの二重トグルを抑止
+      var id = (typeof getTrackId === 'function') ? getTrackId() : null; if (!id) return;
+      id = String(id);
+      if (window.HMIX_FAV) {
+        // 0-5 Undo: 削除はトースト経由で確定、追加は即時。発火・件数同期はFavStoreが担う。
+        if (window.HMIX_FAV.has(id)) window.HMIX_FAV.removeWithUndo(id); else window.HMIX_FAV.add(id);
+      } else {
+        try {
+          var favs = JSON.parse(localStorage.getItem('hmix_favorites') || '[]');
+          var idx = favs.indexOf(id);
+          if (idx === -1) favs.push(id); else favs.splice(idx, 1);
+          localStorage.setItem('hmix_favorites', JSON.stringify(favs));
+          window.dispatchEvent(new CustomEvent('favorites:updated', { detail: { count: favs.length, ids: favs.slice() } }));
+        } catch (e2) {}
+      }
+      syncBtn();
+    }, true);
+    // 他サーフェスでの変更を受けてヒーロー♡を同期（繋がっている安心感）
+    window.addEventListener('favorites:updated', syncBtn);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncBtn);
+    else syncBtn();
+  })();
 
 })();

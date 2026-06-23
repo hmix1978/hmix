@@ -459,6 +459,28 @@ body.fav-modal-open {
   letter-spacing: 0.04em;
 }
 
+/* 心臓→ライセンスの血管: 選択があると脈動＋矢印（消えていた導線の正式版） */
+.fav-modal__apply-license.is-ready {
+  color: rgba(255, 205, 110, 1);
+  border-color: rgba(255, 180, 80, 0.55);
+  background: rgba(160, 105, 20, 0.22);
+  animation: favLicensePulse 2.4s ease-in-out infinite;
+}
+.fav-modal__apply-license.is-ready::after {
+  content: "\2192"; /* → */
+  margin-left: 0.15em;
+  font-weight: 600;
+  transition: transform 0.18s ease;
+}
+.fav-modal__apply-license.is-ready:hover::after { transform: translateX(3px); }
+@keyframes favLicensePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 180, 70, 0); }
+  50%      { box-shadow: 0 0 0 4px rgba(255, 180, 70, 0.14); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fav-modal__apply-license.is-ready { animation: none; }
+}
+
 /* パック誘導バナー（4曲以上で表示） */
 .fav-modal__packhint {
   display: flex;
@@ -506,4 +528,55 @@ body.fav-modal-open {
     border-radius: 6px 6px 0 0;
     align-self: flex-end;
   }
+}
+
+/* ============================================================
+   「ひとつの心臓」常駐ハート・ハブ ＋ 飛ぶハート ＋ 初回オンボーディング
+   お気に入りをサイトの主役に。世界観(深緑×金)で常駐・脈打つ。
+   ============================================================ */
+#hmix-fav-hub{
+  position: fixed; right: clamp(12px,2vw,26px); bottom: clamp(76px,12vh,104px);
+  z-index: 2147483500; display: inline-flex; align-items: center; gap: 7px;
+  height: clamp(44px,5.4vw,50px); padding: 0 clamp(13px,1.4vw,17px) 0 clamp(11px,1.2vw,14px);
+  border-radius: 28px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: rgba(10,18,13,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid rgba(202,164,78,.40); box-shadow: 0 10px 30px -10px rgba(0,0,0,.6);
+  color: #e7ca7c; font-family: 'Noto Sans JP', system-ui, sans-serif;
+  transition: transform .25s ease, box-shadow .3s ease, border-color .3s ease, background .3s ease;
+}
+#hmix-fav-hub:hover, #hmix-fav-hub:focus-visible{
+  transform: translateY(-2px) scale(1.05); outline: none;
+  border-color: rgba(230,200,122,.78); background: rgba(16,26,19,.7);
+  box-shadow: 0 14px 38px -10px rgba(0,0,0,.7), 0 0 20px rgba(202,164,78,.35);
+}
+#hmix-fav-hub .hfh-heart{ display: inline-flex; }
+#hmix-fav-hub .hfh-heart svg{ width: clamp(20px,2.3vw,23px); height: clamp(20px,2.3vw,23px); fill: rgba(202,164,78,.5); transition: fill .35s ease, filter .35s ease; }
+#hmix-fav-hub.has-fav .hfh-heart svg{ fill: #ffcf6e; filter: drop-shadow(0 0 5px rgba(255,200,110,.65)); }
+#hmix-fav-hub .hfh-count{ font-weight: 700; font-size: clamp(14px,1.5vw,16px); min-width: 11px; text-align: center; }
+#hmix-fav-hub.has-fav{ animation: hfhBreathe 3.6s ease-in-out infinite; }
+@keyframes hfhBreathe{
+  0%,100%{ box-shadow: 0 10px 30px -10px rgba(0,0,0,.6), 0 0 0 0 rgba(255,200,110,0); }
+  50%    { box-shadow: 0 10px 30px -10px rgba(0,0,0,.6), 0 0 0 7px rgba(255,200,110,.10); }
+}
+@keyframes hfhPulse{ 0%{transform:scale(1);} 28%{transform:scale(1.28);} 55%{transform:scale(.93);} 100%{transform:scale(1);} }
+#hmix-fav-hub.hfh-pulse{ animation: hfhPulse .65s cubic-bezier(.22,1,.36,1); }
+
+/* 飛ぶハート */
+.hfh-fly{ position: fixed; z-index: 2147483600; width: 26px; height: 26px; margin: -13px 0 0 -13px; pointer-events: none;
+  transition: transform .85s cubic-bezier(.5,0,.35,1), opacity .85s ease; }
+.hfh-fly svg{ width: 100%; height: 100%; fill: #ff6f8c; filter: drop-shadow(0 0 6px rgba(255,150,170,.85)); }
+
+/* 初回オンボーディング吹き出し */
+.hfh-tip{ position: fixed; right: clamp(12px,2vw,26px); bottom: calc(clamp(76px,12vh,104px) + 58px);
+  z-index: 2147483550; max-width: 244px; padding: 11px 15px; border-radius: 13px;
+  background: rgba(12,20,15,.93); color: #eef0ea; border: 1px solid rgba(202,164,78,.42);
+  font-family: 'Noto Sans JP', sans-serif; font-size: 12.5px; line-height: 1.65;
+  box-shadow: 0 14px 34px -10px rgba(0,0,0,.72); opacity: 0; transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
+.hfh-tip.on{ opacity: 1; transform: translateY(0); }
+
+@media print{ #hmix-fav-hub, .hfh-tip, .hfh-fly{ display: none !important; } }
+@media (prefers-reduced-motion: reduce){
+  #hmix-fav-hub.has-fav, #hmix-fav-hub.hfh-pulse{ animation: none; }
+  .hfh-fly{ transition: opacity .3s ease; }
 }
