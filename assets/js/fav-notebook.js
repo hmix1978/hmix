@@ -180,7 +180,7 @@
     var tools = document.createElement('div');
     tools.className = 'hnb-select-tools';
     tools.innerHTML =
-      '<span class="hnb-select-tools__label">申請する曲</span>' +
+      '<span class="hnb-select-tools__label">商用利用する曲</span>' +
       '<button type="button" class="hnb-select-tools__btn" data-select-act="all">全てチェック</button>' +
       '<button type="button" class="hnb-select-tools__btn" data-select-act="none">解除</button>';
     els.pages.appendChild(tools);
@@ -294,7 +294,7 @@
       '<textarea class="hnb-memo" placeholder="この曲を選んだ理由・使う場面…">' + escapeHtml(memo) + '</textarea>' +
       '<div class="hnb-preview__btns">' +
         '<button class="hnb-addch-one">＋ 章へ入れる</button>' +
-        '<button class="hnb-apply-one">この曲を申請 ▸</button>' +
+        '<button class="hnb-apply-one">この曲を商用利用申請 ▸</button>' +
       '</div>';
     els.preview.querySelector('.hnb-memo').addEventListener('change', function (e) { F().setTrackMemo(tk.id, e.target.value); });
     els.preview.querySelector('.hnb-apply-one').addEventListener('click', function () { gotoLicense([tk.id]); });
@@ -313,7 +313,7 @@
     var ids = Object.keys(state.selected);
     els.bulk.classList.toggle('is-on', ids.length > 0);
     els.bulkN.textContent = ids.length + '曲選択中';
-    els.selectedCta.textContent = ids.length ? '選択曲（' + ids.length + '曲）を申請 →' : '選択曲を申請 →';
+    els.selectedCta.textContent = ids.length ? '選択曲（' + ids.length + '曲）を商用利用申請 →' : '選択曲を商用利用申請 →';
     els.selectedCta.disabled = ids.length === 0;
     els.selectedCta.style.opacity = ids.length === 0 ? '.5' : '1';
   }
