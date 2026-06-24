@@ -416,6 +416,11 @@
       if (!st.tracks[id]) st.tracks[id] = { favMemo: '', addedAt: now(), updatedAt: now(), orphaned: false };
       st.tracks[id].favMemo = memo; st.tracks[id].updatedAt = now(); save(st); return true;
     },
+    setTrackToolbox: function (id, toolbox) {
+      var st = this.state(); id = String(id);
+      if (!st.tracks[id]) st.tracks[id] = { favMemo: '', addedAt: now(), updatedAt: now(), orphaned: false };
+      st.tracks[id].toolbox = toolbox || null; st.tracks[id].updatedAt = now(); save(st); return true;
+    },
 
     /* --- メモ化派生ビュー（UIはストア直接走査しない） --- */
     getView: function (q) {

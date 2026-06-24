@@ -360,6 +360,7 @@
       fadeIn: _fadeInSec || 0,
       fadeOut: _fadeOutSec || 0
     };
+    _persistRangeMemory(id, _rangeMemoryByTrackId[id]);
   }
 
   function _rememberCurrentRangeForTrack(trackId) {
@@ -373,13 +374,44 @@
         fadeIn: _fadeInSec || 0,
         fadeOut: _fadeOutSec || 0
       };
+      _persistRangeMemory(String(id), _rangeMemoryByTrackId[String(id)]);
     }
   }
 
   function _forgetCurrentRangeForTrack(trackId) {
     var current = _getCurrentTrack();
     var id = trackId || _rangeTrackId || (current && current.id);
-    if (id) delete _rangeMemoryByTrackId[String(id)];
+    if (id) {
+      delete _rangeMemoryByTrackId[String(id)];
+      _persistRangeMemory(String(id), null);
+    }
+  }
+
+  function _persistRangeMemory(trackId, range) {
+    try {
+      var key = 'hmix_toolbox_ranges_v1';
+      var all = JSON.parse(localStorage.getItem(key) || '{}');
+      if (range && range.end > range.start) {
+        all[trackId] = {
+          start: Number(range.start) || 0,
+          end: Number(range.end) || 0,
+          fadeIn: Number(range.fadeIn) || 0,
+          fadeOut: Number(range.fadeOut) || 0,
+          updatedAt: new Date().toISOString()
+        };
+      } else {
+        delete all[trackId];
+      }
+      localStorage.setItem(key, JSON.stringify(all));
+      var node = document.getElementById('hmix-toolbox-state-store');
+      if (!node) {
+        node = document.createElement('script');
+        node.type = 'application/json';
+        node.id = 'hmix-toolbox-state-store';
+        document.documentElement.appendChild(node);
+      }
+      node.textContent = JSON.stringify(all);
+    } catch (e) {}
   }
 
   function _restoreRangeForTrack(track) {
@@ -4676,8 +4708,9 @@
         try { _updateRangeStatus(); } catch (e) {}
       }
     }
-    _waveformTrackId = track.id;
-    _waveformData = null;
+	    _waveformTrackId = track.id;
+	    if (!_rangeTrackId) _rangeTrackId = track.id;
+	    _waveformData = null;
 
     if (!_waveformCanvas) _initWaveformCanvas();
     if (!_waveformCanvas) return;
@@ -4982,10 +5015,11 @@
               function _updateRangeStatus() {
                 var statusEl = document.getElementById('pp-duration-status');
                 if (!statusEl) return;
-                if (_rangeActive) {
-                  statusEl.textContent = _formatSec(_rangeStart) + ' 〜 ' + _formatSec(_rangeEnd) +
-                    ' 区間リピート中（範囲内ドラッグで横移動 / クリックで再生位置 / 端ドラッグで調整）';
-                } else {
+	                if (_rangeActive) {
+	                  statusEl.textContent = _formatSec(_rangeStart) + ' 〜 ' + _formatSec(_rangeEnd) +
+	                    ' 区間リピート中（範囲内ドラッグで横移動 / クリックで再生位置 / 端ドラッグで調整）';
+	                  _rememberCurrentRangeForTrack(_rangeTrackId || _waveformTrackId);
+	                } else {
                   statusEl.textContent = '';
                 }
               }
@@ -5360,8 +5394,9 @@
                   _rangeStart = _snapToZeroCross(_rangeStart, 30);
                   _rangeEnd = _snapToZeroCross(_rangeEnd, 30);
                 }
-                _startRangeLoop();
-                _dragMode = '';
+	                _startRangeLoop();
+	                _rememberRangeForTrackId(_rangeTrackId || _waveformTrackId);
+	                _dragMode = '';
               });
 
               // タッチ操作: モバイルでもマウスと同じ範囲選択フローに通す
@@ -5502,8 +5537,9 @@
                   _rangeStart = _snapToZeroCross(_rangeStart, 30);
                   _rangeEnd = _snapToZeroCross(_rangeEnd, 30);
                 }
-                _startRangeLoop();
-                _dragMode = '';
+	                _startRangeLoop();
+	                _rememberRangeForTrackId(_rangeTrackId || _waveformTrackId);
+	                _dragMode = '';
                 e.preventDefault();
               }, { passive: false });
               // 時間ツールチップ + ホバー縦ガイドライン
@@ -5539,8 +5575,9 @@
               });
               if (playBtn) playBtn.addEventListener('click', function() {
                 if (!_rangeActive || _rangeStart < 0 || _rangeEnd <= _rangeStart) return;
-                _startRangeLoop();
-              });
+	                _startRangeLoop();
+	                _rememberRangeForTrackId(_rangeTrackId || _waveformTrackId);
+	              });
               if (clearBtn) clearBtn.addEventListener('click', function() {
                 _stopRange();
                 _updateRangeUI();
@@ -5828,6 +5865,38 @@
 
     _updatePanelLang();
   }
+
+  function _getToolboxStateForTrack(trackId) {
+    var id = trackId != null ? String(trackId) : '';
+    if (!id) return null;
+    var current = _getCurrentTrack();
+    var currentId = current && current.id != null ? String(current.id) : '';
+    if (currentId === id) _rememberCurrentRangeForTrack(id);
+    var saved = _rangeMemoryByTrackId[id] || null;
+    var activeForTrack = currentId === id && _rangeActive && _rangeStart >= 0 && _rangeEnd > _rangeStart;
+    var range = activeForTrack
+      ? { start: _rangeStart, end: _rangeEnd, fadeIn: _fadeInSec || 0, fadeOut: _fadeOutSec || 0 }
+      : (saved && saved.end > saved.start ? {
+          start: Number(saved.start) || 0,
+          end: Number(saved.end) || 0,
+          fadeIn: Number(saved.fadeIn) || 0,
+          fadeOut: Number(saved.fadeOut) || 0
+        } : null);
+    var memos = _loadMemos();
+    var memo = memos[id] || null;
+    var track = _getTrackById(id) || (currentId === id ? current : null);
+    return {
+      trackId: id,
+      title: track ? _getTrackTitle(track) : id,
+      duration: _getTrackDuration(track) || 0,
+      range: range,
+      memo: memo ? { text: memo.text || '', tag: memo.tag || '', updatedAt: memo.updatedAt || '' } : null,
+      syncedAt: new Date().toISOString()
+    };
+  }
+
+  window.HMIX_TOOLBOX_SYNC = window.HMIX_TOOLBOX_SYNC || {};
+  window.HMIX_TOOLBOX_SYNC.getTrackState = _getToolboxStateForTrack;
 
   // ── DOM Ready ──
   if (document.readyState === 'loading') {
