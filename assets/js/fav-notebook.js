@@ -146,8 +146,8 @@
       b.addEventListener('drop', function (e) {
         e.preventDefault(); b.classList.remove('hnb-drop-hover');
         if (!_dragIds || c.id === state.activeCol) return;
-        var ids = _dragIds.slice(); F().moveItems(ids, c.id); state.selected = {};
-        nbToast(ids.length + '曲を「' + c.name + '」へ移しました'); render();
+        var ids = _dragIds.slice(); F().copyItems(ids, c.id); state.selected = {};
+        nbToast(ids.length + '曲を「' + c.name + '」に入れました（元の章にも残ります）'); render();
       });
       els.spine.appendChild(b);
     });
@@ -165,8 +165,8 @@
       if (!_dragIds) return;
       var ids = _dragIds.slice();
       var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）'); if (!name) return;
-      var id = F().createCollection(name.trim()); F().moveItems(ids, id); state.selected = {}; state.activeCol = id;
-      nbToast(ids.length + '曲を「' + name.trim() + '」へ移しました'); render();
+      var id = F().createCollection(name.trim()); F().copyItems(ids, id); state.selected = {}; state.activeCol = id;
+      nbToast(ids.length + '曲を「' + name.trim() + '」に入れました（元の章にも残ります）'); render();
     });
     els.spine.appendChild(add);
   }
