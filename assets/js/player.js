@@ -128,6 +128,7 @@
     shuffleOn: false,
     shuffleOrder: [],   // シャッフル時の順序
     _suppressAutoPlay: false, // 暴走防止フラグ
+    lastStoppedIndex: -1,
   };
 
   // ===== TAG_LABELS =====
@@ -295,6 +296,9 @@
       seek: function (sec) { audio.currentTime = sec; },
       getAudio: function () { return audio; },
       stop: function () {
+        if (state.currentIndex >= 0 && state.queue[state.currentIndex]) {
+          state.lastStoppedIndex = state.currentIndex;
+        }
         audio.pause();
         audio.currentTime = 0;
         state.isPlaying = false;
@@ -540,13 +544,16 @@
   // ===== 再生/停止トグル =====
   function togglePlay() {
     if (state.currentIndex < 0 || !state.queue[state.currentIndex]) {
-      // 曲が未選択の場合は最初の曲を再生
+      // 停止直後は止めた曲から再開し、完全未選択の場合だけ最初の曲を再生
       const allTracks = getTracksData();
       if (allTracks.length) {
         state.queue = allTracks;
-        state.currentIndex = 0;
+        const resumeIndex = (state.lastStoppedIndex >= 0 && state.lastStoppedIndex < allTracks.length)
+          ? state.lastStoppedIndex
+          : 0;
+        state.currentIndex = resumeIndex;
         buildShuffleOrder();
-        loadAndPlay(allTracks[0]);
+        loadAndPlay(allTracks[resumeIndex]);
       }
       return;
     }
