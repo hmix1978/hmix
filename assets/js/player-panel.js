@@ -91,7 +91,10 @@
     } catch (e) {
       return null;
     }
-    if (!state || !state.queue || state.currentIndex < 0) return null;
+    if (!state || !state.queue || state.currentIndex < 0) {
+      if (_rangeActive && _rangeTrackId) return _getTrackById(_rangeTrackId);
+      return null;
+    }
     return state.queue[state.currentIndex] || null;
   }
 
@@ -407,10 +410,14 @@
     if (_rangeTrackId && _rangeTrackId !== nextId) _rememberCurrentRangeForTrack(_rangeTrackId);
     if (nextId && _rangeTrackId !== nextId) _restoreRangeForTrack(track);
     if (!nextId) {
-      _rangeTrackId = '';
-      _rangeActive = false;
-      _rangeStart = -1;
-      _rangeEnd = -1;
+      if (_rangeActive && _rangeTrackId) {
+        _rememberCurrentRangeForTrack(_rangeTrackId);
+      } else {
+        _rangeTrackId = '';
+        _rangeActive = false;
+        _rangeStart = -1;
+        _rangeEnd = -1;
+      }
     }
     if (typeof _updateRangeUI === 'function') _updateRangeUI();
   }
