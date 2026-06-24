@@ -35,6 +35,7 @@
 
   /* ---- 状態 ---- */
   var state = { activeCol: 'default', selected: {}, previewId: null, prevPreviewId: null };
+  var _dragIds = null; // ドラッグ中のtrackId群（曲→章へ移動）
   function isMobile() { try { return window.matchMedia('(max-width:760px)').matches; } catch (e) { return false; } }
   function selectPreview(id) {
     if (state.previewId && state.previewId !== id) state.prevPreviewId = state.previewId;
@@ -75,7 +76,7 @@
         '<div class="hnb-foot">' +
           '<div class="hnb-bulk" id="hnb-bulk">' +
             '<span class="hnb-bulk__n" id="hnb-bulk-n">0曲選択中</span>' +
-            '<button class="hnb-bulk__btn" data-act="copy">別の章へコピー</button>' +
+            '<button class="hnb-bulk__btn" data-act="addto">章へ入れる ▾</button>' +
           '</div>' +
           '<div class="hnb-apply-actions">' +
             '<button class="hnb-cta hnb-cta--selected" id="hnb-selected-cta"></button>' +
@@ -105,7 +106,7 @@
     els.bulk.addEventListener('click', function (e) {
       var b = e.target.closest('.hnb-bulk__btn'); if (!b) return;
       var act = b.dataset.act;
-      if (act === 'copy') copySelected();
+      if (act === 'addto') openChapterPicker(Object.keys(state.selected), { clearAfter: true });
     });
     window.addEventListener('favorites:updated', function () { if (root.getAttribute('aria-hidden') === 'false') render(); });
   }
@@ -139,6 +140,15 @@
         '<div class="hnb-chapter__name">' + (c.status === 'licensed' ? LOCK_SVG : '') + escapeHtml(c.name) + '</div>' +
         '<div class="hnb-chapter__meta"><b>' + F().collectionCount(c.id) + '</b> 曲 · ' + (STATUS_LABEL[c.status] || '検討中') + '</div>';
       b.addEventListener('click', function () { state.activeCol = c.id; state.previewId = null; render(); });
+      // ドロップ先（曲をドラッグ＝その章へ移動）
+      b.addEventListener('dragover', function (e) { if (!_dragIds || c.id === state.activeCol) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; b.classList.add('hnb-drop-hover'); });
+      b.addEventListener('dragleave', function () { b.classList.remove('hnb-drop-hover'); });
+      b.addEventListener('drop', function (e) {
+        e.preventDefault(); b.classList.remove('hnb-drop-hover');
+        if (!_dragIds || c.id === state.activeCol) return;
+        var ids = _dragIds.slice(); F().moveItems(ids, c.id); state.selected = {};
+        nbToast(ids.length + '曲を「' + c.name + '」へ移しました'); render();
+      });
       els.spine.appendChild(b);
     });
     var add = document.createElement('button');
@@ -146,6 +156,17 @@
     add.addEventListener('click', function () {
       var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）');
       if (name) { var id = F().createCollection(name.trim()); state.activeCol = id; render(); }
+    });
+    // 「新しい章」へドロップ＝章を作ってそこへ移動
+    add.addEventListener('dragover', function (e) { if (!_dragIds) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; add.classList.add('hnb-drop-hover'); });
+    add.addEventListener('dragleave', function () { add.classList.remove('hnb-drop-hover'); });
+    add.addEventListener('drop', function (e) {
+      e.preventDefault(); add.classList.remove('hnb-drop-hover');
+      if (!_dragIds) return;
+      var ids = _dragIds.slice();
+      var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）'); if (!name) return;
+      var id = F().createCollection(name.trim()); F().moveItems(ids, id); state.selected = {}; state.activeCol = id;
+      nbToast(ids.length + '曲を「' + name.trim() + '」へ移しました'); render();
     });
     els.spine.appendChild(add);
   }
@@ -208,9 +229,40 @@
         if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(it.trackId);
       });
       row.addEventListener('click', function () { selectPreview(it.trackId); });
+      // ドラッグで章へ移動（選択中の曲を掴んだ場合は選択分まとめて、それ以外はこの1曲）
+      row.setAttribute('draggable', 'true');
+      row.addEventListener('dragstart', function (e) {
+        _dragIds = (state.selected[it.trackId] && Object.keys(state.selected).length) ? Object.keys(state.selected) : [it.trackId];
+        try { e.dataTransfer.setData('text/plain', _dragIds.join(',')); e.dataTransfer.effectAllowed = 'move'; } catch (_e) {}
+        row.classList.add('hnb-row--dragging');
+      });
+      row.addEventListener('dragend', function () {
+        row.classList.remove('hnb-row--dragging'); _dragIds = null;
+        els.spine.querySelectorAll('.hnb-drop-hover').forEach(function (x) { x.classList.remove('hnb-drop-hover'); });
+      });
       els.pages.appendChild(row);
     });
-    if (!shown) els.pages.innerHTML = '<div class="hnb-preview__empty" style="padding:40px">この章にはまだ曲がありません。</div>';
+    if (!shown) {
+      if (q) {
+        els.pages.innerHTML = '<div class="hnb-preview__empty" style="padding:40px">「' + escapeHtml(els.search.value) + '」に一致する曲がありません。</div>';
+      } else {
+        els.pages.innerHTML =
+          '<div class="hnb-empty-chapter">' +
+            '<div class="hnb-empty-chapter__mark">❏</div>' +
+            '<div class="hnb-empty-chapter__lead">この章はまだ空です</div>' +
+            '<div class="hnb-empty-chapter__sub">他の章から曲を「章へ入れる」で移すか、図書館で探して♡しましょう。</div>' +
+            '<div class="hnb-empty-chapter__cta">' +
+              (state.activeCol !== 'default' ? '<button class="hnb-cta" data-go="default" style="width:auto;padding:11px 20px">未分類を開く</button>' : '') +
+              '<button class="hnb-cta hnb-cta--ghost" data-go="lib" style="width:auto;padding:11px 20px">図書館で探す</button>' +
+            '</div>' +
+          '</div>';
+        els.pages.querySelector('.hnb-empty-chapter').addEventListener('click', function (e) {
+          var b = e.target.closest('[data-go]'); if (!b) return;
+          if (b.dataset.go === 'default') { state.activeCol = 'default'; state.previewId = null; render(); }
+          else location.href = (window.HMIX_BASE_PATH || '') + '/music-library.html';
+        });
+      }
+    }
   }
 
   function renderPreview() {
@@ -240,9 +292,13 @@
       abHtml +
       '<div class="hnb-preview__sect">曲メモ</div>' +
       '<textarea class="hnb-memo" placeholder="この曲を選んだ理由・使う場面…">' + escapeHtml(memo) + '</textarea>' +
-      '<button class="hnb-apply-one">この曲を申請 ▸</button>';
+      '<div class="hnb-preview__btns">' +
+        '<button class="hnb-addch-one">＋ 章へ入れる</button>' +
+        '<button class="hnb-apply-one">この曲を申請 ▸</button>' +
+      '</div>';
     els.preview.querySelector('.hnb-memo').addEventListener('change', function (e) { F().setTrackMemo(tk.id, e.target.value); });
     els.preview.querySelector('.hnb-apply-one').addEventListener('click', function () { gotoLicense([tk.id]); });
+    els.preview.querySelector('.hnb-addch-one').addEventListener('click', function () { openChapterPicker([tk.id]); });
     var pvPlay = els.preview.querySelector('.hnb-pv-play');
     if (pvPlay) pvPlay.addEventListener('click', function () { playId(tk.id); });
     var sc = els.preview.querySelector('.hnb-sheet-close');
@@ -264,10 +320,60 @@
 
   /* ---- 操作 ---- */
   function applySelected() { var ids = Object.keys(state.selected); if (ids.length) gotoLicense(ids); }
-  function copySelected() {
-    var ids = Object.keys(state.selected); if (!ids.length) return;
-    var name = prompt('コピー先の章名（新規作成）'); if (!name) return;
-    var cid = F().createCollection(name.trim()); F().copyItems(ids, cid); state.selected = {}; render();
+
+  /* 章ピッカー: 選択/単曲を「既存章 or 新規章」へ入れる（既定コピー・非破壊、移動も選べる） */
+  function openChapterPicker(trackIds, opts) {
+    opts = opts || {};
+    trackIds = (trackIds || []).filter(Boolean);
+    if (!trackIds.length) return;
+    var shell = root.querySelector('.hmix-notebook');
+    var pop = document.createElement('div');
+    pop.className = 'hnb-picker';
+    var others = F().collections().filter(function (c) { return c.id !== state.activeCol; });
+    var listHtml = others.length
+      ? others.map(function (c) {
+          return '<button class="hnb-picker__item" data-cid="' + c.id + '" data-lic="' + (c.status || 'draft') + '">' +
+            '<span class="hnb-picker__name">' + escapeHtml(c.name) + '</span><span class="hnb-picker__n">' + F().collectionCount(c.id) + '曲</span></button>';
+        }).join('')
+      : '<div class="hnb-picker__none">まだ他の章がありません。下から作れます。</div>';
+    pop.innerHTML =
+      '<div class="hnb-picker__backdrop"></div>' +
+      '<div class="hnb-picker__panel" role="dialog" aria-modal="true" aria-label="章へ入れる">' +
+        '<div class="hnb-picker__head">' + trackIds.length + '曲を章へ入れる</div>' +
+        '<div class="hnb-picker__list">' + listHtml + '</div>' +
+        '<button class="hnb-picker__new">＋ 新しい章を作って入れる</button>' +
+        '<label class="hnb-picker__move"><input type="checkbox"> 元の章から移動（コピーしない）</label>' +
+        '<button class="hnb-picker__close">とじる</button>' +
+      '</div>';
+    shell.appendChild(pop);
+    requestAnimationFrame(function () { pop.classList.add('is-open'); });
+    var moveMode = false;
+    function closePop() { pop.classList.remove('is-open'); setTimeout(function () { if (pop.parentNode) pop.parentNode.removeChild(pop); }, 200); }
+    function apply(cid, label) {
+      if (moveMode) F().moveItems(trackIds, cid); else F().copyItems(trackIds, cid);
+      if (opts.clearAfter) state.selected = {};
+      closePop();
+      nbToast(trackIds.length + '曲を「' + label + '」に' + (moveMode ? '移しました' : '入れました'));
+      render();
+    }
+    pop.querySelector('.hnb-picker__move input').addEventListener('change', function (e) { moveMode = e.target.checked; });
+    pop.querySelectorAll('.hnb-picker__item').forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.dataset.cid, b.querySelector('.hnb-picker__name').textContent); });
+    });
+    pop.querySelector('.hnb-picker__new').addEventListener('click', function () {
+      var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）'); if (!name) return;
+      var cid = F().createCollection(name.trim()); apply(cid, name.trim());
+    });
+    pop.querySelector('.hnb-picker__close').addEventListener('click', closePop);
+    pop.querySelector('.hnb-picker__backdrop').addEventListener('click', closePop);
+  }
+
+  var _toastT = null;
+  function nbToast(msg) {
+    var t = root.querySelector('.hnb-toast');
+    if (!t) { t = document.createElement('div'); t.className = 'hnb-toast'; root.querySelector('.hmix-notebook').appendChild(t); }
+    t.textContent = msg; t.classList.add('is-on');
+    clearTimeout(_toastT); _toastT = setTimeout(function () { t.classList.remove('is-on'); }, 2200);
   }
   function gotoLicense(ids) {
     location.href = (window.HMIX_BASE_PATH || '') + '/license-request.html#tracks=' + ids.join(',');
