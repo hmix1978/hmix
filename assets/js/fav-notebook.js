@@ -76,11 +76,9 @@
           '<div class="hnb-bulk" id="hnb-bulk">' +
             '<span class="hnb-bulk__n" id="hnb-bulk-n">0曲選択中</span>' +
             '<button class="hnb-bulk__btn" data-act="copy">別の章へコピー</button>' +
-            '<button class="hnb-bulk__btn" data-act="clear">選択解除</button>' +
           '</div>' +
           '<div class="hnb-apply-actions">' +
             '<button class="hnb-cta hnb-cta--selected" id="hnb-selected-cta"></button>' +
-            '<button class="hnb-cta hnb-cta--chapter" id="hnb-cta"></button>' +
           '</div>' +
           '<span class="hnb-cta__sub">使う曲だけ選べます・保険の曲は課金されません</span>' +
         '</div>' +
@@ -93,7 +91,6 @@
     els.preview = root.querySelector('#hnb-preview');
     els.empty = root.querySelector('#hnb-empty');
     els.foot = root.querySelector('.hnb-foot');
-    els.cta = root.querySelector('#hnb-cta');
     els.selectedCta = root.querySelector('#hnb-selected-cta');
     els.bulk = root.querySelector('#hnb-bulk');
     els.bulkN = root.querySelector('#hnb-bulk-n');
@@ -103,14 +100,12 @@
     root.addEventListener('click', function (e) { if (e.target === root) close(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.getAttribute('aria-hidden') === 'false') close(); });
     els.search.addEventListener('input', renderPages);
-    els.cta.addEventListener('click', applyChapter);
     els.selectedCta.addEventListener('click', applySelected);
     root.querySelector('#hnb-empty-browse').addEventListener('click', function () { location.href = (window.HMIX_BASE_PATH || '') + '/music-library.html'; });
     els.bulk.addEventListener('click', function (e) {
       var b = e.target.closest('.hnb-bulk__btn'); if (!b) return;
       var act = b.dataset.act;
-      if (act === 'clear') { state.selected = {}; render(); }
-      else if (act === 'copy') copySelected();
+      if (act === 'copy') copySelected();
     });
     window.addEventListener('favorites:updated', function () { if (root.getAttribute('aria-hidden') === 'false') render(); });
   }
@@ -131,7 +126,6 @@
     els.preview.style.display = isEmpty ? 'none' : '';
     renderSpine(cols);
     if (!isEmpty) { renderPages(); renderPreview(); }
-    renderFoot(cols);
     renderBulk();
   }
 
@@ -162,6 +156,25 @@
     var rows = F().getView({ collectionId: state.activeCol, sort: 'order' });
     var pstate = playState();
     els.pages.innerHTML = '';
+    var tools = document.createElement('div');
+    tools.className = 'hnb-select-tools';
+    tools.innerHTML =
+      '<span class="hnb-select-tools__label">申請する曲</span>' +
+      '<button type="button" class="hnb-select-tools__btn" data-select-act="all">全てチェック</button>' +
+      '<button type="button" class="hnb-select-tools__btn" data-select-act="none">解除</button>';
+    els.pages.appendChild(tools);
+    var shownIds = [];
+    tools.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-select-act]'); if (!b) return;
+      e.stopPropagation();
+      if (b.dataset.selectAct === 'all') {
+        shownIds.forEach(function (id) { state.selected[id] = true; });
+      } else {
+        shownIds.forEach(function (id) { delete state.selected[id]; });
+      }
+      renderPages();
+      renderBulk();
+    });
     var shown = 0;
     rows.forEach(function (it) {
       var tk = tm[it.trackId];
@@ -169,6 +182,7 @@
       var tags = tagsOf(tk);
       if (q && (title.toLowerCase().indexOf(q) === -1 && tags.toLowerCase().indexOf(q) === -1)) return;
       shown++;
+      shownIds.push(it.trackId);
       var col = F().collections().filter(function (c) { return c.id === state.activeCol; })[0] || {};
       var row = document.createElement('div');
       row.className = 'hnb-row' + (state.previewId === it.trackId ? ' is-active' : '') + (pstate.id === it.trackId && pstate.playing ? ' is-playing' : '');
@@ -239,14 +253,6 @@
   }
   function playId(id) { if (id && window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(id); }
 
-  function renderFoot(cols) {
-    var col = cols.filter(function (c) { return c.id === state.activeCol; })[0];
-    var n = col ? F().collectionCount(col.id) : 0;
-    els.cta.textContent = 'この章（' + n + '曲）をまるごと申請 →';
-    els.cta.disabled = n === 0;
-    els.cta.style.opacity = n === 0 ? '.5' : '1';
-  }
-
   function renderBulk() {
     var ids = Object.keys(state.selected);
     els.bulk.classList.toggle('is-on', ids.length > 0);
@@ -257,8 +263,6 @@
   }
 
   /* ---- 操作 ---- */
-  function chapterTrackIds() { return F().getView({ collectionId: state.activeCol, sort: 'order' }).map(function (it) { return it.trackId; }); }
-  function applyChapter() { var ids = chapterTrackIds(); if (ids.length) gotoLicense(ids); }
   function applySelected() { var ids = Object.keys(state.selected); if (ids.length) gotoLicense(ids); }
   function copySelected() {
     var ids = Object.keys(state.selected); if (!ids.length) return;

@@ -4,7 +4,7 @@
 
 ## 2026-06-24 Mac hotfix（本番反映済み）
 - **音楽手帖の商用利用申請チェックボックス修正**: `assets/js/fav-notebook.js` のチェックボックスクリックが行クリックへ伝播して選択状態が維持されない問題を修正。`aria-label` も追加。ついでに0曲時の空状態が `hidden` のまま表示されない問題も修正。`fav-notebook.js?v=20260624e` としてXserver本番へ反映済み。
-- **音楽手帖の申請導線を同格化**: 下部固定エリアに「選択曲を申請」と「この章をまるごと申請」を並べ、選択0曲なら左だけ無効、選択時は「選択曲（N曲）を申請」として有効化。旧一括バーの「まとめて申請」は削除し、コピー/選択解除だけに整理。`fav-notebook.js?v=20260624f` / `fav-notebook.css?v=20260624c` としてXserver本番へ反映済み。
+- **音楽手帖の申請導線を選択曲に一本化**: 「この章をまるごと申請」は削除。チェック欄の直上に「全てチェック」「解除」を追加し、下部固定エリアは「選択曲を申請」のみ表示。選択0曲なら無効、選択時は「選択曲（N曲）を申請」として有効化。`fav-notebook.js?v=20260624g` / `fav-notebook.css?v=20260624d` としてXserver本番へ反映済み。
 - **ライセンス申請ルーティング修正**: `license-request.html#usage=...&tracks=...` / `#tracks=...&usage=...` で用途だけ残り曲が0件になる問題を修正。`usage`/`plan` だけURLから除去し、`tracks` は `loadSelection()` へ残す。さらに `usage` と `plan` の15秒sessionStorage引き継ぎが混線しないよう相互クリア。
 - **ライセンス申請JS二重ロードガード**: `license-request.html` はPJAX用動的ロード＋下部scriptで同じJSを2回読むため、`window.HMIX_LICENSE_REQUEST_LOADED` ガードを追加。DOM重複やイベント二重化を抑止。
 - **本番検証OK**: `https://www.hmix.net/license-request.html?qa=...#usage=web_ad&tracks=n74,c7` → 2曲選択・Professional `¥11,000`。`#plan=facility&tracks=n74,c7` → 2曲選択・施設パス `¥19,800/年`。フォーム数1、選択曲カード2、console errorなし。
