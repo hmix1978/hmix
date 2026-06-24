@@ -6961,6 +6961,17 @@
   }
 
   function _eqcSnapshot() {
+    if (!Array.isArray(_eqcBands) || !_eqcComp || !_eqcLimit) {
+      return {
+        eq: [],
+        comp: { threshold: 0, ratio: 1.0, attack: 20, release: 200, makeup: 0 },
+        limit: { enabled: false, threshold: -1, ratio: 20, attack: 1, release: 80, ceiling: -1 },
+        bypass: false,
+        eqPreset: null,
+        compPreset: null,
+        masterPreset: 'asis'
+      };
+    }
     return {
       eq: _eqcBands.map(function (b) { return b.gain; }),
       comp: Object.assign({}, _eqcComp),
