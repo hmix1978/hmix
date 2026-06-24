@@ -2,6 +2,13 @@
 
 > Mac側へ: `git pull origin main` → 下記を把握 → 続行。古い節は履歴。`.env.ftp`はGit管理外（Macに別途設定要）。
 
+## 2026-06-24 Mac hotfix（本番反映済み）
+- **音楽手帖の商用利用申請チェックボックス修正**: `assets/js/fav-notebook.js` のチェックボックスクリックが行クリックへ伝播して選択状態が維持されない問題を修正。`aria-label` も追加。ついでに0曲時の空状態が `hidden` のまま表示されない問題も修正。`fav-notebook.js?v=20260624e` としてXserver本番へ反映済み。
+- **ライセンス申請ルーティング修正**: `license-request.html#usage=...&tracks=...` / `#tracks=...&usage=...` で用途だけ残り曲が0件になる問題を修正。`usage`/`plan` だけURLから除去し、`tracks` は `loadSelection()` へ残す。さらに `usage` と `plan` の15秒sessionStorage引き継ぎが混線しないよう相互クリア。
+- **ライセンス申請JS二重ロードガード**: `license-request.html` はPJAX用動的ロード＋下部scriptで同じJSを2回読むため、`window.HMIX_LICENSE_REQUEST_LOADED` ガードを追加。DOM重複やイベント二重化を抑止。
+- **本番検証OK**: `https://www.hmix.net/license-request.html?qa=...#usage=web_ad&tracks=n74,c7` → 2曲選択・Professional `¥11,000`。`#plan=facility&tracks=n74,c7` → 2曲選択・施設パス `¥19,800/年`。フォーム数1、選択曲カード2、console errorなし。
+- 注意: Mac側の古い `.private/.env.ftp` は `hmix.temporarydomain.net` / `hmix.net` を指していた。今回の本番デプロイはAI-Memoryルール通り `sv16845.xserver.jp` / `hmix.net/public_html` に上書き指定して実施。
+
 ## このコミットの主変更（すべて本番 hmix.net 反映済み）
 1. **お気に入りの心臓一本化（Phase 0）**: `assets/js/fav-store.js`（新規・`window.HMIX_FAV`）。リッチ構造`hmix_favorites_v2`＋後方互換ミラー`hmix_favorites`、setItemラップで未改修コードも自動和解、冪等マイグレータ＋90日バックアップ／LWW＋tombstone＋LexoRank／Undo。テスト`node scripts/test-fav-store.js`(34)。主要消費者(music-library/player/fav-modal/track-detail)をHMIX_FAV直結＋削除はUndo化。
 2. **音楽手帖UI（P1）本番稼働**: `assets/js/fav-notebook.js`＋`assets/css/fav-notebook.css`（新規・`window.HMIX_NOTEBOOK`）。見開き3ペイン/章/A-B/メモ/金CTA/モバイルボトムシート。`fav-modal.js`の`openModal()`＋♡ハブを「手帖があれば手帖／無ければ旧モーダル」に変更＝**全保存リスト入口が手帖に統一**。申請は`/license-request.html#tracks=`へ。

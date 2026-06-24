@@ -9,6 +9,14 @@
 (function () {
   'use strict';
 
+  if (window.HMIX_LICENSE_REQUEST_LOADED) {
+    if (typeof window.HMIX_INIT_LICENSE_REQUEST === 'function') {
+      window.HMIX_INIT_LICENSE_REQUEST();
+    }
+    return;
+  }
+  window.HMIX_LICENSE_REQUEST_LOADED = true;
+
   // ── Stripe Checkout Session API ──────────────────────────────
   // Firebase Cloud Functions のエンドポイント
   var STRIPE_API_URL = 'https://createcheckout-r5y6n4kfwq-an.a.run.app';
@@ -51,6 +59,29 @@
   var STORAGE_KEY      = 'hmix_license_selection';
   var PURCHASE_KEY     = 'hmix_pending_purchase';
 
+  function clearUrlParam(name) {
+    try {
+      var path = location.pathname;
+      var search = location.search || '';
+      var hash = location.hash || '';
+      if (search) {
+        var qs = new URLSearchParams(search.slice(1));
+        qs.delete(name);
+        var nextSearch = qs.toString();
+        search = nextSearch ? '?' + nextSearch : '';
+      }
+      if (hash) {
+        var hs = new URLSearchParams(hash.replace(/^#/, ''));
+        hs.delete(name);
+        var nextHash = hs.toString();
+        hash = nextHash ? '#' + nextHash : '';
+      }
+      history.replaceState(null, '', path + search + hash);
+    } catch (e) {
+      try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    }
+  }
+
   // professional-license.html の「即時購入」から #usage=KEY（PJAXでクエリは落ちるためハッシュ）
   // で来たときに引き継ぐ用途。query ?usage= も後方互換で受ける。
   // 初回ロードで init が複数回走る（bottom script + inline + router）ため sessionStorage で全呼び出しに渡す。
@@ -63,9 +94,10 @@
               (location.search || '').match(/[?&]usage=([^&]+)/);
       var v = m ? decodeURIComponent(m[1]) : '';
       if (v && PRO_USAGE.some(function (u) { return u.v === v; })) {
+        clearIncomingPlan();
         try { sessionStorage.setItem(USAGE_KEY, JSON.stringify({ v: v, t: Date.now() })); } catch (e) {}
-        // ハッシュ/クエリを消す（loadSelection の tracks= 処理と衝突しないよう先に）
-        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        // usage だけ消し、同居する tracks= は loadSelection へ残す。
+        clearUrlParam('usage');
       }
     } catch (e) {}
   }
@@ -92,8 +124,9 @@
               (location.search || '').match(/[?&]plan=([^&]+)/);
       var v = m ? decodeURIComponent(m[1]) : '';
       if (v === 'store' || v === 'facility') {
+        clearIncomingUsage();
         try { sessionStorage.setItem(PLAN_KEY, JSON.stringify({ v: v, t: Date.now() })); } catch (e) {}
-        try { history.replaceState(null, '', location.pathname); } catch (e) {}
+        clearUrlParam('plan');
       }
     } catch (e) {}
   }

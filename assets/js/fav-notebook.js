@@ -122,6 +122,7 @@
     els.count.textContent = total + '曲・' + cols.length + '章';
     // 空状態
     var isEmpty = total === 0;
+    els.empty.hidden = !isEmpty;
     els.empty.style.display = isEmpty ? 'flex' : 'none';
     els.pages.style.display = isEmpty ? 'none' : '';
     els.preview.style.display = isEmpty ? 'none' : '';
@@ -175,6 +176,10 @@
         '<div class="hnb-row__main"><div class="hnb-row__title">' + escapeHtml(title) + '</div><div class="hnb-row__tags">' + escapeHtml(tags) + '</div></div>' +
         '<span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span>' +
         '<span class="hnb-badge" data-lic="' + (col.status || 'draft') + '">' + (STATUS_LABEL[col.status] || '検討中') + '</span>';
+      row.querySelector('.hnb-check').setAttribute('aria-label', title + 'を商用利用申請の候補に選択');
+      row.querySelector('.hnb-check').addEventListener('click', function (e) {
+        e.stopPropagation();
+      });
       row.querySelector('.hnb-check').addEventListener('change', function (e) {
         e.stopPropagation();
         if (e.target.checked) state.selected[it.trackId] = true; else delete state.selected[it.trackId];
