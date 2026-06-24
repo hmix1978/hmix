@@ -185,18 +185,8 @@
 .hnb-preview__empty{ color:var(--ink-dim); font-size:13px; line-height:1.8; margin:auto 0; text-align:center; }
 .hnb-preview__title{ font-family:'Noto Serif JP',serif; font-size:17px; line-height:1.4; }
 .hnb-preview__tags{ font-size:.8rem; color:var(--ink-dim); line-height:1.6; }
-.hnb-tool-sync{ display:flex; flex-direction:column; gap:6px; }
-.hnb-tool-sync__btn{
-  width:100%; min-height:34px; padding:8px 10px; border-radius:8px;
-  border:1px solid var(--rule-strong); background:rgba(202,164,78,.08);
-  color:var(--gold); font-size:12.5px; font-weight:700; cursor:pointer;
-}
-.hnb-tool-sync__btn:hover{ background:rgba(202,164,78,.14); }
-.hnb-tool-sync__btn:disabled{ cursor:wait; opacity:.7; }
-.hnb-tool-sync__info{ color:var(--ink-dim); font-size:11.5px; line-height:1.5; }
 .hnb-wave{ height:46px; display:flex; align-items:flex-end; gap:2px; opacity:.85; }
 .hnb-wave span{ flex:1; background:linear-gradient(180deg,var(--gold),rgba(126,203,149,.5)); border-radius:1px; }
-.hnb-wave.is-synced span{ background:linear-gradient(180deg,#7ecb95,rgba(231,202,124,.62)); }
 .hnb-preview__sect{ font-family:'Cinzel',serif; font-size:9.5px; letter-spacing:.28em; color:var(--ink-dim); text-transform:uppercase; }
 .hnb-memo{
   width:100%; min-height:64px; resize:vertical; background:rgba(255,255,255,.03);

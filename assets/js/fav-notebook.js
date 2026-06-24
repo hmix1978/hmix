@@ -32,89 +32,6 @@
     return ids.map(function (id) { return L[id] || id; }).join('・');
   }
   function durOf(tk) { return tk && (tk.duration || '') || ''; }
-  function fmtSec(sec) {
-    sec = Number(sec) || 0;
-    var m = Math.floor(sec / 60);
-    var s = sec % 60;
-    return m + ':' + (s < 10 ? '0' : '') + s.toFixed(2);
-  }
-  function genericWaveBars() {
-    var bars = '';
-    for (var i = 0; i < 36; i++) {
-      var h = 16 + Math.round(64 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.21)));
-      bars += '<span style="height:' + h + '%"></span>';
-    }
-    return bars;
-  }
-  function waveBarsFromValues(values) {
-    if (!values || !values.length) return genericWaveBars();
-    var bars = '';
-    values.forEach(function (v) {
-      var h = Math.max(10, Math.min(92, Math.round(12 + (Number(v) || 0) * 78)));
-      bars += '<span style="height:' + h + '%"></span>';
-    });
-    return bars;
-  }
-  function audioContext() {
-    if (!window.__HMIX_NOTEBOOK_AUDIO_CTX) window.__HMIX_NOTEBOOK_AUDIO_CTX = new (window.AudioContext || window.webkitAudioContext)();
-    return window.__HMIX_NOTEBOOK_AUDIO_CTX;
-  }
-  function extractRangeWaveform(audioBuffer, startSec, endSec, bars) {
-    bars = bars || 36;
-    var raw = audioBuffer.getChannelData(0);
-    var start = Math.max(0, Math.floor((Number(startSec) || 0) * audioBuffer.sampleRate));
-    var end = Math.min(raw.length, Math.floor((Number(endSec) || audioBuffer.duration) * audioBuffer.sampleRate));
-    if (end <= start) { start = 0; end = raw.length; }
-    var len = Math.max(1, end - start);
-    var block = Math.max(1, Math.floor(len / bars));
-    var out = [], peak = 0;
-    for (var i = 0; i < bars; i++) {
-      var s = start + i * block;
-      var e = i === bars - 1 ? end : Math.min(end, s + block);
-      var max = 0;
-      for (var j = s; j < e; j++) {
-        var abs = Math.abs(raw[j] || 0);
-        if (abs > max) max = abs;
-      }
-      out.push(max);
-      if (max > peak) peak = max;
-    }
-    peak = peak || 1;
-    return out.map(function (v) { return Math.round((v / peak) * 1000) / 1000; });
-  }
-  function loadToolboxWaveform(tk, range) {
-    if (!tk || !tk.mp3 || !range || range.end <= range.start) return Promise.resolve(null);
-    return fetch(tk.mp3)
-      .then(function (res) { if (!res.ok) throw new Error('mp3 fetch failed'); return res.arrayBuffer(); })
-      .then(function (buf) { return audioContext().decodeAudioData(buf); })
-      .then(function (audioBuffer) { return extractRangeWaveform(audioBuffer, range.start, range.end, 36); });
-  }
-  function readToolboxState(tk) {
-    var api = window.HMIX_TOOLBOX_SYNC;
-    if (api && typeof api.getTrackState === 'function') {
-      var apiState = api.getTrackState(tk.id);
-      if (apiState && apiState.range) return apiState;
-    }
-    var ranges = {};
-    var memos = {};
-    try { ranges = JSON.parse(localStorage.getItem('hmix_toolbox_ranges_v1') || '{}'); } catch (e) {}
-    if (!ranges[String(tk.id)]) {
-      try {
-        var node = document.getElementById('hmix-toolbox-state-store');
-        if (node && node.textContent) ranges = JSON.parse(node.textContent || '{}');
-      } catch (e1) {}
-    }
-    try { memos = JSON.parse(localStorage.getItem('hmix_memos_v1') || '{}'); } catch (e2) {}
-    var range = ranges[String(tk.id)] || null;
-    return {
-      trackId: tk.id,
-      title: tk.title || tk.id,
-      duration: 0,
-      range: range && range.end > range.start ? range : null,
-      memo: memos[String(tk.id)] || null,
-      syncedAt: new Date().toISOString()
-    };
-  }
 
   /* ---- 状態 ---- */
   var state = { activeCol: 'default', selected: {}, previewId: null, prevPreviewId: null };
@@ -152,7 +69,7 @@
         '<div class="hnb-empty" id="hnb-empty" hidden>' +
           '<div class="hnb-empty__mark">♡</div>' +
           '<div class="hnb-empty__lead">最初のページを開きましょう</div>' +
-          '<div class="hnb-empty__sub">♡で曲を栞のように挟むと、ここに綴じられていきます。使う曲にチェックを入れて、まとめて申請できます。</div>' +
+          '<div class="hnb-empty__sub">♡で曲を栞のように挟むと、ここに綴じられていきます。章に束ねて、まるごと使用許諾を申請できます。</div>' +
           '<div class="hnb-empty__cta"><button class="hnb-cta" id="hnb-empty-browse" style="width:auto;padding:12px 22px">図書館で探す</button></div>' +
         '</div>' +
         '<div class="hnb-foot">' +
@@ -303,15 +220,9 @@
       els.preview.innerHTML = '<div class="hnb-sheet-handle"></div><div class="hnb-preview__empty">曲を選ぶと、ここに波形とメモが開きます。</div>';
       return;
     }
-    var trackState = (F().state().tracks[tk.id] || {});
-    var toolbox = trackState.toolbox || null;
-    var bars = toolbox && toolbox.waveform ? waveBarsFromValues(toolbox.waveform) : genericWaveBars();
-    var memo = trackState.favMemo || '';
-    var syncInfo = toolbox && toolbox.range
-      ? '<div class="hnb-tool-sync__info">同期済み: ' + escapeHtml(fmtSec(toolbox.range.start)) + ' - ' + escapeHtml(fmtSec(toolbox.range.end)) +
-        ' / IN ' + escapeHtml(String(Number(toolbox.range.fadeIn || 0).toFixed(1)).replace(/\.0$/, '')) +
-        's / OUT ' + escapeHtml(String(Number(toolbox.range.fadeOut || 0).toFixed(1)).replace(/\.0$/, '')) + 's</div>'
-      : '<div class="hnb-tool-sync__info">通常波形を表示中</div>';
+    var bars = '';
+    for (var i = 0; i < 36; i++) { var h = 16 + Math.round(64 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.21))); bars += '<span style="height:' + h + '%"></span>'; }
+    var memo = (F().state().tracks[tk.id] && F().state().tracks[tk.id].favMemo) || '';
     var bTk = state.prevPreviewId ? tm[state.prevPreviewId] : null;
     var abHtml = '<div class="hnb-preview__sect">A / B 聴き比べ</div>' +
       '<div class="hnb-ab">' +
@@ -324,11 +235,7 @@
       '<button class="hnb-sheet-close" aria-label="閉じる">✕</button>' +
       '<div class="hnb-preview__title">' + escapeHtml(tk.title || tk.id) + '</div>' +
       '<div class="hnb-preview__tags">' + escapeHtml(tagsOf(tk)) + '</div>' +
-      '<div class="hnb-tool-sync">' +
-        '<button type="button" class="hnb-tool-sync__btn">ツールボックスの内容を同期する</button>' +
-        syncInfo +
-      '</div>' +
-      '<div class="hnb-wave' + (toolbox && toolbox.waveform ? ' is-synced' : '') + '">' + bars + '</div>' +
+      '<div class="hnb-wave">' + bars + '</div>' +
       '<div class="hnb-preview__row"><button class="hnb-iconbtn hnb-pv-play" title="再生">▶</button><span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span></div>' +
       abHtml +
       '<div class="hnb-preview__sect">曲メモ</div>' +
@@ -336,7 +243,6 @@
       '<button class="hnb-apply-one">この曲を申請 ▸</button>';
     els.preview.querySelector('.hnb-memo').addEventListener('change', function (e) { F().setTrackMemo(tk.id, e.target.value); });
     els.preview.querySelector('.hnb-apply-one').addEventListener('click', function () { gotoLicense([tk.id]); });
-    els.preview.querySelector('.hnb-tool-sync__btn').addEventListener('click', function (e) { syncToolboxToTrack(tk, e.currentTarget); });
     var pvPlay = els.preview.querySelector('.hnb-pv-play');
     if (pvPlay) pvPlay.addEventListener('click', function () { playId(tk.id); });
     var sc = els.preview.querySelector('.hnb-sheet-close');
@@ -346,45 +252,6 @@
     });
   }
   function playId(id) { if (id && window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(id); }
-
-  function syncToolboxToTrack(tk, btn) {
-    if (!tk || !tk.id) return;
-    var data = readToolboxState(tk);
-    if (!data || !data.range || data.range.end <= data.range.start) {
-      var info = els.preview.querySelector('.hnb-tool-sync__info');
-      if (info) info.textContent = 'この曲の同期できる選択範囲がまだありません';
-      alert('この曲の選択範囲がまだありません。制作ツールボックスで範囲を選んでから同期してください。');
-      return;
-    }
-    var oldText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = '波形を読み込み中...';
-    loadToolboxWaveform(tk, data.range)
-      .then(function (waveform) {
-        if (!waveform || !waveform.length) throw new Error('waveform empty');
-        var toolbox = {
-          syncedAt: data.syncedAt || new Date().toISOString(),
-          trackId: tk.id,
-          title: data.title || tk.title || tk.id,
-          range: {
-            start: Number(data.range.start) || 0,
-            end: Number(data.range.end) || 0,
-            fadeIn: Number(data.range.fadeIn) || 0,
-            fadeOut: Number(data.range.fadeOut) || 0
-          },
-          memo: data.memo || null,
-          waveform: waveform
-        };
-        F().setTrackToolbox(tk.id, toolbox);
-        if (data.memo && data.memo.text) F().setTrackMemo(tk.id, data.memo.text);
-        renderPreview();
-      })
-      .catch(function () {
-        alert('波形の読み込みに失敗しました。曲を再生してからもう一度同期してください。');
-        btn.disabled = false;
-        btn.textContent = oldText;
-      });
-  }
 
   function renderBulk() {
     var ids = Object.keys(state.selected);
