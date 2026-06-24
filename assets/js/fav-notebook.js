@@ -76,10 +76,12 @@
           '<div class="hnb-bulk" id="hnb-bulk">' +
             '<span class="hnb-bulk__n" id="hnb-bulk-n">0曲選択中</span>' +
             '<button class="hnb-bulk__btn" data-act="copy">別の章へコピー</button>' +
-            '<button class="hnb-bulk__btn" data-act="apply">まとめて申請</button>' +
             '<button class="hnb-bulk__btn" data-act="clear">選択解除</button>' +
           '</div>' +
-          '<button class="hnb-cta" id="hnb-cta"></button>' +
+          '<div class="hnb-apply-actions">' +
+            '<button class="hnb-cta hnb-cta--selected" id="hnb-selected-cta"></button>' +
+            '<button class="hnb-cta hnb-cta--chapter" id="hnb-cta"></button>' +
+          '</div>' +
           '<span class="hnb-cta__sub">使う曲だけ選べます・保険の曲は課金されません</span>' +
         '</div>' +
       '</div>';
@@ -92,6 +94,7 @@
     els.empty = root.querySelector('#hnb-empty');
     els.foot = root.querySelector('.hnb-foot');
     els.cta = root.querySelector('#hnb-cta');
+    els.selectedCta = root.querySelector('#hnb-selected-cta');
     els.bulk = root.querySelector('#hnb-bulk');
     els.bulkN = root.querySelector('#hnb-bulk-n');
     els.search = root.querySelector('#hnb-search');
@@ -101,12 +104,12 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.getAttribute('aria-hidden') === 'false') close(); });
     els.search.addEventListener('input', renderPages);
     els.cta.addEventListener('click', applyChapter);
+    els.selectedCta.addEventListener('click', applySelected);
     root.querySelector('#hnb-empty-browse').addEventListener('click', function () { location.href = (window.HMIX_BASE_PATH || '') + '/music-library.html'; });
     els.bulk.addEventListener('click', function (e) {
       var b = e.target.closest('.hnb-bulk__btn'); if (!b) return;
       var act = b.dataset.act;
       if (act === 'clear') { state.selected = {}; render(); }
-      else if (act === 'apply') applySelected();
       else if (act === 'copy') copySelected();
     });
     window.addEventListener('favorites:updated', function () { if (root.getAttribute('aria-hidden') === 'false') render(); });
@@ -248,6 +251,9 @@
     var ids = Object.keys(state.selected);
     els.bulk.classList.toggle('is-on', ids.length > 0);
     els.bulkN.textContent = ids.length + '曲選択中';
+    els.selectedCta.textContent = ids.length ? '選択曲（' + ids.length + '曲）を申請 →' : '選択曲を申請 →';
+    els.selectedCta.disabled = ids.length === 0;
+    els.selectedCta.style.opacity = ids.length === 0 ? '.5' : '1';
   }
 
   /* ---- 操作 ---- */

@@ -202,14 +202,25 @@
   grid-column:1 / -1; grid-row:3 / 4; padding:14px 22px; border-top:1px solid var(--rule);
   background:linear-gradient(0deg, rgba(8,15,10,.85), transparent); position:relative;
 }
+.hnb-apply-actions{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
 .hnb-cta{
   width:100%; padding:15px; border-radius:8px; cursor:pointer;
-  background:linear-gradient(135deg,var(--gold-bright),var(--gold));
-  color:#0a140d; font-weight:700; font-size:15px; border:none;
+  color:#0a140d; font-weight:700; font-size:15px; border:1px solid transparent;
   font-family:'Noto Serif JP',serif; letter-spacing:.02em;
   box-shadow:0 8px 24px -10px rgba(231,202,124,.6);
 }
+.hnb-cta--selected{
+  background:linear-gradient(135deg, rgba(255,207,110,.95), rgba(126,203,149,.82));
+  border-color:rgba(126,203,149,.34);
+}
+.hnb-cta--chapter{
+  background:linear-gradient(135deg,var(--gold-bright),var(--gold));
+  border-color:rgba(231,202,124,.44);
+}
 .hnb-cta:hover{ filter:brightness(1.05); }
+.hnb-cta:disabled{ cursor:not-allowed; filter:saturate(.75); }
 .hnb-cta__sub{ display:block; text-align:center; margin-top:8px; font-size:11px; color:var(--ink-dim); }
 /* 一括バー */
 .hnb-bulk{
@@ -276,6 +287,7 @@
   .hnb-empty{ grid-column:1; grid-row:3 / 4; }
   /* フッターを最下段に固定（重なり解消） */
   .hnb-foot{ grid-column:1; grid-row:4 / 5; padding:12px 14px; }
+  .hnb-apply-actions{ grid-template-columns:1fr; gap:8px; }
   .hnb-cta{ font-size:14px; padding:13px; }
 }
 
