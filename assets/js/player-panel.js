@@ -422,6 +422,15 @@
     if (typeof _updateRangeUI === 'function') _updateRangeUI();
   }
 
+  function _setRangeStoppedStatus() {
+    if (!_rangeActive || _rangeStart < 0 || _rangeEnd <= _rangeStart) return;
+    var statusEl = document.getElementById('pp-duration-status');
+    if (!statusEl) return;
+    statusEl.textContent = _isEn()
+      ? 'Selected range: ' + _formatTimeDetailed(_rangeStart) + ' - ' + _formatTimeDetailed(_rangeEnd) + ' (stopped)'
+      : '選択範囲: ' + _formatTimeDetailed(_rangeStart) + ' 〜 ' + _formatTimeDetailed(_rangeEnd) + '（停止中）';
+  }
+
   function _bindIf(root, selector, type, handler) {
     var node = root && root.querySelector ? root.querySelector(selector) : null;
     if (node) node.addEventListener(type, handler);
@@ -5824,6 +5833,7 @@
       var detail = e && e.detail ? e.detail : {};
       _handleBrowseModeTrackChange(detail.trackId, detail.isPlaying);
       _syncPersistentRangeWithCurrentTrack();
+      if (detail.state === 'stopped') _setRangeStoppedStatus();
       _updateActionButtons();
       if (window._updateClimaxBtn) window._updateClimaxBtn();
       if (_panel && _panel.classList.contains('is-open')) {
