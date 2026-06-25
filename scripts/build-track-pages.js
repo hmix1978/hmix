@@ -27,6 +27,16 @@ const MUSIC_DIR   = path.join(ROOT, 'music');
 const SCENES_DIR  = path.join(ROOT, 'assets/images/scenes');
 const SITE        = 'https://www.hmix.net';
 
+// 再生成時のリグレッション防止用: 本番に注入済みのアセット ?v= 値。
+// 共有JS/CSSをバンプしたらここも更新する。
+const FAV_VERSIONS = Object.freeze({
+  favModalCss:    '20260623f',
+  favNotebookCss: '20260624h',
+  favStoreJs:     '20260623',
+  favNotebookJs:  '20260624n',
+  favModalJs:     '20260624c',
+});
+
 // ── CLI 引数パース ──
 function parseArgs(argv) {
   const out = { only: null, countsOnly: false, noCounts: false, noBackup: false };
@@ -89,6 +99,91 @@ function sceneRelative(track) {
 // ── タグID → 日本語ラベル（tagNames から）。未登録はIDをそのまま返す ──
 function tagLabel(id, tagNames) {
   return (tagNames && tagNames[id]) || id;
+}
+
+// favbox(お気に入りボックス/音楽手帖) 関連の CSS/モーダル/JS を冪等に注入。
+// fav-notebook.js を既に読み込んでいるページはスキップ。
+function injectFavboxAssets(html) {
+  if (/assets\/js\/fav-notebook\.js/.test(html)) return html;
+
+  if (!/assets\/css\/fav-modal\.css/.test(html)) {
+    html = html.replace(
+      /(<link[^>]*href="\.\.\/assets\/css\/player\.css"[^>]*>)/,
+      `$1\n  <link rel="stylesheet" href="../assets/css/fav-modal.css?v=${FAV_VERSIONS.favModalCss}">`
+    );
+  }
+  if (!/assets\/css\/fav-notebook\.css/.test(html)) {
+    html = html.replace(
+      /(<\/head>)/,
+      `  <link rel="stylesheet" href="../assets/css/fav-notebook.css?v=${FAV_VERSIONS.favNotebookCss}">\n$1`
+    );
+  }
+
+  if (!/id="fav-modal"/.test(html)) {
+    const modalBlock =
+`  <div class="fav-modal" id="fav-modal" aria-hidden="true" hidden>
+    <div class="fav-modal__backdrop" data-fav-modal-close></div>
+    <div class="fav-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="fav-modal-heading">
+      <div class="fav-modal__header">
+        <div>
+          <p class="fav-modal__eyebrow">My Library</p>
+          <h2 id="fav-modal-heading">保存した楽曲 <span id="fav-modal-count">0</span></h2>
+        </div>
+        <button class="fav-modal__close" type="button" aria-label="閉じる" data-fav-modal-close>&times;</button>
+      </div>
+      <div class="fav-modal__body">
+        <p class="fav-modal__empty" id="fav-modal-empty">まだ保存された楽曲がありません。</p>
+        <ul class="fav-modal__list" id="fav-modal-list"></ul>
+      </div>
+      <div class="fav-modal__footer">
+        <button type="button" id="fav-modal-play-all">再生</button>
+        <button type="button" id="fav-modal-shuffle-all">シャッフル</button>
+        <button type="button" id="fav-modal-play-theater">シアター</button>
+        <button type="button" id="fav-modal-dl-all">一括DL</button>
+        <button type="button" id="fav-modal-clear">全削除</button>
+      </div>
+    </div>
+  </div>
+
+`;
+    const langScriptRe = /(\n\s*<script>\s*\n\s*\(function \(\) \{[\s\S]*?HMIX_LANG[\s\S]*?<\/script>)/;
+    if (langScriptRe.test(html)) {
+      html = html.replace(langScriptRe, `\n${modalBlock}$1`);
+    } else {
+      html = html.replace(
+        /(<script[^>]*src="\.\.\/assets\/js\/tracks\.js"[^>]*><\/script>)/,
+        `${modalBlock}  $1`
+      );
+    }
+  }
+
+  const wantScripts = [
+    { re: /assets\/js\/fav-store\.js/,    line: `  <script src="../assets/js/fav-store.js?v=${FAV_VERSIONS.favStoreJs}"></script>\n` },
+    { re: /assets\/js\/fav-notebook\.js/, line: `<script src="../assets/js/fav-notebook.js?v=${FAV_VERSIONS.favNotebookJs}"></script>\n` },
+    { re: /assets\/js\/fav-modal\.js/,    line: `  <script src="../assets/js/fav-modal.js?v=${FAV_VERSIONS.favModalJs}"></script>\n` },
+  ];
+  const missingScripts = wantScripts.filter(s => !s.re.test(html)).map(s => s.line).join('');
+  if (missingScripts) {
+    html = html.replace(/(<\/body>)/, `${missingScripts}$1`);
+  }
+
+  return html;
+}
+
+// ヘッダーの「作曲家」リンクをドロップダウンに置換（冪等）。
+function injectComposerDropdown(html) {
+  if (/aria-label="作曲家メニュー"/.test(html)) return html;
+  const simple = /<li><a href="\/composer\.html" class="nav-link" data-ja="作曲家" data-en="Composer">作曲家<\/a><\/li>/;
+  if (!simple.test(html)) return html;
+  const dropdown =
+    `<li class="nav-item nav-item--dropdown"><a href="/composer.html" class="nav-link" data-ja="作曲家" data-en="Composer">作曲家</a>` +
+    `<ul class="nav-submenu" aria-label="作曲家メニュー">` +
+    `<li><a href="/composer.html" class="nav-submenu__link" data-ja="作曲家について" data-en="About the Composer">作曲家について</a></li>` +
+    `<li><a href="https://www.youtube.com/@hmixbgm" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="YouTube" data-en="YouTube">YouTube</a></li>` +
+    `<li><a href="https://x.com/hmix_net" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="X (旧Twitter)" data-en="X (Twitter)">X (旧Twitter)</a></li>` +
+    `<li><a href="https://linkco.re/CFhnqas5" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="発売中のCD" data-en="CD on Sale">発売中のCD</a></li>` +
+    `</ul></li>`;
+  return html.replace(simple, dropdown);
 }
 
 // ── 1ファイル分の body 置換 ──
@@ -247,6 +342,9 @@ function transformHtml(html, track, tagNames) {
       );
     }
   }
+
+  html = injectFavboxAssets(html);
+  html = injectComposerDropdown(html);
 
   return html;
 }
