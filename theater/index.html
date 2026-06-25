@@ -724,7 +724,7 @@
     closeMedia();   // 前のYouTube/動画を破棄してクリーンに切替
 
     if(p.type==='youtube'){
-      ytVidIds=[]; ytLastCur=-1;
+      ytVidIds=[]; ytLastCur=-1; ytCurVid=null;
       head.textContent='収録映像';
       sub.textContent='YouTubeに接続中…';
       if(!renderYTRows(p, Object.keys(p.titles||{}), 0, true)){
@@ -763,7 +763,7 @@
   }
 
   // ===== この映像で使われている曲（左カード）＋ 秋山用 裏フォーム =====
-  var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={};
+  var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={}, ytCurVid=null;
   function loadUsed(){ try{ return JSON.parse(localStorage.getItem(USEDK)||'{}'); }catch(_){ return {}; } }
   function saveUsed(m){ try{ localStorage.setItem(USEDK, JSON.stringify(m)); }catch(_){} }
   function baseUsed(vid){ var p=PLAYLISTS[plActive]; return (p&&p.tracks&&p.tracks[vid])?p.tracks[vid].slice():[]; }
@@ -787,10 +787,11 @@
     if(idx<0) idx=0;
     try{ ytPlayer.playVideoAt((idx+delta+ids.length)%ids.length); }catch(e){}
   }
-  function addUsed(vid, e){ if(!vid) return; var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].push(e); saveUsed(m); renderUsed(vid); }
+  function addUsed(vid, e){ vid = vid || ytCurVid; if(!vid) return; var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].push(e); saveUsed(m); renderUsed(vid); }
   function delUsed(vid, i){ var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].splice(i,1); saveUsed(m); renderUsed(vid); }
 
   function renderUsed(vid){
+    vid = vid || ytCurVid;
     var card=document.getElementById('ft-used'); if(!card) return;
     var p=PLAYLISTS[plActive];
     if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); return; }
@@ -839,7 +840,7 @@
     adminMode=!adminMode;
     if(adminMode){ if(!adminTimer) adminTimer=setInterval(function(){ try{ if(ytPlayer&&ytPlayer.getCurrentTime){ adminNow=ytPlayer.getCurrentTime()||0; var n=document.getElementById('u-now'); if(n) n.textContent=fmtSec(adminNow); } }catch(e){} }, 500); document.body.classList.remove('ft-ui-idle'); }
     else { clearInterval(adminTimer); adminTimer=0; }
-    renderUsed(curVideoId());
+    renderUsed(ytCurVid || curVideoId());
   }
   function showNoEmbed(){
     if(!media) return; var m=document.getElementById('ft-yt-msg');
@@ -869,7 +870,7 @@
           '<div class="pl-vnow">NOW</div>';
         row.addEventListener('click', function(){
           try{ if(ytPlayer&&ytPlayer.playVideoAt) ytPlayer.playVideoAt(idx); }catch(e){}
-          markYTCurrent(idx); try{ renderUsed(vid); }catch(e){}
+          ytCurVid=vid; markYTCurrent(idx); try{ renderUsed(vid); }catch(e){}
         });
         body.appendChild(row);
       });
@@ -899,7 +900,8 @@
     var cur=0; try{ cur=ytPlayer.getPlaylistIndex(); }catch(e){}
     try{ var d=ytPlayer.getVideoData&&ytPlayer.getVideoData(); if(d&&d.video_id&&d.title) ytTitles[d.video_id]=d.title; }catch(e){}
     renderYTRows(p, ids, cur, false);
-    if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(curVideoId()); }catch(e){} }
+    ytCurVid = ids[cur] || ytCurVid;   // 権威ある現在動画ID（インデックス基準）。getVideoDataの遅延に依存しない
+    if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(ytCurVid); }catch(e){} }
   }
 
   // wire

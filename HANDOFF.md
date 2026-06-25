@@ -1,4 +1,20 @@
-# ★ Current Handoff — 2026-06-24 — Windows（最新・まずここを読む）
+# ★ Theater YouTube Playlist 引き継ぎ — 2026-06-26 — Windows（Mac継続用）
+
+> シアターの「YouTubeプレイリストをシアター内に閉じ込めて再生」機能の続き。**本番(prod)には未デプロイ**（prod `theater/index.html` は旧版＝playlist無し）。実装はすべて `theater/index.html` のインラインJS(IIFE)に入っており git main が真実の源。
+
+## 本コミットで直したバグ
+- **「この映像で使われている曲」が2本目以降の動画で登録できない** 問題を修正。
+  - 原因: `ytSyncList()` が現在動画IDを `curVideoId()`（`getVideoData()` が動画切替中に前動画を返しうる）で再計算し、行クリックで正しくvid2へ紐付けた登録フォームを **stale な前動画IDで上書き** していた → 登録が前動画に紐付き「設定できない」ように見えた。
+  - 修正: 権威ある **`ids[cur]`（getPlaylistIndex基準）** を `ytCurVid` に保持し、`renderUsed`/`addUsed`/`toggleAdmin`/行クリックがそれを使うよう統一。ローカル読込エラー0確認。YT実再生での最終確認はMacで（admin=Shift+A→2本目で曲登録→別動画に紐付かないこと）。
+
+## この機能の続き（Mac TODO）
+- YT実再生で全フロー確認（収録映像セレクタ／次・前／埋め込み不可スキップ／admin登録のJSONエクスポート）。
+- 使用曲データ（`hmix.theater.usedTracks` ＝localStorage、または PLAYLISTSの`tracks`）の本登録：秋山さんが各動画でadmin登録→「JSONをコピー」→ `PLAYLISTS[].tracks` に反映（恒久化）。
+- 問題なければ **prodへ `theater/index.html` をデプロイ**（現状prod旧版＝これで初公開）。`theater/` 配下はfav-store/手帖を入れない方針は維持。
+
+---
+
+# ★ Current Handoff — 2026-06-24 — Windows
 
 > Mac側へ: `git pull origin main` → 下記を把握 → 続行。古い節は履歴。`.env.ftp`はGit管理外（Macに別途設定要）。
 
