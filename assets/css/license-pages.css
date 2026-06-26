@@ -111,8 +111,18 @@ body.lp-page .lr-license-card__features { color: var(--lp-muted); }
 body.lp-page .lr-license-card__features li { color: var(--lp-muted); }
 
 /* ── Professional 用途 / 店舗ブロック（パネル） ── */
-body.lp-page .lr-pro-usage,
 body.lp-page .lr-store-block { background:#fff; border:1px solid var(--lp-line); border-radius:14px; padding:20px; }
+/* Professional 用途は「必須・UIが変わった」と気づけるよう金枠＋左アクセントで強調 */
+body.lp-page .lr-pro-usage {
+  background: linear-gradient(180deg, #FBF2DC, #FCF8EE);
+  border: 1.5px solid #C8A24A;
+  border-left: 5px solid #C8A24A;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 10px 30px -16px rgba(176, 134, 38, 0.5);
+}
+body.lp-page .lr-pro-usage__title { color: #9A7B26; }
+body.lp-page .lr-pro-usage__mark { color: #C8A24A; }
 body.lp-page .lr-label { color:#39352D; font-weight:700; }
 body.lp-page .lr-select, body.lp-page .lr-input {
   background:#fff; border:1px solid #CFC6B2; color: var(--lp-ink); border-radius:10px;

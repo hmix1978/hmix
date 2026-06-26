@@ -532,6 +532,11 @@
         applyModeUI(type);
         if (type === 'store') updateStoreCountUI();
         updatePrice();
+        // Professional は用途選択が必須・UIが変化する。気づけるよう用途ボックスへスクロール＋注目演出。
+        if (type === 'professional' && proUsageBlock) {
+          try { proUsageBlock.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
+          proUsageBlock.classList.remove('lr-pro-usage--attn'); void proUsageBlock.offsetWidth; proUsageBlock.classList.add('lr-pro-usage--attn');
+        }
       });
     });
 
@@ -775,6 +780,12 @@
       }
     }
 
+    // お気に入りの「商用利用申請」など、用途/プラン指定なしで曲付き(#tracks=)で来た場合は
+    // 既定で STANDARD(single) を選択 → 選択曲リストと合計を即表示（種別の再クリック不要）。
+    if (!preUsage && !prePlan && !selectedType && singleCard && currentTracks && currentTracks.length) {
+      singleCard.click();
+    }
+
     updatePrice();
   }
 
@@ -847,6 +858,7 @@
 
         '</div>' +
         '<div class="lr-pro-usage" id="lr-pro-usage" hidden>' +
+          '<div class="lr-pro-usage__title"><span class="lr-pro-usage__mark">▼</span><span data-ja="用途を選んでください" data-en="Choose your use case">用途を選んでください</span><span class="lr-pro-usage__req" data-ja="必須・価格が決まります" data-en="Required · sets the price">必須・価格が決まります</span></div>' +
           '<label class="lr-label lr-label--required" for="lr-usage"><span data-ja="Professional の用途" data-en="Professional use case">Professional の用途</span></label>' +
           '<select id="lr-usage" class="lr-select">' +
             '<option value="" data-ja="用途を選択してください" data-en="Select a use case">用途を選択してください</option>' +
