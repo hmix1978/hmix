@@ -750,14 +750,15 @@
       /* モバイル（≤720px）: 額縁を上部固定 16:9、下にカードを縦スタック */
       '@media (max-width:720px){'+
         /* stage は背景として残し、メディアだけ画面上部に固定（z-index:11 で上に出る） */
-        'body.ft-pl-on #ft-media{position:fixed!important; left:0!important; top:0!important; width:100vw!important; height:56.25vw!important; max-height:42vh!important; z-index:11!important; box-shadow:0 12px 32px -10px rgba(0,0,0,.7)!important;}'+
+        'body.ft-pl-on #ft-media{position:fixed!important; left:0!important; top:0!important; width:100vw!important; height:56.25vw!important; max-height:32vh!important; z-index:11!important; box-shadow:0 12px 32px -10px rgba(0,0,0,.7)!important;}'+
         /* stage 内のスクリーン枠は隠す（メディアが移動した後のゴーストを消す） */
         'body.ft-pl-on #ft-screen, body.ft-pl-on #ft-glow, body.ft-pl-on #ft-cal-layer{visibility:hidden!important;}'+
         '#ft-pl-art{font-size:13px;}'+
         '#ft-pl-art .big{font-size:32px;}'+
         '#ft-pl-art .nm{font-size:14px;}'+
-        '#ft-used{left:6px!important; right:6px!important; top:auto!important; bottom:calc(38vh + 86px)!important; width:auto!important; max-height:18vh!important; max-width:none!important;}'+
-        '#ft-pl-panel{left:6px!important; right:6px!important; top:auto!important; bottom:84px!important; width:auto!important; max-height:34vh!important; max-width:none!important;}'+
+        /* 縦スタック: 上から media(32vh) → used(16vh) → panel(30vh) → dock(~80px) */
+        '#ft-used{left:6px!important; right:6px!important; top:auto!important; bottom:calc(30vh + 84px)!important; width:auto!important; max-height:16vh!important; max-width:none!important;}'+
+        '#ft-pl-panel{left:6px!important; right:6px!important; top:auto!important; bottom:80px!important; width:auto!important; max-height:30vh!important; max-width:none!important;}'+
         '#ft-pl-head{padding:10px 14px 6px;} #ft-pl-head h4{font-size:13px;} #ft-pl-head p{font-size:10px;}'+
         '#ft-used .uh{padding:9px 13px 5px; font-size:12.5px;} #ft-used .uh small{font-size:9.5px;}'+
         '.pl-vth{width:78px; height:44px;}'+
