@@ -194,6 +194,55 @@
 
   </main>
 
+  <!-- お問い合わせ送信（mailto起動＋フォールバック）。
+       #page-content 内に置くことで router(PJAX) の再実行に追従。document委譲＋ガードで
+       直リンク/PJAX遷移/往復のいずれでも #cf-submit を確実に拾う。 -->
+  <script>
+  (function(){
+    if(window.__cfContactBound) return;   // documentへの委譲は一度だけ（PJAX往復でも重複しない）
+    window.__cfContactBound = true;
+    var MAIL='hmixtube@gmail.com';
+    function isEN(){ return document.body.classList.contains('lang-en') || window.HMIX_LANG==='en'; }
+    function field(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
+    function showFallback(btn, subject, body){
+      var en=isEN();
+      var box=document.getElementById('cf-fallback');
+      if(!box){
+        box=document.createElement('div'); box.id='cf-fallback';
+        box.style.cssText='margin:14px 0 0;padding:16px 18px;border-radius:12px;background:#fff;border:1px solid #E6DFCF;color:#4A453C;font-size:15px;line-height:1.9';
+        btn.parentNode.insertBefore(box, btn.nextSibling);
+      }
+      box.innerHTML='<strong>'+(en?'Opening your mail app…':'メールアプリを開きました。')+'</strong><br>'
+        +(en?'If it did not open, email us directly at <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a>, or copy your message below.'
+            :'開かない場合は <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお使いください。')
+        +'<div style="margin-top:10px"><button type="button" id="cf-copy" style="cursor:pointer;background:#16382A;color:#F4F0E6;border:none;border-radius:999px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700">'+(en?'Copy message':'内容をコピー')+'</button> <span id="cf-copied" style="margin-left:10px;color:#2E6B4F;font-weight:700"></span></div>';
+      var text='To: '+MAIL+'\nSubject: '+subject+'\n\n'+body;
+      var copyBtn=document.getElementById('cf-copy');
+      if(copyBtn) copyBtn.addEventListener('click', function(){
+        var ok=function(){ var c=document.getElementById('cf-copied'); if(c) c.textContent=(en?'Copied':'コピーしました'); };
+        if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok,ok); }
+        else { try{ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); }catch(e){} }
+      });
+      try{ box.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+    }
+    document.addEventListener('click', function(e){
+      var btn = (e.target && e.target.closest) ? e.target.closest('#cf-submit') : null;
+      if(!btn) return;
+      var en=isEN();
+      var name=field('cf-name'), email=field('cf-email'), message=field('cf-message');
+      var topicSel=document.getElementById('cf-topic');
+      var topic=topicSel?topicSel.options[topicSel.selectedIndex].value:'';
+      if(!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message){
+        alert(en?'Please check the required fields (*).':'必須項目（*）をご確認ください。'); return;
+      }
+      var subject='[H/MIX Contact] '+topic;
+      var body=(en?'Name: ':'お名前: ')+name+'\n'+(en?'Email: ':'メールアドレス: ')+email+'\n'+(en?'Topic: ':'お問い合わせの種類: ')+topic+'\n\n'+(en?'Message:\n':'お問い合わせ内容:\n')+message+'\n';
+      try{ window.location.href='mailto:'+MAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body); }catch(_){}
+      showFallback(btn, subject, body);   // mailtoの成否は検知不可のため必ずフォールバック表示
+    });
+  })();
+  </script>
+
 </div><!-- /#page-content -->
 
 <!-- ===== FOOTER ===== -->
@@ -303,63 +352,6 @@
     </div>
   </div>
 </div>
-
-<!-- お問い合わせフォーム → mailto 起動（＋失敗時フォールバック） -->
-<script>
-(function(){
-  var MAIL = 'hmixtube@gmail.com';
-  var btn = document.getElementById('cf-submit');
-  if(!btn) return;
-  function isEN(){ return document.body.classList.contains('lang-en'); }
-  function field(id){ var el=document.getElementById(id); return el ? (el.value||'').trim() : ''; }
-
-  function showFallback(subject, body){
-    var en = isEN();
-    var box = document.getElementById('cf-fallback');
-    if(!box){
-      box = document.createElement('div');
-      box.id = 'cf-fallback';
-      box.style.cssText = 'margin:14px 0 0;padding:16px 18px;border-radius:12px;background:#fff;border:1px solid #E6DFCF;color:#4A453C;font-size:15px;line-height:1.9';
-      btn.parentNode.insertBefore(box, btn.nextSibling);
-    }
-    box.innerHTML =
-      '<strong>'+(en?'Opening your mail app…':'メールアプリを開きました。')+'</strong><br>'
-      + (en
-          ? 'If it did not open, email us directly at <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a>, or copy your message below.'
-          : '開かない場合は <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお使いください。')
-      + '<div style="margin-top:10px"><button type="button" id="cf-copy" style="cursor:pointer;background:#16382A;color:#F4F0E6;border:none;border-radius:999px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700">'+(en?'Copy message':'内容をコピー')+'</button> <span id="cf-copied" style="margin-left:10px;color:#2E6B4F;font-weight:700"></span></div>';
-    var text = 'To: '+MAIL+'\nSubject: '+subject+'\n\n'+body;
-    document.getElementById('cf-copy').addEventListener('click', function(){
-      var ok=function(){ var c=document.getElementById('cf-copied'); if(c) c.textContent=(en?'Copied':'コピーしました'); };
-      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok, ok); }
-      else { try{ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); }catch(e){} }
-    });
-    try { box.scrollIntoView({behavior:'smooth',block:'center'}); } catch(e){}
-  }
-
-  btn.addEventListener('click', function(){
-    var en = isEN();
-    var name = field('cf-name'), email = field('cf-email'), message = field('cf-message');
-    var topicSel = document.getElementById('cf-topic');
-    var topic = topicSel ? topicSel.options[topicSel.selectedIndex].value : '';
-    if(!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !message){
-      alert(en ? 'Please check the required fields (*).' : '必須項目（*）をご確認ください。');
-      return;
-    }
-    var subject = '[H/MIX Contact] ' + topic;
-    var body =
-      (en ? 'Name: ' : 'お名前: ') + name + '\n' +
-      (en ? 'Email: ' : 'メールアドレス: ') + email + '\n' +
-      (en ? 'Topic: ' : 'お問い合わせの種類: ') + topic + '\n\n' +
-      (en ? 'Message:\n' : 'お問い合わせ内容:\n') + message + '\n';
-    try {
-      window.location.href = 'mailto:'+MAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
-    } catch(e) {}
-    // mailto の成否は検知できないため、必ずフォールバック（直接送信先＋コピー）を表示
-    showFallback(subject, body);
-  });
-})();
-</script>
 
 <!-- データ読み込みとグローバルスクリプト（PJAX対応のため全ページ共通） -->
 <script src="/assets/js/tracks-loader.js?v=2"></script>
