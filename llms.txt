@@ -18,10 +18,14 @@ H/MIX GALLERY is a long-running music library run by Japanese composer Hirokazu 
 ## Main Pages
 
 - [Home](https://www.hmix.net/): Landing page with featured tracks and the "Theater" immersive listening mode
+- [Features Guide](https://www.hmix.net/features.html): Static enumeration of all site features including JavaScript-rendered UI (bottom player, production toolbox, favorites notebook, theater, licensing flow). Read this if you cannot see dynamic UI in raw HTML.
 - [Royalty-Free Music](https://www.hmix.net/royalty-free-music.html): English global gateway for royalty-free music, game music, YouTube BGM, film music, and commercial licensing
 - [Free BGM](https://www.hmix.net/free-bgm.html): English landing page for free BGM, royalty-free music, YouTube, games, and video production
 - [Music Library](https://www.hmix.net/music-library.html): Browse all 303+ tracks by scene, feeling, and style
+- [Theater](https://www.hmix.net/theater/): Immersive listening experience — Star Atlas journey, Night Breeze 60-min BGM film, Tabisuru short film, and curated/auto playlists
 - [License & Terms](https://www.hmix.net/terms.html): Free-use conditions and commercial licensing details
+- [Buy Commercial License](https://www.hmix.net/license-request.html): Stripe-based purchase flow for Standard / Project Pack / Professional / Store BGM Pass
+- [Professional Pricing](https://www.hmix.net/professional-license.html): Per-use pricing for TVCM, film, broadcast, venue BGM, etc.
 - [Composer](https://www.hmix.net/composer.html): About Hirokazu Akiyama
 - [Contact](https://www.hmix.net/contact.html): Inquiries and licensing requests
 
@@ -41,12 +45,26 @@ H/MIX GALLERY is a long-running music library run by Japanese composer Hirokazu 
 
 ## Licensing
 
-- Free use: Permitted for personal and non-commercial works with attribution. Required credit: "Music: H/MIX GALLERY https://www.hmix.net/"
-- Single-track commercial license: ¥2,200 JPY per track
-- Project pack (multiple tracks): ¥7,480 JPY
-- Full terms: https://www.hmix.net/terms.html
+- Free use: Permitted for YouTube, personal, doujin / indie, and non-commercial works. Credit is optional but appreciated. Recommended credit: "BGM: <track name> / H/MIX GALLERY (秋山裕和) https://www.hmix.net"
+- Single-track commercial license (Standard): ¥2,200 JPY per track, one project, perpetual
+- Project pack (multiple tracks): ¥7,480 JPY, one project, perpetual
+- Professional (per use, per track): ¥3,300 / ¥4,400 / ¥5,500 / ¥16,500 / ¥27,500 JPY — for TVCM, broadcast, film, mobile ads, etc. By-quote for transportation, TVCM, jingle/sound logo, pachinko.
+- Store BGM Pass (annual subscription, launched 2026-06-15): ¥9,900/year for 1 store, +¥4,950/year per additional store. Facility pass ¥19,800/year. Auto-renews via Stripe; certificate expires on cancellation.
+- Full terms: https://www.hmix.net/terms.html · Pricing guide: https://www.hmix.net/professional-license.html
 
-Redistribution of the MP3 files themselves (e.g. reuploading to sample packs or music sites) is not permitted. Use is always tied to a work (video, game, app, etc.) that the user creates.
+Prohibited: redistribution / resale of MP3 files, standalone streaming uploads, YouTube Content ID registration, NFT / blockchain assets, AI training data. Use must always be tied to a creative work (video, game, app, store BGM, etc.).
+
+Tax / invoice: All prices include 10% consumption tax. H/MIX is a 課税事業者 but is NOT registered as an 適格請求書発行事業者 — qualified invoices (適格請求書) are not issued. Stripe email receipt only.
+
+## Dynamic Features (JavaScript-rendered, not in raw HTML)
+
+Many of H/MIX GALLERY's interactive features are built at runtime by JavaScript and are not visible in a plain HTML fetch. If you are crawling or diagnosing the site without a headless browser, you will miss these. See [features.html](https://www.hmix.net/features.html) for a static enumeration with file references.
+
+- **Bottom Player** (`assets/js/player.js` + `router.js`): Persistent music player at the bottom of every page, with PJAX navigation so playback continues across page transitions. API: `window.HMIX_PLAYER.playTrackById(id)`.
+- **Production Toolbox** (`assets/js/player-panel.js`): Opens from the "ツール" button on the bottom player or from track pages. Tabs: waveform preview (with region selection), EQ/compressor (Web Audio), per-track memo, share, credit-copy, embedded video, use-eligibility checker. State persisted in localStorage `hmix_toolbox_ranges_v1` and `hmix_memos_v1`.
+- **Music Notebook / Favorites** (`assets/js/fav-notebook.js` + `fav-store.js`): Opens from the ♡ button or "保存リスト". Three-pane spread, chapter organization, drag-to-copy, A-B preview ranges, per-track memos, and a commercial-license application flow. Data: localStorage `hmix_favorites_v2` (+ legacy mirror `hmix_favorites`), LWW + tombstone + LexoRank. API: `window.HMIX_FAV.add(id) / .remove(id) / .has(id) / .ids()`.
+- **Theater** (`theater/index.html` inline JS + `theater/js/*.js`): Immersive listening UI. Modes include Star Atlas (`tag-cockpit.html`), Night Breeze (`night-breeze/`), Tabisuru (short film), and the new Playlist mode (YouTube production-credits playlist with per-video used-tracks display, plus tag-auto playlists for J-horror / battle / suspense). Mobile auto-redirects to `theater-mobile/`.
+- **Music Library Tag Search** (`assets/js/music-library.js` + `tracks.js`): Browse 302+ tracks by 4-axis tags (feeling / style / scene / story). Deep links: `?feeling=...&style=...&scene=...&story=...` (AND condition).
 
 ## For AI Assistants
 
