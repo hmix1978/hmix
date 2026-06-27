@@ -240,7 +240,8 @@
   var entries = [
     { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
     { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
-    { key:'playlist', title:'制作実績', tag:'特集', meta:'シアターで観る・聴く', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true },
+    { key:'play', title:'演奏動画', tag:'特集', meta:'秋山裕和の演奏 · YouTube', line:'秋山裕和の演奏を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', playlist:true, plIndex:0 },
+    { key:'works', title:'実績動画', tag:'特集', meta:'制作・使用実績 · YouTube', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true, plIndex:1 },
     { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
     { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' }
   ];
@@ -377,7 +378,7 @@
   function open(e){
     if(state.calibrating) return;
     if(!e) return;
-    if(e.playlist){ openPlaylistMode(); return; }        // シアター内プレイリスト（遷移しない）
+    if(e.playlist){ openPlaylistMode(e.plIndex||0); return; }        // シアター内プレイリスト（遷移しない）
     if(e.yt){ playInScreen('yt', e.yt); return; }       // YouTube をスクリーン内で
     if(e.film){ playInScreen('video', e.film); return; } // 自サーバー動画をスクリーン内で
     var href = (e.mobileHref && window.matchMedia && window.matchMedia('(max-width: 600px)').matches) ? e.mobileHref : e.href;
@@ -766,7 +767,7 @@
       /* 世界観重視: 数秒静止でパネルをサイドへスライド収納し、エッジタブで再表示（ドロワー） */
       '#ft-pl-panel, #ft-pl-dock, #ft-used, header{transition:opacity .25s ease, transform .5s cubic-bezier(.22,1,.36,1);}'+
       'body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
-      'body.ft-ui-idle header{opacity:0; pointer-events:none;}'+
+      /* ヘッダー(H/MIX THEATER・背景を変える・HOME)はリスト収納時も残す */
       'body.ft-ui-idle #ft-used{transform:translateX(calc(-100% - 22px)); opacity:0; pointer-events:none;}'+
       'body.ft-ui-idle #ft-pl-panel{transform:translateX(calc(100% + 22px)); opacity:0; pointer-events:none;}'+
       /* エッジタブ（収納中のみ表示・ホバー/クリックで両側からスライド復帰） */
@@ -879,13 +880,13 @@
     });
   }
 
-  function openPlaylistMode(){
+  function openPlaylistMode(idx){
     buildPlaylistUI();
     state.playlistMode = true;
     document.body.classList.add('ft-pl-on');
     var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='none';
     document.getElementById('ft-pl').classList.add('on');
-    renderPlaylist(0);
+    renderPlaylist(idx||0);
     uiWake();
   }
   function closePlaylistMode(){
