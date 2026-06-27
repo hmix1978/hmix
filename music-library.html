@@ -1078,10 +1078,13 @@
         grid-template-columns: 1fr;
       }
     }
+    /* 静的カード（SEO/初期表示）は暗テーマで配色し、JS差し替え前の白フラッシュ(FOUC)を防ぐ */
     .ml-static-card {
-      border: 1px solid rgba(143, 123, 77, 0.26);
+      border: 1px solid rgba(196, 164, 69, 0.22);
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(14, 28, 20, 0.76);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
       overflow: hidden;
     }
 
@@ -1095,13 +1098,13 @@
     }
 
     .ml-static-card__title {
-      color: #2b2418;
+      color: rgba(244, 240, 228, 0.96);
       font-weight: 700;
     }
 
     .ml-static-card__meta,
     .ml-static-card__desc {
-      color: rgba(43, 36, 24, 0.72);
+      color: rgba(226, 224, 210, 0.66);
       font-size: 0.88rem;
       line-height: 1.65;
     }
@@ -1114,10 +1117,10 @@
     }
 
     .ml-static-tag {
-      border: 1px solid rgba(143, 123, 77, 0.22);
+      border: 1px solid rgba(196, 164, 69, 0.28);
       border-radius: 999px;
       padding: 2px 8px;
-      color: rgba(43, 36, 24, 0.78);
+      color: rgba(228, 212, 162, 0.82);
       font-size: 0.75rem;
     }
   </style>
