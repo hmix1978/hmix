@@ -399,6 +399,7 @@
   function closeMedia(){
     state.mediaOpen = false;
     clearInterval(ytProgT); clearTimeout(ytIdleT);
+    document.body.classList.remove('ft-yt-active');
     try{ if(ytPlayer && ytPlayer.destroy) ytPlayer.destroy(); }catch(e){}
     ytPlayer = null;
     var ui = document.getElementById('ft-yt-ui'); if(ui && ui.parentNode) ui.parentNode.removeChild(ui);
@@ -485,7 +486,17 @@
     document.addEventListener('fullscreenchange', onFsFit);
     document.addEventListener('webkitfullscreenchange', onFsFit);
 
-    function showUI(){ ui.classList.remove('ft-ui-hide'); clearTimeout(ytIdleT); ytIdleT = setTimeout(function(){ if(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1) ui.classList.add('ft-ui-hide'); }, 2800); }
+    function showUI(){
+      ui.classList.remove('ft-ui-hide');
+      document.body.classList.add('ft-yt-active');   // バー表示中は周囲パネルを薄く＋クリックスルー
+      clearTimeout(ytIdleT);
+      ytIdleT = setTimeout(function(){
+        if(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1){
+          ui.classList.add('ft-ui-hide');
+          document.body.classList.remove('ft-yt-active');
+        }
+      }, 2800);
+    }
     media.addEventListener('pointermove', showUI);
     showUI();
 
@@ -663,7 +674,8 @@
     var css =
       '#ft-pl{position:fixed; inset:0; z-index:12; pointer-events:none; display:none;}'+
       '#ft-pl.on{display:block;}'+
-      '#ft-pl-panel{position:absolute; right:2.2%; top:15%; width:min(30%,430px); max-height:64%; pointer-events:auto;'+
+      /* 幅をステージ脇に収まるサイズへ縮小（screen 右端 76.61% を侵食しないように） */
+      '#ft-pl-panel{position:absolute; right:10px; top:15%; width:min(21vw,400px); max-height:64%; pointer-events:auto;'+
         'background:linear-gradient(180deg, rgba(8,15,11,.78), rgba(6,11,9,.86)); border:1px solid rgba(150,190,160,.22);'+
         'border-radius:14px; -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); box-shadow:0 24px 60px -22px rgba(0,0,0,.7); display:flex; flex-direction:column; overflow:hidden;}'+
       '#ft-pl-head{padding:15px 16px 10px;}'+
@@ -715,13 +727,18 @@
       '.pl-vrow.noembed{opacity:.5;}'+
       '.pl-vrow.noembed .pl-vt::after{content:" · 埋め込み不可"; color:#e7677a; font-size:10px;}'+
       /* 世界観重視: マウスが数秒止まったらUIを隠す */
-      '#ft-pl-panel, #ft-pl-dock, header{transition:opacity .6s ease;}'+
+      '#ft-pl-panel, #ft-pl-dock, #ft-used, header{transition:opacity .25s ease;}'+
       'body.ft-ui-idle #ft-pl-panel, body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
       'body.ft-ui-idle header{opacity:0; pointer-events:none;}'+
       'body.ft-ui-idle{cursor:none;}'+
       'body.ft-ui-idle #ft-used{opacity:0; pointer-events:none;}'+
+      /* YT バー操作中は周囲パネルを薄く＋クリックスルー化（ボタン/音量バーが押せる） */
+      'body.ft-yt-active #ft-pl-panel, body.ft-yt-active #ft-used{opacity:.32; pointer-events:none;}'+
+      /* ただしパネル上にカーソルがあるときは即座に戻して操作可能に */
+      'body.ft-hover-ui #ft-pl-panel, body.ft-hover-ui #ft-used{opacity:1!important; pointer-events:auto!important;}'+
       /* 左カード: この映像で使われている曲 */
-      '#ft-used{position:fixed; left:2.2%; top:15%; width:min(25%,370px); max-height:64%; z-index:12; pointer-events:auto; display:none; flex-direction:column; transition:opacity .6s ease;'+
+      /* 左カードも同様にステージ脇に収める（screen 左端 25.11% を侵食しないように） */
+      '#ft-used{position:fixed; left:10px; top:15%; width:min(21vw,360px); max-height:64%; z-index:12; pointer-events:auto; display:none; flex-direction:column; transition:opacity .6s ease;'+
         'background:linear-gradient(180deg, rgba(8,15,11,.78), rgba(6,11,9,.86)); border:1px solid rgba(150,190,160,.22); border-radius:14px; -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); box-shadow:0 24px 60px -22px rgba(0,0,0,.7); overflow:hidden;}'+
       '#ft-used.on{display:flex;}'+
       '#ft-used.admin{border-color:rgba(231,202,124,.5);}'+
@@ -833,8 +850,8 @@
   document.addEventListener('pointerdown', uiWake, { passive:true });
   function bindUIHover(el){
     if(!el) return;
-    el.addEventListener('pointerenter', function(){ hoveringUI=true; uiWake(); });
-    el.addEventListener('pointerleave', function(){ hoveringUI=false; uiWake(); });
+    el.addEventListener('pointerenter', function(){ hoveringUI=true; document.body.classList.add('ft-hover-ui'); uiWake(); });
+    el.addEventListener('pointerleave', function(){ hoveringUI=false; document.body.classList.remove('ft-hover-ui'); uiWake(); });
   }
   function renderPlaylist(i){
     var p=PLAYLISTS[i]; if(!p || p._hidden) return; plActive=i;
