@@ -422,8 +422,9 @@
   }
 
   btn&&btn.addEventListener('click',()=>{ if(!btn.disabled) start(); });
-  // 操縦席へ戻る: 共通の金ピル(return-to-theater.js #htr-scene)から呼ぶ。旧 .sd-exit.l は撤去。
-  window.__toCockpit = function(){ leave(false); };
+  // 景色の中のナビは共通の金ピル(return-to-theater.js)から呼ぶ。旧 .sd-exit.l/.r は撤去。
+  window.__toCockpit = function(){ leave(false); };   // #htr-scene「操縦席へ戻る」
+  window.__toStarMap = function(){ leave(true); };    // #htr-cockpit「星図に戻る」(景色を閉じてハブへ)
   exitCp && exitCp.addEventListener('click',()=>leave(false));   // 旧ボタンが在る場合の後方互換
   exitHub && exitHub.addEventListener('click',()=>leave(true));
   document.addEventListener('keydown',e=>{

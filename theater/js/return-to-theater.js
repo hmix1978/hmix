@@ -49,13 +49,15 @@
         'margin-left:calc(8px*var(--p,0)); max-width:calc(170px*var(--p,0)); opacity:var(--p,0); overflow:hidden; color:rgba(238,240,234,.92);' +
         'transition:max-width .45s cubic-bezier(.16,1,.3,1), opacity .35s ease, margin-left .45s ease;' +
       '}' +
-      /* 文脈ピル: 状態で出し入れ（既定は隠す） */
+      /* 文脈ピル: 状態で出し入れ（既定は隠す）。左上に最大2段で重ねる。 */
       '#htr-cockpit, #htr-scene{ opacity:0; pointer-events:none; transform:translateY(-7px) scale(.98); }' +
+      /* コックピット中: 星図に戻る を上段に1つ */
       'body[data-mode="dock"]:not([data-scene="on"]) #htr-cockpit{ opacity:calc(.5 + .48*var(--p,0)); pointer-events:auto; transform:scale(calc(1 + .06*var(--p,0))); }' +
+      /* 景色の中: 操縦席へ戻る(上段) ＋ 星図に戻る(下段) の2つを表示 */
       'body[data-scene="on"] #htr-scene{ opacity:calc(.5 + .48*var(--p,0)); pointer-events:auto; transform:scale(calc(1 + .06*var(--p,0))); }' +
-      /* 左肩に残るchromeは衝突回避で右へずらす */
+      'body[data-scene="on"] #htr-cockpit{ opacity:calc(.5 + .48*var(--p,0)); pointer-events:auto; transform:scale(calc(1 + .06*var(--p,0))); top:calc(clamp(14px,1.8vw,24px) + 52px); }' +
+      /* コックピットの左肩ラベル(objet)は衝突回避で右へずらす */
       'body[data-mode="dock"] .cp-top .seg-l{ padding-left:58px; }' +
-      'body[data-scene="on"] .sd-exits{ left:86px; }' +
       '@media (hover:none){ .htr-pill{ --p:1; } }' +
       '@media print{ .htr-pill{ display:none; } }';
     var st = document.createElement('style'); st.setAttribute('data-htr', '1'); st.textContent = css;
@@ -118,7 +120,10 @@
     // 2) tag-cockpit のみ: 星図に戻る / 操縦席へ戻る（左上・文脈で出現）
     if (document.getElementById('sceneDive')) {
       window.HMIX_makeReturnPill({ id: 'htr-cockpit', side: 'left', icon: '◂', kicker: 'STAR MAP', label: '星図に戻る', labelEn: 'To star map',
-        onClick: function(){ if (window.__back) window.__back(); } });
+        onClick: function(){
+          if (document.body.dataset.scene === 'on') { if (window.__toStarMap) window.__toStarMap(); }   // 景色からは閉じてハブへ
+          else { if (window.__back) window.__back(); }
+        } });
       window.HMIX_makeReturnPill({ id: 'htr-scene', side: 'left', icon: '◂', kicker: 'COCKPIT', label: '操縦席へ戻る', labelEn: 'To cockpit',
         onClick: function(){ if (window.__toCockpit) window.__toCockpit(); } });
     }
