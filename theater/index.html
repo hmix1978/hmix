@@ -892,7 +892,7 @@
     var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='';
     clearTimeout(idleT); document.body.classList.remove('ft-ui-idle');
   }
-  var idleT=0, idlePointer=null, WAKE_SPEED=820, WAKE_DIST=42;
+  var idleT=0, EDGE_REVEAL=40, EDGE_BOTTOM=64;   // 画面の左右端/下端からこの幅だけがドロワー誘発ゾーン
   function uiWake(force){
     if(!state.playlistMode) return;
     document.body.classList.remove('ft-ui-idle');
@@ -902,22 +902,19 @@
       if(state.playlistMode && !adminMode && !(plPlayingId && plAudio && !plAudio.paused)) document.body.classList.add('ft-ui-idle');
     }, 3000);
   }
+  // ドロワー誘発は「画面の左右端ギリギリ」または「UI(パネル/タブ)上」だけ。
+  // 中央＝映像/ネイティブ操作(全画面ボタン等)の上では出さず収納を維持する。
   function uiMove(ev){
     if(!state.playlistMode) return;
-    if(!ev || ev.pointerType === 'touch'){ uiWake(true); return; }
-    var now=(window.performance&&performance.now)?performance.now():Date.now();
-    var prev=idlePointer;
-    idlePointer={x:ev.clientX||0, y:ev.clientY||0, t:now};
     if(adminMode){ uiWake(true); return; }
-    if(document.body.classList.contains('ft-ui-idle')){
-      if(!prev) return;
-      var dx=idlePointer.x-prev.x, dy=idlePointer.y-prev.y, dist=Math.sqrt(dx*dx+dy*dy);
-      var dt=Math.max(16, now-prev.t);
-      var speed=dist/(dt/1000);
-      if(speed>=WAKE_SPEED || dist>=WAKE_DIST) uiWake(true);
-      return;
-    }
-    uiWake(true);
+    var ct = ev && ev.currentTarget;
+    if(ct && ct !== document && ct.nodeType === 1){ uiWake(true); return; }  // パネル/タブ上：出したまま延命
+    if(!ev || ev.pointerType === 'touch') return;                            // タッチはタブのタップで対応
+    var x = ev.clientX||0, y = ev.clientY||0;
+    var w = window.innerWidth || document.documentElement.clientWidth || 0;
+    var h = window.innerHeight || document.documentElement.clientHeight || 0;
+    // 左右端＝サイドパネル誘発、下端＝下部ドック(再生リスト選択/閉じる)誘発。中央(映像/全画面ボタン)では出さない。
+    if(x <= EDGE_REVEAL || x >= w - EDGE_REVEAL || y >= h - EDGE_BOTTOM) uiWake(true);
   }
   function bindUIHover(el){
     if(!el) return;
