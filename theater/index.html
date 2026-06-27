@@ -242,7 +242,7 @@
     { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
     { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
     { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' },
-    { key:'playlist', title:'プレイリスト', tag:'特集', meta:'シアターで観る・聴く', line:'制作実績や厳選プレイリストを、この劇場の中で。', cta:'ひらく', img:B+'youtube-latest.webp', playlist:true }
+    { key:'playlist', title:'制作実績', tag:'特集', meta:'シアターで観る・聴く', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:B+'youtube-latest.webp', playlist:true }
   ];
   // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
   // 既定値は目安。?cal=1 または Shift+C で微調整 → 背景ごとに localStorage 保存。
@@ -660,11 +660,30 @@
   function fmtDur(t){ if(t.duration) return t.duration; var s=t.durationSec||0,m=Math.floor(s/60),ss=Math.round(s%60); return m+':'+(ss<10?'0':'')+ss; }
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  var WORKS_USED_TRACKS = {
+    // 動画IDごとの使用曲データ。プレイリスト定義とは分けて保持する。
+    // Shift+A の登録フォームで「JSONをコピー」した内容は、このオブジェクトへ貼り付けると公開表示に反映される。
+    "rZi1Seibaho": [
+      { "id": "n71", "t": 1 },
+      { "id": "n82", "t": 49 },
+      { "id": "n69", "t": 147 }
+    ],
+    "F7WyPHQs8lo": [
+      { "id": "n149", "t": 0 }
+    ],
+    "wev_Mvk_KEk": [
+      { "id": "n130", "t": 0 }
+    ],
+    "G5HlvWAtCMY": [
+      { "id": "n82", "t": 9 }
+    ],
+    "icshbddktDE": [
+      { "id": "n97", "t": 7 }
+    ]
+  };
   var PLAYLISTS = [
-    { id:'works', type:'youtube', name:'制作実績 — 採用作品', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', yt:'PLRuMOP8RWDC96MDBohKVZG7UnmxQgRbqZ', titles:{"rZi1Seibaho":"雪組公演『るろうに剣心』制作発表会　ダイジェスト","F7WyPHQs8lo":"【公式PV】天倫の桜 | 佐倉市サムライRPG","9bFwkLfXA1Q":"テレビCM動画「クリーニング専科」（8のつく日は提携カードで8%オフ篇）（Crevo制作実績）","5oJLIptjyXQ":"テレビCM動画「TAKU Hi! ウーサー」（Crevo制作実績）","pLditcHvs5U":"2019 大曲の花火 ー秋の章ー 第4幕 フィナーレ花火「竹取物語」","wev_Mvk_KEk":"GUARDIAN OF THE FOREST FOR ATTA","_D000p1lPNY":"【MV】砂咲き山～風の松原ver.","XtPllO-Nhgw":"【短編映画】佐倉市市制施行70周年記念ムービー「未来へ」（上村奈帆 脚本・監督）※日本語字幕対応（2024/11/11）","2tZ498s3IxM":"【テーマ曲】はら、はらり","x_Ob4rE7YPo":"GC1【初めての話】ファンキー・中村とパウチが放つ怪談&バラエティ。2019年最新版です！ #実話怪談 #怪談 #怖い話","DX6Xe25Tnzw":"てらとまつRADIO＃01 天使降臨。(ゲスト：大空直美)","G5HlvWAtCMY":"アニメ『刀剣乱舞-花丸-』 ティザーPV第2弾","UkvJ8VcoQ08":"臨海副都心の新たなランドマークの設置について～ お台場海浜公園に噴水「東京アクアシンフォニー」を整備 ～","icshbddktDE":"ピアノめちゃめちゃ似合った（和風BGM）Pianocover  秋山裕和 (Hirokazu Akiyama)　「四ツ目神」 神曲　癒し音楽　＃月夜蝶","bgsd3qP0hSw":"YouTubeで100万回聞くやつLv.999999【ストリートピアノ】","rdglI0Skkts":"誰でもヒカキンになれるおもちゃ『ヒカキンボックス』がついに登場！【HIKAKIN BOX】","R1ATV8dfmM8":"Alice Mare OST - El Paradiso","i1EPBp3rdEo":"ヒミコ～知られざる旅 主題歌 「いつかの大地へ」MV","9zj7nmbn9ac":"『はら、はらり』劇場PV～牡丹","u8btriUVWFw":"《ダンスパフォーマンス》【オリジナル楽曲】日本開花（舞台「天地に咲く～幕末篇」より）エンディング","a-NbqHVmwPs":"【ネタバレ注意】アルパカにいさん Lv10〜ED(人間と神編) TR","c1efjlDg1mM":"iPhoneアプリ『繚乱三国演義』のチュートリアル（序盤プレイ）動画","Tz0yUUcGocQ":"オービットサーガ 公式プレイ動画","23EblubLBMg":"マッドファーザーより風寂の散歩道","HzrJtxAIYMI":"【MV】花よ、川よ、この大地よ","REiNeiVKoPc":"やむにやまれぬ蒼2024｜映像配信トレーラー","c-W34JOuckk":"やむにやまれぬ蒼2024～150年後の君へ～｜PV第2弾","tH3vj0iBpSE":"炎舞〜舞台【やむにやまれぬ蒼】より〜","kHJbcQL6qe8":"H/MIX GALLERY 14年ぶりの大リニューアル｜フリーBGM 302曲 / 和風・ファンタジー音楽素材"} },
-    { id:'wahoror', type:'tracks', name:'和風ホラー 名曲選', sub:'タグ自動 · 和風 / ホラー', icon:'♪', cls:'plM', tags:['japanese_horror','oriental'] },
-    { id:'battle',  type:'tracks', name:'戦闘・ボス戦',     sub:'タグ自動 · 戦闘 / ボス',  icon:'♪', cls:'plM', tags:['battle','boss'] },
-    { id:'suspense',type:'tracks', name:'緊迫・サスペンス',  sub:'タグ自動 · 緊迫 / 闇',    icon:'⟳', cls:'plA', tags:['suspense','dark'] }
+    { id:'works-a', type:'youtube', name:'制作実績 — リスト1', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', yt:'PLDu7Op6BS12E', titles:{} },
+    { id:'works-b', type:'youtube', name:'制作実績 — リスト2', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', yt:'PLJy2czsk77Rs', titles:{} }
   ];
   var plBuilt=false, plActive=0, plAudio=null, plPlayingId=null;
   var ytVidIds=[], ytTitles={};
@@ -735,8 +754,8 @@
       'body.ft-ui-idle header{opacity:0; pointer-events:none;}'+
       'body.ft-ui-idle{cursor:none;}'+
       'body.ft-ui-idle #ft-used{opacity:0; pointer-events:none;}'+
-      /* YT バー操作中は周囲パネルを薄く＋クリックスルー化（ボタン/音量バーが押せる） */
-      'body.ft-yt-active #ft-pl-panel, body.ft-yt-active #ft-used{opacity:.32; pointer-events:none;}'+
+      /* YT バー表示中も左右パネルは編集・選択できるように保つ（脇配置なので操作干渉しない） */
+      'body.ft-yt-active #ft-pl-panel, body.ft-yt-active #ft-used{opacity:.72; pointer-events:auto;}'+
       /* ただしパネル上にカーソルがあるときは即座に戻して操作可能に */
       'body.ft-hover-ui #ft-pl-panel, body.ft-hover-ui #ft-used{opacity:1!important; pointer-events:auto!important;}'+
       /* 左カード: この映像で使われている曲 */
@@ -756,6 +775,9 @@
       '.u-h{cursor:pointer; color:#e7ca7c; background:none; border:none; font-size:14px; flex:0 0 auto; line-height:1; padding:0;}'+
       '.u-h.on{color:#e7677a;}'+
       '.u-empty{padding:6px 4px 12px; font-size:11.5px; color:rgba(190,210,195,.5);}'+
+      '.u-listen{display:flex; align-items:center; gap:8px; margin:0 0 8px; padding:7px 9px; border-radius:9px; background:rgba(5,10,8,.45); border:1px solid rgba(120,160,135,.14);}'+
+      '.u-listen span{font-size:10px; color:rgba(190,210,195,.64); letter-spacing:.08em; white-space:nowrap;}'+
+      '.u-listen input{flex:1 1 auto; min-width:0; accent-color:#e7ca7c;}'+
       '.u-admin{border-top:1px dashed rgba(160,190,165,.28); margin:2px 12px 0; padding:12px 0 14px;}'+
       '.u-admin .lab{font-size:10px; letter-spacing:.12em; color:rgba(231,202,124,.9); font-family:"Bebas Neue",sans-serif; margin-bottom:8px;}'+
       '.u-search{width:100%; box-sizing:border-box; background:rgba(5,10,8,.7); border:1px solid rgba(140,180,150,.4); border-radius:8px; color:#eaf1ea; font-size:12.5px; padding:8px 10px; outline:none;}'+
@@ -802,7 +824,7 @@
     var pl=document.createElement('div'); pl.id='ft-pl';
     pl.innerHTML=
       '<div id="ft-pl-panel"><div id="ft-pl-head"><h4></h4><p></p></div><div id="ft-pl-body"></div></div>'+
-      '<div id="ft-pl-dock"><div class="dk"><b>PLAYLISTS — プレイリスト</b><button id="ft-pl-close" type="button">✕ 閉じる</button></div><div id="ft-pl-sel"></div></div>';
+      '<div id="ft-pl-dock"><div class="dk"><b>WORKS — 制作実績</b><button id="ft-pl-close" type="button">✕ 閉じる</button></div><div id="ft-pl-sel"></div></div>';
     document.body.appendChild(pl);
     var used=document.createElement('div'); used.id='ft-used'; document.body.appendChild(used);
     document.getElementById('ft-pl-close').addEventListener('click', closePlaylistMode);
@@ -840,15 +862,37 @@
     var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='';
     clearTimeout(idleT); document.body.classList.remove('ft-ui-idle');
   }
-  // パネル幅をステージ脇に収めたので auto-hide は停止（マウス動かす度に出戻る挙動が
-  // プレイヤーコントロール操作の邪魔だったため・Hiro feedback 2026-06）。
-  // uiWake/bindUIHover は呼び出し互換のために残すが、no-op。
-  var idleT=0, hoveringUI=false;
-  function uiWake(){
+  var idleT=0, idlePointer=null, WAKE_SPEED=820, WAKE_DIST=42;
+  function uiWake(force){
+    if(!state.playlistMode) return;
     document.body.classList.remove('ft-ui-idle');
     clearTimeout(idleT);
+    if(adminMode) return;
+    idleT = setTimeout(function(){
+      if(state.playlistMode && !adminMode) document.body.classList.add('ft-ui-idle');
+    }, 3500);
   }
-  function bindUIHover(el){ /* no-op: auto-hide 停止により不要 */ }
+  function uiMove(ev){
+    if(!state.playlistMode) return;
+    if(!ev || ev.pointerType === 'touch'){ uiWake(true); return; }
+    var now=(window.performance&&performance.now)?performance.now():Date.now();
+    var prev=idlePointer;
+    idlePointer={x:ev.clientX||0, y:ev.clientY||0, t:now};
+    if(adminMode){ uiWake(true); return; }
+    if(document.body.classList.contains('ft-ui-idle')){
+      if(!prev) return;
+      var dx=idlePointer.x-prev.x, dy=idlePointer.y-prev.y, dist=Math.sqrt(dx*dx+dy*dy);
+      var dt=Math.max(16, now-prev.t);
+      var speed=dist/(dt/1000);
+      if(speed>=WAKE_SPEED || dist>=WAKE_DIST) uiWake(true);
+      return;
+    }
+    uiWake(true);
+  }
+  function bindUIHover(el){
+    if(!el) return;
+    el.addEventListener('pointermove', uiMove, { passive:true });
+  }
   function renderPlaylist(i){
     var p=PLAYLISTS[i]; if(!p || p._hidden) return; plActive=i;
     var cards=document.querySelectorAll('#ft-pl-sel .plc');
@@ -888,11 +932,18 @@
     }
   }
   function clearPlayingRows(){ var r=document.querySelectorAll('#ft-pl-body .pl-row.playing'); for(var i=0;i<r.length;i++) r[i].classList.remove('playing'); }
+  var PLVOLK='hmix.theater.previewVol', plVol=0.8;
+  try{ var pv=parseFloat(localStorage.getItem(PLVOLK)); if(isFinite(pv)) plVol=Math.max(0,Math.min(1,pv)); }catch(_){}
+  function setPreviewVolume(v){
+    plVol=Math.max(0,Math.min(1,Number(v)||0));
+    try{ localStorage.setItem(PLVOLK, String(plVol)); }catch(_){}
+    if(plAudio) plAudio.volume=plVol;
+  }
   function previewTrack(t, row){
     if(!plAudio){ plAudio=new Audio(); plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; }); }
     var np=document.getElementById('ft-pl-np');
     if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent='▶ で試聴'; return; }
-    plAudio.src=t.mp3; var pr=plAudio.play(); if(pr&&pr.catch) pr.catch(function(){});
+    plAudio.src=t.mp3; plAudio.volume=plVol; var pr=plAudio.play(); if(pr&&pr.catch) pr.catch(function(){});
     plPlayingId=t.id; clearPlayingRows(); if(row) row.classList.add('playing'); if(np) np.textContent='♪ '+t.title;
   }
 
@@ -900,10 +951,29 @@
   var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={}, ytCurVid=null, ytErrStreak=0;
   function loadUsed(){ try{ return JSON.parse(localStorage.getItem(USEDK)||'{}'); }catch(_){ return {}; } }
   function saveUsed(m){ try{ localStorage.setItem(USEDK, JSON.stringify(m)); }catch(_){} }
-  function baseUsed(vid){ var p=PLAYLISTS[plActive]; return (p&&p.tracks&&p.tracks[vid])?p.tracks[vid].slice():[]; }
+  function baseUsed(vid){ return (WORKS_USED_TRACKS&&WORKS_USED_TRACKS[vid])?WORKS_USED_TRACKS[vid].slice():[]; }
   function usedFor(vid){ var m=loadUsed(); return m[vid]!=null ? m[vid] : baseUsed(vid); }
   function trackById(id){ var T=window.TRACKS||[]; for(var i=0;i<T.length;i++) if(String(T[i].id)===String(id)) return T[i]; return null; }
   function fmtSec(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60),ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  function currentVideoTime(){
+    try{
+      if(ytPlayer && ytPlayer.getCurrentTime){
+        var t = ytPlayer.getCurrentTime();
+        if(isFinite(t)) return Math.max(0, Math.floor(t));
+      }
+    }catch(e){}
+    return Math.max(0, Math.floor(adminNow||0));
+  }
+  function trackSearchText(t){
+    return [
+      t && t.id,
+      t && t.title,
+      t && t.title_en,
+      t && t.subtitle,
+      t && t.description,
+      t && t.description_en
+    ].join(' ').toLowerCase();
+  }
   // 現在の動画ID：playlistIndex 経由を最優先（切替直後も確実）。getVideoData はフォールバック
   function curVideoId(){
     try{ if(ytPlayer&&ytPlayer.getPlaylist&&ytPlayer.getPlaylistIndex){
@@ -930,12 +1000,14 @@
     var p=PLAYLISTS[plActive];
     if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); return; }
     var list=usedFor(vid)||[];
-    // 空でも常にカードを出す（登録済みなのに見えない問題を解消・どの映像が空かが一目で分かる）
+    // 公開側では空カードを出さない。登録モードだけ、未登録動画の確認用に表示する。
+    if(!list.length && !adminMode){ card.classList.remove('on'); card.innerHTML=''; return; }
     card.classList.add('on'); card.classList.toggle('admin', adminMode);
     var d; try{ d=ytPlayer&&ytPlayer.getVideoData&&ytPlayer.getVideoData(); }catch(e){}
     var vt=(d&&d.title)||'';
     var h='<div class="uh">この映像で使われている曲<small>'+esc(vt)+'</small></div><div class="ubody">';
-    if(!list.length) h+='<div class="u-empty">この映像にはまだ使用曲が登録されていません'+(adminMode?'（下のフォームで追加）':'<br><span style="font-size:10px;color:rgba(190,210,195,.45);">Shift+A で登録モード</span>')+'</div>';
+    if(!list.length) h+='<div class="u-empty">この映像にはまだ使用曲が登録されていません（下のフォームで追加）</div>';
+    else h+='<div class="u-listen"><span>試聴音量</span><input id="u-preview-vol" type="range" min="0" max="100" value="'+Math.round(plVol*100)+'" step="1" aria-label="使用曲の試聴音量"></div>';
     list.forEach(function(u,i){
       var t=(u.t!=null)?fmtSec(u.t):'';
       if(u.id){ var tr=trackById(u.id);
@@ -947,7 +1019,7 @@
     h+='</div>';
     if(adminMode){
       h+='<div class="u-admin"><div class="lab">🔒 使用楽曲の登録（秋山用） · 現在 <span class="u-time" id="u-now">'+fmtSec(adminNow)+'</span></div>'+
-         '<input class="u-search" id="u-search" placeholder="曲名を数文字入力 → 候補から選ぶ" autocomplete="off">'+
+         '<input class="u-search" id="u-search" placeholder="曲名を打つと候補が出ます" autocomplete="off">'+
          '<div class="u-cands" id="u-cands"></div>'+
          '<div class="u-arow"><button class="u-btn" id="u-unrel">＋ 未公開曲</button><button class="u-btn gold" id="u-export">JSONをコピー</button></div></div>';
     }
@@ -957,21 +1029,24 @@
     [].forEach.call(card.querySelectorAll('[data-fav]'), function(el){ el.addEventListener('click', function(){ var on=toggleFavId(el.getAttribute('data-fav')); el.classList.toggle('on',on); el.textContent=on?'♥':'♡'; }); });
     [].forEach.call(card.querySelectorAll('[data-play]'), function(el){ el.addEventListener('click', function(){ var t=trackById(el.getAttribute('data-play')); if(t) previewTrack(t, null); }); });
     [].forEach.call(card.querySelectorAll('[data-del]'), function(el){ el.addEventListener('click', function(){ delUsed(vid, +el.getAttribute('data-del')); }); });
+    var pv=card.querySelector('#u-preview-vol'); if(pv) pv.addEventListener('input', function(){ setPreviewVolume((+pv.value||0)/100); });
     if(adminMode){
       var s=card.querySelector('#u-search'), box=card.querySelector('#u-cands');
       if(s){ s.addEventListener('input', function(){
         var q=(s.value||'').trim().toLowerCase(); if(!q){ box.innerHTML=''; return; }
         var T=window.TRACKS||[], r=[];
-        for(var i=0;i<T.length && r.length<8;i++){ var t=T[i]; if((t.title&&t.title.toLowerCase().indexOf(q)>=0)||(t.title_en&&t.title_en.toLowerCase().indexOf(q)>=0)||String(t.id).toLowerCase()===q) r.push(t); }
+        for(var i=0;i<T.length && r.length<8;i++){ var t=T[i]; if(trackSearchText(t).indexOf(q)>=0) r.push(t); }
         box.innerHTML=r.map(function(t){ return '<div class="u-cand" data-id="'+t.id+'">'+esc(t.title)+'<small>'+esc(t.title_en||'')+' · '+t.id+'</small></div>'; }).join('');
-        [].forEach.call(box.querySelectorAll('.u-cand'), function(el){ el.addEventListener('click', function(){ addUsed(vid, {id:el.getAttribute('data-id'), t:Math.floor(adminNow||0)}); }); });
+        [].forEach.call(box.querySelectorAll('.u-cand'), function(el){ el.addEventListener('click', function(){
+          addUsed(vid, {id:el.getAttribute('data-id'), t:currentVideoTime()});
+        }); });
       }); }
-      var un=card.querySelector('#u-unrel'); if(un) un.addEventListener('click', function(){ var nm=prompt('未公開曲の名前'); if(nm) addUsed(vid, {name:nm, unreleased:true, t:Math.floor(adminNow||0)}); });
+      var un=card.querySelector('#u-unrel'); if(un) un.addEventListener('click', function(){ var nm=prompt('未公開曲の名前'); if(nm) addUsed(vid, {name:nm, unreleased:true, t:currentVideoTime()}); });
       var ex=card.querySelector('#u-export'); if(ex) ex.addEventListener('click', function(){
-        // PLAYLISTS[].tracks にそのまま貼れる形で書き出す
+        // WORKS_USED_TRACKS にそのまま貼れる形で書き出す
         var data=loadUsed();
         var body=JSON.stringify(data, null, 2);
-        var txt='// PLAYLISTS[].tracks に貼り付け（' + Object.keys(data).length + '本分）\ntracks: ' + body + ',';
+        var txt='// WORKS_USED_TRACKS に貼り付け（' + Object.keys(data).length + '本分）\n' + body;
         try{ navigator.clipboard.writeText(txt); ex.textContent='コピーしました ✓'; setTimeout(function(){ ex.textContent='JSONをコピー'; },1600); }catch(e){ prompt('コピーしてください', txt); }
       });
     }
@@ -1224,6 +1299,7 @@
   calLayer.addEventListener('pointerdown', onCalDown);
   $('ft-media-close').addEventListener('click', function(){ if(state.playlistMode) closePlaylistMode(); else closeMedia(); });
   document.addEventListener('keydown', onKey);
+  document.addEventListener('pointermove', uiMove, { passive:true });
   document.addEventListener('pointermove', onDocMove);
   document.addEventListener('pointerup', onDocUp);
 
