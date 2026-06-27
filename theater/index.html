@@ -663,6 +663,17 @@
   var WORKS_USED_TRACKS = {
     // 動画IDごとの使用曲データ。プレイリスト定義とは分けて保持する。
     // Shift+A の登録フォームで「JSONをコピー」した内容は、このオブジェクトへ貼り付けると公開表示に反映される。
+    // ── リスト1（演奏動画）使用曲 ──
+    "bgsd3qP0hSw": [ { "id": "n74", "t": 201 } ],
+    "4eF5SbnV48s": [ { "id": "v2", "t": 6 } ],
+    "mzIS17ZOuAA": [ { "id": "n16", "t": 5 } ],
+    "DqnvgbQa524": [ { "id": "m2", "t": 8 } ],
+    "u8btriUVWFw": [ { "id": "n111", "t": 11 } ],
+    "23EblubLBMg": [ { "id": "c7", "t": 5 } ],
+    "HzrJtxAIYMI": [ { "id": "n59", "t": 11 } ],
+    "REiNeiVKoPc": [ { "id": "n82", "t": 7 } ],
+    "c-W34JOuckk": [ { "id": "n103", "t": 12 } ],
+    // ── リスト2（制作/収録実績）使用曲 ──
     "rZi1Seibaho": [
       { "id": "n71", "t": 1 },
       { "id": "n82", "t": 49 },
@@ -711,6 +722,7 @@
       '.pl-dur{font-size:11px; color:rgba(200,220,205,.7); flex:0 0 auto;}'+
       '.pl-mini{font-size:10.5px; padding:5px 9px; border-radius:16px; border:1px solid rgba(160,190,165,.32); color:#e7ca7c; white-space:nowrap; flex:0 0 auto; text-decoration:none; cursor:pointer; background:none; line-height:1;}'+
       '.pl-mini.play{background:rgba(231,202,124,.14);}'+
+      '.pl-mini.is-playing,.u-mini.is-playing{background:rgba(231,202,124,.28); color:#fff; border-color:rgba(231,202,124,.75); font-weight:700;}'+
       '.pl-note{font-size:12px; line-height:1.85; color:rgba(206,222,206,.72); padding:6px 4px;}'+
       '.pl-note a{color:#e7ca7c;}'+
       '#ft-pl-dock{position:absolute; left:0; right:0; bottom:0; pointer-events:auto; padding:12px clamp(20px,3vw,40px) 16px; background:linear-gradient(180deg, rgba(5,9,7,0), rgba(5,9,7,.55) 45%, rgba(5,9,7,.85));}'+
@@ -748,19 +760,28 @@
       /* 使用曲が登録されている映像に小さなバッジを出す */
       '.pl-vused{margin-top:3px; display:inline-block; font-family:"Bebas Neue",sans-serif; font-size:9px; letter-spacing:.1em; color:#e7ca7c; border:1px solid rgba(231,202,124,.45); border-radius:9px; padding:1px 6px; line-height:1.4;}'+
       '.pl-vused::before{content:"♪ "; color:#e7ca7c;}'+
-      /* 世界観重視: マウスが数秒止まったらUIを隠す */
-      '#ft-pl-panel, #ft-pl-dock, #ft-used, header{transition:opacity .25s ease;}'+
-      'body.ft-ui-idle #ft-pl-panel, body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
+      /* 世界観重視: 数秒静止でパネルをサイドへスライド収納し、エッジタブで再表示（ドロワー） */
+      '#ft-pl-panel, #ft-pl-dock, #ft-used, header{transition:opacity .25s ease, transform .5s cubic-bezier(.22,1,.36,1);}'+
+      'body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
       'body.ft-ui-idle header{opacity:0; pointer-events:none;}'+
-      'body.ft-ui-idle{cursor:none;}'+
-      'body.ft-ui-idle #ft-used{opacity:0; pointer-events:none;}'+
+      'body.ft-ui-idle #ft-used{transform:translateX(calc(-100% - 22px)); opacity:0; pointer-events:none;}'+
+      'body.ft-ui-idle #ft-pl-panel{transform:translateX(calc(100% + 22px)); opacity:0; pointer-events:none;}'+
+      /* エッジタブ（収納中のみ表示・ホバー/クリックで両側からスライド復帰） */
+      '.ft-edge-tab{position:fixed; top:50%; transform:translateY(-50%); z-index:13; display:inline-flex; align-items:center; gap:7px; writing-mode:vertical-rl; padding:16px 8px; cursor:pointer; background:linear-gradient(180deg, rgba(10,18,13,.9), rgba(6,11,9,.94)); border:1px solid rgba(150,190,160,.34); color:rgba(231,202,124,.92); font-family:"Noto Sans JP",sans-serif; font-size:12px; letter-spacing:.14em; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); box-shadow:0 12px 32px -12px rgba(0,0,0,.6); opacity:0; pointer-events:none; transition:opacity .35s ease, color .2s, background .2s, border-color .2s;}'+
+      '#ft-used-tab{left:0; border-radius:0 12px 12px 0; border-left:none;}'+
+      '#ft-pl-tab{right:0; border-radius:12px 0 0 12px; border-right:none;}'+
+      '.ft-edge-tab .et-ico{writing-mode:horizontal-tb; font-size:13px; color:#e7ca7c;}'+
+      'body.ft-pl-on.ft-ui-idle #ft-pl-tab{opacity:1; pointer-events:auto;}'+
+      'body.ft-pl-on.ft-ui-idle.ft-has-used #ft-used-tab{opacity:1; pointer-events:auto;}'+
+      '.ft-edge-tab:hover{color:#fff; border-color:rgba(231,202,124,.75); background:rgba(22,34,24,.96);}'+
+      '@media (prefers-reduced-motion:reduce){ #ft-pl-panel,#ft-used,#ft-pl-dock,header{transition:opacity .2s ease!important;} body.ft-ui-idle #ft-used,body.ft-ui-idle #ft-pl-panel{transform:none;} }'+
       /* YT バー表示中も左右パネルは編集・選択できるように保つ（脇配置なので操作干渉しない） */
       'body.ft-yt-active #ft-pl-panel, body.ft-yt-active #ft-used{opacity:.72; pointer-events:auto;}'+
       /* ただしパネル上にカーソルがあるときは即座に戻して操作可能に */
       'body.ft-hover-ui #ft-pl-panel, body.ft-hover-ui #ft-used{opacity:1!important; pointer-events:auto!important;}'+
       /* 左カード: この映像で使われている曲 */
       /* 左カードも同様にステージ脇に収める（screen 左端 25.11% を侵食しないように） */
-      '#ft-used{position:fixed; left:10px; top:15%; width:min(21vw,360px); max-height:64%; z-index:12; pointer-events:auto; display:none; flex-direction:column; transition:opacity .6s ease;'+
+      '#ft-used{position:fixed; left:10px; top:15%; width:min(21vw,360px); max-height:64%; z-index:12; pointer-events:auto; display:none; flex-direction:column; transition:opacity .45s ease, transform .5s cubic-bezier(.22,1,.36,1);'+
         'background:linear-gradient(180deg, rgba(8,15,11,.78), rgba(6,11,9,.86)); border:1px solid rgba(150,190,160,.22); border-radius:14px; -webkit-backdrop-filter:blur(9px); backdrop-filter:blur(9px); box-shadow:0 24px 60px -22px rgba(0,0,0,.7); overflow:hidden;}'+
       '#ft-used.on{display:flex;}'+
       '#ft-used.admin{border-color:rgba(231,202,124,.5);}'+
@@ -831,6 +852,15 @@
     bindUIHover(document.getElementById('ft-pl-panel'));
     bindUIHover(document.getElementById('ft-pl-dock'));
     bindUIHover(used);
+    // エッジタブ（収納時に常駐・ホバー/クリックで両側からスライド復帰）
+    var usedTab=document.createElement('button'); usedTab.id='ft-used-tab'; usedTab.className='ft-edge-tab'; usedTab.type='button'; usedTab.innerHTML='<span class="et-ico">♪</span>使用曲';
+    var plTab=document.createElement('button'); plTab.id='ft-pl-tab'; plTab.className='ft-edge-tab'; plTab.type='button'; plTab.innerHTML='<span class="et-ico">▶</span>収録映像';
+    document.body.appendChild(usedTab); document.body.appendChild(plTab);
+    [usedTab, plTab].forEach(function(tb){
+      tb.addEventListener('click', function(){ uiWake(true); });
+      tb.addEventListener('mouseenter', function(){ uiWake(true); });
+      bindUIHover(tb);
+    });
 
     var sel=document.getElementById('ft-pl-sel');
     PLAYLISTS.forEach(function(p, i){
@@ -869,8 +899,8 @@
     clearTimeout(idleT);
     if(adminMode) return;
     idleT = setTimeout(function(){
-      if(state.playlistMode && !adminMode) document.body.classList.add('ft-ui-idle');
-    }, 3500);
+      if(state.playlistMode && !adminMode && !(plPlayingId && plAudio && !plAudio.paused)) document.body.classList.add('ft-ui-idle');
+    }, 3000);
   }
   function uiMove(ev){
     if(!state.playlistMode) return;
@@ -939,12 +969,30 @@
     try{ localStorage.setItem(PLVOLK, String(plVol)); }catch(_){}
     if(plAudio) plAudio.volume=plVol;
   }
+  // 試聴ボタンの▶/■を再生状態に同期（使用曲カード＋トラック行）
+  function updatePreviewIcons(){
+    var on = !!(plPlayingId && plAudio && !plAudio.paused);
+    [].forEach.call(document.querySelectorAll('#ft-used [data-play]'), function(b){
+      var pl = on && String(b.getAttribute('data-play'))===String(plPlayingId);
+      b.textContent = pl ? '■' : '▶'; b.classList.toggle('is-playing', !!pl);
+      b.setAttribute('title', pl ? '停止' : '試聴');
+    });
+    [].forEach.call(document.querySelectorAll('#ft-pl-body .pl-row'), function(r){
+      var b=r.querySelector('.play'); if(!b) return;
+      var pl = on && String(r.getAttribute('data-id'))===String(plPlayingId);
+      b.textContent = pl ? '■' : '▶'; b.classList.toggle('is-playing', !!pl);
+    });
+  }
   function previewTrack(t, row){
-    if(!plAudio){ plAudio=new Audio(); plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; }); }
+    if(!plAudio){ plAudio=new Audio();
+      plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; var np=document.getElementById('ft-pl-np'); if(np) np.textContent='▶ で試聴'; updatePreviewIcons(); });
+      plAudio.addEventListener('pause', updatePreviewIcons);
+      plAudio.addEventListener('play', updatePreviewIcons);
+    }
     var np=document.getElementById('ft-pl-np');
-    if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent='▶ で試聴'; return; }
+    if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent='▶ で試聴'; updatePreviewIcons(); return; }
     plAudio.src=t.mp3; plAudio.volume=plVol; var pr=plAudio.play(); if(pr&&pr.catch) pr.catch(function(){});
-    plPlayingId=t.id; clearPlayingRows(); if(row) row.classList.add('playing'); if(np) np.textContent='♪ '+t.title;
+    plPlayingId=t.id; clearPlayingRows(); if(row) row.classList.add('playing'); if(np) np.textContent='♪ '+t.title; updatePreviewIcons();
   }
 
   // ===== この映像で使われている曲（左カード）＋ 秋山用 裏フォーム =====
@@ -998,11 +1046,11 @@
     vid = vid || ytCurVid;
     var card=document.getElementById('ft-used'); if(!card) return;
     var p=PLAYLISTS[plActive];
-    if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); return; }
+    if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); document.body.classList.remove('ft-has-used'); return; }
     var list=usedFor(vid)||[];
     // 公開側では空カードを出さない。登録モードだけ、未登録動画の確認用に表示する。
-    if(!list.length && !adminMode){ card.classList.remove('on'); card.innerHTML=''; return; }
-    card.classList.add('on'); card.classList.toggle('admin', adminMode);
+    if(!list.length && !adminMode){ card.classList.remove('on'); card.innerHTML=''; document.body.classList.remove('ft-has-used'); return; }
+    card.classList.add('on'); document.body.classList.add('ft-has-used'); card.classList.toggle('admin', adminMode);
     var d; try{ d=ytPlayer&&ytPlayer.getVideoData&&ytPlayer.getVideoData(); }catch(e){}
     var vt=(d&&d.title)||'';
     var h='<div class="uh">この映像で使われている曲<small>'+esc(vt)+'</small></div><div class="ubody">';
@@ -1023,7 +1071,7 @@
          '<div class="u-cands" id="u-cands"></div>'+
          '<div class="u-arow"><button class="u-btn" id="u-unrel">＋ 未公開曲</button><button class="u-btn gold" id="u-export">JSONをコピー</button></div></div>';
     }
-    card.innerHTML=h; wireUsed(card, vid);
+    card.innerHTML=h; wireUsed(card, vid); updatePreviewIcons();
   }
   function wireUsed(card, vid){
     [].forEach.call(card.querySelectorAll('[data-fav]'), function(el){ el.addEventListener('click', function(){ var on=toggleFavId(el.getAttribute('data-fav')); el.classList.toggle('on',on); el.textContent=on?'♥':'♡'; }); });
