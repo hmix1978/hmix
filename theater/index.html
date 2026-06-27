@@ -30,6 +30,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
+<link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
 <style>
   html,body{ margin:0; padding:0; height:100%; background:#08140e; overflow:hidden; -webkit-font-smoothing:antialiased; }
   @keyframes flick{ 0%,100%{ opacity:1; } 46%{ opacity:.94; } 48%{ opacity:1; } 71%{ opacity:.97; } 73%{ opacity:1; } 88%{ opacity:.99; } }
@@ -57,6 +59,8 @@
   #ft-bg-switch svg{ color:#e7ca7c; }
   #ft-bg-name{ color:rgba(232,244,234,.96); }
   #ft-home:hover{ color:#e7ca7c; }
+  #ft-leaf-canvas{ position:absolute; inset:0; z-index:3; width:100%; height:100%; pointer-events:none; opacity:.72; mix-blend-mode:screen; }
+
   /* シアター内蔵YouTubeプレーヤー（自前操作バー・離脱防止シールド） */
   #ft-yt-ui{ position:absolute; inset:0; z-index:1; opacity:1; transition:opacity .4s ease; }
   #ft-yt-ui.ft-ui-hide{ opacity:0; }
@@ -85,6 +89,45 @@
   #ft-yt-vol{ flex:0 0 auto; width:clamp(44px,5vw,68px); }
   #ft-media:fullscreen, #ft-media:-webkit-full-screen{ left:0!important; top:0!important; width:100%!important; height:100%!important; }
   #ft-media:fullscreen #ft-media-inner, #ft-media:-webkit-full-screen #ft-media-inner{ -webkit-mask-image:none!important; mask-image:none!important; }
+
+  /* 今夜の上映 レール: 作品数が増えた時だけ横スライド */
+  #ft-rail{ max-width:min(54vw,720px); overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; cursor:grab; padding:14px 0 2px; }
+  #ft-rail::-webkit-scrollbar{ display:none; }
+  #ft-rail.dragging{ cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; }
+  #ft-rail .ft-prog{ flex:0 0 auto; scroll-snap-align:start; }
+  #ft-rail-wrap{ position:relative; }
+  .ft-chev{ position:absolute; top:34px; z-index:5; display:none; place-items:center; width:32px; height:32px; border-radius:50%; background:rgba(8,16,11,.66); border:1px solid rgba(120,160,135,.42); color:rgba(222,236,226,.92); font-family:'Bebas Neue',sans-serif; font-size:19px; line-height:1; cursor:pointer; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:0 6px 18px -6px rgba(0,0,0,.7); transform:translateY(-50%); transition:border-color .2s, color .2s, background .2s; }
+  #ft-rail-prev{ left:-11px; }
+  #ft-rail-next{ right:-11px; }
+  .ft-chev:hover{ border-color:rgba(230,200,122,.7); color:#fff; background:rgba(10,20,14,.82); }
+
+  @media (max-width: 600px){
+    #ft-stage{ width:162vw !important; top:5vh !important; transform:translateX(-50%) !important; }
+    #ft-dock{
+      flex-direction:column !important;
+      align-items:stretch !important;
+      justify-content:flex-end !important;
+      bottom:0 !important;
+      gap:18px !important;
+      padding:0 22px calc(20px + env(safe-area-inset-bottom,0px)) !important;
+    }
+    #ft-info{ flex:none !important; }
+    #ft-title{ font-size:30px !important; }
+    #ft-meta{ font-size:11px !important; }
+    #ft-line{ font-size:13px !important; max-width:none !important; margin-top:11px !important; line-height:1.7 !important; }
+    #ft-cta{ width:100%; justify-content:center; margin-top:18px !important; padding:15px 24px !important; }
+    #ft-now{ width:100% !important; align-items:stretch !important; }
+    #ft-rail{ max-width:none !important; gap:12px !important; padding:14px 0 4px; -webkit-mask-image:linear-gradient(to right, #000 0, #000 92%, transparent 100%); mask-image:linear-gradient(to right, #000 0, #000 92%, transparent 100%); }
+    #ft-rail-prev, #ft-rail-next{ display:none !important; }
+    .ft-prog{ width:118px !important; flex:0 0 auto !important; scroll-snap-align:start; }
+    .ft-prog:hover{ transform:translateY(-3px) !important; }
+    #ft-scrim{ background:linear-gradient(180deg, transparent 26%, rgba(6,16,11,.5) 52%, rgba(5,12,9,.97) 80%) !important; }
+    #ft-leaf-canvas{ display:none !important; }
+    header{ padding:14px 18px !important; }
+    #ft-bg-name{ display:none; }
+    #ft-bg-switch{ padding:8px 12px !important; }
+  }
+#hmix-fav-hub{ bottom: clamp(100px,17vh,168px) !important; }
 </style>
 </head>
 <body>
@@ -99,7 +142,7 @@
     <div id="ft-glow" style="position:absolute; left:50.86%; top:47.64%; width:62.8%; height:58.3%; transform:translate(-50%,-50%); border-radius:50%; filter:blur(60px); background:radial-gradient(circle at 50% 46%, rgba(170,205,160,.38), rgba(110,160,120,.13) 46%, transparent 72%); pointer-events:none; animation:glowPulse 9s ease-in-out infinite;"></div>
 
     <button id="ft-screen" type="button" aria-label="再生" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; padding:0; border:none; cursor:pointer; overflow:hidden; background:#070f0c; box-shadow:inset 0 0 0 1px rgba(180,210,180,.14), inset 0 0 70px rgba(0,0,0,.6);">
-      <img id="ft-screen-img" data-screen-img alt="" src="/theater/banners/starmap.webp?v=20260614b" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.06) brightness(1.03); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;">
+      <img id="ft-screen-img" data-screen-img alt="" src="https://www.hmix.net/theater/banners/starmap.webp?v=20260614b" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.06) brightness(1.03); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;">
       <div style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 16%, transparent 70%, rgba(0,0,0,.34));"></div>
       <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(120% 120% at 18% 8%, rgba(130,170,150,.14), transparent 52%);"></div>
       <div style="position:absolute; inset:-25%; pointer-events:none; opacity:.05; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;); background-size:170px; animation:grainShift 3.2s steps(4) infinite;"></div>
@@ -129,10 +172,11 @@
   </div>
 
   <!-- 下部の可読スクリム(ビューポート) -->
-  <div style="position:absolute; inset:0; z-index:4; pointer-events:none; background:linear-gradient(180deg, transparent 52%, rgba(6,16,11,.5) 72%, rgba(5,12,9,.95) 100%);"></div>
+  <canvas id="ft-leaf-canvas" aria-hidden="true"></canvas>
+  <div id="ft-scrim" style="position:absolute; inset:0; z-index:4; pointer-events:none; background:linear-gradient(180deg, transparent 52%, rgba(6,16,11,.5) 72%, rgba(5,12,9,.95) 100%);"></div>
 
   <!-- 下部ゾーン: 左に作品情報 / 右に今夜の上映(ビューポート) -->
-  <div id="ft-bottom" style="position:absolute; left:0; right:0; bottom:3.6%; z-index:6; display:flex; align-items:flex-end; justify-content:space-between; gap:clamp(28px,5vw,80px); padding:0 clamp(26px,5vw,90px);">
+  <div id="ft-dock" style="position:absolute; left:0; right:0; bottom:3.6%; z-index:6; display:flex; align-items:flex-end; justify-content:space-between; gap:clamp(28px,5vw,80px); padding:0 clamp(26px,5vw,90px);">
     <div id="ft-info" style="flex:1 1 50%; min-width:0;">
       <div style="opacity:1;">
         <div style="display:flex; align-items:center; gap:13px; margin-bottom:12px;">
@@ -144,9 +188,13 @@
         <button id="ft-cta" type="button" style="margin-top:24px; display:inline-flex; align-items:center; gap:11px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:.05em; color:#10231a; cursor:pointer; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:8px; padding:14px 32px; box-shadow:0 12px 36px -10px rgba(202,164,78,.5); transition:.25s;"><span style="font-size:13px;">▶</span> <span id="ft-cta-label">入場する</span></button>
       </div>
     </div>
-    <div style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
+    <div id="ft-now" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
       <div style="display:flex; align-items:center; gap:11px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.28em; color:rgba(150,194,165,.72);">今夜の上映<span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(150,194,165,.4), transparent);"></span></div>
-      <div id="ft-rail" style="display:flex; align-items:flex-start; gap:clamp(10px,1vw,16px);"></div>
+      <div id="ft-rail-wrap" style="position:relative;">
+        <button id="ft-rail-prev" class="ft-chev" type="button" aria-label="前へ">‹</button>
+        <div id="ft-rail" style="display:flex; align-items:flex-start; gap:clamp(10px,1vw,16px);"></div>
+        <button id="ft-rail-next" class="ft-chev" type="button" aria-label="次へ">›</button>
+      </div>
     </div>
   </div>
 
@@ -188,11 +236,12 @@
 <script src="/assets/js/tracks.js"></script>
 <script>
 (function(){
-  var B = '/theater/banners/';
+  var B = 'https://www.hmix.net/theater/banners/';
   var entries = [
-    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html' },
-    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/' },
+    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
+    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
     { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
+    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' },
     { key:'playlist', title:'プレイリスト', tag:'特集', meta:'シアターで観る・聴く', line:'制作実績や厳選プレイリストを、この劇場の中で。', cta:'ひらく', img:B+'youtube-latest.webp', playlist:true }
   ];
   // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
@@ -228,6 +277,7 @@
       bgImg=$('ft-bg-img'), bgName=$('ft-bg-name'), bgSwitch=$('ft-bg-switch'),
       elTag=$('ft-tag'), elMeta=$('ft-meta'), elTitle=$('ft-title'), elLine=$('ft-line'), elCtaLabel=$('ft-cta-label');
   var railEls = [];
+  var leafCanvas=$('ft-leaf-canvas'), leafCtx=leafCanvas&&leafCanvas.getContext?leafCanvas.getContext('2d'):null, leaves=[], leafRAF=0, leafLast=0, leafActive=false;
 
   function loadBgIndex(){ try{ var k=localStorage.getItem('forest.bg.v1'); for(var i=0;i<BGS.length;i++) if(BGS[i].key===k) return i; }catch(_){} return 0; }
   function curKey(){ return BGS[bgIndex].key; }
@@ -253,6 +303,7 @@
       if(bgImg) bgImg.setAttribute('src', g.img);
       if(bgName) bgName.textContent = g.title;
       applyBox(); updateReadout();
+      updateLeaves();
     }
     var pre = new Image();
     pre.onload = apply; pre.onerror = apply;
@@ -329,7 +380,8 @@
     if(e.playlist){ openPlaylistMode(); return; }        // シアター内プレイリスト（遷移しない）
     if(e.yt){ playInScreen('yt', e.yt); return; }       // YouTube をスクリーン内で
     if(e.film){ playInScreen('video', e.film); return; } // 自サーバー動画をスクリーン内で
-    if(e.href){ fadeNavigate(e.href, e.blank); return; } // 全画面コンテンツはフェードして遷移
+    var href = (e.mobileHref && window.matchMedia && window.matchMedia('(max-width: 600px)').matches) ? e.mobileHref : e.href;
+    if(href){ fadeNavigate(href, e.blank); return; } // 全画面コンテンツはフェードして遷移
   }
   // スクリーン枠の中で再生（動画 / YouTube）
   function playInScreen(kind, src){
@@ -462,13 +514,20 @@
           playBtn.innerHTML = playing ? YT_SVG.pause : YT_SVG.play;
           var dim = ui.querySelector('#ft-yt-dim');
           if(dim){ if(playing || ev.data === 3) dim.classList.remove('on'); else dim.classList.add('on'); }
-          if(playing){ showUI(); try{ hideNoEmbed(); }catch(e){} }
+          if(playing){ ytErrStreak=0; showUI(); try{ hideNoEmbed(); }catch(e){} }
           try{ ytSyncList(); }catch(e){}
         },
         'onError': function(ev){
           // 101/150 = 権利者が埋め込みを許可していない（100=削除/非公開）→ 印を付けて次へ
           if(ev.data===101 || ev.data===150 || ev.data===100){
             var vid=curVideoId(); if(vid){ ytNoEmbed[vid]=1; ytLastCur=-1; try{ ytSyncList(); }catch(e){} }
+            ytErrStreak++;
+            var total=0; try{ total=(ytPlayer.getPlaylist()||[]).length; }catch(e){}
+            if(total>0 && ytErrStreak>=total){
+              // 全動画が埋め込み不可 → 無限スキップを止める
+              try{ showAllNoEmbed(); }catch(e){}
+              return;
+            }
             try{ showNoEmbed(); }catch(e){}
             setTimeout(function(){ ytRel(1); }, 2600);
           }
@@ -551,6 +610,7 @@
       if(flash){ flash.style.transition='none'; flash.style.opacity='.85'; requestAnimationFrame(function(){ flash.style.transition='opacity .7s ease'; flash.style.opacity='0'; }); }
     }, 850);
   }
+
   // bfcache（戻る）対策: fadeNavigate で暗転(veil黒)のまま離脱→ブラウザが黒い状態で復元し、
   // projectorOn が再実行されず「戻ると真っ黒」になるのを防ぐ。復元時は即座にveilを消す。
   window.addEventListener('pageshow', function(e){
@@ -559,10 +619,30 @@
 
   // ===== シアター内プレイリスト（全画面にしない・この部屋の中で完結） =====
   var FAVK = 'hmix_favorites';
-  function favSet(){ try{ return new Set(JSON.parse(localStorage.getItem(FAVK)||'[]').map(String)); }catch(_){ return new Set(); } }
-  function favSave(s){ try{ localStorage.setItem(FAVK, JSON.stringify(Array.from(s))); window.dispatchEvent(new Event('favorites:updated')); }catch(_){} }
+  function favSet(){ try{ return new Set((window.HMIX_FAV ? window.HMIX_FAV.ids() : JSON.parse(localStorage.getItem(FAVK)||'[]')).map(String)); }catch(_){ return new Set(); } }
+  function favSave(s){
+    try{
+      if(window.HMIX_FAV){
+        var want=new Set(Array.from(s).map(String)), have=new Set(window.HMIX_FAV.ids());
+        have.forEach(function(id){ if(!want.has(id)) window.HMIX_FAV.remove(id); });
+        want.forEach(function(id){ if(!have.has(id)) window.HMIX_FAV.add(id); });
+        return;
+      }
+      localStorage.setItem(FAVK, JSON.stringify(Array.from(s))); window.dispatchEvent(new Event('favorites:updated'));
+    }catch(_){}
+  }
   function isFav(id){ return favSet().has(String(id)); }
-  function toggleFavId(id){ var s=favSet(); id=String(id); if(s.has(id)) s.delete(id); else s.add(id); favSave(s); return s.has(id); }
+  function toggleFavId(id){
+    id=String(id);
+    try{
+      if(window.HMIX_FAV){
+        if(window.HMIX_FAV.has(id)) window.HMIX_FAV.removeWithUndo ? window.HMIX_FAV.removeWithUndo(id) : window.HMIX_FAV.remove(id);
+        else window.HMIX_FAV.add(id);
+        return window.HMIX_FAV.has(id);
+      }
+    }catch(_){}
+    var s=favSet(); if(s.has(id)) s.delete(id); else s.add(id); favSave(s); return s.has(id);
+  }
   function allTags(t){ return [].concat(t.feeling||[], t.style||[], t.scene||[], t.story||[]).map(String); }
   function tracksByTags(tags){ var T=window.TRACKS||[]; tags=tags.map(String);
     return T.filter(function(t){ var a=allTags(t); for(var i=0;i<tags.length;i++) if(a.indexOf(tags[i])>=0) return true; return false; }); }
@@ -676,6 +756,9 @@
     document.body.appendChild(pl);
     var used=document.createElement('div'); used.id='ft-used'; document.body.appendChild(used);
     document.getElementById('ft-pl-close').addEventListener('click', closePlaylistMode);
+    bindUIHover(document.getElementById('ft-pl-panel'));
+    bindUIHover(document.getElementById('ft-pl-dock'));
+    bindUIHover(used);
 
     var sel=document.getElementById('ft-pl-sel');
     PLAYLISTS.forEach(function(p, i){
@@ -691,7 +774,7 @@
   function openPlaylistMode(){
     buildPlaylistUI();
     state.playlistMode = true;
-    var b=document.getElementById('ft-bottom'); if(b) b.style.display='none';
+    var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='none';
     document.getElementById('ft-pl').classList.add('on');
     renderPlaylist(0);
     uiWake();
@@ -702,19 +785,25 @@
     closeMedia();
     var p=document.getElementById('ft-pl'); if(p) p.classList.remove('on');
     var u=document.getElementById('ft-used'); if(u) u.classList.remove('on');
-    var b=document.getElementById('ft-bottom'); if(b) b.style.display='';
+    var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='';
     clearTimeout(idleT); document.body.classList.remove('ft-ui-idle');
   }
   // 世界観重視: プレイリストモード中、マウスが数秒止まったらUIを隠す
-  var idleT=0;
+  // ただしパネル上にカーソルがある間（読みかけ等）は隠さない
+  var idleT=0, hoveringUI=false;
   function uiWake(){
     document.body.classList.remove('ft-ui-idle');
     clearTimeout(idleT);
-    if(!state.playlistMode || adminMode) return;   // 登録作業中(admin)は消さない
-    idleT = setTimeout(function(){ if(state.playlistMode && !adminMode) document.body.classList.add('ft-ui-idle'); }, 3000);
+    if(!state.playlistMode || adminMode || hoveringUI) return;
+    idleT = setTimeout(function(){ if(state.playlistMode && !adminMode && !hoveringUI) document.body.classList.add('ft-ui-idle'); }, 8000);
   }
   document.addEventListener('pointermove', uiWake, { passive:true });
   document.addEventListener('pointerdown', uiWake, { passive:true });
+  function bindUIHover(el){
+    if(!el) return;
+    el.addEventListener('pointerenter', function(){ hoveringUI=true; uiWake(); });
+    el.addEventListener('pointerleave', function(){ hoveringUI=false; uiWake(); });
+  }
   function renderPlaylist(i){
     var p=PLAYLISTS[i]; if(!p || p._hidden) return; plActive=i;
     var cards=document.querySelectorAll('#ft-pl-sel .plc');
@@ -724,7 +813,7 @@
     closeMedia();   // 前のYouTube/動画を破棄してクリーンに切替
 
     if(p.type==='youtube'){
-      ytVidIds=[]; ytLastCur=-1; ytCurVid=null;
+      ytVidIds=[]; ytLastCur=-1; ytCurVid=null; ytErrStreak=0;
       head.textContent='収録映像';
       sub.textContent='YouTubeに接続中…';
       if(!renderYTRows(p, Object.keys(p.titles||{}), 0, true)){
@@ -763,7 +852,7 @@
   }
 
   // ===== この映像で使われている曲（左カード）＋ 秋山用 裏フォーム =====
-  var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={}, ytCurVid=null;
+  var USEDK='hmix.theater.usedTracks', adminMode=false, adminNow=0, adminTimer=0, ytLastCur=-1, ytNoEmbed={}, ytCurVid=null, ytErrStreak=0;
   function loadUsed(){ try{ return JSON.parse(localStorage.getItem(USEDK)||'{}'); }catch(_){ return {}; } }
   function saveUsed(m){ try{ localStorage.setItem(USEDK, JSON.stringify(m)); }catch(_){} }
   function baseUsed(vid){ var p=PLAYLISTS[plActive]; return (p&&p.tracks&&p.tracks[vid])?p.tracks[vid].slice():[]; }
@@ -833,7 +922,13 @@
         [].forEach.call(box.querySelectorAll('.u-cand'), function(el){ el.addEventListener('click', function(){ addUsed(vid, {id:el.getAttribute('data-id'), t:Math.floor(adminNow||0)}); }); });
       }); }
       var un=card.querySelector('#u-unrel'); if(un) un.addEventListener('click', function(){ var nm=prompt('未公開曲の名前'); if(nm) addUsed(vid, {name:nm, unreleased:true, t:Math.floor(adminNow||0)}); });
-      var ex=card.querySelector('#u-export'); if(ex) ex.addEventListener('click', function(){ var txt=JSON.stringify(loadUsed()); try{ navigator.clipboard.writeText(txt); ex.textContent='コピーしました ✓'; setTimeout(function(){ ex.textContent='JSONをコピー'; },1600); }catch(e){ prompt('コピーしてください', txt); } });
+      var ex=card.querySelector('#u-export'); if(ex) ex.addEventListener('click', function(){
+        // PLAYLISTS[].tracks にそのまま貼れる形で書き出す
+        var data=loadUsed();
+        var body=JSON.stringify(data, null, 2);
+        var txt='// PLAYLISTS[].tracks に貼り付け（' + Object.keys(data).length + '本分）\ntracks: ' + body + ',';
+        try{ navigator.clipboard.writeText(txt); ex.textContent='コピーしました ✓'; setTimeout(function(){ ex.textContent='JSONをコピー'; },1600); }catch(e){ prompt('コピーしてください', txt); }
+      });
     }
   }
   function toggleAdmin(){
@@ -848,6 +943,14 @@
       m.style.cssText='position:absolute; inset:0; z-index:4; display:grid; place-items:center; text-align:center; padding:0 8%; background:rgba(5,9,7,.86); color:rgba(238,240,234,.92); font-family:"Noto Sans JP",sans-serif; font-size:13px; line-height:1.8;';
       media.appendChild(m); }
     m.innerHTML='この映像は権利者の設定により<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">次の映像へ移動します…</span>';
+    m.style.display='grid';
+  }
+  function showAllNoEmbed(){
+    if(!media) return; var m=document.getElementById('ft-yt-msg');
+    if(!m){ m=document.createElement('div'); m.id='ft-yt-msg';
+      m.style.cssText='position:absolute; inset:0; z-index:4; display:grid; place-items:center; text-align:center; padding:0 8%; background:rgba(5,9,7,.86); color:rgba(238,240,234,.92); font-family:"Noto Sans JP",sans-serif; font-size:13px; line-height:1.8;';
+      media.appendChild(m); }
+    m.innerHTML='このプレイリストの映像は、現在すべて<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">右の一覧から個別に開くか、YouTube で直接ご覧ください。</span>';
     m.style.display='grid';
   }
   function hideNoEmbed(){ var m=document.getElementById('ft-yt-msg'); if(m) m.style.display='none'; }
@@ -904,6 +1007,152 @@
     if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(ytCurVid); }catch(e){} }
   }
 
+
+  function setupLeaves(){
+    if(!leafCanvas||!leafCtx) return;
+    window.addEventListener('resize', function(){ setTimeout(resizeLeaves,80); });
+    resizeLeaves();
+    updateLeaves();
+  }
+  function leavesAllowed(){
+    if(window.matchMedia && window.matchMedia('(max-width: 600px)').matches) return false;
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    var k = curKey();
+    return k === 'forest' || k === 'ruins';
+  }
+  function resizeLeaves(){
+    if(!leafCanvas||!leafCtx) return;
+    var dpr = Math.min(window.devicePixelRatio||1,2);
+    leafCanvas.width = Math.max(1, Math.floor(window.innerWidth*dpr));
+    leafCanvas.height = Math.max(1, Math.floor(window.innerHeight*dpr));
+    leafCanvas.style.width = window.innerWidth+'px';
+    leafCanvas.style.height = window.innerHeight+'px';
+    leafCtx.setTransform(dpr,0,0,dpr,0,0);
+    seedLeaves();
+  }
+  function seedLeaves(){
+    leaves = [];
+    if(!leafCanvas||!leafCtx) return;
+    var n = 13; // 実験ページの葉: 密度1相当
+    for(var i=0;i<n;i++) leaves.push(makeLeaf(true));
+  }
+  function makeLeaf(fresh){
+    var w=window.innerWidth, h=window.innerHeight;
+    return {
+      x: -60 + Math.random()*(w+120),
+      y: fresh ? -h + Math.random()*(h*2) : -50,
+      r: 3 + Math.random()*6,
+      vx: -14 + Math.random()*42,   // 実験ページの葉: 速度100相当
+      vy: 14 + Math.random()*28,
+      rot: Math.random()*Math.PI*2,
+      spin: -2 + Math.random()*4,
+      seed: Math.random()*1000,
+      alpha: .34 + Math.random()*.18
+    };
+  }
+  function updateLeaves(){
+    if(!leafCanvas||!leafCtx) return;
+    leafActive = leavesAllowed();
+    leafCanvas.style.display = leafActive ? 'block' : 'none';
+    if(leafActive && !leafRAF){
+      if(!leaves.length) seedLeaves();
+      leafLast = 0;
+      leafRAF = requestAnimationFrame(drawLeaves);
+    }
+  }
+  function drawLeaf(p){
+    leafCtx.save();
+    leafCtx.translate(p.x,p.y);
+    leafCtx.rotate(p.rot);
+    leafCtx.globalAlpha = p.alpha;
+    leafCtx.fillStyle = curKey() === 'ruins' ? 'rgba(199,216,121,.78)' : 'rgba(176,184,102,.72)';
+    leafCtx.beginPath();
+    leafCtx.ellipse(0,0,p.r*.55,p.r,0,0,Math.PI*2);
+    leafCtx.fill();
+    leafCtx.restore();
+  }
+  function drawLeaves(now){
+    leafRAF = 0;
+    if(!leafActive || !leafCanvas || !leafCtx) return;
+    var dt = Math.min(40, now - (leafLast || now)) / 1000;
+    leafLast = now;
+    leafCtx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    for(var i=0;i<leaves.length;i++){
+      var p = leaves[i];
+      p.x += p.vx * dt + Math.sin(now*.001 + p.seed) * dt * 20;
+      p.y += p.vy * dt;
+      p.rot += p.spin * dt;
+      if(p.y > window.innerHeight + 60 || p.x < -120 || p.x > window.innerWidth + 120) leaves[i] = p = makeLeaf(false);
+      drawLeaf(p);
+    }
+    leafRAF = requestAnimationFrame(drawLeaves);
+  }
+
+  function setupRailSlider(){
+    var wrap=$('ft-rail-wrap'), prev=$('ft-rail-prev'), next=$('ft-rail-next');
+    if(!rail||!wrap) return;
+    function firstItem(){ return rail.querySelector('.ft-prog'); }
+    function thumbH(){ var f=firstItem(); var t=f&&f.firstElementChild; return t?t.offsetHeight:60; }
+    function hasOverflow(){ return rail.scrollWidth>rail.clientWidth+2; }
+    function update(){
+      var max=rail.scrollWidth-rail.clientWidth-1;
+      var overflow=hasOverflow();
+      var canL=rail.scrollLeft>2, canR=rail.scrollLeft<max;
+      var th=thumbH();
+      if(prev){ prev.style.display=(overflow&&canL)?'grid':'none'; prev.style.top=(th/2+14)+'px'; }
+      if(next){ next.style.display=(overflow&&canR)?'grid':'none'; next.style.top=(th/2+14)+'px'; }
+      var m='';
+      if(overflow){
+        var L=canL?'transparent 0, #000 7%':'#000 0, #000 0';
+        var R=canR?'#000 93%, transparent 100%':'#000 100%, #000 100%';
+        m='linear-gradient(to right, '+L+', '+R+')';
+      }
+      rail.style.webkitMaskImage=m;
+      rail.style.maskImage=m;
+    }
+    function clampTo(v){ return Math.max(0, Math.min(v, rail.scrollWidth-rail.clientWidth)); }
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function animateTo(target){
+      target=clampTo(target);
+      if(reduce){ rail.scrollLeft=target; update(); return; }
+      var start=rail.scrollLeft, d=target-start, t0=performance.now(), dur=340;
+      rail.classList.add('dragging');
+      (function fr(now){
+        var p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3);
+        rail.scrollLeft=start+d*e;
+        if(p<1) requestAnimationFrame(fr); else { rail.classList.remove('dragging'); update(); }
+      })(performance.now());
+    }
+    function step(dir){
+      var f=firstItem(); var w=f?f.offsetWidth:120;
+      animateTo(rail.scrollLeft + dir*(w+14)*2);
+    }
+    if(prev) prev.addEventListener('click', function(e){ e.stopPropagation(); step(-1); });
+    if(next) next.addEventListener('click', function(e){ e.stopPropagation(); step(1); });
+    rail.addEventListener('scroll', update, { passive:true });
+    rail.addEventListener('wheel', function(e){
+      if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){ rail.scrollLeft+=e.deltaY; e.preventDefault(); }
+    }, { passive:false });
+    var dragging=false, moved=false, sx=0, sl=0;
+    rail.addEventListener('pointerdown', function(e){
+      if(e.pointerType!=='mouse'||e.button!==0||!hasOverflow()) return;
+      dragging=true; moved=false; sx=e.clientX; sl=rail.scrollLeft;
+      if(rail.setPointerCapture) try{ rail.setPointerCapture(e.pointerId); }catch(_){}
+      rail.classList.add('dragging');
+    });
+    rail.addEventListener('pointermove', function(e){
+      if(!dragging) return;
+      var dx=e.clientX-sx; if(Math.abs(dx)>12) moved=true;
+      rail.scrollLeft=sl-dx;
+    });
+    function end(){ if(!dragging) return; dragging=false; rail.classList.remove('dragging'); setTimeout(function(){ moved=false; },0); }
+    rail.addEventListener('pointerup', end);
+    rail.addEventListener('pointercancel', end);
+    rail.addEventListener('click', function(e){ if(hasOverflow()&&moved){ e.stopPropagation(); e.preventDefault(); } }, true);
+    window.addEventListener('resize', function(){ setTimeout(update,80); });
+    update(); setTimeout(update,300);
+  }
+
   // wire
   screen.addEventListener('click', function(){ open(entries[state.active]); });
   $('ft-cta').addEventListener('click', function(){ open(entries[state.active]); });
@@ -919,6 +1168,8 @@
 
   // mount
   buildRail();
+  setupRailSlider();
+  setupLeaves();
   renderInfo();
   switchBg(bgIndex);   // 背景画像・タイトルを同期（枠は共通）
   applyBox(); applyCalUI(); updateReadout(); styleAllRail(); projectorOn();
@@ -926,5 +1177,57 @@
   if(/[?&]cal=1\b/.test(location.search) || location.hash === '#cal'){ toggleCal(); }
 })();
 </script>
+<!-- ===== お気に入りリストモーダル (Phase 2) ===== -->
+<div id="fav-modal" class="fav-modal" role="dialog" aria-modal="true" aria-labelledby="fav-modal-heading" hidden>
+  <div class="fav-modal__backdrop" id="fav-modal-backdrop"></div>
+  <div class="fav-modal__panel">
+
+    <div class="fav-modal__header">
+      <h2 class="fav-modal__title" id="fav-modal-heading">
+        <span data-ja="保存した曲" data-en="Saved tracks">保存した曲</span>
+        <span class="fav-modal__total" id="fav-modal-total">0曲</span>
+      </h2>
+      <button class="fav-modal__close" id="fav-modal-close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="18" height="18"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="fav-modal__body">
+      <ul class="fav-modal__list" id="fav-modal-list" aria-label="お気に入りの曲一覧"></ul>
+      <p class="fav-modal__empty" id="fav-modal-empty" hidden>
+        <span data-ja="まだ保存した曲はありません。" data-en="No saved tracks yet.">まだ保存した曲はありません。</span><br>
+        <span data-ja="♡ を押して旅の記録を残しましょう。" data-en="Press ♡ to save tracks you love.">♡ を押して旅の記録を残しましょう。</span>
+      </p>
+    </div>
+
+    <!-- Phase 2: 一括ダウンロード / エクスポート用フッター -->
+    <div class="fav-modal__footer" id="fav-modal-footer" hidden>
+      <div class="fav-modal__footer-play">
+        <button type="button" class="fav-modal__play-all" id="fav-modal-play-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8 5v14l11-7z"/></svg>
+          <span data-ja="再生" data-en="Play all">再生</span>
+        </button>
+        <button type="button" class="fav-modal__shuffle-all" id="fav-modal-shuffle-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          <span data-ja="シャッフル" data-en="Shuffle">シャッフル</span>
+        </button>
+        <button type="button" class="fav-modal__play-theater" id="fav-modal-play-theater" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M4 4h16v16H4z"/></svg>
+          <span data-ja="シアター没入再生" data-en="Theater mode">シアター没入再生</span>
+        </button>
+        <button type="button" class="fav-modal__dl-all" id="fav-modal-dl-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <span data-ja="まとめてDL" data-en="Download all">まとめてDL</span>
+        </button>
+      </div>
+      <button type="button" class="fav-modal__clear" id="fav-modal-clear" data-ja="すべて削除" data-en="Clear all">すべて削除</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="/assets/js/fav-store.js?v=20260624b"></script>
+<script src="/assets/js/fav-notebook.js?v=20260624n"></script>
+<script src="/assets/js/fav-modal.js?v=20260624c"></script>
 </body>
 </html>
