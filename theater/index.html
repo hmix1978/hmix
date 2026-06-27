@@ -240,9 +240,9 @@
   var entries = [
     { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
     { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
+    { key:'playlist', title:'制作実績', tag:'特集', meta:'シアターで観る・聴く', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true },
     { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
-    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' },
-    { key:'playlist', title:'制作実績', tag:'特集', meta:'シアターで観る・聴く', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:B+'youtube-latest.webp', playlist:true }
+    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' }
   ];
   // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
   // 既定値は目安。?cal=1 または Shift+C で微調整 → 背景ごとに localStorage 保存。
@@ -694,8 +694,8 @@
     ]
   };
   var PLAYLISTS = [
-    { id:'works-a', type:'youtube', name:'演奏動画', sub:'秋山裕和の演奏', icon:'▶', cls:'plY', yt:'PLDu7Op6BS12E', titles:{} },
-    { id:'works-b', type:'youtube', name:'使用・制作実績', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', yt:'PLJy2czsk77Rs', titles:{} }
+    { id:'works-a', type:'youtube', name:'演奏動画', sub:'秋山裕和の演奏', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', yt:'PLDu7Op6BS12E', titles:{} },
+    { id:'works-b', type:'youtube', name:'使用・制作実績', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', yt:'PLJy2czsk77Rs', titles:{} }
   ];
   var plBuilt=false, plActive=0, plAudio=null, plPlayingId=null;
   var ytVidIds=[], ytTitles={};
@@ -731,14 +731,16 @@
       '#ft-pl-dock .dk b{font-family:"Bebas Neue",sans-serif; letter-spacing:.28em; font-size:11px; color:rgba(150,194,165,.78); font-weight:400;}'+
       '#ft-pl-close{margin-left:auto; font-size:11.5px; color:rgba(206,226,210,.8); background:rgba(10,18,13,.5); border:1px solid rgba(140,180,150,.4); border-radius:20px; padding:6px 13px; cursor:pointer;}'+
       '#ft-pl-sel{display:flex; gap:11px; flex-wrap:wrap;}'+
-      '.plc{display:flex; gap:10px; align-items:center; padding:9px 13px; border-radius:12px; cursor:pointer; background:rgba(10,18,13,.5); border:1px solid rgba(120,160,135,.2); -webkit-backdrop-filter:blur(6px);}'+
+      '.plc{display:flex; gap:13px; align-items:center; padding:12px 16px; border-radius:14px; cursor:pointer; background:rgba(10,18,13,.5); border:1px solid rgba(120,160,135,.2); -webkit-backdrop-filter:blur(6px);}'+
       '.plc.sel{border-color:rgba(231,202,124,.8); background:linear-gradient(135deg, rgba(42,34,20,.7), rgba(12,20,15,.7)); box-shadow:0 0 22px -8px rgba(231,202,124,.5);}'+
       '.plc .pic{width:34px; height:34px; border-radius:8px; display:grid; place-items:center; font-size:15px; flex:0 0 auto;}'+
+      '.plc .thumb{width:88px; height:50px; border-radius:9px; object-fit:cover; flex:0 0 auto; display:block; background:#0a120e; box-shadow:0 6px 16px -8px rgba(0,0,0,.7); border:1px solid rgba(150,190,160,.18);}'+
+      '.plc.sel .thumb{border-color:rgba(231,202,124,.55);}'+
       '.plc .plY{background:linear-gradient(135deg,#3a1410,#5a1c14); color:#ffb3a0;}'+
       '.plc .plM{background:linear-gradient(135deg,#10231a,#1c3a2a); color:#9fe0c0;}'+
       '.plc .plA{background:linear-gradient(135deg,#0e1a2a,#16283a); color:#a8d0f1;}'+
-      '.plc .nm{font-size:12.5px; color:#eaf1ea; font-weight:500;}'+
-      '.plc .mt{font-size:10px; color:rgba(190,210,195,.6); margin-top:3px;}'+
+      '.plc .nm{font-size:14px; color:#eaf1ea; font-weight:600;}'+
+      '.plc .mt{font-size:11px; color:rgba(190,210,195,.62); margin-top:4px;}'+
       '#ft-pl-art{position:absolute; inset:0; display:grid; place-items:center; text-align:center; background:radial-gradient(80% 80% at 50% 40%, #1b2b31, #070b0c);}'+
       '#ft-pl-art .big{font-size:46px; color:rgba(231,202,124,.85);}'+
       '#ft-pl-art .nm{font-family:"Noto Serif JP",serif; font-size:18px; color:#f3ecd9; margin-top:10px;}'+
@@ -833,8 +835,9 @@
         '#ft-pl-close{font-size:10.5px; padding:5px 10px;}'+
         '#ft-pl-sel{gap:6px; flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;}'+
         '#ft-pl-sel::-webkit-scrollbar{display:none;}'+
-        '.plc{padding:7px 11px; flex:0 0 auto;}'+
+        '.plc{padding:8px 11px; flex:0 0 auto;}'+
         '.plc .pic{width:26px; height:26px; font-size:12px;}'+
+        '.plc .thumb{width:62px; height:35px;}'+
         '.plc .nm{font-size:11.5px;}'+
         '.plc .mt{font-size:9.5px;}'+
         '.u-row, .pl-row{padding:6px 8px;}'+
@@ -869,7 +872,8 @@
       if(p.type==='tracks'){ p._tracks = tracksByTags(p.tags); if(p._tracks.length < 3){ p._hidden=true; return; } }
       var c=document.createElement('div'); c.className='plc'; c.setAttribute('data-i', i);
       var cnt = p.type==='tracks' ? (p._tracks.length+'曲') : 'YouTube';
-      c.innerHTML='<div class="pic '+p.cls+'">'+p.icon+'</div><div><div class="nm">'+p.name+'</div><div class="mt">'+p.sub+' · '+cnt+'</div></div>';
+      var pic = p.thumb ? '<img class="thumb" src="'+p.thumb+'" alt="" loading="lazy">' : '<div class="pic '+p.cls+'">'+p.icon+'</div>';
+      c.innerHTML=pic+'<div class="plc-tx"><div class="nm">'+p.name+'</div><div class="mt">'+p.sub+' · '+cnt+'</div></div>';
       c.addEventListener('click', function(){ renderPlaylist(i); });
       sel.appendChild(c);
     });
