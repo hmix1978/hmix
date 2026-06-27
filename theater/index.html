@@ -1314,19 +1314,24 @@
     rail.addEventListener('wheel', function(e){
       if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){ rail.scrollLeft+=e.deltaY; e.preventDefault(); }
     }, { passive:false });
-    var dragging=false, moved=false, sx=0, sl=0;
+    var dragging=false, moved=false, sx=0, sl=0, pid=null;
     rail.addEventListener('pointerdown', function(e){
       if(e.pointerType!=='mouse'||e.button!==0||!hasOverflow()) return;
-      dragging=true; moved=false; sx=e.clientX; sl=rail.scrollLeft;
-      if(rail.setPointerCapture) try{ rail.setPointerCapture(e.pointerId); }catch(_){}
-      rail.classList.add('dragging');
+      // ここでは capture を張らない。張るとカードの単純クリックまで飲み込まれ、選択できなくなる。
+      // 実際にドラッグ開始(12px超)した時だけ capture＋スクロールに切り替える。
+      dragging=true; moved=false; sx=e.clientX; sl=rail.scrollLeft; pid=e.pointerId;
     });
     rail.addEventListener('pointermove', function(e){
       if(!dragging) return;
-      var dx=e.clientX-sx; if(Math.abs(dx)>12) moved=true;
+      var dx=e.clientX-sx;
+      if(!moved){
+        if(Math.abs(dx)<=12) return;        // 閾値未満はクリック扱いのまま放置
+        moved=true; rail.classList.add('dragging');
+        if(rail.setPointerCapture) try{ rail.setPointerCapture(pid); }catch(_){}
+      }
       rail.scrollLeft=sl-dx;
     });
-    function end(){ if(!dragging) return; dragging=false; rail.classList.remove('dragging'); setTimeout(function(){ moved=false; },0); }
+    function end(){ if(!dragging) return; dragging=false; if(pid!=null&&rail.releasePointerCapture){ try{ rail.releasePointerCapture(pid); }catch(_){} } pid=null; rail.classList.remove('dragging'); setTimeout(function(){ moved=false; },0); }
     rail.addEventListener('pointerup', end);
     rail.addEventListener('pointercancel', end);
     rail.addEventListener('click', function(e){ if(hasOverflow()&&moved){ e.stopPropagation(); e.preventDefault(); } }, true);
