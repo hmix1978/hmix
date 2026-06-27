@@ -108,7 +108,7 @@
 
   <div class="cp-top">
     <div class="seg-l">
-      <button class="cp-back" type="button" onclick="window.__back&amp;&amp;window.__back()" data-ja="◄ タグの輪へ" data-en="◄ To the tag ring">◄ タグの輪へ</button>
+      <!-- 「星図に戻る」は近接展開の金ピル(return-to-theater.js #htr-cockpit)に統一。旧 .cp-back は撤去。 -->
       <span class="cp-tag" data-ja="星 渡 し · TAG TRANSIT" data-en="STAR HOP · TAG TRANSIT">星 渡 し · TAG TRANSIT</span>
     </div>
   </div>
@@ -306,7 +306,7 @@
 
   <!-- 旅の中の移動（操縦席 / 星図）は左上にまとめる。右上はグローバルな「劇場に戻る」専用。 -->
   <div class="sd-exits">
-    <button class="sd-exit l" type="button" data-ja="◄ 操縦席へ" data-en="◄ To cockpit">◄ 操縦席へ</button>
+    <!-- 「操縦席へ戻る」は近接展開の金ピル(return-to-theater.js #htr-scene)に統一。旧 .sd-exit.l は撤去。 -->
     <button class="sd-exit r" type="button" data-ja="✦ 星図へ" data-en="✦ To star map">✦ 星図へ</button>
   </div>
 </div>
@@ -433,7 +433,7 @@
 <script src="js/journey-tag.js?v=20260616b"></script>
 <script src="js/cockpit-tag.js?v=20260628a"></script>
 <script src="js/scene-dive.js?v=20260628a"></script>
-<script src="/theater/js/return-to-theater.js?v=20260617a" defer></script>
+<script src="/theater/js/return-to-theater.js?v=20260628a" defer></script>
 <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
 <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
 <style>

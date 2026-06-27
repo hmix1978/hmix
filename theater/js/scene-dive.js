@@ -422,8 +422,10 @@
   }
 
   btn&&btn.addEventListener('click',()=>{ if(!btn.disabled) start(); });
-  exitCp.addEventListener('click',()=>leave(false));
-  exitHub.addEventListener('click',()=>leave(true));
+  // 操縦席へ戻る: 共通の金ピル(return-to-theater.js #htr-scene)から呼ぶ。旧 .sd-exit.l は撤去。
+  window.__toCockpit = function(){ leave(false); };
+  exitCp && exitCp.addEventListener('click',()=>leave(false));   // 旧ボタンが在る場合の後方互換
+  exitHub && exitHub.addEventListener('click',()=>leave(true));
   document.addEventListener('keydown',e=>{
     if(e.key!=='Escape'||phase!=='scene') return;
     if(panels.some(p=>!p.hidden)){ closePanels(); return; }
