@@ -347,10 +347,11 @@
 <script src="js/scene-dive.js?v=20260623e"></script>
 <script src="/theater/js/return-to-theater.js?v=20260617a" defer></script>
 <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
+<link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
 <style>
   #hmix-fav-hub{ bottom: clamp(100px,17vh,168px) !important; }
-  /* 景色の中: 右下のメニュー(曲リスト/足跡/旅のしおり)と被らないよう、共通お気に入りハブを左下へ退避 */
-  body[data-scene="on"] #hmix-fav-hub{ left: clamp(16px,3vw,30px) !important; right:auto !important; bottom: calc(6vh + 6px) !important; }
+  /* 景色の中: 共通お気に入りハブを右側へ。右下メニュー(曲リスト/足跡/旅のしおり 約112px)の上に重ねて配置し被りを避ける */
+  body[data-scene="on"] #hmix-fav-hub{ right: clamp(16px,3vw,30px) !important; left:auto !important; bottom: calc(6vh + 132px) !important; }
 </style>
 <div id="fav-modal" class="fav-modal" role="dialog" aria-modal="true" aria-labelledby="fav-modal-heading" hidden>
   <div class="fav-modal__backdrop" id="fav-modal-backdrop"></div>
@@ -399,7 +400,8 @@
 
   </div>
 </div>
-  <script src="/assets/js/fav-store.js?v=20260623"></script>
+  <script src="/assets/js/fav-store.js?v=20260624b"></script>
+<script src="/assets/js/fav-notebook.js?v=20260624n"></script>
 <script src="/assets/js/fav-modal.js?v=20260623g"></script>
 
 </body>
