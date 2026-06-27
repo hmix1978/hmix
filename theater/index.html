@@ -726,6 +726,9 @@
       '.pl-vrow.playing .pl-vnow{opacity:1;}'+
       '.pl-vrow.noembed{opacity:.5;}'+
       '.pl-vrow.noembed .pl-vt::after{content:" · 埋め込み不可"; color:#e7677a; font-size:10px;}'+
+      /* 使用曲が登録されている映像に小さなバッジを出す */
+      '.pl-vused{margin-top:3px; display:inline-block; font-family:"Bebas Neue",sans-serif; font-size:9px; letter-spacing:.1em; color:#e7ca7c; border:1px solid rgba(231,202,124,.45); border-radius:9px; padding:1px 6px; line-height:1.4;}'+
+      '.pl-vused::before{content:"♪ "; color:#e7ca7c;}'+
       /* 世界観重視: マウスが数秒止まったらUIを隠す */
       '#ft-pl-panel, #ft-pl-dock, #ft-used, header{transition:opacity .25s ease;}'+
       'body.ft-ui-idle #ft-pl-panel, body.ft-ui-idle #ft-pl-dock{opacity:0; pointer-events:none;}'+
@@ -837,22 +840,15 @@
     var b=(document.getElementById('ft-dock') || document.getElementById('ft-bottom')); if(b) b.style.display='';
     clearTimeout(idleT); document.body.classList.remove('ft-ui-idle');
   }
-  // 世界観重視: プレイリストモード中、マウスが数秒止まったらUIを隠す
-  // ただしパネル上にカーソルがある間（読みかけ等）は隠さない
+  // パネル幅をステージ脇に収めたので auto-hide は停止（マウス動かす度に出戻る挙動が
+  // プレイヤーコントロール操作の邪魔だったため・Hiro feedback 2026-06）。
+  // uiWake/bindUIHover は呼び出し互換のために残すが、no-op。
   var idleT=0, hoveringUI=false;
   function uiWake(){
     document.body.classList.remove('ft-ui-idle');
     clearTimeout(idleT);
-    if(!state.playlistMode || adminMode || hoveringUI) return;
-    idleT = setTimeout(function(){ if(state.playlistMode && !adminMode && !hoveringUI) document.body.classList.add('ft-ui-idle'); }, 8000);
   }
-  document.addEventListener('pointermove', uiWake, { passive:true });
-  document.addEventListener('pointerdown', uiWake, { passive:true });
-  function bindUIHover(el){
-    if(!el) return;
-    el.addEventListener('pointerenter', function(){ hoveringUI=true; document.body.classList.add('ft-hover-ui'); uiWake(); });
-    el.addEventListener('pointerleave', function(){ hoveringUI=false; document.body.classList.remove('ft-hover-ui'); uiWake(); });
-  }
+  function bindUIHover(el){ /* no-op: auto-hide 停止により不要 */ }
   function renderPlaylist(i){
     var p=PLAYLISTS[i]; if(!p || p._hidden) return; plActive=i;
     var cards=document.querySelectorAll('#ft-pl-sel .plc');
@@ -925,8 +921,8 @@
     if(idx<0) idx=0;
     try{ ytPlayer.playVideoAt((idx+delta+ids.length)%ids.length); }catch(e){}
   }
-  function addUsed(vid, e){ vid = vid || ytCurVid; if(!vid) return; var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].push(e); saveUsed(m); renderUsed(vid); }
-  function delUsed(vid, i){ var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].splice(i,1); saveUsed(m); renderUsed(vid); }
+  function addUsed(vid, e){ vid = vid || ytCurVid; if(!vid) return; var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].push(e); saveUsed(m); renderUsed(vid); try{ refreshYTRowsUsedCount(); }catch(_){} }
+  function delUsed(vid, i){ var m=loadUsed(); if(m[vid]==null) m[vid]=baseUsed(vid); m[vid].splice(i,1); saveUsed(m); renderUsed(vid); try{ refreshYTRowsUsedCount(); }catch(_){} }
 
   function renderUsed(vid){
     vid = vid || ytCurVid;
@@ -934,12 +930,12 @@
     var p=PLAYLISTS[plActive];
     if(!state.playlistMode || !p || p.type!=='youtube'){ card.classList.remove('on'); return; }
     var list=usedFor(vid)||[];
-    if(!list.length && !adminMode){ card.classList.remove('on'); return; }
+    // 空でも常にカードを出す（登録済みなのに見えない問題を解消・どの映像が空かが一目で分かる）
     card.classList.add('on'); card.classList.toggle('admin', adminMode);
     var d; try{ d=ytPlayer&&ytPlayer.getVideoData&&ytPlayer.getVideoData(); }catch(e){}
     var vt=(d&&d.title)||'';
     var h='<div class="uh">この映像で使われている曲<small>'+esc(vt)+'</small></div><div class="ubody">';
-    if(!list.length) h+='<div class="u-empty">まだ登録がありません'+(adminMode?'（下で追加）':'')+'</div>';
+    if(!list.length) h+='<div class="u-empty">この映像にはまだ使用曲が登録されていません'+(adminMode?'（下のフォームで追加）':'<br><span style="font-size:10px;color:rgba(190,210,195,.45);">Shift+A で登録モード</span>')+'</div>';
     list.forEach(function(u,i){
       var t=(u.t!=null)?fmtSec(u.t):'';
       if(u.id){ var tr=trackById(u.id);
@@ -1016,9 +1012,11 @@
       body.innerHTML='';
       ids.forEach(function(vid, idx){
         var row=document.createElement('div'); row.className='pl-vrow'; row.setAttribute('data-vid', vid);
+        var used=(usedFor(vid)||[]).length;
+        var badge=used?('<div class="pl-vused" data-used-badge>使用曲 '+used+'</div>'):'<div class="pl-vused" data-used-badge style="display:none">使用曲</div>';
         row.innerHTML=
           '<div class="pl-vth"><img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg" alt=""><span class="pl-vplay">▶</span></div>'+
-          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div></div>'+
+          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div>'+badge+'</div>'+
           '<div class="pl-vnow">NOW</div>';
         row.addEventListener('click', function(){
           try{ if(ytPlayer&&ytPlayer.playVideoAt) ytPlayer.playVideoAt(idx); }catch(e){}
@@ -1027,8 +1025,22 @@
         body.appendChild(row);
       });
     }
+    refreshYTRowsUsedCount();
     markYTCurrent(cur);
     return true;
+  }
+  // 「使用曲N」バッジを最新化（登録・削除後に呼ぶ）
+  function refreshYTRowsUsedCount(){
+    var rows=document.querySelectorAll('#ft-pl-body .pl-vrow');
+    for(var i=0;i<rows.length;i++){
+      var v=rows[i].getAttribute('data-vid');
+      var n=(usedFor(v)||[]).length;
+      var b=rows[i].querySelector('[data-used-badge]');
+      if(b){
+        if(n){ b.textContent='使用曲 '+n; b.style.display=''; }
+        else  { b.style.display='none'; }
+      }
+    }
   }
   function markYTCurrent(cur){
     var rows=document.querySelectorAll('#ft-pl-body .pl-vrow');
