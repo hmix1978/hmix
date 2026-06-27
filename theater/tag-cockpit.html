@@ -3,7 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>星渡し — TAG COCKPIT / H/MIX THEATER</title>
+<title>星図の旅 — タグの星々を巡る音楽体験 | H/MIX GALLERY シアター</title>
+<meta name="description" content="感情・物語・情景のタグを星図にしたインタラクティブ体験。星から星へ辿り、H/MIX GALLERY のフリーBGM 300曲超から、まだ知らない一曲に出会えます。作曲：秋山裕和。">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0a0f0c">
+<link rel="canonical" href="https://www.hmix.net/theater/tag-cockpit.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="H/MIX GALLERY">
+<meta property="og:title" content="星図の旅 — H/MIX GALLERY シアター">
+<meta property="og:description" content="タグの星々を辿り、フリーBGMと出会うインタラクティブ体験。H/MIX GALLERY 音の劇場。">
+<meta property="og:url" content="https://www.hmix.net/theater/tag-cockpit.html">
+<meta property="og:image" content="https://www.hmix.net/theater/banners/starmap.webp">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@hmix_net">
+<meta name="twitter:title" content="星図の旅 — H/MIX GALLERY シアター">
+<meta name="twitter:description" content="タグの星々を辿ってフリーBGMに出会う、H/MIX GALLERY のインタラクティブ体験。">
+<meta name="twitter:image" content="https://www.hmix.net/theater/banners/starmap.webp">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "星図の旅 — H/MIX Tag Cockpit",
+  "url": "https://www.hmix.net/theater/tag-cockpit.html",
+  "description": "タグの星図を辿って H/MIX GALLERY のフリーBGMを探す、インタラクティブな音楽体験。",
+  "inLanguage": "ja",
+  "image": "https://www.hmix.net/theater/banners/starmap.webp",
+  "applicationCategory": "MultimediaApplication",
+  "operatingSystem": "Web Browser",
+  "isPartOf": { "@type": "CollectionPage", "name": "音の劇場", "url": "https://www.hmix.net/theater/" },
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+  "author": { "@type": "Person", "@id": "https://www.hmix.net/composer.html#person", "name": "秋山裕和", "alternateName": "Hirokazu Akiyama", "url": "https://www.hmix.net/composer.html" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.hmix.net/" },
+    { "@type": "ListItem", "position": 2, "name": "音の劇場", "item": "https://www.hmix.net/theater/" },
+    { "@type": "ListItem", "position": 3, "name": "星図の旅", "item": "https://www.hmix.net/theater/tag-cockpit.html" }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+JP:wght@200;300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -18,9 +62,11 @@
 <div id="journey">
   <!-- 星図からの帰り道 -->
   <nav id="hubNav" aria-label="ナビゲーション">
-    <a class="hn-link" href="./">◂ シアター TOP</a>
+    <a class="hn-link" href="./" data-ja="◂ シアター TOP" data-en="◂ Theater home">◂ シアター TOP</a>
     <span class="hn-sep"></span>
     <a class="hn-link" href="/">H/MIX GALLERY TOP</a>
+    <span class="hn-sep"></span>
+    <button id="ft-lang-toggle" class="hn-link" type="button" aria-label="Switch language" style="background:none;border:none;cursor:pointer;font:inherit;color:inherit;letter-spacing:inherit;">EN</button>
   </nav>
   <!-- the view through the windshield -->
   <canvas id="jCanvas"></canvas>
@@ -30,14 +76,14 @@
   <!-- HUB : every tag, tappable -->
   <div id="tagHubHead">
     <div class="th-kicker">THE ATLAS</div>
-    <h1 class="th-title">シーンや感情の<b>星図</b>を旅する</h1>
+    <h1 class="th-title" data-ja="シーンや感情の<b>星図</b>を旅する" data-en="Journey the star chart of <b>scenes &amp; emotions</b>">シーンや感情の<b>星図</b>を旅する</h1>
     <div class="th-sub">SELECT A TAG TO DIVE</div>
   </div>
   <div id="tagHub"></div>
   <div class="th-legend">
-    <span><i style="background:#f6d296"></i>感情</span>
-    <span><i style="background:#cea8ec"></i>物語</span>
-    <span><i style="background:#bce0f6"></i>情景・様式</span>
+    <span><i style="background:#f6d296"></i><span data-ja="感情" data-en="Emotion">感情</span></span>
+    <span><i style="background:#cea8ec"></i><span data-ja="物語" data-en="Story">物語</span></span>
+    <span><i style="background:#bce0f6"></i><span data-ja="情景・様式" data-en="Scene & style">情景・様式</span></span>
   </div>
 
   <!-- floating kinetic station type (filled by journey-tag.js) -->
@@ -62,8 +108,8 @@
 
   <div class="cp-top">
     <div class="seg-l">
-      <button class="cp-back" type="button" onclick="window.__back&amp;&amp;window.__back()">◄ タグの輪へ</button>
-      <span class="cp-tag">星 渡 し · TAG TRANSIT</span>
+      <button class="cp-back" type="button" onclick="window.__back&amp;&amp;window.__back()" data-ja="◄ タグの輪へ" data-en="◄ To the tag ring">◄ タグの輪へ</button>
+      <span class="cp-tag" data-ja="星 渡 し · TAG TRANSIT" data-en="STAR HOP · TAG TRANSIT">星 渡 し · TAG TRANSIT</span>
     </div>
   </div>
 
@@ -74,12 +120,12 @@
   <aside class="dock-wing l" data-slot="wing-l"><div class="dw-in">
     <div class="wing-transit">
       <span class="wb-kicker">TAG TRANSIT</span>
-      <span class="wb-main">次のタグへ</span>
+      <span class="wb-main" data-ja="次のタグへ" data-en="Next tag">次のタグへ</span>
       <div class="wt-nav">
-        <button class="wt-arrow" id="btnVoyageNext" type="button" aria-label="次のタグへワープ" title="星図に戻らず、次のタグへワープ">
+        <button class="wt-arrow" id="btnVoyageNext" type="button" aria-label="次のタグへワープ" title="星図に戻らず、次のタグへワープ" data-en-aria="Warp to the next tag" data-en-title="Warp to the next tag without returning to the star chart">
           <span class="wt-name" id="wtNextName">—</span><span class="wt-chev">▸</span>
         </button>
-        <button class="wt-arrow prev" id="btnVoyagePrev" type="button" aria-label="前のタグへ戻る" title="前のタグへワープ">
+        <button class="wt-arrow prev" id="btnVoyagePrev" type="button" aria-label="前のタグへ戻る" title="前のタグへワープ" data-en-aria="Back to the previous tag" data-en-title="Warp to the previous tag">
           <span class="wt-chev">◂</span><span class="wt-name" id="wtPrevName">—</span>
         </button>
       </div>
@@ -91,8 +137,8 @@
     <button class="wing-btn scenery" id="btnScenery" type="button" disabled="disabled">
       <span class="wb-scene" aria-hidden="true"></span>
       <span class="wb-kicker">INTO THE SCENERY</span>
-      <span class="wb-main">景色の中へ</span>
-      <span class="wb-sub">✦ この星の景色へダイブ</span>
+      <span class="wb-main" data-ja="景色の中へ" data-en="Into the scenery">景色の中へ</span>
+      <span class="wb-sub" data-ja="✦ この星の景色へダイブ" data-en="✦ Dive into this star's scenery">✦ この星の景色へダイブ</span>
     </button>
   </div>
   <svg class="dw-edge" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="42,0 95.5,0 100,10 100,100 0,100"></polygon></svg>
@@ -106,14 +152,14 @@
           <span class="cv-kicker">LOG VISION</span>
           <span class="cv-title" id="cvTitle">お気に入り</span>
         </header>
-        <div class="cv-hint" hidden>商用利用したい曲に「<b>申請</b>」のチェックを入れて、下のボタンから申請できます。</div>
+        <div class="cv-hint" hidden data-ja="商用利用したい曲に「<b>申請</b>」のチェックを入れて、下のボタンから申請できます。" data-en="Check &quot;<b>Request</b>&quot; on the tracks you want to license, then apply from the button below.">商用利用したい曲に「<b>申請</b>」のチェックを入れて、下のボタンから申請できます。</div>
         <div class="cv-body">
           <ul class="log-list" data-list="fav" hidden="hidden"></ul>
           <ul class="log-list" data-list="trip" hidden="hidden"></ul>
           <ul class="log-list" data-list="mem" hidden="hidden"></ul>
         </div>
         <button class="cv-license" type="button" hidden disabled>◇ ライセンス申請</button>
-        <button class="cv-close" type="button">✕ とじる</button>
+        <button class="cv-close" type="button" data-ja="✕ とじる" data-en="✕ Close">✕ とじる</button>
       </div>
     </div>
   </div>
@@ -121,11 +167,11 @@
   <div class="dock">
     <!-- LEFT : LOG MENU — 記録は中央の八角ビジョンに投影 -->
     <section class="dpanel dock-log">
-      <div class="dp-head"><span class="dp-title">LOG · 旅の記録</span></div>
+      <div class="dp-head"><span class="dp-title" data-ja="LOG · 旅の記録" data-en="LOG · Travel record">LOG · 旅の記録</span></div>
       <div class="log-menu">
-        <button class="lm-btn" type="button" data-vision="fav"><span class="lm-ico">♡</span><span class="lm-jp">お気に入り</span><span class="lm-n"></span><span class="lm-arr">▸</span></button>
-        <button class="lm-btn" type="button" data-vision="trip"><span class="lm-ico">◇</span><span class="lm-jp">旅のしおり</span><span class="lm-arr">▸</span></button>
-        <button class="lm-btn" type="button" data-vision="mem"><span class="lm-ico">◷</span><span class="lm-jp">旅の記憶</span><span class="lm-arr">▸</span></button>
+        <button class="lm-btn" type="button" data-vision="fav"><span class="lm-ico">♡</span><span class="lm-jp" data-ja="お気に入り" data-en="Favorites">お気に入り</span><span class="lm-n"></span><span class="lm-arr">▸</span></button>
+        <button class="lm-btn" type="button" data-vision="trip"><span class="lm-ico">◇</span><span class="lm-jp" data-ja="旅のしおり" data-en="Travel notes">旅のしおり</span><span class="lm-arr">▸</span></button>
+        <button class="lm-btn" type="button" data-vision="mem"><span class="lm-ico">◷</span><span class="lm-jp" data-ja="旅の記憶" data-en="Travel memories">旅の記憶</span><span class="lm-arr">▸</span></button>
       </div>
     </section>
 
@@ -148,29 +194,29 @@
         <span class="np-time dur">0:00</span>
       </div>
       <div class="np-transport">
-        <button class="np-btn sm np-shuffle" title="シャッフル"></button>
-        <button class="np-btn np-prev" title="前へ"></button>
-        <button class="np-btn np-play" title="再生 / 一時停止"></button>
-        <button class="np-btn np-next" title="次へ"></button>
-        <button class="np-btn sm np-repeat" title="リピート"></button>
-        <button class="np-btn sm np-fav" title="お気に入り"></button>
+        <button class="np-btn sm np-shuffle" title="シャッフル" data-en-title="Shuffle"></button>
+        <button class="np-btn np-prev" title="前へ" data-en-title="Previous"></button>
+        <button class="np-btn np-play" title="再生 / 一時停止" data-en-title="Play / pause"></button>
+        <button class="np-btn np-next" title="次へ" data-en-title="Next"></button>
+        <button class="np-btn sm np-repeat" title="リピート" data-en-title="Repeat"></button>
+        <button class="np-btn sm np-fav" title="お気に入り" data-en-title="Favorite"></button>
       </div>
-      <div class="np-vol" title="音量">
-        <button class="nv-ico" type="button" aria-label="ミュート切替"></button>
+      <div class="np-vol" title="音量" data-en-title="Volume">
+        <button class="nv-ico" type="button" aria-label="ミュート切替" data-en-aria="Toggle mute"></button>
         <div class="nv-bar"><span class="track"></span><span class="fill"></span><span class="knob"></span></div>
       </div>
-      <button class="np-lic" type="button" title="お気に入りから曲を選んで商用ライセンスを申請">◇ 商用ライセンスを取得</button>
+      <button class="np-lic" type="button" title="お気に入りから曲を選んで商用ライセンスを申請" data-en-title="Pick favorites and request a commercial license" data-ja="◇ 商用ライセンスを取得" data-en="◇ Get a commercial license">◇ 商用ライセンスを取得</button>
     </section>
 
     <!-- RIGHT : SECTOR MANIFEST QUEUE -->
     <section class="dpanel dock-queue">
       <div class="dp-head">
-        <span class="dp-title">MANIFEST · この星の音楽リスト</span>
+        <span class="dp-title" data-ja="MANIFEST · この星の音楽リスト" data-en="MANIFEST · This star's track list">MANIFEST · この星の音楽リスト</span>
         <span class="dp-count queue">—</span>
       </div>
       <button class="q-open" id="btnQueueSheet" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="queueSheet">
         <span class="qo-eq" aria-hidden="true"><i></i><i></i><i></i></span>
-        <span class="qo-label">この星の音楽リストを開く</span>
+        <span class="qo-label" data-ja="この星の音楽リストを開く" data-en="Open this star's track list">この星の音楽リストを開く</span>
         <span class="qo-arr" aria-hidden="true">▴</span>
       </button>
     </section>
@@ -180,9 +226,9 @@
   <aside class="queue-sheet" id="queueSheet" hidden aria-label="この星の音楽リスト">
     <header class="qs-head">
       <span class="qs-kicker">MANIFEST</span>
-      <span class="qs-title">この星の音楽リスト</span>
+      <span class="qs-title" data-ja="この星の音楽リスト" data-en="This star's track list">この星の音楽リスト</span>
       <span class="qs-count">—</span>
-      <button class="qs-close" type="button">✕ とじる</button>
+      <button class="qs-close" type="button" data-ja="✕ とじる" data-en="✕ Close">✕ とじる</button>
     </header>
     <ul class="queue-list"></ul>
   </aside>
@@ -219,49 +265,49 @@
       <span class="sd-time dur">0:00</span>
     </div>
     <div class="sd-transport">
-      <button class="sd-btn sd-prev" type="button" title="前へ"></button>
-      <button class="sd-btn big sd-play" type="button" title="再生 / 一時停止"></button>
-      <button class="sd-btn sd-next" type="button" title="次へ"></button>
-      <button class="sd-btn sm sd-fav" type="button" title="お気に入り"></button>
+      <button class="sd-btn sd-prev" type="button" title="前へ" data-en-title="Previous"></button>
+      <button class="sd-btn big sd-play" type="button" title="再生 / 一時停止" data-en-title="Play / pause"></button>
+      <button class="sd-btn sd-next" type="button" title="次へ" data-en-title="Next"></button>
+      <button class="sd-btn sm sd-fav" type="button" title="お気に入り" data-en-title="Favorite"></button>
     </div>
-    <div class="sd-vol" title="音量">
-      <button class="sd-vico" type="button" aria-label="ミュート切替"></button>
+    <div class="sd-vol" title="音量" data-en-title="Volume">
+      <button class="sd-vico" type="button" aria-label="ミュート切替" data-en-aria="Toggle mute"></button>
       <div class="sd-vbar"><span class="fill"></span><span class="knob"></span></div>
     </div>
-    <button class="sd-lic" type="button" title="お気に入りから曲を選んで商用ライセンスを申請">◇ 商用ライセンスを取得</button>
+    <button class="sd-lic" type="button" title="お気に入りから曲を選んで商用ライセンスを申請" data-en-title="Pick favorites and request a commercial license" data-ja="◇ 商用ライセンスを取得" data-en="◇ Get a commercial license">◇ 商用ライセンスを取得</button>
   </div>
 
   <!-- 透明メニュー & パネル -->
   <div class="sd-menu">
-    <button class="sd-mbtn" data-panel="list" type="button">♪ 曲のリスト</button>
-    <button class="sd-mbtn" data-panel="fp" type="button">✦ 足跡を残す</button>
-    <button class="sd-mbtn" data-panel="trip" type="button">◇ 旅のしおり</button>
+    <button class="sd-mbtn" data-panel="list" type="button" data-ja="♪ 曲のリスト" data-en="♪ Track list">♪ 曲のリスト</button>
+    <button class="sd-mbtn" data-panel="fp" type="button" data-ja="✦ 足跡を残す" data-en="✦ Leave a footprint">✦ 足跡を残す</button>
+    <button class="sd-mbtn" data-panel="trip" type="button" data-ja="◇ 旅のしおり" data-en="◇ Travel notes">◇ 旅のしおり</button>
   </div>
   <section class="sd-panel" data-panel="list" hidden="hidden">
-    <header><span>♪ この星の音楽リスト</span><button class="sd-pclose" type="button" title="閉じる">✕</button></header>
+    <header><span data-ja="♪ この星の音楽リスト" data-en="♪ This star's track list">♪ この星の音楽リスト</span><button class="sd-pclose" type="button" title="閉じる" data-en-title="Close">✕</button></header>
     <ul class="sd-plist"></ul>
   </section>
   <section class="sd-panel" data-panel="fp" hidden="hidden">
-    <header><span>✦ 足跡を残す</span><button class="sd-pclose" type="button" title="閉じる">✕</button></header>
+    <header><span data-ja="✦ 足跡を残す" data-en="✦ Leave a footprint">✦ 足跡を残す</span><button class="sd-pclose" type="button" title="閉じる" data-en-title="Close">✕</button></header>
     <div class="sd-fp-form">
-      <p class="sd-fp-note">いま聴いているこの曲に、そっと言葉を残せます。<br><small>残した言葉は、この曲の景色をおとずれた人に流れます（公開）。</small></p>
-      <textarea id="sdFpText" maxlength="300" rows="3" placeholder="この曲と過ごした時間を、ひとことで…"></textarea>
-      <input id="sdFpName" type="text" maxlength="20" placeholder="お名前・ニックネーム（任意）" autocomplete="off">
+      <p class="sd-fp-note" data-ja="いま聴いているこの曲に、そっと言葉を残せます。<br><small>残した言葉は、この曲の景色をおとずれた人に流れます（公開）。</small>" data-en="Leave a few quiet words for the track you're hearing now.<br><small>Your words will drift past others who visit this track's scenery (public).</small>">いま聴いているこの曲に、そっと言葉を残せます。<br><small>残した言葉は、この曲の景色をおとずれた人に流れます（公開）。</small></p>
+      <textarea id="sdFpText" maxlength="300" rows="3" placeholder="この曲と過ごした時間を、ひとことで…" data-en-ph="The time you spent with this track, in a few words…"></textarea>
+      <input id="sdFpName" type="text" maxlength="20" placeholder="お名前・ニックネーム（任意）" autocomplete="off" data-en-ph="Name / nickname (optional)">
       <div class="sd-fp-row">
         <span class="sd-fp-msg" id="sdFpMsg" role="status"></span>
-        <button class="sd-fp-submit" id="sdFpSubmit" type="button">✦ 残す</button>
+        <button class="sd-fp-submit" id="sdFpSubmit" type="button" data-ja="✦ 残す" data-en="✦ Leave it">✦ 残す</button>
       </div>
     </div>
   </section>
   <section class="sd-panel" data-panel="trip" hidden="hidden">
-    <header><span>◇ 旅のしおり</span><button class="sd-pclose" type="button" title="閉じる">✕</button></header>
+    <header><span data-ja="◇ 旅のしおり" data-en="◇ Travel notes">◇ 旅のしおり</span><button class="sd-pclose" type="button" title="閉じる" data-en-title="Close">✕</button></header>
     <div class="sd-pbody"></div>
   </section>
 
   <!-- 旅の中の移動（操縦席 / 星図）は左上にまとめる。右上はグローバルな「劇場に戻る」専用。 -->
   <div class="sd-exits">
-    <button class="sd-exit l" type="button">◄ 操縦席へ</button>
-    <button class="sd-exit r" type="button">✦ 星図へ</button>
+    <button class="sd-exit l" type="button" data-ja="◄ 操縦席へ" data-en="◄ To cockpit">◄ 操縦席へ</button>
+    <button class="sd-exit r" type="button" data-ja="✦ 星図へ" data-en="✦ To star map">✦ 星図へ</button>
   </div>
 </div>
 
@@ -342,9 +388,51 @@
 </script>
 <script src="js/data.js"></script>
 <script src="js/sfx.js?v=20260616b"></script>
+<!-- 言語ランタイム（日英）: app.js非読込のため自前。sessionStorage/localStorage 'hmix_lang' を共有。cockpit-tag.js/scene-dive.js が HMIX_LANG と 'hmix:lang' を参照する前に実行 -->
+<script>
+(function(){
+  function rd(){ try{ return sessionStorage.getItem('hmix_lang') || localStorage.getItem('hmix_lang'); }catch(e){ return null; } }
+  window.HMIX_LANG = (rd()==='en') ? 'en' : 'ja';
+  function setOne(el, en){
+    var ja=el.getAttribute('data-ja'); if(ja==null){ ja=el.textContent; el.setAttribute('data-ja',ja); }
+    var v = en ? el.getAttribute('data-en') : ja;
+    if(v!=null){ if(String(v).indexOf('<')>=0) el.innerHTML=v; else el.textContent=v; }
+  }
+  function applyStatic(){
+    var en = window.HMIX_LANG==='en';
+    try{ document.documentElement.lang = en?'en':'ja'; }catch(e){}
+    document.querySelectorAll('[data-en]').forEach(function(el){ setOne(el, en); });
+    document.querySelectorAll('[data-en-aria]').forEach(function(el){
+      var ja=el.getAttribute('data-ja-aria'); if(ja==null){ ja=el.getAttribute('aria-label')||''; el.setAttribute('data-ja-aria',ja); }
+      el.setAttribute('aria-label', en ? el.getAttribute('data-en-aria') : ja);
+    });
+    document.querySelectorAll('[data-en-title]').forEach(function(el){
+      var ja=el.getAttribute('data-ja-title'); if(ja==null){ ja=el.getAttribute('title')||''; el.setAttribute('data-ja-title',ja); }
+      el.setAttribute('title', en ? el.getAttribute('data-en-title') : ja);
+    });
+    document.querySelectorAll('[data-en-ph]').forEach(function(el){
+      var ja=el.getAttribute('data-ja-ph'); if(ja==null){ ja=el.getAttribute('placeholder')||''; el.setAttribute('data-ja-ph',ja); }
+      el.setAttribute('placeholder', en ? el.getAttribute('data-en-ph') : ja);
+    });
+    var tg=document.getElementById('ft-lang-toggle'); if(tg) tg.textContent = en ? '日本語' : 'EN';
+  }
+  window.HMIX_applyStaticLang = applyStatic;
+  window.HMIX_setLang = function(l){
+    window.HMIX_LANG = (l==='en')?'en':'ja';
+    try{ sessionStorage.setItem('hmix_lang', window.HMIX_LANG); localStorage.setItem('hmix_lang', window.HMIX_LANG); }catch(e){}
+    applyStatic();
+    try{ window.dispatchEvent(new CustomEvent('hmix:lang',{detail:{lang:window.HMIX_LANG}})); }catch(e){}
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    applyStatic();
+    var tg=document.getElementById('ft-lang-toggle');
+    if(tg) tg.addEventListener('click', function(){ window.HMIX_setLang(window.HMIX_LANG==='en'?'ja':'en'); });
+  });
+})();
+</script>
 <script src="js/journey-tag.js?v=20260616b"></script>
-<script src="js/cockpit-tag.js?v=20260623e"></script>
-<script src="js/scene-dive.js?v=20260623e"></script>
+<script src="js/cockpit-tag.js?v=20260628a"></script>
+<script src="js/scene-dive.js?v=20260628a"></script>
 <script src="/theater/js/return-to-theater.js?v=20260617a" defer></script>
 <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
 <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
@@ -401,8 +489,15 @@
   </div>
 </div>
   <script src="/assets/js/fav-store.js?v=20260624b"></script>
-<script src="/assets/js/fav-notebook.js?v=20260624n"></script>
+<script src="/assets/js/fav-notebook.js?v=20260628a"></script>
 <script src="/assets/js/fav-modal.js?v=20260623g"></script>
 
+<noscript>
+  <div style="max-width:680px;margin:8vh auto;padding:0 24px;color:#cfe;font-family:'Noto Serif JP',serif;line-height:1.9;">
+    <h1>星図の旅 — H/MIX GALLERY シアター</h1>
+    <p>感情・物語・情景のタグを星図にした、インタラクティブな音楽体験です。星から星へ辿りながら、作曲家 秋山裕和によるフリーBGM 300曲以上の中から、お好みの一曲に出会えます。この体験には JavaScript が必要です。</p>
+    <p><a href="/music-library.html">楽曲ライブラリ（全曲一覧）へ</a> ／ <a href="/japanese-bgm.html">和風BGM一覧</a> ／ <a href="/theater/">音の劇場トップ</a></p>
+  </div>
+</noscript>
 </body>
 </html>

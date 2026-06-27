@@ -3,12 +3,29 @@
  * window.HMIX_NOTEBOOK.open(collectionId?) / .close()
  * データは FavStore(window.HMIX_FAV) + 楽曲メタ(window.TRACKS) から描画。
  * ※ 旧 fav-modal とは併存（本スライスはローカル構築・未配線）。
+ * 日英対応: window.HMIX_LANG / sessionStorage('hmix_lang') を読み L(ja,en) で出し分け。
  * ===================================================================== */
 (function () {
   'use strict';
   if (window.HMIX_NOTEBOOK) return;
 
-  var STATUS_LABEL = { draft: '検討中', confirmed: '確定', licensed: '証書を綴じた章' };
+  /* ---- 言語 ---- */
+  function curLang() {
+    var v = window.HMIX_LANG;
+    if (v !== 'en' && v !== 'ja') {
+      try { v = sessionStorage.getItem('hmix_lang') || localStorage.getItem('hmix_lang'); } catch (e) { v = null; }
+    }
+    return v === 'en' ? 'en' : 'ja';
+  }
+  function L(ja, en) { return curLang() === 'en' ? en : ja; }
+  function nTracks(n) { return curLang() === 'en' ? (n + ' ' + (n === 1 ? 'track' : 'tracks')) : (n + '曲'); }
+  function nChapters(n) { return curLang() === 'en' ? (n + ' ' + (n === 1 ? 'chapter' : 'chapters')) : (n + '章'); }
+  function statusLabel(s) {
+    return curLang() === 'en'
+      ? ({ draft: 'Draft', confirmed: 'Confirmed', licensed: 'Licensed' }[s] || 'Draft')
+      : ({ draft: '検討中', confirmed: '確定', licensed: '証書を綴じた章' }[s] || '検討中');
+  }
+
   var LOCK_SVG = '<svg class="hnb-chapter__lock" viewBox="0 0 24 24" fill="none" stroke="#e7ca7c" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
   /* ---- 楽曲メタ ---- */
@@ -21,15 +38,15 @@
     _tagLabels = {};
     var meta = window.TAGS_META || {};
     Object.keys(meta).forEach(function (cat) {
-      (meta[cat] || []).forEach(function (t) { _tagLabels[t.id] = (window.HMIX_LANG === 'en' ? (t.name_en || t.name) : t.name) || t.id; });
+      (meta[cat] || []).forEach(function (t) { _tagLabels[t.id] = (curLang() === 'en' ? (t.name_en || t.name) : t.name) || t.id; });
     });
     return _tagLabels;
   }
   function tagsOf(tk) {
     if (!tk) return '';
-    var L = tagLabels();
+    var L2 = tagLabels();
     var ids = [].concat(tk.feeling || [], tk.scene || []).slice(0, 3);
-    return ids.map(function (id) { return L[id] || id; }).join('・');
+    return ids.map(function (id) { return L2[id] || id; }).join(curLang() === 'en' ? ' · ' : '・');
   }
   function durOf(tk) { return tk && (tk.duration || '') || ''; }
 
@@ -55,33 +72,33 @@
     root.setAttribute('hidden', '');
     root.setAttribute('data-binding', 'forest');
     root.innerHTML =
-      '<div class="hmix-notebook" role="dialog" aria-modal="true" aria-label="音楽手帖">' +
+      '<div class="hmix-notebook" role="dialog" aria-modal="true" aria-label="' + L('音楽手帖', 'Music Notebook') + '">' +
         '<div class="hnb-head">' +
           '<div><span class="hnb-head__kicker">Music Notebook</span>' +
-          '<span class="hnb-head__title">音楽手帖</span><span class="hnb-head__count" id="hnb-count"></span></div>' +
+          '<span class="hnb-head__title">' + L('音楽手帖', 'Music Notebook') + '</span><span class="hnb-head__count" id="hnb-count"></span></div>' +
           '<div class="hnb-head__spacer"></div>' +
-          '<input class="hnb-search" id="hnb-search" type="search" placeholder="手帖の中を検索">' +
-          '<span class="hnb-sync" id="hnb-sync">この端末に保存</span>' +
-          '<button class="hnb-close" id="hnb-close" aria-label="とじる">✕</button>' +
+          '<input class="hnb-search" id="hnb-search" type="search" placeholder="' + L('手帖の中を検索', 'Search your notebook') + '">' +
+          '<span class="hnb-sync" id="hnb-sync">' + L('この端末に保存', 'Saved on this device') + '</span>' +
+          '<button class="hnb-close" id="hnb-close" aria-label="' + L('とじる', 'Close') + '">✕</button>' +
         '</div>' +
-        '<nav class="hnb-spine" id="hnb-spine" aria-label="章（本棚）"></nav>' +
+        '<nav class="hnb-spine" id="hnb-spine" aria-label="' + L('章（本棚）', 'Chapters (bookshelf)') + '"></nav>' +
         '<div class="hnb-pages" id="hnb-pages"></div>' +
         '<aside class="hnb-preview" id="hnb-preview"></aside>' +
         '<div class="hnb-empty" id="hnb-empty" hidden>' +
           '<div class="hnb-empty__mark">♡</div>' +
-          '<div class="hnb-empty__lead">最初のページを開きましょう</div>' +
-          '<div class="hnb-empty__sub">♡で曲を栞のように挟むと、ここに綴じられていきます。章に束ねて、まるごと使用許諾を申請できます。</div>' +
-          '<div class="hnb-empty__cta"><button class="hnb-cta" id="hnb-empty-browse" style="width:auto;padding:12px 22px">図書館で探す</button></div>' +
+          '<div class="hnb-empty__lead">' + L('最初のページを開きましょう', 'Open your first page') + '</div>' +
+          '<div class="hnb-empty__sub">' + L('♡で曲を栞のように挟むと、ここに綴じられていきます。章に束ねて、まるごと使用許諾を申請できます。', 'Tap ♡ to bookmark tracks like pressed flowers — they gather here. Bundle them into chapters and request a license all at once.') + '</div>' +
+          '<div class="hnb-empty__cta"><button class="hnb-cta" id="hnb-empty-browse" style="width:auto;padding:12px 22px">' + L('図書館で探す', 'Browse the library') + '</button></div>' +
         '</div>' +
         '<div class="hnb-foot">' +
           '<div class="hnb-bulk" id="hnb-bulk">' +
-            '<span class="hnb-bulk__n" id="hnb-bulk-n">0曲選択中</span>' +
-            '<button class="hnb-bulk__btn" data-act="addto">章へ入れる ▾</button>' +
+            '<span class="hnb-bulk__n" id="hnb-bulk-n"></span>' +
+            '<button class="hnb-bulk__btn" data-act="addto">' + L('章へ入れる ▾', 'Add to chapter ▾') + '</button>' +
           '</div>' +
           '<div class="hnb-apply-actions">' +
             '<button class="hnb-cta hnb-cta--selected" id="hnb-selected-cta"></button>' +
           '</div>' +
-          '<span class="hnb-cta__sub">使う曲だけ選べます・保険の曲は課金されません</span>' +
+          '<span class="hnb-cta__sub">' + L('使う曲だけ選べます・保険の曲は課金されません', 'Pick only the tracks you use — backups are never charged') + '</span>' +
         '</div>' +
       '</div>';
     document.body.appendChild(root);
@@ -118,7 +135,7 @@
     var cols = F().collections();
     if (!cols.some(function (c) { return c.id === state.activeCol; })) state.activeCol = (cols[0] && cols[0].id) || 'default';
     var total = F().uniqueCount();
-    els.count.textContent = total + '曲・' + cols.length + '章';
+    els.count.textContent = curLang() === 'en' ? (nTracks(total) + ' · ' + nChapters(cols.length)) : (total + '曲・' + cols.length + '章');
     // 空状態
     var isEmpty = total === 0;
     els.empty.hidden = !isEmpty;
@@ -131,14 +148,14 @@
   }
 
   function renderSpine(cols) {
-    els.spine.innerHTML = '<div class="hnb-spine__h">本棚 — 章</div>';
+    els.spine.innerHTML = '<div class="hnb-spine__h">' + L('本棚 — 章', 'Bookshelf — Chapters') + '</div>';
     cols.forEach(function (c) {
       var b = document.createElement('button');
       b.className = 'hnb-chapter' + (c.id === state.activeCol ? ' is-active' : '');
       b.setAttribute('data-lic', c.status || 'draft');
       b.innerHTML =
         '<div class="hnb-chapter__name">' + (c.status === 'licensed' ? LOCK_SVG : '') + escapeHtml(c.name) + '</div>' +
-        '<div class="hnb-chapter__meta"><b>' + F().collectionCount(c.id) + '</b> 曲 · ' + (STATUS_LABEL[c.status] || '検討中') + '</div>';
+        '<div class="hnb-chapter__meta"><b>' + F().collectionCount(c.id) + '</b> ' + L('曲', 'tracks') + ' · ' + statusLabel(c.status) + '</div>';
       b.addEventListener('click', function () { state.activeCol = c.id; state.previewId = null; render(); });
       // ドロップ先（曲をドラッグ＝その章へ移動）
       b.addEventListener('dragover', function (e) { if (!_dragIds || c.id === state.activeCol) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; b.classList.add('hnb-drop-hover'); });
@@ -147,14 +164,14 @@
         e.preventDefault(); b.classList.remove('hnb-drop-hover');
         if (!_dragIds || c.id === state.activeCol) return;
         var ids = _dragIds.slice(); F().copyItems(ids, c.id); state.selected = {};
-        nbToast(ids.length + '曲を「' + c.name + '」に入れました（元の章にも残ります）'); render();
+        nbToast(L(ids.length + '曲を「' + c.name + '」に入れました（元の章にも残ります）', 'Added ' + nTracks(ids.length) + ' to "' + c.name + '" (kept in the original chapter too)')); render();
       });
       els.spine.appendChild(b);
     });
     var add = document.createElement('button');
-    add.className = 'hnb-newchapter'; add.textContent = '＋ 新しい章';
+    add.className = 'hnb-newchapter'; add.textContent = L('＋ 新しい章', '+ New chapter');
     add.addEventListener('click', function () {
-      var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）');
+      var name = prompt(L('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）', 'Name your new chapter (e.g. Project X / Battle scene picks)'));
       if (name) { var id = F().createCollection(name.trim()); state.activeCol = id; render(); }
     });
     // 「新しい章」へドロップ＝章を作ってそこへ移動
@@ -164,9 +181,9 @@
       e.preventDefault(); add.classList.remove('hnb-drop-hover');
       if (!_dragIds) return;
       var ids = _dragIds.slice();
-      var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）'); if (!name) return;
+      var name = prompt(L('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）', 'Name your new chapter (e.g. Project X / Battle scene picks)')); if (!name) return;
       var id = F().createCollection(name.trim()); F().copyItems(ids, id); state.selected = {}; state.activeCol = id;
-      nbToast(ids.length + '曲を「' + name.trim() + '」に入れました（元の章にも残ります）'); render();
+      nbToast(L(ids.length + '曲を「' + name.trim() + '」に入れました（元の章にも残ります）', 'Added ' + nTracks(ids.length) + ' to "' + name.trim() + '" (kept in the original chapter too)')); render();
     });
     els.spine.appendChild(add);
   }
@@ -180,9 +197,9 @@
     var tools = document.createElement('div');
     tools.className = 'hnb-select-tools';
     tools.innerHTML =
-      '<span class="hnb-select-tools__label">商用利用する曲</span>' +
-      '<button type="button" class="hnb-select-tools__btn" data-select-act="all">全てチェック</button>' +
-      '<button type="button" class="hnb-select-tools__btn" data-select-act="none">解除</button>';
+      '<span class="hnb-select-tools__label">' + L('商用利用する曲', 'Tracks to license') + '</span>' +
+      '<button type="button" class="hnb-select-tools__btn" data-select-act="all">' + L('全てチェック', 'Check all') + '</button>' +
+      '<button type="button" class="hnb-select-tools__btn" data-select-act="none">' + L('解除', 'Clear') + '</button>';
     els.pages.appendChild(tools);
     var shownIds = [];
     tools.addEventListener('click', function (e) {
@@ -209,12 +226,12 @@
       row.className = 'hnb-row' + (state.previewId === it.trackId ? ' is-active' : '') + (pstate.id === it.trackId && pstate.playing ? ' is-playing' : '');
       row.innerHTML =
         '<input type="checkbox" class="hnb-check"' + (state.selected[it.trackId] ? ' checked' : '') + '>' +
-        '<button class="hnb-iconbtn hnb-fav is-on" title="栞を外す">♥</button>' +
-        '<button class="hnb-iconbtn hnb-play" title="再生">▶</button>' +
+        '<button class="hnb-iconbtn hnb-fav is-on" title="' + L('栞を外す', 'Remove bookmark') + '">♥</button>' +
+        '<button class="hnb-iconbtn hnb-play" title="' + L('再生', 'Play') + '">▶</button>' +
         '<div class="hnb-row__main"><div class="hnb-row__title">' + escapeHtml(title) + '</div><div class="hnb-row__tags">' + escapeHtml(tags) + '</div></div>' +
         '<span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span>' +
-        '<span class="hnb-badge" data-lic="' + (col.status || 'draft') + '">' + (STATUS_LABEL[col.status] || '検討中') + '</span>';
-      row.querySelector('.hnb-check').setAttribute('aria-label', title + 'を商用利用申請の候補に選択');
+        '<span class="hnb-badge" data-lic="' + (col.status || 'draft') + '">' + statusLabel(col.status) + '</span>';
+      row.querySelector('.hnb-check').setAttribute('aria-label', L(title + 'を商用利用申請の候補に選択', 'Select "' + title + '" for the license request'));
       row.querySelector('.hnb-check').addEventListener('click', function (e) {
         e.stopPropagation();
       });
@@ -244,16 +261,16 @@
     });
     if (!shown) {
       if (q) {
-        els.pages.innerHTML = '<div class="hnb-preview__empty" style="padding:40px">「' + escapeHtml(els.search.value) + '」に一致する曲がありません。</div>';
+        els.pages.innerHTML = '<div class="hnb-preview__empty" style="padding:40px">' + L('「' + escapeHtml(els.search.value) + '」に一致する曲がありません。', 'No tracks match "' + escapeHtml(els.search.value) + '".') + '</div>';
       } else {
         els.pages.innerHTML =
           '<div class="hnb-empty-chapter">' +
             '<div class="hnb-empty-chapter__mark">❏</div>' +
-            '<div class="hnb-empty-chapter__lead">この章はまだ空です</div>' +
-            '<div class="hnb-empty-chapter__sub">他の章から曲を「章へ入れる」で移すか、図書館で探して♡しましょう。</div>' +
+            '<div class="hnb-empty-chapter__lead">' + L('この章はまだ空です', 'This chapter is still empty') + '</div>' +
+            '<div class="hnb-empty-chapter__sub">' + L('他の章から曲を「章へ入れる」で移すか、図書館で探して♡しましょう。', 'Move tracks here with "Add to chapter", or browse the library and tap ♡.') + '</div>' +
             '<div class="hnb-empty-chapter__cta">' +
-              (state.activeCol !== 'default' ? '<button class="hnb-cta" data-go="default" style="width:auto;padding:11px 20px">未分類を開く</button>' : '') +
-              '<button class="hnb-cta hnb-cta--ghost" data-go="lib" style="width:auto;padding:11px 20px">図書館で探す</button>' +
+              (state.activeCol !== 'default' ? '<button class="hnb-cta" data-go="default" style="width:auto;padding:11px 20px">' + L('未分類を開く', 'Open Unsorted') + '</button>' : '') +
+              '<button class="hnb-cta hnb-cta--ghost" data-go="lib" style="width:auto;padding:11px 20px">' + L('図書館で探す', 'Browse the library') + '</button>' +
             '</div>' +
           '</div>';
         els.pages.querySelector('.hnb-empty-chapter').addEventListener('click', function (e) {
@@ -269,32 +286,32 @@
     var tm = trackMap();
     var tk = state.previewId ? tm[state.previewId] : null;
     if (!tk) {
-      els.preview.innerHTML = '<div class="hnb-sheet-handle"></div><div class="hnb-preview__empty">曲を選ぶと、ここに波形とメモが開きます。</div>';
+      els.preview.innerHTML = '<div class="hnb-sheet-handle"></div><div class="hnb-preview__empty">' + L('曲を選ぶと、ここに波形とメモが開きます。', 'Pick a track to open its waveform and notes here.') + '</div>';
       return;
     }
     var bars = '';
     for (var i = 0; i < 36; i++) { var h = 16 + Math.round(64 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.21))); bars += '<span style="height:' + h + '%"></span>'; }
     var memo = (F().state().tracks[tk.id] && F().state().tracks[tk.id].favMemo) || '';
     var bTk = state.prevPreviewId ? tm[state.prevPreviewId] : null;
-    var abHtml = '<div class="hnb-preview__sect">A / B 聴き比べ</div>' +
+    var abHtml = '<div class="hnb-preview__sect">' + L('A / B 聴き比べ', 'A / B compare') + '</div>' +
       '<div class="hnb-ab">' +
         '<button class="hnb-ab__btn" data-ab="a"><b>A</b> ' + escapeHtml((tk.title || tk.id)) + '</button>' +
         (bTk ? '<button class="hnb-ab__btn" data-ab="b"><b>B</b> ' + escapeHtml(bTk.title || bTk.id) + '</button>'
-             : '<span class="hnb-ab__hint">別の曲を選ぶとBに入ります</span>') +
+             : '<span class="hnb-ab__hint">' + L('別の曲を選ぶとBに入ります', 'Pick another track to set it as B') + '</span>') +
       '</div>';
     els.preview.innerHTML =
       '<div class="hnb-sheet-handle"></div>' +
-      '<button class="hnb-sheet-close" aria-label="閉じる">✕</button>' +
+      '<button class="hnb-sheet-close" aria-label="' + L('閉じる', 'Close') + '">✕</button>' +
       '<div class="hnb-preview__title">' + escapeHtml(tk.title || tk.id) + '</div>' +
       '<div class="hnb-preview__tags">' + escapeHtml(tagsOf(tk)) + '</div>' +
       '<div class="hnb-wave">' + bars + '</div>' +
-      '<div class="hnb-preview__row"><button class="hnb-iconbtn hnb-pv-play" title="再生">▶</button><span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span></div>' +
+      '<div class="hnb-preview__row"><button class="hnb-iconbtn hnb-pv-play" title="' + L('再生', 'Play') + '">▶</button><span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span></div>' +
       abHtml +
-      '<div class="hnb-preview__sect">曲メモ</div>' +
-      '<textarea class="hnb-memo" placeholder="この曲を選んだ理由・使う場面…">' + escapeHtml(memo) + '</textarea>' +
+      '<div class="hnb-preview__sect">' + L('曲メモ', 'Track notes') + '</div>' +
+      '<textarea class="hnb-memo" placeholder="' + L('この曲を選んだ理由・使う場面…', 'Why you picked it, where you\'ll use it…') + '">' + escapeHtml(memo) + '</textarea>' +
       '<div class="hnb-preview__btns">' +
-        '<button class="hnb-addch-one">＋ 章へ入れる</button>' +
-        '<button class="hnb-apply-one">この曲を商用利用申請 ▸</button>' +
+        '<button class="hnb-addch-one">' + L('＋ 章へ入れる', '+ Add to chapter') + '</button>' +
+        '<button class="hnb-apply-one">' + L('この曲を商用利用申請 ▸', 'License this track ▸') + '</button>' +
       '</div>';
     els.preview.querySelector('.hnb-memo').addEventListener('change', function (e) { F().setTrackMemo(tk.id, e.target.value); });
     els.preview.querySelector('.hnb-apply-one').addEventListener('click', function () { gotoLicense([tk.id]); });
@@ -312,8 +329,10 @@
   function renderBulk() {
     var ids = Object.keys(state.selected);
     els.bulk.classList.toggle('is-on', ids.length > 0);
-    els.bulkN.textContent = ids.length + '曲選択中';
-    els.selectedCta.textContent = ids.length ? '選択曲（' + ids.length + '曲）を商用利用申請 →' : '選択曲を商用利用申請 →';
+    els.bulkN.textContent = L(ids.length + '曲選択中', nTracks(ids.length) + ' selected');
+    els.selectedCta.textContent = ids.length
+      ? L('選択曲（' + ids.length + '曲）を商用利用申請 →', 'License selected (' + nTracks(ids.length) + ') →')
+      : L('選択曲を商用利用申請 →', 'License selected tracks →');
     els.selectedCta.disabled = ids.length === 0;
     els.selectedCta.style.opacity = ids.length === 0 ? '.5' : '1';
   }
@@ -333,17 +352,17 @@
     var listHtml = others.length
       ? others.map(function (c) {
           return '<button class="hnb-picker__item" data-cid="' + c.id + '" data-lic="' + (c.status || 'draft') + '">' +
-            '<span class="hnb-picker__name">' + escapeHtml(c.name) + '</span><span class="hnb-picker__n">' + F().collectionCount(c.id) + '曲</span></button>';
+            '<span class="hnb-picker__name">' + escapeHtml(c.name) + '</span><span class="hnb-picker__n">' + nTracks(F().collectionCount(c.id)) + '</span></button>';
         }).join('')
-      : '<div class="hnb-picker__none">まだ他の章がありません。下から作れます。</div>';
+      : '<div class="hnb-picker__none">' + L('まだ他の章がありません。下から作れます。', 'No other chapters yet. Create one below.') + '</div>';
     pop.innerHTML =
       '<div class="hnb-picker__backdrop"></div>' +
-      '<div class="hnb-picker__panel" role="dialog" aria-modal="true" aria-label="章へ入れる">' +
-        '<div class="hnb-picker__head">' + trackIds.length + '曲を章へ入れる</div>' +
+      '<div class="hnb-picker__panel" role="dialog" aria-modal="true" aria-label="' + L('章へ入れる', 'Add to chapter') + '">' +
+        '<div class="hnb-picker__head">' + L(trackIds.length + '曲を章へ入れる', 'Add ' + nTracks(trackIds.length) + ' to a chapter') + '</div>' +
         '<div class="hnb-picker__list">' + listHtml + '</div>' +
-        '<button class="hnb-picker__new">＋ 新しい章を作って入れる</button>' +
-        '<label class="hnb-picker__move"><input type="checkbox"> 元の章から移動（コピーしない）</label>' +
-        '<button class="hnb-picker__close">とじる</button>' +
+        '<button class="hnb-picker__new">' + L('＋ 新しい章を作って入れる', '+ Create a new chapter and add') + '</button>' +
+        '<label class="hnb-picker__move"><input type="checkbox"> ' + L('元の章から移動（コピーしない）', 'Move from original (don\'t copy)') + '</label>' +
+        '<button class="hnb-picker__close">' + L('とじる', 'Close') + '</button>' +
       '</div>';
     shell.appendChild(pop);
     requestAnimationFrame(function () { pop.classList.add('is-open'); });
@@ -353,7 +372,8 @@
       if (moveMode) F().moveItems(trackIds, cid); else F().copyItems(trackIds, cid);
       if (opts.clearAfter) state.selected = {};
       closePop();
-      nbToast(trackIds.length + '曲を「' + label + '」に' + (moveMode ? '移しました' : '入れました'));
+      nbToast(L(trackIds.length + '曲を「' + label + '」に' + (moveMode ? '移しました' : '入れました'),
+               (moveMode ? 'Moved ' : 'Added ') + nTracks(trackIds.length) + ' to "' + label + '"'));
       render();
     }
     pop.querySelector('.hnb-picker__move input').addEventListener('change', function (e) { moveMode = e.target.checked; });
@@ -361,7 +381,7 @@
       b.addEventListener('click', function () { apply(b.dataset.cid, b.querySelector('.hnb-picker__name').textContent); });
     });
     pop.querySelector('.hnb-picker__new').addEventListener('click', function () {
-      var name = prompt('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）'); if (!name) return;
+      var name = prompt(L('新しい章の名前（例：〇〇案件 / 戦闘シーン候補）', 'Name your new chapter (e.g. Project X / Battle scene picks)')); if (!name) return;
       var cid = F().createCollection(name.trim()); apply(cid, name.trim());
     });
     pop.querySelector('.hnb-picker__close').addEventListener('click', closePop);

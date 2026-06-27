@@ -26,6 +26,38 @@
 <meta name="twitter:title" content="音の劇場 - H/MIX GALLERY">
 <meta name="twitter:description" content="星図の旅・夜風・旅する少女 — H/MIX GALLERY の音楽シアター入口。">
 <meta name="twitter:image" content="https://www.hmix.net/theater/banners/starmap.webp">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#08140e">
+<meta property="og:locale:alternate" content="en_US">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "音の劇場 — H/MIX GALLERY Theater",
+  "alternateName": "H/MIX Theater",
+  "url": "https://www.hmix.net/theater/",
+  "description": "H/MIX GALLERY のフリーBGMを、情景の中を旅するように楽しめる音楽シアター。星図の旅・夜風・旅する少女などの没入型コンテンツを収録。",
+  "inLanguage": "ja",
+  "image": "https://www.hmix.net/theater/banners/starmap.webp",
+  "isPartOf": { "@type": "WebSite", "name": "H/MIX GALLERY", "url": "https://www.hmix.net/" },
+  "author": { "@type": "Person", "@id": "https://www.hmix.net/composer.html#person", "name": "秋山裕和", "alternateName": "Hirokazu Akiyama", "url": "https://www.hmix.net/composer.html" },
+  "hasPart": [
+    { "@type": "WebApplication", "name": "星図の旅 — Tag Cockpit", "url": "https://www.hmix.net/theater/tag-cockpit.html" },
+    { "@type": "VideoObject", "name": "夜風 — Night Breeze", "url": "https://www.hmix.net/theater/night-breeze/" },
+    { "@type": "CollectionPage", "name": "景色の劇場 — Scenes", "url": "https://www.hmix.net/theater/scenes.html" }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.hmix.net/" },
+    { "@type": "ListItem", "position": 2, "name": "音の劇場", "item": "https://www.hmix.net/theater/" }
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,11 +221,11 @@
       </div>
     </div>
     <div id="ft-now" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
-      <div style="display:flex; align-items:center; gap:11px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.28em; color:rgba(150,194,165,.72);">今夜の上映<span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(150,194,165,.4), transparent);"></span></div>
+      <div style="display:flex; align-items:center; gap:11px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.28em; color:rgba(150,194,165,.72);"><span data-ja="今夜の上映" data-en="Now Showing">今夜の上映</span><span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(150,194,165,.4), transparent);"></span></div>
       <div id="ft-rail-wrap" style="position:relative;">
-        <button id="ft-rail-prev" class="ft-chev" type="button" aria-label="前へ">‹</button>
+        <button id="ft-rail-prev" class="ft-chev" type="button" aria-label="前へ" data-ja-aria="前へ" data-en-aria="Previous">‹</button>
         <div id="ft-rail" style="display:flex; align-items:flex-start; gap:clamp(10px,1vw,16px);"></div>
-        <button id="ft-rail-next" class="ft-chev" type="button" aria-label="次へ">›</button>
+        <button id="ft-rail-next" class="ft-chev" type="button" aria-label="次へ" data-ja-aria="次へ" data-en-aria="Next">›</button>
       </div>
     </div>
   </div>
@@ -209,10 +241,11 @@
       <!-- 背景の切り替え（森の劇場 ほか）。位置調整は開発用で非表示（?cal=1 / Shift+C） -->
       <button id="ft-bg-switch" type="button" title="クリックで背景（劇場の景色）を切り替えます" style="pointer-events:auto; display:inline-flex; align-items:center; gap:8px; font-family:'Noto Sans JP',sans-serif; font-size:12px; letter-spacing:.06em; color:rgba(206,226,210,.85); cursor:pointer; background:rgba(8,16,11,.5); border:1px solid rgba(140,180,150,.5); border-radius:30px; padding:7px 15px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:.25s;">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
-        <span class="ft-bg-cta">背景を変える</span>
+        <span class="ft-bg-cta" data-ja="背景を変える" data-en="Change scene">背景を変える</span>
         <span class="ft-bg-sep">·</span>
         <span id="ft-bg-name">森の野外劇場</span>
       </button>
+      <button id="ft-lang-toggle" type="button" aria-label="Switch language" style="pointer-events:auto; font-family:'Bebas Neue',sans-serif; font-size:clamp(11px,.95vw,14px); letter-spacing:.16em; color:rgba(150,194,165,.82); cursor:pointer; background:rgba(8,16,11,.5); border:1px solid rgba(140,180,150,.5); border-radius:30px; padding:6px 13px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); text-shadow:0 2px 16px rgba(0,0,0,.8); transition:.25s;">EN</button>
       <a id="ft-home" href="/" style="pointer-events:auto; font-family:'Bebas Neue',sans-serif; font-size:clamp(12px,1vw,15px); letter-spacing:.24em; color:rgba(150,194,165,.82); text-decoration:none; text-shadow:0 2px 16px rgba(0,0,0,.8); transition:color .25s;">HOME</a>
     </div>
   </header>
@@ -234,25 +267,69 @@
 </div>
 
 <script src="/assets/js/tracks.js"></script>
+<!-- 言語ランタイム（日英）: app.js非読込のため自前。sessionStorage/localStorage 'hmix_lang' を共有 -->
+<script>
+(function(){
+  function rd(){ try{ return sessionStorage.getItem('hmix_lang') || localStorage.getItem('hmix_lang'); }catch(e){ return null; } }
+  window.HMIX_LANG = (rd()==='en') ? 'en' : 'ja';
+  function applyStatic(){
+    var en = window.HMIX_LANG==='en';
+    try{ document.documentElement.lang = en?'en':'ja'; }catch(e){}
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      var ja=el.getAttribute('data-ja'); if(ja==null){ ja=el.textContent; el.setAttribute('data-ja',ja); }
+      el.textContent = en ? el.getAttribute('data-en') : ja;
+    });
+    document.querySelectorAll('[data-en-aria]').forEach(function(el){
+      var ja=el.getAttribute('data-ja-aria'); if(ja==null){ ja=el.getAttribute('aria-label')||''; el.setAttribute('data-ja-aria',ja); }
+      el.setAttribute('aria-label', en ? el.getAttribute('data-en-aria') : ja);
+    });
+    var tg=document.getElementById('ft-lang-toggle'); if(tg) tg.textContent = en ? '日本語' : 'EN';
+  }
+  window.HMIX_applyStaticLang = applyStatic;
+  window.HMIX_setLang = function(l){
+    window.HMIX_LANG = (l==='en')?'en':'ja';
+    try{ sessionStorage.setItem('hmix_lang', window.HMIX_LANG); localStorage.setItem('hmix_lang', window.HMIX_LANG); }catch(e){}
+    applyStatic();
+    try{ window.dispatchEvent(new CustomEvent('hmix:lang',{detail:{lang:window.HMIX_LANG}})); }catch(e){}
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    applyStatic();
+    var tg=document.getElementById('ft-lang-toggle');
+    if(tg) tg.addEventListener('click', function(){ window.HMIX_setLang(window.HMIX_LANG==='en'?'ja':'en'); });
+  });
+})();
+</script>
 <script>
 (function(){
   var B = 'https://www.hmix.net/theater/banners/';
   var entries = [
-    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する', img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
-    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る', img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
-    { key:'play', title:'演奏動画', tag:'特集', meta:'秋山裕和の演奏 · YouTube', line:'秋山裕和の演奏を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', playlist:true, plIndex:0 },
-    { key:'works', title:'実績動画', tag:'特集', meta:'制作・使用実績 · YouTube', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく', img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true, plIndex:1 },
-    { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する', img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
-    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る', img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' }
+    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する',
+      title_en:'Star-Chart Journey', tag_en:'Featured', meta_en:'Interactive experience · Navigate the star chart', line_en:'Follow the stars of each tag and discover a track you have never heard.', cta_en:'Enter',
+      img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
+    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る',
+      title_en:'Night Breeze', tag_en:'Long film', meta_en:'BGM film · 60 min', line_en:'An hour-long film of music to keep you company in the quiet of night.', cta_en:'Watch',
+      img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
+    { key:'play', title:'演奏動画', tag:'特集', meta:'秋山裕和の演奏 · YouTube', line:'秋山裕和の演奏を、この劇場の中で。', cta:'ひらく',
+      title_en:'Performances', tag_en:'Featured', meta_en:'Performances by Hirokazu Akiyama · YouTube', line_en:'Hirokazu Akiyama performing, here in the theater.', cta_en:'Open',
+      img:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', playlist:true, plIndex:0 },
+    { key:'works', title:'実績動画', tag:'特集', meta:'制作・使用実績 · YouTube', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく',
+      title_en:'Productions', tag_en:'Featured', meta_en:'Productions & placements · YouTube', line_en:'Videos that feature H/MIX music, here in the theater.', cta_en:'Open',
+      img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true, plIndex:1 },
+    { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する',
+      title_en:'The Traveling Girl', tag_en:'Short', meta_en:'Short film', line_en:'A little travel story set to H/MIX music.', cta_en:'Play',
+      img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
+    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る',
+      title_en:'The First Renewal in 14 Years', tag_en:'NEW', meta_en:'Latest · YouTube', line_en:'302 free BGM tracks — all the Japanese-style and fantasy you need.', cta_en:'Watch on screen',
+      img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' }
   ];
   // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
   // 既定値は目安。?cal=1 または Shift+C で微調整 → 背景ごとに localStorage 保存。
   var BGS = [
-    { key:'forest',   title:'森の野外劇場', img:'theater-night-q95.webp' },
-    { key:'pier',     title:'海辺の夜想',   img:'bg/pier.webp' },
-    { key:'cosmos',   title:'星海の劇場',   img:'bg/cosmos.webp' },
-    { key:'ruins',    title:'緑の遺跡',     img:'bg/ruins.webp' },
-    { key:'fireside', title:'暖炉の私室',   img:'bg/fireside.webp' }
+    { key:'forest',   title:'森の野外劇場', title_en:'Forest Open-Air Theater', img:'theater-night-q95.webp' },
+    { key:'pier',     title:'海辺の夜想',   title_en:'Seaside Nocturne',        img:'bg/pier.webp' },
+    { key:'cosmos',   title:'星海の劇場',   title_en:'Theater of the Star Sea',  img:'bg/cosmos.webp' },
+    { key:'ruins',    title:'緑の遺跡',     title_en:'Verdant Ruins',           img:'bg/ruins.webp' },
+    { key:'fireside', title:'暖炉の私室',   title_en:'Fireside Chamber',        img:'bg/fireside.webp' }
   ];
   // スクリーン枠は背景ごとに専用。?cal=1 / Shift+C で各背景を調整 → その背景だけに保存。
   // 既定は森の確定値。暖炉は絵のスクリーンが高め・大きめなので別の初期値。
@@ -291,6 +368,11 @@
     return out;
   }
   function saveBox(){ try{ localStorage.setItem('forest.frame.'+curKey(), JSON.stringify(box)); }catch(_){} }
+  // ── 言語ヘルパー（HMIX_LANG はページ冒頭の i18n ランタイムがセット） ──
+  function lang(){ return window.HMIX_LANG === 'en' ? 'en' : 'ja'; }
+  function L(ja,en){ return lang()==='en' ? en : ja; }
+  function EL(e,f){ return (lang()==='en' && e[f+'_en']) ? e[f+'_en'] : e[f]; }
+
   function switchBg(i){
     bgIndex = ((i % BGS.length) + BGS.length) % BGS.length;
     var g = BGS[bgIndex];
@@ -302,7 +384,7 @@
     function apply(){
       if(switchBg._t !== tok) return;            // 連打時は最新のみ適用
       if(bgImg) bgImg.setAttribute('src', g.img);
-      if(bgName) bgName.textContent = g.title;
+      if(bgName) bgName.textContent = EL(g,'title');
       applyBox(); updateReadout();
       updateLeaves();
     }
@@ -339,7 +421,7 @@
           '<img alt="" data-thumb src="'+e.img+'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.72);">' +
           '<div data-rb style="position:absolute; inset:0; border-radius:4px; box-shadow:inset 0 0 0 0 transparent; transition:box-shadow .4s ease;"></div>' +
         '</div>' +
-        '<div style="font-size:11.5px; font-weight:500; letter-spacing:.04em; color:rgba(214,226,212,.82); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">'+e.title+'</div>' +
+        '<div style="font-size:11.5px; font-weight:500; letter-spacing:.04em; color:rgba(214,226,212,.82); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;">'+EL(e,'title')+'</div>' +
         '<div data-underline style="width:0; height:2px; border-radius:2px; background:var(--gold,#caa44e); transition:width .4s ease;"></div>';
       btn.addEventListener('click', function(){ select(i); });
       rail.appendChild(btn);
@@ -359,11 +441,11 @@
 
   function renderInfo(){
     var c = entries[state.active] || entries[0];
-    if(elTag) elTag.textContent = c.tag;
-    if(elMeta) elMeta.textContent = c.meta;
-    if(elTitle) elTitle.textContent = c.title;
-    if(elLine) elLine.textContent = c.line;
-    if(elCtaLabel) elCtaLabel.textContent = c.cta;
+    if(elTag) elTag.textContent = EL(c,'tag');
+    if(elMeta) elMeta.textContent = EL(c,'meta');
+    if(elTitle) elTitle.textContent = EL(c,'title');
+    if(elLine) elLine.textContent = EL(c,'line');
+    if(elCtaLabel) elCtaLabel.textContent = EL(c,'cta');
   }
 
   function reelChange(){
@@ -456,15 +538,15 @@
       '<div id="ft-yt-dim" class="on"><span class="ic">' + YT_SVG.play + '</span></div>' +
       '<div id="ft-yt-shield"></div>' +
       '<div id="ft-yt-bar">' +
-        '<button class="ft-yt-btn" id="ft-yt-play" type="button" aria-label="再生/一時停止">' + YT_SVG.play + '</button>' +
-        '<button class="ft-yt-btn" id="ft-yt-prev" type="button" aria-label="前の曲">' + YT_SVG.prev + '</button>' +
-        '<button class="ft-yt-btn" id="ft-yt-next" type="button" aria-label="次の曲">' + YT_SVG.next + '</button>' +
-        '<input id="ft-yt-seek" class="ft-yt-range" type="range" min="0" max="1000" value="0" step="1" aria-label="シーク">' +
+        '<button class="ft-yt-btn" id="ft-yt-play" type="button" aria-label="'+L('再生/一時停止','Play / pause')+'">' + YT_SVG.play + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-prev" type="button" aria-label="'+L('前の曲','Previous')+'">' + YT_SVG.prev + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-next" type="button" aria-label="'+L('次の曲','Next')+'">' + YT_SVG.next + '</button>' +
+        '<input id="ft-yt-seek" class="ft-yt-range" type="range" min="0" max="1000" value="0" step="1" aria-label="'+L('シーク','Seek')+'">' +
         '<span id="ft-yt-time">0:00 / 0:00</span>' +
-        '<button class="ft-yt-btn" id="ft-yt-mute" type="button" aria-label="ミュート">' + YT_SVG.vol + '</button>' +
-        '<input id="ft-yt-vol" class="ft-yt-range" type="range" min="0" max="100" value="100" step="1" aria-label="音量">' +
-        '<button class="ft-yt-btn'+(ytCover?' on':'')+'" id="ft-yt-fit" type="button" aria-label="表示（ぴったり／フィル）" title="ぴったり／フィル">' + YT_SVG.fit + '</button>' +
-        '<button class="ft-yt-btn" id="ft-yt-fs" type="button" aria-label="全画面">' + YT_SVG.fs + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-mute" type="button" aria-label="'+L('ミュート','Mute')+'">' + YT_SVG.vol + '</button>' +
+        '<input id="ft-yt-vol" class="ft-yt-range" type="range" min="0" max="100" value="100" step="1" aria-label="'+L('音量','Volume')+'">' +
+        '<button class="ft-yt-btn'+(ytCover?' on':'')+'" id="ft-yt-fit" type="button" aria-label="'+L('表示（ぴったり／フィル）','Fit / fill')+'" title="'+L('ぴったり／フィル','Fit / fill')+'">' + YT_SVG.fit + '</button>' +
+        '<button class="ft-yt-btn" id="ft-yt-fs" type="button" aria-label="'+L('全画面','Fullscreen')+'">' + YT_SVG.fs + '</button>' +
       '</div>';
     media.appendChild(ui);
 
@@ -695,8 +777,8 @@
     ]
   };
   var PLAYLISTS = [
-    { id:'works-a', type:'youtube', name:'演奏動画', sub:'秋山裕和の演奏', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', yt:'PLDu7Op6BS12E', titles:{} },
-    { id:'works-b', type:'youtube', name:'使用・制作実績', sub:'H/MIXが使われた映像', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', yt:'PLJy2czsk77Rs', titles:{} }
+    { id:'works-a', type:'youtube', name:'演奏動画', name_en:'Performances', sub:'秋山裕和の演奏', sub_en:'Performances by Hirokazu Akiyama', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', yt:'PLDu7Op6BS12E', titles:{} },
+    { id:'works-b', type:'youtube', name:'使用・制作実績', name_en:'Productions', sub:'H/MIXが使われた映像', sub_en:'Videos featuring H/MIX music', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', yt:'PLJy2czsk77Rs', titles:{} }
   ];
   var plBuilt=false, plActive=0, plAudio=null, plPlayingId=null;
   var ytVidIds=[], ytTitles={};
@@ -850,7 +932,7 @@
     var pl=document.createElement('div'); pl.id='ft-pl';
     pl.innerHTML=
       '<div id="ft-pl-panel"><div id="ft-pl-head"><h4></h4><p></p></div><div id="ft-pl-body"></div></div>'+
-      '<div id="ft-pl-dock"><div class="dk"><b>WORKS — 制作実績</b><button id="ft-pl-close" type="button">✕ 閉じる</button></div><div id="ft-pl-sel"></div></div>';
+      '<div id="ft-pl-dock"><div class="dk"><b>'+L('WORKS — 制作実績','WORKS — H/MIX in use')+'</b><button id="ft-pl-close" type="button">'+L('✕ 閉じる','✕ Close')+'</button></div><div id="ft-pl-sel"></div></div>';
     document.body.appendChild(pl);
     var used=document.createElement('div'); used.id='ft-used'; document.body.appendChild(used);
     document.getElementById('ft-pl-close').addEventListener('click', closePlaylistMode);
@@ -859,8 +941,8 @@
     bindUIHover(used);
     bindUILeave(document.getElementById('ft-pl-panel'));   // 収録映像：離れたら即収納
     // エッジタブ（収納時に常駐・ホバー/クリックで両側からスライド復帰）
-    var usedTab=document.createElement('button'); usedTab.id='ft-used-tab'; usedTab.className='ft-edge-tab'; usedTab.type='button'; usedTab.innerHTML='<span class="et-ico">♪</span>使用曲';
-    var plTab=document.createElement('button'); plTab.id='ft-pl-tab'; plTab.className='ft-edge-tab'; plTab.type='button'; plTab.innerHTML='<span class="et-ico">▶</span>収録映像';
+    var usedTab=document.createElement('button'); usedTab.id='ft-used-tab'; usedTab.className='ft-edge-tab'; usedTab.type='button'; usedTab.innerHTML='<span class="et-ico">♪</span>'+L('使用曲','Tracks used');
+    var plTab=document.createElement('button'); plTab.id='ft-pl-tab'; plTab.className='ft-edge-tab'; plTab.type='button'; plTab.innerHTML='<span class="et-ico">▶</span>'+L('収録映像','Videos');
     document.body.appendChild(usedTab); document.body.appendChild(plTab);
     [usedTab, plTab].forEach(function(tb){
       tb.addEventListener('click', function(){ uiWake(true); });
@@ -872,9 +954,9 @@
     PLAYLISTS.forEach(function(p, i){
       if(p.type==='tracks'){ p._tracks = tracksByTags(p.tags); if(p._tracks.length < 3){ p._hidden=true; return; } }
       var c=document.createElement('div'); c.className='plc'; c.setAttribute('data-i', i);
-      var cnt = p.type==='tracks' ? (p._tracks.length+'曲') : 'YouTube';
+      var cnt = p.type==='tracks' ? L(p._tracks.length+'曲', p._tracks.length+' tracks') : 'YouTube';
       var pic = p.thumb ? '<img class="thumb" src="'+p.thumb+'" alt="" loading="lazy">' : '<div class="pic '+p.cls+'">'+p.icon+'</div>';
-      c.innerHTML=pic+'<div class="plc-tx"><div class="nm">'+p.name+'</div><div class="mt">'+p.sub+' · '+cnt+'</div></div>';
+      c.innerHTML=pic+'<div class="plc-tx"><div class="nm">'+EL(p,'name')+'</div><div class="mt">'+EL(p,'sub')+' · '+cnt+'</div></div>';
       c.addEventListener('click', function(){ renderPlaylist(i); });
       sel.appendChild(c);
     });
@@ -952,27 +1034,27 @@
 
     if(p.type==='youtube'){
       ytVidIds=[]; ytLastCur=-1; ytCurVid=null; ytErrStreak=0;
-      head.textContent='収録映像';
-      sub.textContent='YouTubeに接続中…';
+      head.textContent=L('収録映像','Videos');
+      sub.textContent=L('YouTubeに接続中…','Connecting to YouTube…');
       if(!renderYTRows(p, Object.keys(p.titles||{}), 0, true)){
-        body.innerHTML='<div class="pl-note">映像一覧を読み込み中…</div>';
+        body.innerHTML='<div class="pl-note">'+L('映像一覧を読み込み中…','Loading video list…')+'</div>';
       }
       playInScreen('yt', p.yt);   // 額縁内で再生 → ytSyncList が一覧を描画
     } else {
       var uc=document.getElementById('ft-used'); if(uc) uc.classList.remove('on');   // 楽曲型では左カード非表示
-      head.textContent=p.name; sub.textContent=p.sub+' · '+p._tracks.length+'曲';
+      head.textContent=EL(p,'name'); sub.textContent=EL(p,'sub')+' · '+L(p._tracks.length+'曲', p._tracks.length+' tracks');
       media.style.display='block'; state.mediaOpen=true;
-      mediaInner.innerHTML='<div id="ft-pl-art"><div><div class="big">♪</div><div class="nm">'+p.name+'</div><div class="np" id="ft-pl-np">▶ で試聴</div></div></div>';
+      mediaInner.innerHTML='<div id="ft-pl-art"><div><div class="big">♪</div><div class="nm">'+EL(p,'name')+'</div><div class="np" id="ft-pl-np">'+L('▶ で試聴','▶ to preview')+'</div></div></div>';
       body.innerHTML='';
       p._tracks.slice(0,40).forEach(function(t, idx){
         var row=document.createElement('div'); row.className='pl-row'; row.setAttribute('data-id', t.id);
         var tags=allTags(t).slice(0,2).join(' / ');
         row.innerHTML=
-          '<button class="pl-h'+(isFav(t.id)?' on':'')+'" title="お気に入り">'+(isFav(t.id)?'♥':'♡')+'</button>'+
+          '<button class="pl-h'+(isFav(t.id)?' on':'')+'" title="'+L('お気に入り','Favorite')+'">'+(isFav(t.id)?'♥':'♡')+'</button>'+
           '<span class="pl-ix">'+(idx<9?'0':'')+(idx+1)+'</span>'+
           '<span class="pl-nm">'+t.title+'<small>'+tags+'</small></span>'+
           '<span class="pl-dur">'+fmtDur(t)+'</span>'+
-          '<a class="pl-mini" href="/music/'+t.id+'.html">詳細→</a>'+
+          '<a class="pl-mini" href="/music/'+t.id+'.html">'+L('詳細→','Details →')+'</a>'+
           '<button class="pl-mini play" type="button">▶</button>';
         row.querySelector('.pl-h').addEventListener('click', function(){ var on=toggleFavId(t.id); this.classList.toggle('on',on); this.textContent=on?'♥':'♡'; });
         row.querySelector('.play').addEventListener('click', function(){ previewTrack(t, row); });
@@ -994,7 +1076,7 @@
     [].forEach.call(document.querySelectorAll('#ft-used [data-play]'), function(b){
       var pl = on && String(b.getAttribute('data-play'))===String(plPlayingId);
       b.textContent = pl ? '■' : '▶'; b.classList.toggle('is-playing', !!pl);
-      b.setAttribute('title', pl ? '停止' : '試聴');
+      b.setAttribute('title', pl ? L('停止','Stop') : L('試聴','Preview'));
     });
     [].forEach.call(document.querySelectorAll('#ft-pl-body .pl-row'), function(r){
       var b=r.querySelector('.play'); if(!b) return;
@@ -1004,12 +1086,12 @@
   }
   function previewTrack(t, row){
     if(!plAudio){ plAudio=new Audio();
-      plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; var np=document.getElementById('ft-pl-np'); if(np) np.textContent='▶ で試聴'; updatePreviewIcons(); });
+      plAudio.addEventListener('ended', function(){ clearPlayingRows(); plPlayingId=null; var np=document.getElementById('ft-pl-np'); if(np) np.textContent=L('▶ で試聴','▶ to preview'); updatePreviewIcons(); });
       plAudio.addEventListener('pause', updatePreviewIcons);
       plAudio.addEventListener('play', updatePreviewIcons);
     }
     var np=document.getElementById('ft-pl-np');
-    if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent='▶ で試聴'; updatePreviewIcons(); return; }
+    if(plPlayingId===t.id && !plAudio.paused){ plAudio.pause(); clearPlayingRows(); plPlayingId=null; if(np) np.textContent=L('▶ で試聴','▶ to preview'); updatePreviewIcons(); return; }
     plAudio.src=t.mp3; plAudio.volume=plVol; var pr=plAudio.play(); if(pr&&pr.catch) pr.catch(function(){});
     plPlayingId=t.id; clearPlayingRows(); if(row) row.classList.add('playing'); if(np) np.textContent='♪ '+t.title; updatePreviewIcons();
   }
@@ -1074,7 +1156,7 @@
     var vt=(d&&d.title)||'';
     var h='<div class="uh">この映像で使われている曲<small>'+esc(vt)+'</small></div><div class="ubody">';
     if(!list.length) h+='<div class="u-empty">この映像にはまだ使用曲が登録されていません（下のフォームで追加）</div>';
-    else h+='<div class="u-listen"><span>試聴音量</span><input id="u-preview-vol" type="range" min="0" max="100" value="'+Math.round(plVol*100)+'" step="1" aria-label="使用曲の試聴音量"></div>';
+    else h+='<div class="u-listen"><span>'+L('試聴音量','Preview volume')+'</span><input id="u-preview-vol" type="range" min="0" max="100" value="'+Math.round(plVol*100)+'" step="1" aria-label="'+L('使用曲の試聴音量','Preview volume for used tracks')+'"></div>';
     list.forEach(function(u,i){
       var t=(u.t!=null)?fmtSec(u.t):'';
       if(u.id){ var tr=trackById(u.id);
@@ -1129,7 +1211,7 @@
     if(!m){ m=document.createElement('div'); m.id='ft-yt-msg';
       m.style.cssText='position:absolute; inset:0; z-index:4; display:grid; place-items:center; text-align:center; padding:0 8%; background:rgba(5,9,7,.86); color:rgba(238,240,234,.92); font-family:"Noto Sans JP",sans-serif; font-size:13px; line-height:1.8;';
       media.appendChild(m); }
-    m.innerHTML='この映像は権利者の設定により<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">次の映像へ移動します…</span>';
+    m.innerHTML=L('この映像は権利者の設定により<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">次の映像へ移動します…</span>','This video cannot be played inside the theater<br>due to the rights holder\'s settings.<br><span style="font-size:11px;color:rgba(206,222,206,.6);">Moving to the next video…</span>');
     m.style.display='grid';
   }
   function showAllNoEmbed(){
@@ -1137,7 +1219,7 @@
     if(!m){ m=document.createElement('div'); m.id='ft-yt-msg';
       m.style.cssText='position:absolute; inset:0; z-index:4; display:grid; place-items:center; text-align:center; padding:0 8%; background:rgba(5,9,7,.86); color:rgba(238,240,234,.92); font-family:"Noto Sans JP",sans-serif; font-size:13px; line-height:1.8;';
       media.appendChild(m); }
-    m.innerHTML='このプレイリストの映像は、現在すべて<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">右の一覧から個別に開くか、YouTube で直接ご覧ください。</span>';
+    m.innerHTML=L('このプレイリストの映像は、現在すべて<br>シアター内で再生できません。<br><span style="font-size:11px;color:rgba(206,222,206,.6);">右の一覧から個別に開くか、YouTube で直接ご覧ください。</span>','None of the videos in this playlist can be played<br>inside the theater right now.<br><span style="font-size:11px;color:rgba(206,222,206,.6);">Open them individually from the list, or watch on YouTube.</span>');
     m.style.display='grid';
   }
   function hideNoEmbed(){ var m=document.getElementById('ft-yt-msg'); if(m) m.style.display='none'; }
@@ -1147,18 +1229,18 @@
     if(!ids.length) return false;
     var body=document.getElementById('ft-pl-body'); if(!body) return false;
     var head=document.querySelector('#ft-pl-head h4'), sub=document.querySelector('#ft-pl-head p');
-    if(head) head.textContent='収録映像';
-    if(sub) sub.textContent=ids.length+'本 · '+(pending?'YouTube接続中':'クリックで再生');
+    if(head) head.textContent=L('収録映像','Videos');
+    if(sub) sub.textContent=L(ids.length+'本 · '+(pending?'YouTube接続中':'クリックで再生'), ids.length+(ids.length===1?' video · ':' videos · ')+(pending?'Connecting to YouTube':'Click to play'));
     if(ytVidIds.join(',')!==ids.join(',')){
       ytVidIds=ids.slice();
       body.innerHTML='';
       ids.forEach(function(vid, idx){
         var row=document.createElement('div'); row.className='pl-vrow'; row.setAttribute('data-vid', vid);
         var used=(usedFor(vid)||[]).length;
-        var badge=used?('<div class="pl-vused" data-used-badge>使用曲 '+used+'</div>'):'<div class="pl-vused" data-used-badge style="display:none">使用曲</div>';
+        var badge=used?('<div class="pl-vused" data-used-badge>'+L('使用曲 '+used,used+' tracks used')+'</div>'):'<div class="pl-vused" data-used-badge style="display:none">'+L('使用曲','Tracks used')+'</div>';
         row.innerHTML=
           '<div class="pl-vth"><img loading="lazy" src="https://i.ytimg.com/vi/'+vid+'/mqdefault.jpg" alt=""><span class="pl-vplay">▶</span></div>'+
-          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||('映像 '+(idx+1)))+'</div>'+badge+'</div>'+
+          '<div class="pl-vmeta"><div class="pl-vix">MOVIE '+(idx<9?'0':'')+(idx+1)+'</div><div class="pl-vt">'+esc((p.titles&&p.titles[vid])||ytTitles[vid]||L('映像 '+(idx+1),'Video '+(idx+1)))+'</div>'+badge+'</div>'+
           '<div class="pl-vnow">NOW</div>';
         row.addEventListener('click', function(){
           try{ if(ytPlayer&&ytPlayer.playVideoAt) ytPlayer.playVideoAt(idx); }catch(e){}
@@ -1179,7 +1261,7 @@
       var n=(usedFor(v)||[]).length;
       var b=rows[i].querySelector('[data-used-badge]');
       if(b){
-        if(n){ b.textContent='使用曲 '+n; b.style.display=''; }
+        if(n){ b.textContent=L('使用曲 '+n, n+' tracks used'); b.style.display=''; }
         else  { b.style.display='none'; }
       }
     }
@@ -1196,6 +1278,34 @@
     }
   }
 
+  // 全動画タイトルを取得（YouTube IFrame APIは現在曲のタイトルしか返さないため、
+  // oEmbed=APIキー不要 で各動画IDのタイトルを補完。失敗時は noembed プロキシにフォールバック）
+  var ytTitleTried={}, _titleRefreshT=null;
+  function scheduleTitleRefresh(){
+    clearTimeout(_titleRefreshT);
+    _titleRefreshT=setTimeout(function(){
+      try{ var cur=0; if(ytPlayer&&ytPlayer.getPlaylistIndex) cur=ytPlayer.getPlaylistIndex(); markYTCurrent(cur); }catch(e){}
+    }, 150);
+  }
+  function fetchYTTitles(ids){
+    if(!ids || !ids.length || !window.fetch) return;
+    var p=PLAYLISTS[plActive];
+    ids.forEach(function(id){
+      if(!id || ytTitles[id] || (p&&p.titles&&p.titles[id]) || ytTitleTried[id]) return;
+      ytTitleTried[id]=1;
+      var w='https://www.youtube.com/watch?v='+id;
+      fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(w))
+        .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+        .then(function(j){ if(j&&j.title){ ytTitles[id]=j.title; scheduleTitleRefresh(); } })
+        .catch(function(){
+          fetch('https://noembed.com/embed?url='+encodeURIComponent(w))
+            .then(function(r){ return r.json(); })
+            .then(function(j){ if(j&&j.title){ ytTitles[id]=j.title; scheduleTitleRefresh(); } })
+            .catch(function(){});
+        });
+    });
+  }
+
   // YouTube プレイリストの「収録映像セレクター」を右パネルに描画（API getPlaylist から）
   function ytSyncList(){
     if(!state.playlistMode) return;
@@ -1205,6 +1315,7 @@
     if(!ids.length) return;
     var cur=0; try{ cur=ytPlayer.getPlaylistIndex(); }catch(e){}
     try{ var d=ytPlayer.getVideoData&&ytPlayer.getVideoData(); if(d&&d.video_id&&d.title) ytTitles[d.video_id]=d.title; }catch(e){}
+    fetchYTTitles(ids);   // 全動画のタイトルを非同期取得→揃い次第 markYTCurrent で反映
     renderYTRows(p, ids, cur, false);
     ytCurVid = ids[cur] || ytCurVid;   // 権威ある現在動画ID（インデックス基準）。getVideoDataの遅延に依存しない
     if(cur!==ytLastCur){ ytLastCur=cur; try{ renderUsed(ytCurVid); }catch(e){} }
@@ -1384,6 +1495,14 @@
   applyBox(); applyCalUI(); updateReadout(); styleAllRail(); projectorOn();
   // 開発用: ?cal=1 / #cal で位置調整を起動（通常UIには出さない）
   if(/[?&]cal=1\b/.test(location.search) || location.hash === '#cal'){ toggleCal(); }
+  // 言語切替に追従して動的UIを再描画
+  window.addEventListener('hmix:lang', function(){
+    try{
+      buildRail(); styleAllRail(); renderInfo();
+      var g=BGS[bgIndex]; if(bgName && g) bgName.textContent = EL(g,'title');
+      if(state.playlistMode && typeof renderPlaylist==='function'){ renderPlaylist(plActive); }
+    }catch(e){}
+  });
 })();
 </script>
 <!-- ===== お気に入りリストモーダル (Phase 2) ===== -->
@@ -1436,7 +1555,14 @@
 </div>
 
 <script src="/assets/js/fav-store.js?v=20260624b"></script>
-<script src="/assets/js/fav-notebook.js?v=20260624n"></script>
+<script src="/assets/js/fav-notebook.js?v=20260628a"></script>
 <script src="/assets/js/fav-modal.js?v=20260624c"></script>
+<noscript>
+  <div style="max-width:680px;margin:8vh auto;padding:0 24px;color:#cfe;font-family:'Noto Serif JP',serif;line-height:1.9;">
+    <h1>音の劇場 — H/MIX GALLERY</h1>
+    <p>作曲家 秋山裕和による H/MIX GALLERY の音楽シアター入口です。タグの星々から曲を探す「星図の旅」、約60分のBGMフィルム「夜風」、短編映像「旅する少女」、演奏動画・制作実績など、フリーBGMを情景の中で旅するように楽しめます。各コンテンツの再生には JavaScript が必要です。</p>
+    <p><a href="/music-library.html">楽曲ライブラリ（全曲一覧）へ</a> ／ <a href="/japanese-bgm.html">和風BGM一覧</a> ／ <a href="/theater/tag-cockpit.html">星図の旅</a> ／ <a href="/theater/night-breeze/">夜風</a></p>
+  </div>
+</noscript>
 </body>
 </html>

@@ -20,6 +20,7 @@
    transport simply drives the cockpit's own buttons.
    ============================================================ */
 (function(){
+  function L(ja,en){ try{ var v=window.HMIX_LANG||sessionStorage.getItem('hmix_lang')||localStorage.getItem('hmix_lang'); return v==='en'?en:ja; }catch(e){ return window.HMIX_LANG==='en'?en:ja; } }
   const TAU=Math.PI*2;
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
   const clamp=(v,a,b)=>v<a?a:v>b?b:v;
@@ -286,14 +287,14 @@
      (未提供の間はデザイン確認用のデモ足跡を表示 — 公開前に必ずAPIへ接続) */
   const fpLayer=sd.querySelector('.sd-fp');
   const FP_DEMO=[
-    {text:'この曲で、物語の結末が決まりました。', author:'旅人'},
-    {text:'夜の作業のおともに、ずっと。', author:''},
-    {text:'ゲームのエンディングで使わせていただきました。', author:'制作者K'},
-    {text:'雨の日に聴くと、景色がひろがる。', author:''},
-    {text:'十年前から、ここの音と旅しています。', author:'古い旅人'},
-    {text:'主人公の旅立ちの場面が、これで完成しました。', author:'脚本書き'},
-    {text:'いつか、この曲のような場所へ。', author:'小さな冒険者'},
-    {text:'ありがとう。言葉はそれだけで充分。', author:''},
+    {text:L('この曲で、物語の結末が決まりました。','This piece decided how my story would end.'), author:L('旅人','a traveler')},
+    {text:L('夜の作業のおともに、ずっと。','My companion through late-night work, always.'), author:''},
+    {text:L('ゲームのエンディングで使わせていただきました。','I used it for the ending of my game.'), author:L('制作者K','Creator K')},
+    {text:L('雨の日に聴くと、景色がひろがる。','On rainy days it opens up a whole landscape.'), author:''},
+    {text:L('十年前から、ここの音と旅しています。','For ten years I have traveled with the music here.'), author:L('古い旅人','an old traveler')},
+    {text:L('主人公の旅立ちの場面が、これで完成しました。','This completed my hero’s departure scene.'), author:L('脚本書き','a scriptwriter')},
+    {text:L('いつか、この曲のような場所へ。','Someday, to a place like this music.'), author:L('小さな冒険者','a little adventurer')},
+    {text:L('ありがとう。言葉はそれだけで充分。','Thank you. That word alone is enough.'), author:''},
   ];
   let fpList=[], fpTimer=null, fpKey='';
   const fpHistTop=()=>{ try{ return (JSON.parse(localStorage.getItem('hmix.hist.v1'))||[])[0]||''; }catch(e){ return ''; } };
@@ -510,22 +511,22 @@
     submit.addEventListener('click',()=>{
       const ta=document.getElementById('sdFpText'), nm=document.getElementById('sdFpName'), msg=document.getElementById('sdFpMsg');
       const text=(ta&&ta.value||'').trim();
-      if(!text){ if(msg){ msg.textContent='ひとこと書いてみてください。'; msg.className='sd-fp-msg err'; } if(ta) ta.focus(); return; }
-      if(!(window.HMIX_FOOTPRINTS&&window.HMIX_FOOTPRINTS.post)){ if(msg){ msg.textContent='いまは投稿できません。時間をおいて。'; msg.className='sd-fp-msg err'; } return; }
+      if(!text){ if(msg){ msg.textContent=L('ひとこと書いてみてください。','Please write a few words.'); msg.className='sd-fp-msg err'; } if(ta) ta.focus(); return; }
+      if(!(window.HMIX_FOOTPRINTS&&window.HMIX_FOOTPRINTS.post)){ if(msg){ msg.textContent=L('いまは投稿できません。時間をおいて。','Posting is unavailable right now. Please try again later.'); msg.className='sd-fp-msg err'; } return; }
       const tid=fpHistTop()||'';
-      if(!tid){ if(msg){ msg.textContent='曲が流れてから残せます。'; msg.className='sd-fp-msg err'; } return; }
+      if(!tid){ if(msg){ msg.textContent=L('曲が流れてから残せます。','You can leave a note once a track is playing.'); msg.className='sd-fp-msg err'; } return; }
       const title=tTitle.textContent||'';
-      submit.disabled=true; if(msg){ msg.textContent='残しています…'; msg.className='sd-fp-msg'; }
+      submit.disabled=true; if(msg){ msg.textContent=L('残しています…','Leaving your note…'); msg.className='sd-fp-msg'; }
       window.HMIX_FOOTPRINTS.post(tid, text, (nm&&nm.value)||'', title).then(()=>{
         submit.disabled=false;
-        if(msg){ msg.textContent='✦ 足跡を残しました。ありがとう。'; msg.className='sd-fp-msg ok'; }
+        if(msg){ msg.textContent=L('✦ 足跡を残しました。ありがとう。','✦ Your footprint is left. Thank you.'); msg.className='sd-fp-msg ok'; }
         if(ta) ta.value=''; if(nm) nm.value='';
         if(window.__theaterSfx&&window.__theaterSfx.chime) window.__theaterSfx.chime();
         /* 自分の足跡が景色に流れてくるよう、リストを取り直す */
         fpKey=''; fpTrackChanged();
       }).catch((e)=>{
         submit.disabled=false;
-        if(msg){ msg.textContent='うまく残せませんでした。通信状況をご確認ください。'; msg.className='sd-fp-msg err'; }
+        if(msg){ msg.textContent=L('うまく残せませんでした。通信状況をご確認ください。','Could not leave your note. Please check your connection.'); msg.className='sd-fp-msg err'; }
       });
     });
   })();
@@ -560,11 +561,11 @@
     const ids=favIds();
     const sel=window.HMIX_LIC_SEL;
     updateDiveLicenseUI();
-    if(!ids.length){ ul.innerHTML='<li class="sd-empty">まだお気に入りはありません。<br>♡ を押してこの旅の一曲を残そう。</li>'; return; }
+    if(!ids.length){ ul.innerHTML='<li class="sd-empty">'+L('まだお気に入りはありません。<br>♡ を押してこの旅の一曲を残そう。','No favorites yet.<br>Press ♡ to keep a song from this journey.')+'</li>'; return; }
     ids.forEach(id=>{
       const tk=trackIdx[id]; if(!tk) return;
       const li=document.createElement('li'); li.className='sd-row';
-      li.innerHTML=`<label class="chk" title="この曲を商用ライセンス申請に選ぶ"><input type="checkbox"${sel&&sel.has(String(id))?' checked':''}><span class="ck-txt">申請</span></label><span class="n">${tk.title}</span><span class="m">${fmt(tk.durationSec)}</span><button class="h" type="button" title="お気に入りから外す">♥</button>`;
+      li.innerHTML=`<label class="chk" title="${L('この曲を商用ライセンス申請に選ぶ','Select this track for a commercial license request')}"><input type="checkbox"${sel&&sel.has(String(id))?' checked':''}><span class="ck-txt">${L('申請','Request')}</span></label><span class="n">${tk.title}</span><span class="m">${fmt(tk.durationSec)}</span><button class="h" type="button" title="${L('お気に入りから外す','Remove from favorites')}">♥</button>`;
       const chk=li.querySelector('.chk input');
       chk.addEventListener('change',()=>{ window.HMIX_LIC_TOGGLE&&window.HMIX_LIC_TOGGLE(id,chk.checked); updateDiveLicenseUI(); });
       li.addEventListener('click',e=>{
@@ -590,7 +591,7 @@
     if(b){
       b.hidden=false;
       b.disabled=!sel.size;
-      b.textContent=sel.size?`◇ ライセンス申請（${sel.size}曲）▸`:'◇ 曲にチェックを入れて申請';
+      b.textContent=sel.size?L(`◇ ライセンス申請（${sel.size}曲）▸`,`◇ Request license (${sel.size}) ▸`):L('◇ 曲にチェックを入れて申請','◇ Check tracks to request');
     }
   }
 
@@ -602,7 +603,7 @@
     const rows=[...document.querySelectorAll('#queueSheet .queue-list .row')];
     const playing=document.querySelector('#queueSheet .queue-list .row.playing');
     panel._curTid=playing?playing.dataset.tid:'';
-    if(!rows.length){ ul.innerHTML='<li class="sd-empty">この星の曲はまだ積まれていません。</li>'; return; }
+    if(!rows.length){ ul.innerHTML='<li class="sd-empty">'+L('この星の曲はまだ積まれていません。','No tracks are loaded for this star yet.')+'</li>'; return; }
     rows.forEach(src=>{
       const li=document.createElement('li');
       li.className='sd-row'+(src.classList.contains('playing')?' playing':'');
@@ -617,14 +618,14 @@
   function renderTripPanel(){
     const bx=panels.find(p=>p.dataset.panel==='trip').querySelector('.sd-pbody');
     const S=window.JSTATE, st=S&&S.scene;
-    if(!st){ bx.innerHTML='<div class="sd-empty">しおりはまだひらきません。</div>'; return; }
+    if(!st){ bx.innerHTML='<div class="sd-empty">'+L('しおりはまだひらきません。','The bookmark cannot open yet.')+'</div>'; return; }
     const sc=st._scene||{};
     bx.innerHTML=`
-      <div class="sd-shmeta"><b>${st.jpSub}</b> · ${st.jp}（${(st._tracks||[]).length}曲）</div>
+      <div class="sd-shmeta"><b>${st.jpSub}</b> · ${st.jp}${L('（'+((st._tracks||[]).length)+'曲）','('+((st._tracks||[]).length)+')')}</div>
       <div class="sd-shline">${st.line||''}</div>
       <div class="sd-shacts">
-        <button data-act="cockpit" type="button">◄ 操縦席へ</button>
-        <button data-act="hub" type="button">✦ 星図へ</button>
+        <button data-act="cockpit" type="button">${L('◄ 操縦席へ','◄ To cockpit')}</button>
+        <button data-act="hub" type="button">${L('✦ 星図へ','✦ To star map')}</button>
       </div>`;
     bx.querySelector('[data-act="cockpit"]').addEventListener('click',()=>leave(false));
     bx.querySelector('[data-act="hub"]').addEventListener('click',()=>leave(true));
@@ -647,7 +648,7 @@
       const S=window.JSTATE, st=S&&S.scene;
       const ok=!!(st&&document.body.dataset.mode==='dock'&&SCENERY[st.id]);
       btn.disabled=!ok;
-      btn.title=ok?'この星の景色へダイブ':'この星の景色はまだ準備中です';
+      btn.title=ok?L('この星の景色へダイブ','Dive into this star’s scenery'):L('この星の景色はまだ準備中です','This star’s scenery is still in preparation');
       const wbs=btn.querySelector('.wb-scene');
       if(wbs){
         const src=ok?SCENERY[st.id]:null;
@@ -666,4 +667,18 @@
       }
     }
   },400);
+
+  /* 言語切替に追従: 表示中のパネル/ボタンのラベルだけを安全に再描画（状態は壊さない） */
+  window.addEventListener('hmix:lang', function(){
+    try{
+      const open=panels.find(p=>!p.hidden);
+      if(open){
+        const name=open.dataset.panel;
+        if(name==='fav') renderFavPanel();
+        else if(name==='list') renderListPanel();
+        else if(name==='trip') renderTripPanel();
+      }
+      updateDiveLicenseUI();
+    }catch(e){}
+  });
 })();

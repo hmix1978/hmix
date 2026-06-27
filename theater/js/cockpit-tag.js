@@ -8,6 +8,7 @@
    Reads window.JSTATE published by journey-tag.js.
    ============================================================ */
 (function(){
+  function L(ja,en){ try{ var v=window.HMIX_LANG||sessionStorage.getItem('hmix_lang')||localStorage.getItem('hmix_lang'); return v==='en'?en:ja; }catch(e){ return window.HMIX_LANG==='en'?en:ja; } }
   const HM = window.HMIX;
   const $  = s => document.querySelector(s);
   const pad2 = n => String(n).padStart(2,'0');
@@ -100,7 +101,7 @@
     if(b){
       const n=licSel.size;
       b.disabled=!n;
-      b.textContent=n?`◇ ライセンス申請（${n}曲）▸`:'◇ 曲にチェックを入れて申請';
+      b.textContent=n?L(`◇ ライセンス申請（${n}曲）▸`,`◇ Request license (${n}) ▸`):L('◇ 曲にチェックを入れて申請','◇ Check tracks to request');
     }
     window.dispatchEvent(new CustomEvent('hmix:licsel'));
   }
@@ -120,14 +121,14 @@
   }
   function subLabel(tk){
     const tg=tagOfTrack(tk);
-    return (tk.title_en||'') + (tg?('  ·  '+tg.jp):'');
+    return (tk.title_en||'') + (tg?('  ·  '+L(tg.jp,tg.en||tg.jp)):'');
   }
 
   /* ---- now-playing render ----------------------------------- */
   function renderNP(){
     if(!cur){
       el.title.textContent='—';
-      el.sub.textContent='タグを選んで航行を開始';
+      el.sub.textContent=L('タグを選んで航行を開始','Pick a tag to begin the voyage');
       el.fav.innerHTML=I.heartO; el.fav.classList.remove('on');
       return;
     }
@@ -149,10 +150,10 @@
       b.classList.toggle('on',pinned);
       b.setAttribute('aria-pressed',pinned?'true':'false');
       b.disabled=!cur&&!pinned;
-      b.innerHTML=pinned?'✦ 曲を固定中':'✧ この曲で星巡り';
+      b.innerHTML=pinned?L('✦ 曲を固定中','✦ Track pinned'):L('✧ この曲で星巡り','✧ Roam the stars with this track');
       b.title=pinned
-        ?'固定を解除する（曲を選び直すと自動で解除されます）'
-        :'この曲を流したまま、星図や他の星の景色をめぐる。別の曲を再生するまでリピートします';
+        ?L('固定を解除する（曲を選び直すと自動で解除されます）','Unpin (auto-released when you pick another track)')
+        :L('この曲を流したまま、星図や他の星の景色をめぐる。別の曲を再生するまでリピートします','Keep this track playing while you roam the star map and scenery. It repeats until another track plays');
     });
   }
   function togglePin(){
@@ -287,9 +288,9 @@
     const st=window.JSTATE&&window.JSTATE.scene;
     if(!st){ r.innerHTML=''; return; }
     const parts=[
-      '<span class="rt-node">星図</span>',
-      '<span class="rt-node">'+st.jpSub+'</span>',
-      '<span class="rt-node on">'+st.jp+'</span>'];
+      '<span class="rt-node">'+L('星図','Star Map')+'</span>',
+      '<span class="rt-node">'+L(st.jpSub,st.enSub||st.jpSub)+'</span>',
+      '<span class="rt-node on">'+L(st.jp,st.en||st.jp)+'</span>'];
     if(cur) parts.push('<span class="rt-node tr">♪ '+cur.title+'</span>');
     r.innerHTML=parts.join('<i class="rt-dash"></i>');
   }
@@ -299,13 +300,13 @@
     const li=document.createElement('li'); li.className='row'; li.dataset.tid=tk.id;
     const faved=favs.has(tk.id);
     li.innerHTML=`
-      ${withCheck?`<label class="r-check" title="この曲を商用ライセンス申請に選ぶ"><input type="checkbox"${licSel.has(String(tk.id))?' checked':''}><span class="rc-txt">申請</span></label>`:''}
+      ${withCheck?`<label class="r-check" title="${L('この曲を商用ライセンス申請に選ぶ','Select this track for a commercial license request')}"><input type="checkbox"${licSel.has(String(tk.id))?' checked':''}><span class="rc-txt">${L('申請','Request')}</span></label>`:''}
       <span class="r-eq"><i></i><i></i><i></i></span>
       <span class="r-idx">${idx==null?'·':pad2(idx+1)}</span>
       <span class="r-name">${tk.title}</span>
       <span class="r-meta">${fmt(tk.durationSec)}</span>
-      <a class="r-lic" href="/license-request.html" target="_blank" rel="noopener" title="商用ライセンスを取得">LICENSE</a>
-      <span class="r-fav ${faved?'on':''}" title="お気に入り">${faved?I.heartF:I.heartO}</span>`;
+      <a class="r-lic" href="/license-request.html" target="_blank" rel="noopener" title="${L('商用ライセンスを取得','Get a commercial license')}">LICENSE</a>
+      <span class="r-fav ${faved?'on':''}" title="${L('お気に入り','Favorite')}">${faved?I.heartF:I.heartO}</span>`;
     const chk=li.querySelector('.r-check input');
     if(chk) chk.addEventListener('change',()=>toggleLic(tk.id, chk.checked));
     li.addEventListener('click', e=>{
@@ -324,7 +325,7 @@
   }
 
   function renderQueue(){
-    fillList(el.queueList, queue, '信号なし');
+    fillList(el.queueList, queue, L('信号なし','No signal'));
     if(el.queueCount) el.queueCount.textContent=pad2(queue.length);
     const qsc=document.querySelector('.qs-count');
     if(qsc) qsc.textContent=queue.length?pad2(queue.length)+' TRACKS':'—';
@@ -332,7 +333,7 @@
   }
   function renderFav(){
     const tracks=[...favs].map(id=>trackById[id]).filter(Boolean);
-    fillList(el.logLists.fav, tracks, 'まだお気に入りはありません。<br>♡ を押してこの旅の一曲を残そう。', true);
+    fillList(el.logLists.fav, tracks, L('まだお気に入りはありません。<br>♡ を押してこの旅の一曲を残そう。','No favorites yet.<br>Tap ♡ to keep a track from this voyage.'), true);
     updateLicenseUI();
     const n=document.querySelector('.lm-btn[data-vision="fav"] .lm-n');
     if(n) n.textContent=tracks.length?String(tracks.length):'';
@@ -341,17 +342,17 @@
   function renderShiori(){
     const ul=el.logLists.trip; ul.innerHTML='';
     const st=window.JSTATE&&window.JSTATE.scene;
-    if(!st){ ul.innerHTML='<div class="list-empty">タグへ潜ると、この星のしおりがひらきます。</div>'; return; }
+    if(!st){ ul.innerHTML=`<div class="list-empty">${L('タグへ潜ると、この星のしおりがひらきます。','Dive into a tag to open this star\'s page.')}</div>`; return; }
     const sc=st._scene||{};
     const canScene=!!(window.__hasScenery&&window.__hasScenery(st.id));
     const n=(st._tracks||[]).length;
     ul.innerHTML=`
-      <div class="sh-meta"><b>${st.jpSub}</b><i>·</i>近い情景　${sc.jp||'—'}（${sc.jpSub||''}）<i>·</i>${n}曲</div>
+      <div class="sh-meta"><b>${L(st.jpSub,st.enSub||st.jpSub)}</b><i>·</i>${L('近い情景　','Nearest scene  ')}${L(sc.jp,sc.en)||'—'}（${L(sc.jpSub,sc.enSub)||''}）<i>·</i>${L(n+'曲',n+' tracks')}</div>
       <div class="sh-line">${st.line||''}</div>
       <div class="sh-actions">
-        <button class="sh-act primary" data-act="scene" type="button" ${canScene?'':'disabled="disabled" title="この星の景色はまだ準備中です"'}>✦ 景色の中へ</button>
-        <button class="sh-act" data-act="hub" type="button">◄ タグの輪へ戻る</button>
-        <a class="sh-act" href="./">◈ シアター TOPへ</a>
+        <button class="sh-act primary" data-act="scene" type="button" ${canScene?'':`disabled="disabled" title="${L('この星の景色はまだ準備中です','Scenery for this star is coming soon')}"`}>${L('✦ 景色の中へ','✦ Into the scenery')}</button>
+        <button class="sh-act" data-act="hub" type="button">${L('◄ タグの輪へ戻る','◄ Back to the tag ring')}</button>
+        <a class="sh-act" href="./">${L('◈ シアター TOPへ','◈ Theater home')}</a>
       </div>`;
     const sBtn=ul.querySelector('[data-act="scene"]');
     sBtn.addEventListener('click',()=>{ const b=document.getElementById('btnScenery'); if(b&&!b.disabled) b.click(); });
@@ -364,28 +365,28 @@
     const tracks=hist.map(id=>trackById[id]).filter(Boolean).slice(0,6);
     const tags=trip.map(id=>tagById[id]).filter(Boolean).slice(0,4);
     if(!tracks.length&&!tags.length){
-      ul.innerHTML='<div class="list-empty">まだ記憶はありません。<br>聴いた曲と訪れた星がここに刻まれます。</div>'; return;
+      ul.innerHTML=`<div class="list-empty">${L('まだ記憶はありません。<br>聴いた曲と訪れた星がここに刻まれます。','No memories yet.<br>The tracks you hear and the stars you visit are recorded here.')}</div>`; return;
     }
     if(tracks.length){
-      const h=document.createElement('div'); h.className='mem-h'; h.textContent='直近で聴いた曲'; ul.appendChild(h);
+      const h=document.createElement('div'); h.className='mem-h'; h.textContent=L('直近で聴いた曲','Recently played'); ul.appendChild(h);
       tracks.forEach(tk=>ul.appendChild(trackRow(tk,null,tracks)));
     }
     if(tags.length){
-      const h=document.createElement('div'); h.className='mem-h'; h.textContent='辿った星'; ul.appendChild(h);
+      const h=document.createElement('div'); h.className='mem-h'; h.textContent=L('辿った星','Stars traveled'); ul.appendChild(h);
       tags.forEach(tg=>{
         const tint=RING_TINT[tg.type]||'216,180,106';
         const nn=tg.count!=null?tg.count:(HM.tracksForTag(tg)||[]).length;
         const li=document.createElement('li'); li.className='row';
         li.innerHTML=`
           <span class="r-chip" style="color:rgb(${tint})"></span>
-          <span class="r-name">${tg.jp}</span>
-          <span class="r-meta">${nn}曲</span>`;
+          <span class="r-name">${L(tg.jp,tg.en||tg.jp)}</span>
+          <span class="r-meta">${L(nn+'曲',nn+' tracks')}</span>`;
         li.addEventListener('click', ()=>{ if(window.__diveTagId) window.__diveTagId(tg.id); });
         ul.appendChild(li);
       });
       if(tags[1]){
         const b=document.createElement('button'); b.className='sh-act mem-prev'; b.type='button';
-        b.textContent='◄ 前の星へ戻る';
+        b.textContent=L('◄ 前の星へ戻る','◄ Back to the previous star');
         b.addEventListener('click',()=>{ if(window.__diveTagId) window.__diveTagId(tags[1].id); });
         ul.appendChild(b);
       }
@@ -404,13 +405,13 @@
   const vision=document.getElementById('cpVision');
   const cvTitle=document.getElementById('cvTitle');
   const lmBtns=[...document.querySelectorAll('.lm-btn')];
-  const VISION_TITLES={ fav:'お気に入り', trip:'旅のしおり', mem:'旅の記憶' };
+  const visionTitle=name=>({ fav:L('お気に入り','Favorites'), trip:L('旅のしおり','Travel notes'), mem:L('旅の記憶','Travel memories') }[name]||'');
   let visionOpen=null, visionHideT=null;
   function openVision(name){
     if(!vision) return;
     clearTimeout(visionHideT);
     visionOpen=name;
-    cvTitle.textContent=VISION_TITLES[name]||'';
+    cvTitle.textContent=visionTitle(name);
     Object.entries(el.logLists).forEach(([k,ul])=>{ if(ul) ul.hidden=(k!==name); });
     lmBtns.forEach(b=>b.classList.toggle('on', b.dataset.vision===name));
     if(name==='fav') renderFav(); else if(name==='trip') renderShiori(); else renderMem();
@@ -466,7 +467,7 @@
         if(c.checked!==on) c.checked=on;
       });
       const b=document.querySelector('.cv-license');
-      if(b){ const n=licSel.size; b.disabled=!n; b.textContent=n?`◇ ライセンス申請（${n}曲）▸`:'◇ 曲にチェックを入れて申請'; }
+      if(b){ const n=licSel.size; b.disabled=!n; b.textContent=n?L(`◇ ライセンス申請（${n}曲）▸`,`◇ Request license (${n}) ▸`):L('◇ 曲にチェックを入れて申請','◇ Check tracks to request'); }
     }
   });
   document.addEventListener('keydown',e=>{
@@ -561,4 +562,16 @@
     startLoop();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+
+  /* ---- language switch: re-render visible UI without touching state ---- */
+  window.addEventListener('hmix:lang', function(){
+    try{
+      renderNP(); setPlayIcon(); renderSector(); renderRoute();
+      updatePinUI(); updateLicenseUI(); renderQueue();
+      /* re-open whichever vision is currently showing so its labels refresh */
+      if(visionOpen){ cvTitle.textContent=visionTitle(visionOpen);
+        if(visionOpen==='fav') renderFav(); else if(visionOpen==='trip') renderShiori(); else renderMem();
+      }
+    }catch(e){}
+  });
 })();
