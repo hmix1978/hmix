@@ -68,6 +68,12 @@
     ]
   }
   </script>
+
+  <style>
+    body [lang="en"]{ display:none; }
+    body.lang-en [lang="ja"]{ display:none; }
+    body.lang-en [lang="en"]{ display:revert; }
+  </style>
 </head>
 <body class="library-page library-page--dark lp-page">
 
@@ -92,6 +98,7 @@
         <li class="nav-item nav-item--dropdown"><a href="/composer.html" class="nav-link" data-ja="作曲家" data-en="Composer">作曲家</a><ul class="nav-submenu" aria-label="作曲家メニュー"><li><a href="/composer.html" class="nav-submenu__link" data-ja="作曲家について" data-en="About the Composer">作曲家について</a></li><li><a href="https://www.youtube.com/@hmixbgm" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="YouTube" data-en="YouTube">YouTube</a></li><li><a href="https://x.com/hmix_net" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="X (旧Twitter)" data-en="X (Twitter)">X (旧Twitter)</a></li><li><a href="https://linkco.re/CFhnqas5" target="_blank" rel="noopener" class="nav-submenu__link" data-ja="発売中のCD" data-en="CD on Sale">発売中のCD</a></li></ul></li>
         <li><a href="/contact.html" class="nav-link nav-link--cta" data-ja="お問い合わせ" data-en="Contact">お問い合わせ</a></li>
       </ul>
+      <button id="ml-lang-toggle" class="nav-lang-toggle" aria-label="Switch language / 言語切替"><svg class="lang-globe" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" width="11" height="11" aria-hidden="true"><circle cx="6" cy="6" r="5.3"/><path d="M1.5 4.5h9M1.5 7.5h9M6 0.7C4.3 2.5 3.5 4.2 3.5 6s.8 3.5 2.5 5.3M6 0.7C7.7 2.5 8.5 4.2 8.5 6s-.8 3.5-2.5 5.3"/></svg><span class="lang-opt lang-opt--active">JP</span><span class="lang-sep"> / </span><span class="lang-opt">EN</span></button>
     </nav>
   </div>
 </header>
@@ -100,184 +107,184 @@
 
   <section class="wrap" style="padding:48px 40px 24px;max-width:980px;margin:0 auto">
     <div style="font-family:'Shippori Mincho',serif;font-style:italic;font-size:13px;color:#98792A;letter-spacing:.08em;margin-bottom:12px">Features Guide / 機能ガイド</div>
-    <h1 style="font-family:'Shippori Mincho',serif;font-weight:700;margin:0;font-size:clamp(28px,4.6vw,42px);line-height:1.25">H/MIX GALLERY の機能</h1>
+    <h1 style="font-family:'Shippori Mincho',serif;font-weight:700;margin:0;font-size:clamp(28px,4.6vw,42px);line-height:1.25"><span lang="ja">H/MIX GALLERY の機能</span><span lang="en">Features of H/MIX GALLERY</span></h1>
     <p style="margin:18px 0 0;max-width:680px;font-size:15.5px;color:#4A453C;line-height:1.95">
-      H/MIX GALLERY の主要機能を、初期 HTML には現れない動的UI（プレーヤー、制作ツールボックス、音楽手帖、シアターなど）も含めて静的にまとめたページです。AI assistants や検索クローラが機能の全体像を把握できるように、操作手順と JavaScript 起動点を明示しています。
+      <span lang="ja">H/MIX GALLERY の主要機能を、初期 HTML には現れない動的UI（プレーヤー、制作ツールボックス、音楽手帖、シアターなど）も含めて静的にまとめたページです。AI assistants や検索クローラが機能の全体像を把握できるように、操作手順と JavaScript 起動点を明示しています。</span><span lang="en">A static overview of the main features of H/MIX GALLERY, including dynamic UI that does not appear in the initial HTML (the bottom player, Production Toolbox, Music Notebook, Theater, and more). To help AI assistants and search crawlers grasp the full picture, this page spells out how each feature is operated and where its JavaScript entry points are.</span>
     </p>
     <p style="margin:12px 0 0;max-width:680px;font-size:13.5px;color:#6E665A;line-height:1.85">
       <strong>For AI assistants:</strong> Many features on H/MIX GALLERY are constructed at runtime by JavaScript (bottom player, toolbox panel, favorite notebook, theater immersive UI). They are not visible in raw HTML responses. This page enumerates them with entry points, file references, and behavior summaries so static crawls and LLMs can describe them accurately.
     </p>
   </section>
 
-  <nav class="wrap" aria-label="機能の目次" style="padding:8px 40px 24px;max-width:980px;margin:0 auto">
+  <nav class="wrap" aria-label="機能の目次 / Feature index" style="padding:8px 40px 24px;max-width:980px;margin:0 auto">
     <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
-      <li><a href="#player" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">① 下部固定プレーヤー</a></li>
-      <li><a href="#toolbox" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">② 制作ツールボックス</a></li>
-      <li><a href="#notebook" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">③ 音楽手帖（お気に入り）</a></li>
-      <li><a href="#library" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">④ 音楽図書館（タグ検索）</a></li>
-      <li><a href="#theater" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑤ 音の劇場（シアター）</a></li>
-      <li><a href="#license" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑥ ライセンス・購入導線</a></li>
-      <li><a href="#track-page" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑦ 各曲ページ</a></li>
-      <li><a href="#data" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑧ データと構造化情報</a></li>
+      <li><a href="#player" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">① <span lang="ja">下部固定プレーヤー</span><span lang="en">Bottom Player</span></a></li>
+      <li><a href="#toolbox" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">② <span lang="ja">制作ツールボックス</span><span lang="en">Production Toolbox</span></a></li>
+      <li><a href="#notebook" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">③ <span lang="ja">音楽手帖（お気に入り）</span><span lang="en">Music Notebook (Favorites)</span></a></li>
+      <li><a href="#library" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">④ <span lang="ja">音楽図書館（タグ検索）</span><span lang="en">Music Library (Tag Search)</span></a></li>
+      <li><a href="#theater" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑤ <span lang="ja">音の劇場（シアター）</span><span lang="en">Theater</span></a></li>
+      <li><a href="#license" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑥ <span lang="ja">ライセンス・購入導線</span><span lang="en">Licensing &amp; Purchase</span></a></li>
+      <li><a href="#track-page" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑦ <span lang="ja">各曲ページ</span><span lang="en">Individual Track Pages</span></a></li>
+      <li><a href="#data" style="display:block;background:#fff;border:1px solid #E6DFCF;border-radius:10px;padding:12px 14px;text-decoration:none;color:#16382A;font-weight:700">⑧ <span lang="ja">データと構造化情報</span><span lang="en">Data &amp; Structured Info</span></a></li>
     </ul>
   </nav>
 
   <article class="wrap" style="padding:8px 40px;max-width:980px;margin:0 auto">
 
     <section id="player" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">① 下部固定プレーヤー（Bottom Player）</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">全ページ共通の音楽プレーヤー。HTML の最下部に常駐し、PJAX（部分ページ遷移）で曲を跨いで連続再生される。再生中の曲はページ遷移しても止まらない。</p>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">① <span lang="ja">下部固定プレーヤー（Bottom Player）</span><span lang="en">Bottom Player</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9"><span lang="ja">全ページ共通の音楽プレーヤー。HTML の最下部に常駐し、PJAX（部分ページ遷移）で曲を跨いで連続再生される。再生中の曲はページ遷移しても止まらない。</span><span lang="en">A music player shared across every page. It stays pinned at the bottom of the HTML and plays continuously across tracks via PJAX (partial page transitions). A track that is playing does not stop when you navigate to another page.</span></p>
       <dl style="margin:0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">出現条件</dt><dd>全ページ共通。`assets/js/player.js` が body に DOM を挿入。</dd>
-        <dt style="color:#98792A;font-weight:600">主な操作</dt><dd>再生/一時停止、前/次曲、シーク、音量、シャッフル、リピート、♡（お気に入り追加）、保存リスト（音楽手帖を開く）、ツール（制作ツールボックスを開く）</dd>
-        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/player.js</code>（コア再生）、<code>assets/js/router.js</code>（PJAX）</dd>
-        <dt style="color:#98792A;font-weight:600">グローバル API</dt><dd><code>window.HMIX_PLAYER.playTrackById(id)</code> / <code>playTrack(track, queue)</code> / <code>setQueue()</code></dd>
-        <dt style="color:#98792A;font-weight:600">関連 UI</dt><dd>「ツール」ボタン → 制作ツールボックス、♡ → 音楽手帖、保存リスト → 音楽手帖</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">出現条件</span><span lang="en">When it appears</span></dt><dd><span lang="ja">全ページ共通。`assets/js/player.js` が body に DOM を挿入。</span><span lang="en">On every page. <code>assets/js/player.js</code> injects the DOM into the body.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">主な操作</span><span lang="en">Main controls</span></dt><dd><span lang="ja">再生/一時停止、前/次曲、シーク、音量、シャッフル、リピート、♡（お気に入り追加）、保存リスト（音楽手帖を開く）、ツール（制作ツールボックスを開く）</span><span lang="en">Play / pause, previous / next track, seek, volume, shuffle, repeat, ♡ (add to favorites), Saved list (open the Music Notebook), Tools (open the Production Toolbox).</span></dd>
+        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/player.js</code><span lang="ja">（コア再生）</span><span lang="en"> (core playback)</span>, <code>assets/js/router.js</code> (PJAX)</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">グローバル API</span><span lang="en">Global API</span></dt><dd><code>window.HMIX_PLAYER.playTrackById(id)</code> / <code>playTrack(track, queue)</code> / <code>setQueue()</code></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">関連 UI</span><span lang="en">Related UI</span></dt><dd><span lang="ja">「ツール」ボタン → 制作ツールボックス、♡ → 音楽手帖、保存リスト → 音楽手帖</span><span lang="en">"Tools" button → Production Toolbox, ♡ → Music Notebook, Saved list → Music Notebook.</span></dd>
       </dl>
     </section>
 
     <section id="toolbox" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">② 制作ツールボックス（Production Toolbox）</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">下部プレーヤー右側の「ツール」ボタン、または各曲ページのカードから開く制作支援パネル。映像/動画制作で実際に使われる操作を1ヶ所にまとめた。</p>
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">タブと機能</h3>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">② <span lang="ja">制作ツールボックス（Production Toolbox）</span><span lang="en">Production Toolbox</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9"><span lang="ja">下部プレーヤー右側の「ツール」ボタン、または各曲ページのカードから開く制作支援パネル。映像/動画制作で実際に使われる操作を1ヶ所にまとめた。</span><span lang="en">A production-support panel opened from the "Tools" button on the right of the bottom player, or from a card on each track page. It gathers the operations actually used in film and video production into one place.</span></p>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">タブと機能</span><span lang="en">Tabs and features</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><strong>使える？</strong>：この曲の利用可否（無料利用範囲・必要なライセンス）を即時判定</li>
-        <li><strong>波形プレビュー</strong>：MP3 を decode してキャンバスに波形描画。区間（start〜end）を選択して保存可能</li>
-        <li><strong>EQ・コンプ</strong>：簡易イコライザ・コンプレッサ。Web Audio API のフィルタチェーンをリアルタイム適用しプレビュー</li>
-        <li><strong>メモ</strong>：曲ごとのフリーテキストメモ。localStorage <code>hmix_memos_v1</code> に保存され PJAX 遷移後も維持</li>
-        <li><strong>表記コピー</strong>：YouTube概要欄等に使えるクレジット表記をワンクリックでコピー（曲名・H/MIX GALLERY・URL）</li>
-        <li><strong>シェア</strong>：曲ページの URL/SNS シェア導線</li>
-        <li><strong>動画</strong>：曲が使われている YouTube 動画があれば埋め込み表示</li>
+        <li><strong><span lang="ja">使える？</span><span lang="en">Can I use it?</span></strong><span lang="ja">：この曲の利用可否（無料利用範囲・必要なライセンス）を即時判定</span><span lang="en">: instantly determines whether this track can be used (free-use scope and which license is required).</span></li>
+        <li><strong><span lang="ja">波形プレビュー</span><span lang="en">Waveform preview</span></strong><span lang="ja">：MP3 を decode してキャンバスに波形描画。区間（start〜end）を選択して保存可能</span><span lang="en">: decodes the MP3 and draws its waveform on a canvas. You can select and save a section (start–end).</span></li>
+        <li><strong><span lang="ja">EQ・コンプ</span><span lang="en">EQ &amp; Compressor</span></strong><span lang="ja">：簡易イコライザ・コンプレッサ。Web Audio API のフィルタチェーンをリアルタイム適用しプレビュー</span><span lang="en">: a simple equalizer and compressor. A Web Audio API filter chain is applied in real time for preview.</span></li>
+        <li><strong><span lang="ja">メモ</span><span lang="en">Notes</span></strong><span lang="ja">：曲ごとのフリーテキストメモ。localStorage <code>hmix_memos_v1</code> に保存され PJAX 遷移後も維持</span><span lang="en">: free-text notes per track. Saved to localStorage <code>hmix_memos_v1</code> and retained across PJAX transitions.</span></li>
+        <li><strong><span lang="ja">表記コピー</span><span lang="en">Copy credit</span></strong><span lang="ja">：YouTube概要欄等に使えるクレジット表記をワンクリックでコピー（曲名・H/MIX GALLERY・URL）</span><span lang="en">: one-click copy of a credit line usable in YouTube descriptions and the like (track title, H/MIX GALLERY, URL).</span></li>
+        <li><strong><span lang="ja">シェア</span><span lang="en">Share</span></strong><span lang="ja">：曲ページの URL/SNS シェア導線</span><span lang="en">: links for sharing the track page URL on social media.</span></li>
+        <li><strong><span lang="ja">動画</span><span lang="en">Video</span></strong><span lang="ja">：曲が使われている YouTube 動画があれば埋め込み表示</span><span lang="en">: if there is a YouTube video that uses the track, it is shown as an embed.</span></li>
       </ul>
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">出現条件</dt><dd>下部プレーヤーの「ツール」ボタンクリック、または曲ページのツールカードクリック</dd>
-        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/player-panel.js</code>（パネル本体・全タブ）</dd>
-        <dt style="color:#98792A;font-weight:600">永続化</dt><dd>区間: localStorage <code>hmix_toolbox_ranges_v1</code>、メモ: <code>hmix_memos_v1</code></dd>
-        <dt style="color:#98792A;font-weight:600">PJAX 対応</dt><dd>ナビゲーション遷移後も開いた状態・タブ・メモ・波形/EQ を維持</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">出現条件</span><span lang="en">When it appears</span></dt><dd><span lang="ja">下部プレーヤーの「ツール」ボタンクリック、または曲ページのツールカードクリック</span><span lang="en">Click the "Tools" button on the bottom player, or click the tool card on a track page.</span></dd>
+        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/player-panel.js</code><span lang="ja">（パネル本体・全タブ）</span><span lang="en"> (the panel itself and all tabs)</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">永続化</span><span lang="en">Persistence</span></dt><dd><span lang="ja">区間: localStorage <code>hmix_toolbox_ranges_v1</code>、メモ: <code>hmix_memos_v1</code></span><span lang="en">Sections: localStorage <code>hmix_toolbox_ranges_v1</code>; notes: <code>hmix_memos_v1</code>.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">PJAX 対応</span><span lang="en">PJAX support</span></dt><dd><span lang="ja">ナビゲーション遷移後も開いた状態・タブ・メモ・波形/EQ を維持</span><span lang="en">Open state, active tab, notes, and waveform/EQ are retained even after navigation.</span></dd>
       </dl>
     </section>
 
     <section id="notebook" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">③ 音楽手帖（Favorites Notebook）</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">♡ ボタンや「保存リスト」から開くお気に入り管理 UI。見開き3ペインで章分け・並べ替え・メモ・商用利用申請ができる。</p>
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">主な機能</h3>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">③ <span lang="ja">音楽手帖（Favorites Notebook）</span><span lang="en">Music Notebook (Favorites)</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9"><span lang="ja">♡ ボタンや「保存リスト」から開くお気に入り管理 UI。見開き3ペインで章分け・並べ替え・メモ・商用利用申請ができる。</span><span lang="en">A favorites-management UI opened from the ♡ button or the "Saved list." Its three-pane spread lets you sort tracks into chapters, reorder them, add notes, and submit a commercial-use request.</span></p>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">主な機能</span><span lang="en">Main features</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li>未分類 / 章ごとにお気に入り曲を整理</li>
-        <li>章ピッカー：既存章にコピー（非破壊）、または新規章を作成して移動</li>
-        <li>ドラッグ&amp;ドロップで曲 → 章へコピー</li>
-        <li>曲ごとに A-B 区間（プレビュー時間範囲）とメモを保存</li>
-        <li>選択した曲を「商用利用申請」へ送る（金CTA → license-request.html）</li>
-        <li>モバイル時は下部からのボトムシート形式</li>
+        <li><span lang="ja">未分類 / 章ごとにお気に入り曲を整理</span><span lang="en">Organize favorite tracks as unsorted or by chapter.</span></li>
+        <li><span lang="ja">章ピッカー：既存章にコピー（非破壊）、または新規章を作成して移動</span><span lang="en">Chapter picker: copy into an existing chapter (non-destructive), or create a new chapter and move into it.</span></li>
+        <li><span lang="ja">ドラッグ&amp;ドロップで曲 → 章へコピー</span><span lang="en">Drag &amp; drop a track to copy it into a chapter.</span></li>
+        <li><span lang="ja">曲ごとに A-B 区間（プレビュー時間範囲）とメモを保存</span><span lang="en">Save an A–B section (preview time range) and notes per track.</span></li>
+        <li><span lang="ja">選択した曲を「商用利用申請」へ送る（金CTA → license-request.html）</span><span lang="en">Send selected tracks to "Commercial-use request" (the gold CTA → license-request.html).</span></li>
+        <li><span lang="ja">モバイル時は下部からのボトムシート形式</span><span lang="en">On mobile it appears as a bottom sheet sliding up from the bottom.</span></li>
       </ul>
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">出現条件</dt><dd>♡ ボタンクリック、または下部プレーヤーの「保存リスト」ボタン</dd>
-        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/fav-notebook.js</code>（UI）、<code>assets/js/fav-store.js</code>（データ層 <code>window.HMIX_FAV</code>）</dd>
-        <dt style="color:#98792A;font-weight:600">永続化</dt><dd>localStorage <code>hmix_favorites_v2</code>（リッチ構造）＋ <code>hmix_favorites</code>（後方互換ミラー）。LWW + tombstone + LexoRank で並び順を保持。</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">出現条件</span><span lang="en">When it appears</span></dt><dd><span lang="ja">♡ ボタンクリック、または下部プレーヤーの「保存リスト」ボタン</span><span lang="en">Click the ♡ button, or the "Saved list" button on the bottom player.</span></dd>
+        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><code>assets/js/fav-notebook.js</code><span lang="ja">（UI）</span><span lang="en"> (UI)</span>, <code>assets/js/fav-store.js</code><span lang="ja">（データ層 <code>window.HMIX_FAV</code>）</span><span lang="en"> (data layer <code>window.HMIX_FAV</code>)</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">永続化</span><span lang="en">Persistence</span></dt><dd><span lang="ja">localStorage <code>hmix_favorites_v2</code>（リッチ構造）＋ <code>hmix_favorites</code>（後方互換ミラー）。LWW + tombstone + LexoRank で並び順を保持。</span><span lang="en">localStorage <code>hmix_favorites_v2</code> (rich structure) plus <code>hmix_favorites</code> (a backward-compatible mirror). Order is preserved with LWW + tombstone + LexoRank.</span></dd>
         <dt style="color:#98792A;font-weight:600">API</dt><dd><code>window.HMIX_FAV.add(id)</code> / <code>remove(id)</code> / <code>has(id)</code> / <code>ids()</code> / <code>removeWithUndo(id)</code></dd>
       </dl>
     </section>
 
     <section id="library" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">④ 音楽図書館（Music Library / Tag Search）</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">全 302曲を4軸タグで横断検索できる。タグはあらかじめ作曲家自身が全曲に付与済み。</p>
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">タグの4軸</h3>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">④ <span lang="ja">音楽図書館（Music Library / Tag Search）</span><span lang="en">Music Library (Tag Search)</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9"><span lang="ja">全 302曲を4軸タグで横断検索できる。タグはあらかじめ作曲家自身が全曲に付与済み。</span><span lang="en">Search across all 302 tracks by four tag axes. The composer himself has tagged every track in advance.</span></p>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">タグの4軸</span><span lang="en">The four tag axes</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><strong>feeling（感情）</strong>：勇壮・悲しい・優しい・神秘・希望 など</li>
-        <li><strong>style（音楽スタイル）</strong>：和風・ファンタジー・オーケストラ・ケルト・エレクトロニック など</li>
-        <li><strong>scene（シーン）</strong>：戦闘・ボス戦・夜・朝・雪・旅・別れ・再会 など</li>
-        <li><strong>story（物語要素）</strong>：思い出・運命・予兆・決意・絆 など</li>
+        <li><strong><span lang="ja">feeling（感情）</span><span lang="en">feeling</span></strong><span lang="ja">：勇壮・悲しい・優しい・神秘・希望 など</span><span lang="en">: heroic, sad, gentle, mysterious, hopeful, and more.</span></li>
+        <li><strong><span lang="ja">style（音楽スタイル）</span><span lang="en">style</span></strong><span lang="ja">：和風・ファンタジー・オーケストラ・ケルト・エレクトロニック など</span><span lang="en">: Japanese, fantasy, orchestral, Celtic, electronic, and more.</span></li>
+        <li><strong><span lang="ja">scene（シーン）</span><span lang="en">scene</span></strong><span lang="ja">：戦闘・ボス戦・夜・朝・雪・旅・別れ・再会 など</span><span lang="en">: battle, boss fight, night, morning, snow, journey, parting, reunion, and more.</span></li>
+        <li><strong><span lang="ja">story（物語要素）</span><span lang="en">story</span></strong><span lang="ja">：思い出・運命・予兆・決意・絆 など</span><span lang="en">: memories, destiny, omen, resolve, bonds, and more.</span></li>
       </ul>
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
         <dt style="color:#98792A;font-weight:600">URL</dt><dd><a href="/music-library.html">https://www.hmix.net/music-library.html</a></dd>
-        <dt style="color:#98792A;font-weight:600">クエリパラメータ</dt><dd><code>?feeling=...&amp;style=...&amp;scene=...&amp;story=...</code> で直リンク可（AND 条件）</dd>
-        <dt style="color:#98792A;font-weight:600">データ</dt><dd><code>assets/js/tracks.js</code>（<code>window.TRACKS</code>、約360曲分のメタデータ）</dd>
-        <dt style="color:#98792A;font-weight:600">ジャンル別ページ</dt><dd>主要ジャンル別の入口: <a href="/genre/japanese.html">和風</a>・<a href="/genre/fantasy.html">ファンタジー</a>・<a href="/genre/horror.html">ホラー</a>・<a href="/genre/battle.html">戦闘</a>・<a href="/genre/healing.html">癒し</a> ほか</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">クエリパラメータ</span><span lang="en">Query parameters</span></dt><dd><code>?feeling=...&amp;style=...&amp;scene=...&amp;story=...</code> <span lang="ja">で直リンク可（AND 条件）</span><span lang="en"> can be used for direct links (combined with AND).</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">データ</span><span lang="en">Data</span></dt><dd><code>assets/js/tracks.js</code><span lang="ja">（<code>window.TRACKS</code>、約360曲分のメタデータ）</span><span lang="en"> (<code>window.TRACKS</code>, metadata for roughly 360 tracks)</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">ジャンル別ページ</span><span lang="en">Genre pages</span></dt><dd><span lang="ja">主要ジャンル別の入口: <a href="/genre/japanese.html">和風</a>・<a href="/genre/fantasy.html">ファンタジー</a>・<a href="/genre/horror.html">ホラー</a>・<a href="/genre/battle.html">戦闘</a>・<a href="/genre/healing.html">癒し</a> ほか</span><span lang="en">Entry points by major genre: <a href="/genre/japanese.html">Japanese</a>, <a href="/genre/fantasy.html">Fantasy</a>, <a href="/genre/horror.html">Horror</a>, <a href="/genre/battle.html">Battle</a>, <a href="/genre/healing.html">Healing</a>, and more.</span></dd>
       </dl>
     </section>
 
     <section id="theater" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑤ 音の劇場 / シアター（Theater）</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">没入型の音楽体験空間。森の野外劇場をモチーフにした入口画面から、複数のコンテンツモードに分岐する。<a href="/theater/">https://www.hmix.net/theater/</a></p>
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">コンテンツ一覧</h3>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑤ <span lang="ja">音の劇場 / シアター（Theater）</span><span lang="en">Theater</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9"><span lang="ja">没入型の音楽体験空間。森の野外劇場をモチーフにした入口画面から、複数のコンテンツモードに分岐する。</span><span lang="en">An immersive music-experience space. From an entrance screen themed after an open-air theater in the woods, it branches into several content modes. </span><a href="/theater/">https://www.hmix.net/theater/</a></p>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">コンテンツ一覧</span><span lang="en">Content list</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><strong>星図の旅</strong>：タグの星々をたどってまだ知らない曲に出会うインタラクティブ体験（<code>theater/tag-cockpit.html</code>）</li>
-        <li><strong>夜風</strong>：60分の BGM フィルム（<code>theater/night-breeze/</code>）</li>
-        <li><strong>旅する少女</strong>：H/MIX 楽曲に乗せた短編映像</li>
-        <li><strong>制作実績（プレイリスト）</strong>：H/MIX 楽曲が採用された映像 YouTube プレイリストをシアター内で連続再生。2リスト体制（<strong>演奏動画</strong>＝秋山裕和の演奏／<strong>使用・制作実績</strong>＝H/MIXが使われた映像）。動画ごとに左カードで「この映像で使われている曲」を表示し、各曲の試聴・詳細ページ・お気に入り追加・商用ライセンス購入へ橋渡し。</li>
+        <li><strong><span lang="ja">星図の旅</span><span lang="en">Star-Map Journey</span></strong><span lang="ja">：タグの星々をたどってまだ知らない曲に出会うインタラクティブ体験（<code>theater/tag-cockpit.html</code>）</span><span lang="en">: an interactive experience where you follow stars of tags to encounter tracks you have not heard yet (<code>theater/tag-cockpit.html</code>).</span></li>
+        <li><strong><span lang="ja">夜風</span><span lang="en">Night Breeze</span></strong><span lang="ja">：60分の BGM フィルム（<code>theater/night-breeze/</code>）</span><span lang="en">: a 60-minute BGM film (<code>theater/night-breeze/</code>).</span></li>
+        <li><strong><span lang="ja">旅する少女</span><span lang="en">The Traveling Girl</span></strong><span lang="ja">：H/MIX 楽曲に乗せた短編映像</span><span lang="en">: a short film set to H/MIX music.</span></li>
+        <li><strong><span lang="ja">制作実績（プレイリスト）</span><span lang="en">Works &amp; Credits (playlists)</span></strong><span lang="ja">：H/MIX 楽曲が採用された映像 YouTube プレイリストをシアター内で連続再生。2リスト体制（<strong>演奏動画</strong>＝秋山裕和の演奏／<strong>使用・制作実績</strong>＝H/MIXが使われた映像）。動画ごとに左カードで「この映像で使われている曲」を表示し、各曲の試聴・詳細ページ・お気に入り追加・商用ライセンス購入へ橋渡し。</span><span lang="en">: YouTube playlists of videos that adopted H/MIX music, played continuously inside the Theater. Two lists are provided (<strong>Performance videos</strong> = performances by Hirokazu Akiyama / <strong>Usage &amp; works</strong> = videos that used H/MIX). For each video, a card on the left shows "the tracks used in this video," bridging to each track's preview, detail page, favorites, and commercial-license purchase.</span></li>
       </ul>
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd>すべて <code>theater/index.html</code> 内 inline JS ＋ <code>theater/js/cockpit-tag.js</code> / <code>journey-tag.js</code> / <code>data.js</code> / <code>sfx.js</code> 等</dd>
-        <dt style="color:#98792A;font-weight:600">モバイル</dt><dd><code>theater-mobile/</code> に専用ページ。entries の <code>mobileHref</code> 経路で 600px 以下は自動遷移</dd>
-        <dt style="color:#98792A;font-weight:600">背景切替</dt><dd>森の劇場 / 海辺の夜想 / 星海の劇場 / 緑の遺跡 / 暖炉の私室 の5種。<code>?cal=1</code> または Shift+C で位置調整モード（開発用）</dd>
-        <dt style="color:#98792A;font-weight:600">使用曲データ</dt><dd>各 YouTube 動画ID をキーとして <code>WORKS_USED_TRACKS</code>(theater/index.html 内) で管理。プレイリスト構成が変わってもデータは保持される video-ID ベース。秋山(Shift+A) admin モードで追加→JSON エクスポート→コードに baking という運用。将来的に Firestore 化検討中</dd>
-        <dt style="color:#98792A;font-weight:600">UI 動作</dt><dd>マウス静止で側面パネル/下部ドック/ヘッダーは自動収納(<code>ft-ui-idle</code>)、画面端 40px(左右)/64px(下) に近づくと再表示。中央(映像)上ではネイティブ操作を妨げないよう UI を出さない。映像表示は初期「フィル(cover)」ON で枠いっぱい</dd>
+        <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd><span lang="ja">すべて <code>theater/index.html</code> 内 inline JS ＋ <code>theater/js/cockpit-tag.js</code> / <code>journey-tag.js</code> / <code>data.js</code> / <code>sfx.js</code> 等</span><span lang="en">All inline JS within <code>theater/index.html</code>, plus <code>theater/js/cockpit-tag.js</code> / <code>journey-tag.js</code> / <code>data.js</code> / <code>sfx.js</code>, etc.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">モバイル</span><span lang="en">Mobile</span></dt><dd><span lang="ja"><code>theater-mobile/</code> に専用ページ。entries の <code>mobileHref</code> 経路で 600px 以下は自動遷移</span><span lang="en">Dedicated pages live under <code>theater-mobile/</code>. Below 600px, entries auto-redirect via their <code>mobileHref</code>.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">背景切替</span><span lang="en">Background switching</span></dt><dd><span lang="ja">森の劇場 / 海辺の夜想 / 星海の劇場 / 緑の遺跡 / 暖炉の私室 の5種。<code>?cal=1</code> または Shift+C で位置調整モード（開発用）</span><span lang="en">Five scenes: Forest Theater / Seaside Nocturne / Theater of the Star Sea / Green Ruins / Fireside Chamber. <code>?cal=1</code> or Shift+C opens a positioning mode (for development).</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">使用曲データ</span><span lang="en">Used-track data</span></dt><dd><span lang="ja">各 YouTube 動画ID をキーとして <code>WORKS_USED_TRACKS</code>(theater/index.html 内) で管理。プレイリスト構成が変わってもデータは保持される video-ID ベース。秋山(Shift+A) admin モードで追加→JSON エクスポート→コードに baking という運用。将来的に Firestore 化検討中</span><span lang="en">Managed in <code>WORKS_USED_TRACKS</code> (inside theater/index.html), keyed by each YouTube video ID. Being video-ID based, the data survives changes to the playlist line-up. The workflow is: add entries in Akiyama's admin mode (Shift+A) → export JSON → bake into the code. A move to Firestore is under consideration for the future.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">UI 動作</span><span lang="en">UI behavior</span></dt><dd><span lang="ja">マウス静止で側面パネル/下部ドック/ヘッダーは自動収納(<code>ft-ui-idle</code>)、画面端 40px(左右)/64px(下) に近づくと再表示。中央(映像)上ではネイティブ操作を妨げないよう UI を出さない。映像表示は初期「フィル(cover)」ON で枠いっぱい</span><span lang="en">When the mouse is idle, the side panels / bottom dock / header auto-collapse (<code>ft-ui-idle</code>); they reappear when the cursor nears the screen edge (40px left/right, 64px bottom). Over the center (the video) the UI stays hidden so as not to block native controls. Video display defaults to "fill (cover)" so it fills the frame.</span></dd>
       </dl>
     </section>
 
     <section id="license" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑥ ライセンス・購入導線</h2>
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:0 0 8px;color:#16382A">無料利用範囲（クレジット任意）</h3>
-      <p style="margin:0 0 14px;font-size:14.5px;color:#4A453C;line-height:1.9">YouTube投稿、個人利用、同人 / インディー、非商用。クレジット表記は任意（推奨表記例: <code>BGM: 曲名 / H/MIX GALLERY (秋山裕和) https://www.hmix.net</code>）。</p>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑥ <span lang="ja">ライセンス・購入導線</span><span lang="en">Licensing &amp; Purchase</span></h2>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:0 0 8px;color:#16382A"><span lang="ja">無料利用範囲（クレジット任意）</span><span lang="en">Free-use scope (credit optional)</span></h3>
+      <p style="margin:0 0 14px;font-size:14.5px;color:#4A453C;line-height:1.9"><span lang="ja">YouTube投稿、個人利用、同人 / インディー、非商用。クレジット表記は任意（推奨表記例: <code>BGM: 曲名 / H/MIX GALLERY (秋山裕和) https://www.hmix.net</code>）。</span><span lang="en">YouTube uploads, personal use, doujin / indie, and non-commercial use. Crediting is optional (suggested form: <code>BGM: Track Title / H/MIX GALLERY (Hirokazu Akiyama) https://www.hmix.net</code>).</span></p>
 
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">商用ライセンス（買い切り）</h3>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">商用ライセンス（買い切り）</span><span lang="en">Commercial licenses (one-time purchase)</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><strong>Standard</strong>：¥2,200（税込）／1曲・1プロジェクト・買い切り</li>
-        <li><strong>Project Pack</strong>：¥7,480（税込）／無制限曲・1プロジェクト・買い切り</li>
-        <li><strong>Professional</strong>：用途別・1曲ごと。¥3,300 / ¥4,400 / ¥5,500 / ¥16,500 / ¥27,500 + 要見積もり（TVCM・映画・パチンコ等）。<a href="/professional-license.html">料金ガイド</a></li>
+        <li><strong>Standard</strong><span lang="ja">：¥2,200（税込）／1曲・1プロジェクト・買い切り</span><span lang="en">: ¥2,200 (tax incl.) / one track, one project, one-time.</span></li>
+        <li><strong>Project Pack</strong><span lang="ja">：¥7,480（税込）／無制限曲・1プロジェクト・買い切り</span><span lang="en">: ¥7,480 (tax incl.) / unlimited tracks, one project, one-time.</span></li>
+        <li><strong>Professional</strong><span lang="ja">：用途別・1曲ごと。¥3,300 / ¥4,400 / ¥5,500 / ¥16,500 / ¥27,500 + 要見積もり（TVCM・映画・パチンコ等）。<a href="/professional-license.html">料金ガイド</a></span><span lang="en">: by use case, per track. ¥3,300 / ¥4,400 / ¥5,500 / ¥16,500 / ¥27,500, plus quote-on-request (TV commercials, film, pachinko, etc.). <a href="/professional-license.html">Pricing guide</a></span></li>
       </ul>
 
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">店舗BGMパス（年間サブスクリプション）</h3>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">店舗BGMパス（年間サブスクリプション）</span><span lang="en">Store BGM Pass (annual subscription)</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><strong>店舗パス</strong>：¥9,900／年（1店舗）、追加店舗 +¥4,950／年</li>
-        <li><strong>施設パス</strong>：¥19,800／年</li>
-        <li>Stripe による自動更新。解約・カード変更は Stripe カスタマーポータルから。証明書は解約日に失効。</li>
+        <li><strong><span lang="ja">店舗パス</span><span lang="en">Store Pass</span></strong><span lang="ja">：¥9,900／年（1店舗）、追加店舗 +¥4,950／年</span><span lang="en">: ¥9,900 / year (one store), additional stores +¥4,950 / year.</span></li>
+        <li><strong><span lang="ja">施設パス</span><span lang="en">Facility Pass</span></strong><span lang="ja">：¥19,800／年</span><span lang="en">: ¥19,800 / year.</span></li>
+        <li><span lang="ja">Stripe による自動更新。解約・カード変更は Stripe カスタマーポータルから。証明書は解約日に失効。</span><span lang="en">Auto-renews via Stripe. Cancellation and card changes are done through the Stripe customer portal. The certificate expires on the cancellation date.</span></li>
       </ul>
 
-      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A">禁止事項</h3>
+      <h3 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:16px;margin:18px 0 8px;color:#16382A"><span lang="ja">禁止事項</span><span lang="en">Prohibited uses</span></h3>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li>再配布 / 転売（サンプルパック・音源サイトへの再アップ等）</li>
-        <li>音源単体のストリーミング配信</li>
-        <li>YouTube Content ID への登録</li>
-        <li>NFT / ブロックチェーン素材化</li>
-        <li>AI 学習データ用途</li>
+        <li><span lang="ja">再配布 / 転売（サンプルパック・音源サイトへの再アップ等）</span><span lang="en">Redistribution / resale (e.g. re-uploading to sample packs or audio-source sites).</span></li>
+        <li><span lang="ja">音源単体のストリーミング配信</span><span lang="en">Streaming distribution of the audio on its own.</span></li>
+        <li><span lang="ja">YouTube Content ID への登録</span><span lang="en">Registration with YouTube Content ID.</span></li>
+        <li><span lang="ja">NFT / ブロックチェーン素材化</span><span lang="en">Turning the material into NFTs or blockchain assets.</span></li>
+        <li><span lang="ja">AI 学習データ用途</span><span lang="en">Use as AI training data.</span></li>
       </ul>
 
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">購入導線</dt><dd>各曲ページの「商用利用申請」CTA → <a href="/license-request.html">license-request.html</a> → Stripe Checkout</dd>
-        <dt style="color:#98792A;font-weight:600">直リンク</dt><dd><code>license-request.html#tracks=曲ID,曲ID&amp;usage=用途</code> で選択済み状態で開ける</dd>
-        <dt style="color:#98792A;font-weight:600">税</dt><dd>税込価格・消費税10%。適格請求書発行事業者ではないため適格請求書（インボイス）は不発行。Stripe 領収書のみ。</dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">購入導線</span><span lang="en">Purchase flow</span></dt><dd><span lang="ja">各曲ページの「商用利用申請」CTA → <a href="/license-request.html">license-request.html</a> → Stripe Checkout</span><span lang="en">The "Commercial-use request" CTA on each track page → <a href="/license-request.html">license-request.html</a> → Stripe Checkout.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">直リンク</span><span lang="en">Direct link</span></dt><dd><code>license-request.html#tracks=trackID,trackID&amp;usage=usage</code> <span lang="ja">で選択済み状態で開ける</span><span lang="en"> opens the page with the selection pre-filled.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">税</span><span lang="en">Tax</span></dt><dd><span lang="ja">税込価格・消費税10%。適格請求書発行事業者ではないため適格請求書（インボイス）は不発行。Stripe 領収書のみ。</span><span lang="en">Prices include tax (10% Japanese consumption tax). As the operator is not a registered qualified-invoice issuer, qualified invoices are not issued; only Stripe receipts are provided.</span></dd>
       </dl>
     </section>
 
     <section id="track-page" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑦ 各曲ページ</h2>
-      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">URL: <code>https://www.hmix.net/music/{id}.html</code>（例: <a href="/music/n74.html">/music/n74.html</a> = Moment）</p>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑦ <span lang="ja">各曲ページ</span><span lang="en">Individual Track Pages</span></h2>
+      <p style="margin:0 0 14px;font-size:15px;color:#4A453C;line-height:1.9">URL: <code>https://www.hmix.net/music/{id}.html</code><span lang="ja">（例: <a href="/music/n74.html">/music/n74.html</a> = Moment）</span><span lang="en"> (e.g. <a href="/music/n74.html">/music/n74.html</a> = Moment)</span></p>
       <dl style="margin:0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
-        <dt style="color:#98792A;font-weight:600">SEO</dt><dd>各曲に <code>JSON-LD MusicRecording</code> + <code>Person</code>(秋山裕和) + <code>Organization</code>(H/MIX GALLERY) を出力。OGP / Twitter Card 完備。</dd>
-        <dt style="color:#98792A;font-weight:600">操作</dt><dd>試聴（ヒーロー▶）、お気に入り（♡）、MP3 ダウンロード、商用利用申請、SNSシェア、表記コピー</dd>
-        <dt style="color:#98792A;font-weight:600">タグリスト</dt><dd>feeling / style / scene / story の4カテゴリ。各タグから音楽図書館の絞り込み結果へリンク</dd>
-        <dt style="color:#98792A;font-weight:600">テンプレ</dt><dd>JS の動的生成ではなく、<code>scripts/build-track-pages.js</code> で <code>tracks.js</code> から焼き込まれる静的 HTML</dd>
+        <dt style="color:#98792A;font-weight:600">SEO</dt><dd><span lang="ja">各曲に <code>JSON-LD MusicRecording</code> + <code>Person</code>(秋山裕和) + <code>Organization</code>(H/MIX GALLERY) を出力。OGP / Twitter Card 完備。</span><span lang="en">Each track outputs <code>JSON-LD MusicRecording</code> + <code>Person</code> (Hirokazu Akiyama) + <code>Organization</code> (H/MIX GALLERY). OGP / Twitter Card are fully provided.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">操作</span><span lang="en">Actions</span></dt><dd><span lang="ja">試聴（ヒーロー▶）、お気に入り（♡）、MP3 ダウンロード、商用利用申請、SNSシェア、表記コピー</span><span lang="en">Preview (hero ▶), favorite (♡), MP3 download, commercial-use request, social share, copy credit.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">タグリスト</span><span lang="en">Tag list</span></dt><dd><span lang="ja">feeling / style / scene / story の4カテゴリ。各タグから音楽図書館の絞り込み結果へリンク</span><span lang="en">Four categories: feeling / style / scene / story. Each tag links to the corresponding filtered results in the Music Library.</span></dd>
+        <dt style="color:#98792A;font-weight:600"><span lang="ja">テンプレ</span><span lang="en">Templating</span></dt><dd><span lang="ja">JS の動的生成ではなく、<code>scripts/build-track-pages.js</code> で <code>tracks.js</code> から焼き込まれる静的 HTML</span><span lang="en">Static HTML baked from <code>tracks.js</code> by <code>scripts/build-track-pages.js</code>, rather than generated dynamically by JS.</span></dd>
       </dl>
     </section>
 
     <section id="data" style="background:#fff;border:1px solid #E6DFCF;border-radius:14px;padding:28px 30px;margin-bottom:18px;scroll-margin-top:80px">
-      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑧ データと構造化情報（For AI / Crawlers）</h2>
+      <h2 style="font-family:'Shippori Mincho',serif;font-weight:700;font-size:22px;margin:0 0 12px">⑧ <span lang="ja">データと構造化情報（For AI / Crawlers）</span><span lang="en">Data &amp; Structured Info (For AI / Crawlers)</span></h2>
       <ul style="margin:0 0 14px;padding-left:22px;font-size:14.5px;color:#4A453C;line-height:1.9">
-        <li><a href="/llms.txt">/llms.txt</a>：AI assistants 向けのサイト要約（llmstxt.org 標準準拠）</li>
-        <li><a href="/sitemap.xml">/sitemap.xml</a>：全公開URLのマップ（存在する場合）</li>
-        <li><a href="/assets/js/tracks.js">/assets/js/tracks.js</a>：全 302曲のメタデータ JSON（<code>window.TRACKS</code>）</li>
-        <li>各曲ページ: JSON-LD で MusicRecording / Person / Organization を提供</li>
-        <li>このページ: WebApplication JSON-LD で featureList と offers を提供</li>
+        <li><a href="/llms.txt">/llms.txt</a><span lang="ja">：AI assistants 向けのサイト要約（llmstxt.org 標準準拠）</span><span lang="en">: a site summary for AI assistants (compliant with the llmstxt.org standard).</span></li>
+        <li><a href="/sitemap.xml">/sitemap.xml</a><span lang="ja">：全公開URLのマップ（存在する場合）</span><span lang="en">: a map of all public URLs (where present).</span></li>
+        <li><a href="/assets/js/tracks.js">/assets/js/tracks.js</a><span lang="ja">：全 302曲のメタデータ JSON（<code>window.TRACKS</code>）</span><span lang="en">: metadata for all 302 tracks (<code>window.TRACKS</code>).</span></li>
+        <li><span lang="ja">各曲ページ: JSON-LD で MusicRecording / Person / Organization を提供</span><span lang="en">Each track page: provides MusicRecording / Person / Organization via JSON-LD.</span></li>
+        <li><span lang="ja">このページ: WebApplication JSON-LD で featureList と offers を提供</span><span lang="en">This page: provides featureList and offers via WebApplication JSON-LD.</span></li>
       </ul>
       <p style="margin:14px 0 0;font-size:13.5px;color:#6E665A;line-height:1.85">
-        <strong>API として叩く場合</strong>：<code>tracks.js</code> はブラウザ向けの JS 形式（<code>window.TRACKS = [...]</code>）のためそのまま JSON parse はできないが、<code>require</code> 等で評価すれば配列が取れる。商用利用や大量取得が必要な場合は <a href="/contact.html">お問い合わせ</a>ください。
+        <strong><span lang="ja">API として叩く場合</span><span lang="en">If you want to consume it as an API</span></strong><span lang="ja">：<code>tracks.js</code> はブラウザ向けの JS 形式（<code>window.TRACKS = [...]</code>）のためそのまま JSON parse はできないが、<code>require</code> 等で評価すれば配列が取れる。商用利用や大量取得が必要な場合は <a href="/contact.html">お問い合わせ</a>ください。</span><span lang="en">: <code>tracks.js</code> is in browser-oriented JS form (<code>window.TRACKS = [...]</code>), so it cannot be JSON-parsed directly, but evaluating it (e.g. via <code>require</code>) yields the array. For commercial use or bulk retrieval, please <a href="/contact.html">contact us</a>.</span>
       </p>
     </section>
 
   </article>
 
   <section class="wrap" style="padding:36px 40px 0;max-width:980px;margin:0 auto;text-align:center">
-    <p style="font-size:13px;color:#6E665A;line-height:1.9">最終更新: 2026-06 ／ ご指摘・追記要望は <a href="/contact.html">contact</a> までお願いします。</p>
+    <p style="font-size:13px;color:#6E665A;line-height:1.9"><span lang="ja">最終更新: 2026-06 ／ ご指摘・追記要望は <a href="/contact.html">contact</a> までお願いします。</span><span lang="en">Last updated: 2026-06. For corrections or additions, please reach us via <a href="/contact.html">contact</a>.</span></p>
   </section>
 
 </main>
