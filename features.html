@@ -203,13 +203,14 @@
         <li><strong>星図の旅</strong>：タグの星々をたどってまだ知らない曲に出会うインタラクティブ体験（<code>theater/tag-cockpit.html</code>）</li>
         <li><strong>夜風</strong>：60分の BGM フィルム（<code>theater/night-breeze/</code>）</li>
         <li><strong>旅する少女</strong>：H/MIX 楽曲に乗せた短編映像</li>
-        <li><strong>14年ぶりの大リニューアル</strong>：YouTube 映像をスクリーン内で再生</li>
-        <li><strong>プレイリスト（2026-06-26〜公開）</strong>：制作実績 YouTube プレイリストの内包再生 ＋ タグ自動プレイリスト（和風ホラー名曲選 / 戦闘 / 緊迫サスペンス）。動画ごとに「使われている曲」表示で発見導線</li>
+        <li><strong>制作実績（プレイリスト）</strong>：H/MIX 楽曲が採用された映像 YouTube プレイリストをシアター内で連続再生。2リスト体制（<strong>演奏動画</strong>＝秋山裕和の演奏／<strong>使用・制作実績</strong>＝H/MIXが使われた映像）。動画ごとに左カードで「この映像で使われている曲」を表示し、各曲の試聴・詳細ページ・お気に入り追加・商用ライセンス購入へ橋渡し。</li>
       </ul>
       <dl style="margin:14px 0 0;display:grid;grid-template-columns:140px 1fr;gap:8px 18px;font-size:14px;color:#4A453C;line-height:1.8">
         <dt style="color:#98792A;font-weight:600">JavaScript</dt><dd>すべて <code>theater/index.html</code> 内 inline JS ＋ <code>theater/js/cockpit-tag.js</code> / <code>journey-tag.js</code> / <code>data.js</code> / <code>sfx.js</code> 等</dd>
         <dt style="color:#98792A;font-weight:600">モバイル</dt><dd><code>theater-mobile/</code> に専用ページ。entries の <code>mobileHref</code> 経路で 600px 以下は自動遷移</dd>
         <dt style="color:#98792A;font-weight:600">背景切替</dt><dd>森の劇場 / 海辺の夜想 / 星海の劇場 / 緑の遺跡 / 暖炉の私室 の5種。<code>?cal=1</code> または Shift+C で位置調整モード（開発用）</dd>
+        <dt style="color:#98792A;font-weight:600">使用曲データ</dt><dd>各 YouTube 動画ID をキーとして <code>WORKS_USED_TRACKS</code>(theater/index.html 内) で管理。プレイリスト構成が変わってもデータは保持される video-ID ベース。秋山(Shift+A) admin モードで追加→JSON エクスポート→コードに baking という運用。将来的に Firestore 化検討中</dd>
+        <dt style="color:#98792A;font-weight:600">UI 動作</dt><dd>マウス静止で側面パネル/下部ドック/ヘッダーは自動収納(<code>ft-ui-idle</code>)、画面端 40px(左右)/64px(下) に近づくと再表示。中央(映像)上ではネイティブ操作を妨げないよう UI を出さない。映像表示は初期「フィル(cover)」ON で枠いっぱい</dd>
       </dl>
     </section>
 
