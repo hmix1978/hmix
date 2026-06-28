@@ -243,7 +243,7 @@
       row.querySelector('.hnb-fav').addEventListener('click', function (e) { e.stopPropagation(); F().removeWithUndo(it.trackId, { label: title }); });
       row.querySelector('.hnb-play').addEventListener('click', function (e) {
         e.stopPropagation();
-        if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(it.trackId);
+        doPlay(it.trackId);
       });
       row.addEventListener('click', function () { selectPreview(it.trackId); });
       // ドラッグで章へ移動（選択中の曲を掴んだ場合は選択分まとめて、それ以外はこの1曲）
@@ -324,7 +324,29 @@
       btn.addEventListener('click', function () { playId(btn.dataset.ab === 'b' ? state.prevPreviewId : tk.id); });
     });
   }
-  function playId(id) { if (id && window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(id); }
+  /* 再生: 通常はサイト共通プレーヤー(HMIX_PLAYER)。
+     シアター等 HMIX_PLAYER 未読込のページでは内蔵Audioでフォールバック試聴（▶/■トグル）。 */
+  var nbAudio = null, nbAudioId = null;
+  function nbFallbackPlay(id) {
+    var tk = trackMap()[id]; if (!tk) return;
+    var src = tk.mp3 || tk.file || ''; if (!src) return;
+    if (!nbAudio) {
+      nbAudio = new Audio();
+      nbAudio.addEventListener('ended', function () { nbAudioId = null; refreshPlayUI(); });
+      nbAudio.addEventListener('pause', refreshPlayUI);
+      nbAudio.addEventListener('play', refreshPlayUI);
+    }
+    if (nbAudioId === id && !nbAudio.paused) { nbAudio.pause(); nbAudioId = null; refreshPlayUI(); return; }
+    try { nbAudio.src = src; nbAudio.currentTime = 0; var pr = nbAudio.play(); if (pr && pr.catch) pr.catch(function(){}); nbAudioId = id; } catch (e) {}
+    refreshPlayUI();
+  }
+  function refreshPlayUI() { try { if (root && root.getAttribute('aria-hidden') === 'false') { renderPages(); renderPreview(); } } catch (e) {} }
+  function doPlay(id) {
+    if (!id) return;
+    if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(id);
+    else nbFallbackPlay(id);
+  }
+  function playId(id) { doPlay(id); }
 
   function renderBulk() {
     var ids = Object.keys(state.selected);
@@ -401,6 +423,7 @@
 
   function playState() {
     try { if (window.HMIX_PLAYER && window.HMIX_PLAYER.getState) { var s = window.HMIX_PLAYER.getState(); var t = s.queue && s.queue[s.currentIndex]; return { id: t && (t.id || t), playing: !!s.isPlaying }; } } catch (e) {}
+    if (nbAudioId && nbAudio && !nbAudio.paused) return { id: nbAudioId, playing: true };  // 内蔵フォールバック再生中
     return { id: null, playing: false };
   }
 
