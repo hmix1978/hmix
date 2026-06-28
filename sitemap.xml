@@ -79,6 +79,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.hmix.net/features.html</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://www.hmix.net/composer.html</loc>
     <lastmod>2026-04-10</lastmod>
     <changefreq>monthly</changefreq>
