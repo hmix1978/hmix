@@ -2050,7 +2050,10 @@
         updateModeButtons();
       });
       document.getElementById('btn-shuffle').addEventListener('click', function () { shuffleOn = !shuffleOn; updateModeButtons(); });
-      document.getElementById('btn-fav').addEventListener('click', toggleFavorite);
+      document.getElementById('btn-fav').addEventListener('click', function () {
+        toggleFavorite();
+        setFavoriteBoxOpen(true);   // ♡ クリックで夜風独自のお気に入りボックスも開く
+      });
       document.getElementById('stage-click').addEventListener('click', function () { ensureAnalyser(); wakeAudioContext(); shouldPlay = true; tryPlay(); });
       document.getElementById('vol').addEventListener('input', function (e) { audio.volume = parseFloat(e.target.value); });
       var seekBar = document.getElementById('seek-track');
