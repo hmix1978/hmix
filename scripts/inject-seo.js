@@ -114,6 +114,7 @@ function buildJsonLd(track, tagNames) {
     description: descClean,
     duration: toISO8601(track.duration),
     inLanguage: 'ja',
+    license: `${SITE}/terms.html`,
     genre: buildGenre(track, tagNames),
     keywords: (buildKeywords(track, tagNames) ? buildKeywords(track, tagNames) + '・' : '') + 'フリーBGM',
     image: imageAbs,
