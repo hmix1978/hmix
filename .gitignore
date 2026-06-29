@@ -29,6 +29,7 @@ npm-debug.log*
 
 # Local production secrets and deployment scratch
 .env.ftp
+.private/
 -Encoding
 deploy-*.txt
 server-*.log
