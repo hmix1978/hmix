@@ -1062,7 +1062,7 @@
         <span>VISITOR GUIDE</span>
         <span data-ja="利用確認と、まだ知られていない便利機能" data-en="Usage checks and hidden power features">利用確認と、まだ知られていない便利機能</span>
       </div>
-      <nav class="visitor-guide__grid" aria-label="目的別リンク" data-ja-aria="目的別リンク" data-en-aria="Visitor guide links">
+      <nav class="visitor-guide__grid" aria-label="目的別リンク" data-ja-aria="目的別リンク" data-en-aria="Visitor guide links" data-reveal data-stagger>
         <a class="visitor-guide__item" href="/terms.html#s-faq" data-no="01">
           <span>
             <span class="visitor-guide__label">YOUTUBE</span>
@@ -1450,7 +1450,7 @@
         <h2 class="section-title section-title--light" data-ja="楽曲カテゴリ" data-en="Music Categories">楽曲カテゴリ</h2>
         <p class="section-desc section-desc--light" data-ja="8つの情景から、あなたの1曲を探してください。" data-en="Explore 8 scenes to find your perfect track.">8つの情景から、あなたの1曲を探してください。</p>
 
-        <div class="featured-scenes-grid featured-scenes-grid--8">
+        <div class="featured-scenes-grid featured-scenes-grid--8" data-reveal data-stagger>
 
           <a href="/music-library.html?style=japanese&bg=japanese" class="featured-scene-card featured-scene-card--japanese"
              data-bg="/assets/images/scenes/japanese.webp">
@@ -1558,7 +1558,7 @@
     <!-- 動線C: Hero → Composer → 世界観理解 → 楽曲へ戻る -->
     <section class="composer" id="composer" aria-label="作曲家紹介" data-ja-aria="作曲家紹介" data-en-aria="About the Composer">
       <div class="section-container">
-        <div class="composer-inner">
+        <div class="composer-inner" data-reveal data-stagger>
           <div class="composer-text">
             <div class="section-label section-label--left">
               <span class="section-label-line"></span>
@@ -1612,7 +1612,7 @@
           <span class="section-label-line"></span>
         </div>
         <h2 class="section-title" data-ja="ご利用規約" data-en="License Terms">ご利用規約</h2>
-        <div class="license-grid">
+        <div class="license-grid" data-reveal data-stagger>
           <div class="license-card license-card--free">
             <div class="license-card-header">
               <span class="license-card-badge">Free</span>
@@ -2021,5 +2021,24 @@
   setTimeout(function(){ hero.classList.add('is-entered'); }, 1600);
 })();
 </script>
+<!-- ═══ 格上げ: セクションのスクロール立ち上がり（既存[data-reveal]機構を活用） ═══ -->
+<style>
+  [data-reveal]:not([data-stagger]){ opacity:0; transform:translateY(24px); transition:opacity .75s cubic-bezier(.22,1,.36,1), transform .75s cubic-bezier(.22,1,.36,1); }
+  [data-reveal]:not([data-stagger]).is-revealed{ opacity:1; transform:none; }
+  [data-reveal][data-stagger] > *{ opacity:0; transform:translateY(22px); transition:opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.22,1,.36,1); }
+  [data-reveal][data-stagger].is-revealed > *{ opacity:1; transform:none; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(1){ transition-delay:.04s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(2){ transition-delay:.12s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(3){ transition-delay:.20s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(4){ transition-delay:.28s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(5){ transition-delay:.36s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(6){ transition-delay:.44s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(7){ transition-delay:.52s; }
+  [data-reveal][data-stagger].is-revealed > *:nth-child(8){ transition-delay:.60s; }
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal]:not([data-stagger]), [data-reveal][data-stagger] > *{ opacity:1 !important; transform:none !important; transition:none !important; }
+  }
+</style>
+<noscript><style>[data-reveal]:not([data-stagger]),[data-reveal][data-stagger]>*{opacity:1!important;transform:none!important;}</style></noscript>
 </body>
 </html>
