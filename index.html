@@ -417,13 +417,21 @@
   .popular-top__sub{ font-family:var(--font-serif-jp); font-weight:300; color:rgba(245,236,220,.7); font-size:.95rem; margin:0; }
   .popular-top__list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
   .popular-top__loading{ text-align:center; color:rgba(245,236,220,.5); padding:24px; font-family:var(--font-serif-jp); }
-  .ptop-row{ display:grid; grid-template-columns:34px 38px 1fr auto; align-items:center; gap:12px; padding:10px 14px; border-radius:14px; border:1px solid rgba(217,180,108,.16); background:rgba(12,18,13,.5); transition:transform .45s cubic-bezier(.22,1,.36,1), border-color .3s ease, background .3s ease; }
+  .ptop-row{ display:grid; grid-template-columns:34px 38px 1fr auto 38px; align-items:center; gap:12px; padding:10px 14px; border-radius:14px; border:1px solid rgba(217,180,108,.16); background:rgba(12,18,13,.5); transition:transform .45s cubic-bezier(.22,1,.36,1), border-color .3s ease, background .3s ease; }
   .ptop-row:hover{ transform:translateY(-2px); border-color:rgba(231,202,124,.45); background:rgba(16,24,18,.62); }
   .ptop-rank{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; color:rgba(231,202,124,.68); text-align:center; }
   .ptop-row.is-top3 .ptop-rank{ color:#ffcf6e; text-shadow:0 0 10px rgba(255,200,110,.4); font-size:1.32rem; }
   .ptop-play{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(231,202,124,.45); background:rgba(231,202,124,.1); color:#e7ca7c; cursor:pointer; display:grid; place-items:center; padding:0; transition:background .25s ease, box-shadow .25s ease, transform .25s ease; }
   .ptop-play:hover{ background:rgba(231,202,124,.22); box-shadow:0 0 16px rgba(202,164,78,.3); transform:scale(1.06); }
-  .ptop-play svg{ width:14px; height:14px; margin-left:1px; }
+  .ptop-play svg{ width:14px; height:14px; }
+  .ptop-play .pti-play{ margin-left:1px; }
+  .ptop-play .pti-stop{ display:none; }
+  .ptop-play.is-playing{ background:rgba(231,202,124,.28); box-shadow:0 0 16px rgba(202,164,78,.4); }
+  .ptop-play.is-playing .pti-play{ display:none; }
+  .ptop-play.is-playing .pti-stop{ display:block; }
+  .ptop-fav{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(231,202,124,.28); background:transparent; color:rgba(231,202,124,.55); font-size:1.18rem; line-height:1; cursor:pointer; display:grid; place-items:center; padding:0; transition:color .25s ease, background .25s ease, border-color .25s ease, transform .2s ease; }
+  .ptop-fav:hover{ background:rgba(231,202,124,.12); color:#ffcf6e; transform:scale(1.08); }
+  .ptop-fav[aria-pressed="true"]{ color:#ffcf6e; border-color:rgba(255,207,110,.5); text-shadow:0 0 10px rgba(255,200,110,.45); }
   .ptop-main{ min-width:0; text-decoration:none; display:block; }
   .ptop-title{ display:block; color:#f5ecdc; font-family:var(--font-serif-jp); font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .3s ease; }
   .ptop-row:hover .ptop-title{ color:#fff; }
@@ -431,7 +439,8 @@
   .popular-top__more{ display:block; text-align:center; margin-top:clamp(20px,3vw,30px); font-family:var(--font-display); letter-spacing:.1em; font-size:.9rem; color:#e7ca7c; text-decoration:none; transition:color .3s ease; }
   .popular-top__more:hover{ color:#ffcf6e; }
   @media (max-width:600px){
-    .ptop-row{ grid-template-columns:26px 34px 1fr auto; gap:8px; padding:8px 11px; }
+    .ptop-row{ grid-template-columns:26px 34px 1fr auto 32px; gap:8px; padding:8px 11px; }
+    .ptop-fav{ width:32px; height:32px; }
     .ptop-title{ font-size:.92rem; }
   }
 </style>
@@ -2018,25 +2027,59 @@
         if(!ids.length){ if(sec) sec.style.display='none'; return; }
         listEl.removeAttribute('aria-busy');
         listEl.innerHTML=ids.map(function(id,i){
-          var t=byId[id]; var rank=i+1;
+          var t=byId[id]; var rank=i+1; var eid=esc(id);
           var title=esc(en()&&t.title_en?t.title_en:(t.title||id));
           var dur=esc(t.duration||'');
-          return '<li class="ptop-row'+(rank<=3?' is-top3':'')+'">'+
+          return '<li class="ptop-row'+(rank<=3?' is-top3':'')+'" data-id="'+eid+'">'+
             '<span class="ptop-rank">'+rank+'</span>'+
-            '<button type="button" class="ptop-play" data-id="'+esc(id)+'" aria-label="'+(en()?('Play '+title):(title+' を再生'))+'"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>'+
-            '<a class="ptop-main" href="/music/'+esc(id)+'.html"><span class="ptop-title">'+title+'</span></a>'+
+            '<button type="button" class="ptop-play" data-id="'+eid+'" aria-label="'+(en()?('Play '+title):(title+' を再生'))+'">'+
+              '<svg class="pti-play" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>'+
+              '<svg class="pti-stop" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>'+
+            '</button>'+
+            '<a class="ptop-main" href="/music/'+eid+'.html"><span class="ptop-title">'+title+'</span></a>'+
             '<span class="ptop-dur">'+dur+'</span>'+
+            '<button type="button" class="ptop-fav" data-id="'+eid+'" aria-pressed="false" aria-label="'+(en()?('Favorite '+title):(title+' をお気に入り'))+'">♡</button>'+
           '</li>';
         }).join('');
+        syncFavs(); syncPlaying();
+      }
+      function syncFavs(){
+        var on; listEl.querySelectorAll('.ptop-fav').forEach(function(b){
+          on=false; try{ on=!!(window.HMIX_FAV&&HMIX_FAV.has&&HMIX_FAV.has(b.getAttribute('data-id'))); }catch(e){}
+          b.textContent=on?'♥':'♡'; b.setAttribute('aria-pressed', on?'true':'false');
+        });
+      }
+      var playingId=null;
+      function syncPlaying(){
+        listEl.querySelectorAll('.ptop-play').forEach(function(b){
+          var on=playingId && b.getAttribute('data-id')===playingId;
+          b.classList.toggle('is-playing', !!on);
+          b.setAttribute('aria-label', on?(en()?'Stop':'停止'):(en()?'Play':'再生'));
+        });
       }
       Promise.all([getScores(), whenTracks()]).then(function(r){ render(r[0]||{}, r[1]||[]); });
       listEl.addEventListener('click', function(e){
+        var fav=e.target.closest('.ptop-fav');
+        if(fav){ e.preventDefault(); var fid=fav.getAttribute('data-id');
+          try{ if(window.HMIX_FAV&&HMIX_FAV.toggle){ HMIX_FAV.toggle(fid); } }catch(err){}
+          syncFavs(); fav.style.transform='scale(1.25)'; setTimeout(function(){ fav.style.transform=''; },200); return; }
         var btn=e.target.closest('.ptop-play'); if(!btn) return;
         e.preventDefault();
         var id=btn.getAttribute('data-id');
-        try{ if(window.HMIX_PLAYER&&HMIX_PLAYER.playTrackById){ HMIX_PLAYER.playTrackById(id); return; } }catch(err){}
+        try{
+          if(window.HMIX_PLAYER){
+            if(playingId===id && HMIX_PLAYER.pause){ HMIX_PLAYER.pause(); return; }   // 再生中の曲をもう一度押す→停止
+            if(HMIX_PLAYER.playTrackById){ HMIX_PLAYER.playTrackById(id); return; }
+          }
+        }catch(err){}
         location.href='/music/'+id+'.html';
       });
+      // 再生状態に追従して ▶／■ を切り替え
+      window.addEventListener('hmix:player:state', function(e){
+        var d=e&&e.detail||{}; playingId=d.isPlaying?d.trackId:null; syncPlaying();
+      });
+      window.addEventListener('favorites:updated', syncFavs);
+      window.addEventListener('hmix:lang', function(){ syncFavs(); syncPlaying(); });
     })();
     </script>
 
