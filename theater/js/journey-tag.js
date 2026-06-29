@@ -382,10 +382,18 @@
   }
 
   /* ============================================================ HUB LABELS */
+  // 言語対応: EN時はタグ名を英語主体に。日英は HMIX_LANG / sessionStorage を参照。
+  function jEN(){ try{ var v=window.HMIX_LANG||sessionStorage.getItem('hmix_lang')||localStorage.getItem('hmix_lang'); return v==='en'; }catch(e){ return window.HMIX_LANG==='en'; } }
+  function tagName(t){ return (jEN() && t.en) ? t.en : t.jp; }
+  function tagLabelHtml(t){
+    const main = jEN() ? (t.en || t.jp) : t.jp;
+    const meta = jEN() ? (t.jp + ' · ' + t.count) : ((t.en||'').toUpperCase() + ' · ' + t.count);
+    return `<span class="tl-jp">${main}</span><span class="tl-meta">${meta}</span>`;
+  }
   function buildHub(){
     STARS.forEach(st=>{
       const b=document.createElement('button'); b.className='taglbl ring'+st.ri;
-      b.innerHTML=`<span class="tl-jp">${st.tag.jp}</span><span class="tl-meta">${(st.tag.en||'').toUpperCase()} · ${st.tag.count}</span>`;
+      b.innerHTML=tagLabelHtml(st.tag);
       b.addEventListener('pointerenter',()=>b.classList.add('hot'));
       b.addEventListener('pointerleave',()=>b.classList.remove('hot'));
       b.addEventListener('click',()=>{ if(dragMoved) return; selectStar(st); });
@@ -402,7 +410,7 @@
       /* 行き先表示: 前後の星の名を左ウィングへ */
       if(curStar&&mode==='dock'){
         const i=STARS.indexOf(curStar), L=STARS.length;
-        const nx=STARS[(i+1)%L].tag.jp, pv=STARS[(i-1+L)%L].tag.jp;
+        const nx=tagName(STARS[(i+1)%L].tag), pv=tagName(STARS[(i-1+L)%L].tag);
         if(nextName&&nextName.textContent!==nx) nextName.textContent=nx;
         if(prevName&&prevName.textContent!==pv) prevName.textContent=pv;
       }
@@ -410,6 +418,8 @@
     const nextName=document.getElementById('wtNextName');
     const prevName=document.getElementById('wtPrevName');
     window.addEventListener('resize',()=>resize(),{passive:true});
+    // 言語切替に追従して星図ハブのタグ名を再描画
+    window.addEventListener('hmix:lang',()=>{ STARS.forEach(st=>{ if(st.el) st.el.innerHTML=tagLabelHtml(st.tag); }); });
     document.addEventListener('visibilitychange',start);
     start();
     /* hooks */
