@@ -249,11 +249,14 @@
       try{ box.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
     }
     function showFallback(btn, subject, body){
-      var en=isEN(); var box=ensureBox(btn); box.style.borderColor='#E6DFCF'; box.style.background='#fff';
-      box.innerHTML='<strong>'+(en?'Could not send automatically.':'自動送信できませんでした。')+'</strong><br>'
-        +(en?'Please email us directly at <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a>, or copy your message below.'
-            :'お手数ですが <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお使いください。')
-        +'<div style="margin-top:10px"><button type="button" id="cf-copy" style="cursor:pointer;background:#16382A;color:#F4F0E6;border:none;border-radius:999px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700">'+(en?'Copy message':'内容をコピー')+'</button> <span id="cf-copied" style="margin-left:10px;color:#2E6B4F;font-weight:700"></span></div>';
+      var en=isEN(); var box=ensureBox(btn);
+      // 失敗は赤い警告で確実に気づかせる
+      box.style.borderColor='#d9534f'; box.style.background='#fdecea'; box.style.borderWidth='2px'; box.style.color='#7a2520';
+      box.setAttribute('role','alert'); box.setAttribute('aria-live','assertive'); box.setAttribute('tabindex','-1');
+      box.innerHTML='<strong style="color:#c0392b;font-size:16px">⚠ '+(en?'Your message was NOT sent.':'送信できませんでした。')+'</strong><br>'
+        +(en?'A network error may have occurred. <strong>Your input has not been lost.</strong> Please email us directly at <a href="mailto:'+MAIL+'" style="color:#c0392b;font-weight:700">'+MAIL+'</a>, or copy your message below.'
+            :'通信エラーの可能性があります。<strong>入力内容は消えていません。</strong>お手数ですが <a href="mailto:'+MAIL+'" style="color:#c0392b;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお送りください。')
+        +'<div style="margin-top:10px"><button type="button" id="cf-copy" style="cursor:pointer;background:#c0392b;color:#fff;border:none;border-radius:999px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700">'+(en?'Copy message':'内容をコピー')+'</button> <span id="cf-copied" style="margin-left:10px;color:#1d5b3e;font-weight:700"></span></div>';
       var text='To: '+MAIL+'\nSubject: '+subject+'\n\n'+body;
       var copyBtn=document.getElementById('cf-copy');
       if(copyBtn) copyBtn.addEventListener('click', function(){
@@ -262,6 +265,13 @@
         else { try{ var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); ok(); }catch(e){} }
       });
       try{ box.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+      try{ box.focus(); }catch(e){}
+      // ブロッキング通知で確実に気づかせる（ボックス描画後に表示）
+      setTimeout(function(){
+        try{ alert(en
+          ? 'Your message could NOT be sent (network error).\nYour input is kept. Please email us directly at '+MAIL+', or use the "Copy message" button.'
+          : '送信できませんでした（通信エラーの可能性）。\n入力内容は残っています。お手数ですが '+MAIL+' 宛に直接お送りいただくか、「内容をコピー」ボタンをご利用ください。'); }catch(e){}
+      }, 60);
     }
     document.addEventListener('click', function(e){
       var btn = (e.target && e.target.closest) ? e.target.closest('#cf-submit') : null;
