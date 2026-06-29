@@ -323,6 +323,30 @@
     font-size:.92rem; letter-spacing:.34em; color:rgba(245,236,220,.86); text-shadow:0 2px 8px rgba(0,0,0,.6);
   }
   .hero-heart.hh-pulse .hero-heart__beat{ animation:heartThrob .74s cubic-bezier(.22,1,.36,1); }
+  /* ⑥ みんなの鼓動: 集合人気のソナー波＋キャプション */
+  .hero-heart__btn{ position:relative; }
+  .hero-heart__rings{ position:absolute; left:50%; top:50%; width:138px; height:138px; transform:translate(-50%,-50%); pointer-events:none; z-index:0; }
+  .hero-heart__rings i{ position:absolute; inset:0; border-radius:50%; border:1px solid rgba(231,202,124,.42); opacity:0; }
+  /* お気に入り追加の瞬間だけ、心臓から金の波が広がる（みんなの鼓動の一打） */
+  .hero-heart.hh-sonar .hero-heart__rings i{ animation:heartSonar 1.9s cubic-bezier(.22,1,.36,1) both; }
+  .hero-heart.hh-sonar .hero-heart__rings i:nth-child(2){ animation-delay:.16s; }
+  .hero-heart.hh-sonar .hero-heart__rings i:nth-child(3){ animation-delay:.32s; }
+  @keyframes heartSonar{ 0%{ transform:scale(.55); opacity:0; } 16%{ opacity:.55; } 100%{ transform:scale(2.7); opacity:0; } }
+  /* 今日の1曲＋♡ */
+  .hero-today{ pointer-events:auto; display:inline-flex; align-items:center; gap:.55rem; margin-top:.8rem; padding:.4rem .55rem .4rem .8rem; border:1px solid rgba(231,202,124,.28); border-radius:999px; background:rgba(12,18,13,.55); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); max-width:90vw; opacity:0; transform:translateY(6px); animation:todayIn .8s .2s cubic-bezier(.22,1,.36,1) forwards; }
+  .hero-today[hidden]{ display:none; }
+  @keyframes todayIn{ to{ opacity:1; transform:none; } }
+  .hero-today__label{ font-family:var(--font-display); font-size:.6rem; letter-spacing:.26em; color:rgba(231,202,124,.82); white-space:nowrap; }
+  .hero-today__play{ width:26px; height:26px; border-radius:50%; border:1px solid rgba(231,202,124,.5); background:rgba(231,202,124,.12); color:#e7ca7c; display:grid; place-items:center; cursor:pointer; flex:0 0 auto; padding:0; transition:background .25s ease, transform .25s ease; }
+  .hero-today__play:hover{ background:rgba(231,202,124,.24); transform:scale(1.08); }
+  .hero-today__play svg{ width:11px; height:11px; margin-left:1px; }
+  .hero-today__title{ font-family:var(--font-serif-jp); font-size:.94rem; color:#f5ecdc; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:36vw; transition:color .25s ease; }
+  .hero-today__title:hover{ color:#fff; text-decoration:underline; }
+  .hero-today__fav{ width:30px; height:30px; border-radius:50%; border:1px solid rgba(231,202,124,.45); background:transparent; color:#e7ca7c; font-size:15px; line-height:1; cursor:pointer; display:grid; place-items:center; flex:0 0 auto; padding:0; transition:transform .2s ease, background .25s ease, color .25s ease, border-color .25s ease; }
+  .hero-today__fav[aria-pressed="true"]{ color:#ff8aa0; border-color:rgba(255,138,160,.6); background:rgba(255,138,160,.12); }
+  .hero-today__fav:hover{ transform:scale(1.12); }
+  @media (prefers-reduced-motion: reduce){ .hero-heart.hh-sonar .hero-heart__rings i{ animation:none; } .hero-today{ animation:none; opacity:1; transform:none; } }
+  @media (max-width:600px){ .hero-today__title{ max-width:52vw; } .hero-today__label{ font-size:.56rem; letter-spacing:.18em; } }
   @keyframes heartBeat{ 0%,100%{transform:scale(1);} 8%{transform:scale(1.07);} 16%{transform:scale(1);} 24%{transform:scale(1.045);} 34%{transform:scale(1);} }
   @keyframes heartThrob{ 0%{transform:scale(1);} 30%{transform:scale(1.17);} 60%{transform:scale(.98);} 100%{transform:scale(1);} }
   @keyframes hhRingSpin{ to{ transform:rotate(360deg); } }
@@ -1260,6 +1284,8 @@
       <div class="hero-heart" id="heroHeart">
         <button class="hero-heart__btn" id="heroHeartBtn" type="button"
                 aria-label="音楽手帖を開く" data-ja-aria="音楽手帖を開く" data-en-aria="Open your music notebook">
+          <!-- ⑥ みんなの鼓動: 心臓から広がる金のソナー波（集合人気の脈） -->
+          <span class="hero-heart__rings" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="hero-heart__beat" aria-hidden="true">
             <span class="hero-heart__glow" aria-hidden="true"></span>
             <span class="hero-heart__ripple" aria-hidden="true"></span>
@@ -1296,6 +1322,15 @@
           <span class="hero-heart__tagline-en">TWO DOORS&nbsp;·&nbsp;ONE JOURNEY</span>
           <span class="hero-heart__tagline-jp" data-ja="2つの入口、1つの旅" data-en="Two doors, one journey">2つの入口、1つの旅</span>
         </p>
+        <!-- 今日の1曲（日替わり）＋ ♡追加（お気に入りの実演） -->
+        <div class="hero-today" id="heroToday" aria-live="polite" hidden>
+          <span class="hero-today__label" data-ja="今日の1曲" data-en="TODAY’S PICK">今日の1曲</span>
+          <button class="hero-today__play" id="heroTodayPlay" type="button" aria-label="再生" data-ja-aria="再生" data-en-aria="Play">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </button>
+          <a class="hero-today__title" id="heroTodayTitle" href="#">—</a>
+          <button class="hero-today__fav" id="heroTodayFav" type="button" aria-pressed="false" title="お気に入りに追加" aria-label="お気に入りに追加" data-ja-aria="お気に入りに追加" data-en-aria="Add to favorites">♡</button>
+        </div>
         <p class="hero-heart__msg" id="heroHeartMsg" aria-hidden="true"></p>
       </div>
     </section>
@@ -1330,27 +1365,19 @@
         btn.setAttribute('aria-label', en()?('Open your music notebook ('+n+' saved)'):('音楽手帖を開く（保存 '+n+' 曲）'));
         if(animate){ flashClass('hh-pulse',780); }
       }
-      function milestoneMsg(m){
-        switch(m){
-          case 5:  return ['5曲の調べ','5 melodies gathered'];
-          case 10: return ['10曲の調べ','10 melodies gathered'];
-          case 25: return ['25曲の旅','A journey of 25'];
-          case 50: return ['50曲の旅','A journey of 50'];
-          default: return [m+'曲','+'+m];
-        }
-      }
       function onCount(n,initial){
         render(n, !initial && n!==prev);
         if(!initial){
-          // ① 第一拍: 0件・未経験から初保存した瞬間だけ
+          if(n>prev) flashClass('hh-sonar',2200);   // お気に入り追加＝心臓から波が広がる一打
+          // ① 第一拍: 0件・未経験から初保存した瞬間だけ（一度きりの文言）
           if(n>=1 && !lsGet(FIRST_KEY)){
             lsSet(FIRST_KEY,'1');
             flashClass('awaken',1800);
             showMsg('旅がはじまった','Your journey begins');
           } else {
-            // ④ 節目: 上方向に跨いだ時だけ
+            // ④ 節目: 上方向に跨いだ時だけ（文言は冗長なので削除・静かな金グロウのみ）
             for(var i=0;i<MILESTONES.length;i++){ var m=MILESTONES[i];
-              if(prev>=0 && prev<m && n>=m){ flashClass('milestone',2000); var t=milestoneMsg(m); showMsg(t[0],t[1]); break; } }
+              if(prev>=0 && prev<m && n>=m){ flashClass('milestone',2000); break; } }
           }
         }
         prev=n;
@@ -1376,6 +1403,77 @@
         location.href='/music-library.html';
       }
       btn.addEventListener('click', openNotebook);
+    })();
+    </script>
+    <script>
+    /* 今日の1曲: 人気ランキング11〜30位から日替わりで選ぶ（隠れた良曲枠）。♡でお気に入り実演。 */
+    (function(){
+      var heart=document.getElementById('heroHeart');
+      var box=document.getElementById('heroToday');
+      if(!heart||!box||heart.__todayWired) return; heart.__todayWired=true;
+      var titleEl=document.getElementById('heroTodayTitle');
+      var playBtn=document.getElementById('heroTodayPlay');
+      var favBtn=document.getElementById('heroTodayFav');
+      var RANKINGS_URL='https://asia-northeast1-hmix-footprints.cloudfunctions.net/getRankings';
+      var CACHE_KEY='hmix_rankings_v1';
+      var curId=null;
+      function en(){ return window.HMIX_LANG==='en'; }
+      function whenTracks(){
+        if(window.TRACKS&&window.TRACKS.length) return Promise.resolve(window.TRACKS);
+        return new Promise(function(res){
+          window.addEventListener('tracks:ready', function(){ res(window.TRACKS||[]); }, {once:true});
+          var n=0,iv=setInterval(function(){ n++; if(window.TRACKS&&window.TRACKS.length){clearInterval(iv);res(window.TRACKS);} else if(n>40){clearInterval(iv);res(window.TRACKS||[]);} },150);
+        });
+      }
+      function getScores(){
+        try{ var c=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null'); if(c&&c.scores&&Date.now()-c.ts<600000) return Promise.resolve(c.scores); }catch(e){}
+        return fetch(RANKINGS_URL).then(function(r){return r.json();}).then(function(j){
+          var s=(j&&j.scores)||{};
+          try{ sessionStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),scores:s})); }catch(e){}
+          return s;
+        }).catch(function(){ return null; });
+      }
+      function hashStr(s){ var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))|0; } return Math.abs(h); }
+      function dailyKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+      function buildPool(scores, byId){
+        // 人気ランキング 11〜30位（index 10..29）。TRACKSに存在するものだけ。
+        if(!scores) return null;
+        var ranked=Object.keys(scores).filter(function(id){return scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];});
+        var pool=ranked.slice(10,30);
+        return pool.length?pool:null;
+      }
+      function syncFav(){
+        var on=false; try{ on=!!(window.HMIX_FAV&&HMIX_FAV.has&&HMIX_FAV.has(curId)); }catch(e){}
+        favBtn.textContent=on?'♥':'♡'; favBtn.setAttribute('aria-pressed', on?'true':'false');
+        favBtn.title=on?(en()?'Remove from favorites':'お気に入りから外す'):(en()?'Add to favorites':'お気に入りに追加');
+      }
+      Promise.all([whenTracks(), getScores()]).then(function(r){
+        var tracks=r[0]||[], scores=r[1];
+        if(!tracks.length) return;
+        var byId={}; tracks.forEach(function(t){ byId[t.id]=t; });
+        var pool=buildPool(scores, byId);
+        var id;
+        if(pool){ id=pool[hashStr(dailyKey())%pool.length]; }
+        else { id=tracks[hashStr(dailyKey())%tracks.length].id; }   // ランキング取得失敗時は全曲から日替わり
+        var t=byId[id]; if(!t) return; curId=id;
+        titleEl.textContent=(en()&&t.title_en?t.title_en:(t.title||id));
+        titleEl.href='/music/'+id+'.html';
+        box.hidden=false;
+        syncFav();
+      });
+      playBtn.addEventListener('click', function(e){
+        e.preventDefault(); if(!curId) return;
+        try{ if(window.HMIX_PLAYER&&HMIX_PLAYER.playTrackById){ HMIX_PLAYER.playTrackById(curId); return; } }catch(err){}
+        location.href='/music/'+curId+'.html';
+      });
+      favBtn.addEventListener('click', function(e){
+        e.preventDefault(); if(!curId) return;
+        try{ if(window.HMIX_FAV&&HMIX_FAV.toggle){ HMIX_FAV.toggle(curId); } }catch(err){}
+        syncFav();        // 中央の心臓は favorites:updated で自動更新（実演）
+        favBtn.style.transform='scale(1.25)'; setTimeout(function(){ favBtn.style.transform=''; },200);
+      });
+      window.addEventListener('favorites:updated', syncFav);
+      window.addEventListener('hmix:lang', function(){ if(curId){ var t=(window.TRACKS||[]).filter(function(x){return x.id===curId;})[0]; if(t){ titleEl.textContent=(en()&&t.title_en?t.title_en:(t.title||t.id)); } syncFav(); } });
     })();
     </script>
 
