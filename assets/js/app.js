@@ -49,9 +49,13 @@ if (navToggle && navList) {
   });
 
   // メニュー項目クリックで閉じる
+  // モバイル幅では .open クラスの有無に関わらずドロップダウン親リンクは常にトグル
+  // （iOS タップタイミングで .open 判定が外れて意図しないナビゲーションが 80% 発生する問題への対応）
+  // ※同 URL がサブメニュー1番目にあるため、遷移したい人はサブメニューから行ける
   navList.addEventListener('click', (e) => {
     const dropdownLink = e.target.closest('.nav-item--dropdown > .nav-link');
-    if (dropdownLink && navList.classList.contains('open')) {
+    const isMobileViewport = window.matchMedia('(max-width: 768px)').matches;
+    if (dropdownLink && (isMobileViewport || navList.classList.contains('open'))) {
       e.preventDefault();
       const item = dropdownLink.closest('.nav-item--dropdown');
       const isOpen = item.classList.toggle('nav-item--submenu-open');
