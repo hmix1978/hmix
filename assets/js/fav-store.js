@@ -144,6 +144,79 @@
     return st;
   }
 
+  /* =================================================================
+   * クラウド同期マージ：リモート状態を local へ レコード単位LWW＋tombstone で統合
+   *  - tracks / collection metadata / item は updatedAt の大きい方が勝ち
+   *  - 削除は tombstone（deleted/deletedAt は updatedAt に同期）→ LWW で自然に勝敗
+   *  - note の敗者本文は noteConflicts に退避（△両方保管）
+   *  - consents はマージしない（最も保守的＝ローカル維持／仕様§4-1）
+   * ================================================================= */
+  function dedupeConflicts(arr) {
+    if (!Array.isArray(arr)) return [];
+    var seen = {}, out = [];
+    for (var i = 0; i < arr.length; i++) {
+      var c = arr[i]; if (!c || c.body == null) continue;
+      var k = (c.source || '') + '|' + c.timestamp + '|' + c.body;
+      if (seen[k]) continue; seen[k] = true; out.push(c);
+    }
+    return out.slice(-20); // 上限
+  }
+
+  function mergeItem(li, ri) {
+    var lu = li.updatedAt || 0, ru = ri.updatedAt || 0;
+    if (ru > lu) {
+      if (li.note && li.note !== ri.note) {
+        ri.noteConflicts = dedupeConflicts((ri.noteConflicts || []).concat(li.noteConflicts || [], [{ source: 'local', body: li.note, timestamp: lu }]));
+      } else {
+        ri.noteConflicts = dedupeConflicts((ri.noteConflicts || []).concat(li.noteConflicts || []));
+      }
+      li.note = ri.note; li.order = ri.order; li.updatedAt = ru;
+      li.deleted = ri.deleted; li.deletedAt = ri.deletedAt; li.noteConflicts = ri.noteConflicts;
+    } else if (lu > ru) {
+      if (ri.note && ri.note !== li.note) {
+        li.noteConflicts = dedupeConflicts((li.noteConflicts || []).concat(ri.noteConflicts || [], [{ source: 'remote', body: ri.note, timestamp: ru }]));
+      } else {
+        li.noteConflicts = dedupeConflicts((li.noteConflicts || []).concat(ri.noteConflicts || []));
+      }
+    } else {
+      li.noteConflicts = dedupeConflicts((li.noteConflicts || []).concat(ri.noteConflicts || []));
+    }
+  }
+
+  function mergeStates(local, remoteRaw) {
+    var remote = normalize(remoteRaw);
+    // tracks
+    Object.keys(remote.tracks).forEach(function (id) {
+      var r = remote.tracks[id], l = local.tracks[id];
+      if (!l) { local.tracks[id] = r; return; }
+      if ((r.updatedAt || 0) > (l.updatedAt || 0)) {
+        l.favMemo = r.favMemo; l.updatedAt = r.updatedAt; l.orphaned = r.orphaned;
+      }
+      l.addedAt = Math.min(l.addedAt || r.addedAt || 0, r.addedAt || l.addedAt || 0) || (l.addedAt || r.addedAt);
+    });
+    // collections
+    var byId = {}; local.collections.forEach(function (c) { byId[c.id] = c; });
+    remote.collections.forEach(function (rc) {
+      var lc = byId[rc.id];
+      if (!lc) { local.collections.push(rc); byId[rc.id] = rc; return; }
+      if ((rc.updatedAt || 0) > (lc.updatedAt || 0)) {
+        ['name', 'order', 'status', 'licenseeName', 'certificateRef', 'meta', 'archived', 'deleted', 'deletedAt'].forEach(function (k) { lc[k] = rc[k]; });
+        lc.updatedAt = rc.updatedAt;
+      }
+      var itemById = {}; lc.items.forEach(function (it) { itemById[it.trackId] = it; });
+      rc.items.forEach(function (ri) {
+        var li = itemById[ri.trackId];
+        if (!li) { lc.items.push(ri); itemById[ri.trackId] = ri; return; }
+        mergeItem(li, ri);
+      });
+    });
+    // _meta（真偽は OR、gateDismissedAt は max）／consents は非マージ
+    local._meta.loggedIn = !!(local._meta.loggedIn || remote._meta.loggedIn);
+    local._meta.purchased = !!(local._meta.purchased || remote._meta.purchased);
+    local._meta.gateDismissedAt = Math.max(local._meta.gateDismissedAt || 0, remote._meta.gateDismissedAt || 0) || null;
+    return local;
+  }
+
   /* ストレージから状態をロード（必要なら移行＋バックアップ） */
   function loadState() {
     var rawV2 = lsGet(KEY_V2);
@@ -467,8 +540,19 @@
       } catch (e) { return false; }
     },
 
+    /* --- クラウド同期：リモート状態をレコード単位LWWでマージ（クラウド同期用） --- */
+    merge: function (remote) {
+      try {
+        var r = (typeof remote === 'string') ? JSON.parse(remote) : remote;
+        if (!r || typeof r !== 'object') return false;
+        mergeStates(this.state(), r);
+        save(this._state);
+        return true;
+      } catch (e) { return false; }
+    },
+
     /* --- 内部公開（テスト/デバッグ用） --- */
-    _internal: { migrateFlat: migrateFlat, normalize: normalize, rankBetween: rankBetween, rankAfter: rankAfter, reconcileFromFlat: reconcileFromFlat }
+    _internal: { migrateFlat: migrateFlat, normalize: normalize, rankBetween: rankBetween, rankAfter: rankAfter, reconcileFromFlat: reconcileFromFlat, mergeStates: mergeStates }
   };
 
   /* =================================================================

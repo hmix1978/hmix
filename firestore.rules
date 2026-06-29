@@ -100,5 +100,18 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // ============================================================
+    // favorites コレクション (音楽手帖クラウド同期 / 本人のみ)
+    //   favorites/{uid} … 各ユーザー(匿名Auth含む)が自分の手帖だけ読み書き可能。
+    //   schemaVersion 2 ＋ state(map) 必須。サイズは Firestore の 1MB 制約に従う。
+    // ============================================================
+    match /favorites/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.data.schemaVersion == 2
+                   && request.resource.data.state is map;
+    }
+
   }
 }
