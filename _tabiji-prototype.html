@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>旅路の手引き — たたき台 / H/MIX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;500;700&family=Cinzel:wght@400;600&family=Noto+Sans+JP:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
+<style>
+:root{
+  --gold:#e7ca7c; --gold-bright:#ffcf6e; --gold-dim:rgba(202,164,78,.55);
+  --ink:#eef0ea; --ink-soft:rgba(214,228,214,.78); --ink-dim:rgba(160,194,165,.62);
+  --green:#9adfb4; --ease:cubic-bezier(.22,1,.36,1);
+  --bg0:#060e0a; --bg1:#0a160f;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0; background:
+  radial-gradient(120% 80% at 50% -10%, rgba(40,80,55,.30), transparent 55%),
+  radial-gradient(90% 60% at 80% 110%, rgba(30,60,45,.22), transparent 60%),
+  linear-gradient(180deg,var(--bg0),var(--bg1) 40%, #07120c);
+  color:var(--ink); font-family:'Noto Sans JP',system-ui,sans-serif; -webkit-font-smoothing:antialiased;
+  min-height:100vh; overflow-x:hidden;}
+/* 微粒子・霧 */
+.fog{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+  background:radial-gradient(60% 40% at 20% 30%, rgba(120,170,140,.06), transparent 60%),
+             radial-gradient(50% 35% at 85% 70%, rgba(202,164,78,.05), transparent 60%);}
+.wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:clamp(56px,9vw,120px) clamp(18px,5vw,40px);}
+
+/* ===== 見出し ===== */
+.tebiki-head{text-align:center; margin-bottom:clamp(40px,6vw,72px);}
+.tebiki-kicker{font-family:'Bebas Neue',sans-serif; letter-spacing:.4em; font-size:13px; color:var(--gold-dim);}
+.tebiki-title{font-family:'Noto Serif JP',serif; font-weight:500; font-size:clamp(26px,4.4vw,46px); line-height:1.5; margin:.4em 0 0; letter-spacing:.04em;}
+.tebiki-title .em{color:var(--gold-bright);}
+
+/* ===== 目的の羅針盤 ===== */
+.compass{margin:0 auto clamp(54px,8vw,96px); max-width:880px; text-align:center;}
+.compass__q{font-family:'Noto Serif JP',serif; font-size:clamp(15px,1.7vw,19px); color:var(--ink-soft); margin-bottom:1.4em;}
+.compass__q b{color:var(--ink); font-weight:500;}
+.chips{display:flex; flex-wrap:wrap; gap:10px; justify-content:center;}
+.chip{font-family:'Noto Sans JP',sans-serif; font-size:13.5px; letter-spacing:.02em; color:var(--ink-soft);
+  padding:10px 18px; border-radius:30px; cursor:pointer; background:rgba(14,24,17,.6);
+  border:1px solid rgba(160,190,165,.26); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  transition:transform .25s var(--ease), border-color .25s var(--ease), color .25s var(--ease), background .25s var(--ease);}
+.chip:hover{transform:translateY(-2px); border-color:var(--gold-dim); color:var(--ink);}
+.chip[aria-pressed="true"]{background:rgba(160,105,20,.22); border-color:rgba(230,200,122,.7); color:var(--gold-bright);
+  box-shadow:0 0 0 1px rgba(230,200,122,.25), 0 8px 26px -12px rgba(0,0,0,.6);}
+
+/* ===== 三章 path ===== */
+.journey{position:relative; padding-left:clamp(34px,6vw,64px);}
+.journey__line{position:absolute; left:clamp(14px,3vw,28px); top:8px; bottom:8px; width:2px;
+  background:rgba(160,190,165,.18); overflow:hidden; border-radius:2px;}
+.journey__fill{position:absolute; inset:0 0 auto 0; height:0; background:linear-gradient(180deg,var(--gold-bright),var(--gold-dim));
+  box-shadow:0 0 12px rgba(255,200,110,.5); transition:height .15s linear;}
+.chapter{position:relative; margin:0 0 clamp(40px,6vw,72px);
+  opacity:0; transform:translateY(26px); transition:opacity .7s var(--ease), transform .7s var(--ease);}
+.chapter.in{opacity:1; transform:none;}
+.chapter__node{position:absolute; left:calc(clamp(14px,3vw,28px) - clamp(34px,6vw,64px) - 5px); top:6px;
+  width:13px; height:13px; border-radius:50%; background:var(--bg1); border:2px solid var(--gold-dim);
+  transition:all .4s var(--ease);}
+.chapter.lit .chapter__node, .chapter.in .chapter__node{border-color:var(--gold-bright); background:var(--gold-bright); box-shadow:0 0 14px rgba(255,200,110,.8);}
+.chapter__no{font-family:'Bebas Neue',sans-serif; letter-spacing:.18em; font-size:13px; color:var(--gold-dim);}
+.chapter__verb{font-family:'Cinzel',serif; font-size:11px; letter-spacing:.34em; color:var(--ink-dim); margin-left:10px;}
+.chapter__title{font-family:'Noto Serif JP',serif; font-weight:500; font-size:clamp(20px,2.8vw,30px); color:var(--ink); margin:.35em 0 .3em; line-height:1.45;}
+.chapter__copy{font-size:clamp(13px,1.4vw,14.5px); color:var(--ink-soft); line-height:1.95; max-width:42em; margin:0 0 1.3em;}
+.chapter__cta{display:flex; flex-wrap:wrap; gap:12px;}
+.btn{font-family:'Noto Sans JP',sans-serif; font-size:13.5px; letter-spacing:.03em; text-decoration:none; cursor:pointer;
+  padding:11px 22px; border-radius:28px; display:inline-flex; align-items:center; gap:6px;
+  background:rgba(16,28,20,.7); border:1px solid rgba(160,190,165,.32); color:var(--ink-soft);
+  transition:transform .22s var(--ease), border-color .22s var(--ease), color .22s var(--ease), background .22s var(--ease);}
+.btn:hover{transform:translateY(-2px); border-color:var(--gold-dim); color:var(--ink);}
+.btn--green{background:rgba(60,130,85,.22); border-color:rgba(100,180,130,.45); color:var(--green);}
+.btn--gold{background:rgba(160,105,20,.2); border-color:rgba(202,148,50,.5); color:var(--gold-bright);}
+/* lit章の主CTAを灯す */
+.chapter.lit{}
+.chapter.lit .chapter__title{color:var(--gold-bright);}
+.chapter.lit .btn--primary{animation:ctaGlow 1.8s var(--ease) infinite;}
+@keyframes ctaGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,200,110,0);}50%{box-shadow:0 0 0 5px rgba(255,200,110,.14);}}
+
+/* 手帖カード(第二章) */
+.tebicho{display:flex; align-items:baseline; gap:10px; margin:.2em 0 1em;}
+.tebicho__n{font-family:'Bebas Neue',sans-serif; font-size:34px; color:var(--gold-bright); line-height:1; filter:drop-shadow(0 0 8px rgba(255,200,110,.4));}
+.tebicho__label{font-size:12px; color:var(--gold-dim);}
+.cards{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(170px,1fr); gap:12px; overflow-x:auto; padding:2px 2px 12px; margin-bottom:1.1em; scrollbar-width:thin;}
+.cards::-webkit-scrollbar{height:6px;} .cards::-webkit-scrollbar-thumb{background:rgba(120,160,130,.3); border-radius:3px;}
+.card{flex:0 0 auto; padding:13px 14px; border-radius:12px; min-height:96px; display:flex; flex-direction:column; gap:7px;
+  background:linear-gradient(165deg,rgba(20,34,24,.85),rgba(10,18,13,.92)); border:1px solid rgba(120,170,135,.2);
+  transition:transform .25s var(--ease), border-color .25s var(--ease);}
+.card:hover{transform:translateY(-3px); border-color:var(--gold-dim);}
+.card__t{font-size:13.5px; color:var(--ink); font-weight:500; line-height:1.4;}
+.card__m{font-size:11px; color:var(--ink-dim); margin-top:auto;}
+
+/* THE GATE */
+.gate{text-align:center; margin-top:clamp(30px,5vw,56px); padding-top:clamp(30px,5vw,56px); border-top:1px solid rgba(160,190,165,.14);
+  opacity:0; transform:translateY(22px); transition:opacity .8s var(--ease), transform .8s var(--ease);}
+.gate.in{opacity:1; transform:none;}
+.gate__eyebrow{font-family:'Cinzel',serif; letter-spacing:.34em; font-size:11px; color:var(--gold-dim);}
+.gate__line{font-family:'Noto Serif JP',serif; font-size:clamp(20px,3vw,30px); color:var(--ink); margin:.5em 0 .9em;}
+
+@media (max-width:560px){
+  .cards{grid-auto-columns:minmax(150px,80%);}
+  .chapter__node{display:none;}
+  .journey{padding-left:0;} .journey__line{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  .chapter,.gate{opacity:1; transform:none; transition:none;}
+  .chapter.lit .btn--primary{animation:none;}
+  .journey__fill{transition:none;}
+}
+</style>
+</head>
+<body>
+<div class="fog" aria-hidden="true"></div>
+<main class="wrap">
+
+  <header class="tebiki-head">
+    <div class="tebiki-kicker">—— SCROLL OF WAYS · 旅路の手引き ——</div>
+    <h1 class="tebiki-title">三つの章で辿る、<br><span class="em">あなただけの音の旅。</span></h1>
+  </header>
+
+  <!-- 目的の羅針盤 -->
+  <section class="compass" aria-label="目的の羅針盤">
+    <p class="compass__q"><b>何をお探しですか。</b> ひと押しで、あなたの旅路をお見せします。</p>
+    <div class="chips" role="group" aria-label="目的から選ぶ">
+      <button class="chip" data-target="c1" aria-pressed="false">場面・ジャンルで探す</button>
+      <button class="chip" data-target="c1" aria-pressed="false">世界観に浸る</button>
+      <button class="chip" data-target="c2" aria-pressed="false">集めた曲を見る</button>
+      <button class="chip" data-target="c3" aria-pressed="false">無料で使いたい</button>
+      <button class="chip" data-target="c3" aria-pressed="false">商用で使いたい</button>
+      <button class="chip" data-target="c3" aria-pressed="false">YouTubeで使う</button>
+    </div>
+  </section>
+
+  <!-- 三章 -->
+  <div class="journey">
+    <div class="journey__line" aria-hidden="true"><div class="journey__fill" id="jfill"></div></div>
+
+    <article class="chapter" id="c1" data-rev>
+      <span class="chapter__node" aria-hidden="true"></span>
+      <span class="chapter__no">CHAPTER I · 旅のはじまり</span><span class="chapter__verb">ENCOUNTER · 出逢う</span>
+      <h2 class="chapter__title">図書館で探し、劇場で出逢う。</h2>
+      <p class="chapter__copy">機能豊かな「音楽図書館」と、情景で出逢う「音の劇場」。二つの扉のどちらを開けても、あなたの物語に響く旋律がそこに待っています。</p>
+      <div class="chapter__cta">
+        <a class="btn btn--green btn--primary" href="/music-library.html">音楽図書館へ</a>
+        <a class="btn" href="/theater/">音の劇場へ</a>
+      </div>
+    </article>
+
+    <article class="chapter" id="c2" data-rev>
+      <span class="chapter__node" aria-hidden="true"></span>
+      <span class="chapter__no">CHAPTER II · 旅の途中</span><span class="chapter__verb">GATHER · 集める</span>
+      <h2 class="chapter__title">お気に入りの箱に、想い出を。</h2>
+      <p class="chapter__copy">心を揺らす音に出会ったら、そっと「お気に入りの箱」へ。どのページで保存しても、この手帖と右下の心臓ハブに集まります——あなただけの、小さな音楽帳。</p>
+      <div class="tebicho" id="td2-count-wrap" hidden><span class="tebicho__n" id="td2-count">0</span><span class="tebicho__label">曲を集めています</span></div>
+      <p class="chapter__copy" id="td2-empty" style="color:var(--ink-dim);font-style:italic;">— まだ手帖は白紙です。気になった曲の♥を押すと、ここに集まります。（試しに「音楽図書館へ」で何曲か♥してみてください）</p>
+      <div class="cards" id="td2-cards" aria-label="あなたの音楽手帖" hidden></div>
+      <div class="chapter__cta">
+        <a class="btn btn--primary" id="td2-open" href="/music-library.html">お気に入りボックスを開く</a>
+        <a class="btn btn--gold" id="td2-license" href="/license-request.html">この曲たちを商用利用する →</a>
+      </div>
+    </article>
+
+    <article class="chapter" id="c3" data-rev>
+      <span class="chapter__node" aria-hidden="true"></span>
+      <span class="chapter__no">CHAPTER III · 旅の終わり</span><span class="chapter__verb">CARRY · 携える</span>
+      <h2 class="chapter__title">まとめて聴き、まとめて携える。</h2>
+      <p class="chapter__copy">箱の旋律を一括で再生。無料ダウンロードも、商用ライセンスのお申し出も、ここから。あなたの創作の旅へ、そのまま持ち出せます。</p>
+      <div class="chapter__cta">
+        <a class="btn btn--green btn--primary" href="/music-library.html">無料でダウンロード</a>
+        <a class="btn btn--gold" href="/professional-license.html">商用ライセンスを見る →</a>
+      </div>
+    </article>
+  </div>
+
+  <!-- THE GATE -->
+  <section class="gate" id="gate" data-rev>
+    <div class="gate__eyebrow">—— THE GATE · 扉 ——</div>
+    <p class="gate__line">さあ、あなたの情景へ。</p>
+    <a class="btn btn--gold" href="/music-library.html">旅をはじめる</a>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // scroll reveal (stagger)
+  var revs = [].slice.call(document.querySelectorAll('[data-rev]'));
+  if(reduce){ revs.forEach(function(e){e.classList.add('in');}); }
+  else if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+    }, {threshold:.2, rootMargin:'0px 0px -10% 0px'});
+    revs.forEach(function(e){ io.observe(e); });
+  } else { revs.forEach(function(e){e.classList.add('in');}); }
+
+  // 路が描かれる: journey進捗で fill の高さ
+  var journey = document.querySelector('.journey'), fill = document.getElementById('jfill'), raf=0;
+  function onScroll(){
+    if(raf) return; raf = requestAnimationFrame(function(){ raf=0;
+      if(!journey||!fill) return;
+      var r = journey.getBoundingClientRect(), vh = window.innerHeight;
+      var p = (vh*0.6 - r.top) / (r.height); p = Math.max(0, Math.min(1, p));
+      fill.style.height = (p*100)+'%';
+    });
+  }
+  if(!reduce){ window.addEventListener('scroll', onScroll, {passive:true}); onScroll(); }
+  else if(fill){ fill.style.height='100%'; }
+
+  // 目的の羅針盤: chip→章を灯す＋スクロール
+  var chips = [].slice.call(document.querySelectorAll('.chip'));
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var on = chip.getAttribute('aria-pressed')==='true';
+      chips.forEach(function(c){ c.setAttribute('aria-pressed','false'); });
+      document.querySelectorAll('.chapter.lit').forEach(function(c){ c.classList.remove('lit'); });
+      if(on) return; // toggle off
+      chip.setAttribute('aria-pressed','true');
+      var t = document.getElementById(chip.getAttribute('data-target'));
+      if(t){ t.classList.add('in','lit'); t.scrollIntoView({behavior: reduce?'auto':'smooth', block:'center'}); }
+    });
+  });
+})();
+</script>
+<!-- 実お気に入り基盤（プレビュー用） -->
+<div id="fav-modal" class="fav-modal" role="dialog" aria-modal="true" aria-labelledby="fav-modal-heading" hidden>
+  <div class="fav-modal__backdrop" id="fav-modal-backdrop"></div>
+  <div class="fav-modal__panel">
+
+    <div class="fav-modal__header">
+      <h2 class="fav-modal__title" id="fav-modal-heading">
+        <span data-ja="保存した曲" data-en="Saved tracks">保存した曲</span>
+        <span class="fav-modal__total" id="fav-modal-total">0曲</span>
+      </h2>
+      <button class="fav-modal__close" id="fav-modal-close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="18" height="18"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="fav-modal__body">
+      <ul class="fav-modal__list" id="fav-modal-list" aria-label="お気に入りの曲一覧"></ul>
+      <p class="fav-modal__empty" id="fav-modal-empty" hidden>
+        <span data-ja="まだ保存した曲はありません。" data-en="No saved tracks yet.">まだ保存した曲はありません。</span><br>
+        <span data-ja="♡ を押して旅の記録を残しましょう。" data-en="Press ♡ to save tracks you love.">♡ を押して旅の記録を残しましょう。</span>
+      </p>
+    </div>
+
+    <!-- Phase 2: 一括ダウンロード / エクスポート用フッター -->
+    <div class="fav-modal__footer" id="fav-modal-footer" hidden>
+      <div class="fav-modal__footer-play">
+        <button type="button" class="fav-modal__play-all" id="fav-modal-play-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8 5v14l11-7z"/></svg>
+          <span data-ja="再生" data-en="Play all">再生</span>
+        </button>
+        <button type="button" class="fav-modal__shuffle-all" id="fav-modal-shuffle-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          <span data-ja="シャッフル" data-en="Shuffle">シャッフル</span>
+        </button>
+        <button type="button" class="fav-modal__play-theater" id="fav-modal-play-theater" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M4 4h16v16H4z"/></svg>
+          <span data-ja="シアター没入再生" data-en="Theater mode">シアター没入再生</span>
+        </button>
+        <button type="button" class="fav-modal__dl-all" id="fav-modal-dl-all" disabled>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          <span data-ja="まとめてDL" data-en="Download all">まとめてDL</span>
+        </button>
+      </div>
+      <button type="button" class="fav-modal__clear" id="fav-modal-clear" data-ja="すべて削除" data-en="Clear all">すべて削除</button>
+    </div>
+
+  </div>
+</div>
+<script src="/assets/js/tracks-loader.js?v=3"></script>
+<script src="/assets/js/fav-modal.js?v=20260624c"></script>
+<script>
+(function(){
+  var FAVK='hmix_favorites';
+  function favIds(){try{return JSON.parse(localStorage.getItem(FAVK)||'[]').map(String);}catch(e){return[];}}
+  function trackById(id){var T=window.TRACKS||[];for(var i=0;i<T.length;i++)if(String(T[i].id)===String(id))return T[i];return null;}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+  var cw=document.getElementById('td2-count-wrap'),cn=document.getElementById('td2-count'),
+      cards=document.getElementById('td2-cards'),empty=document.getElementById('td2-empty');
+  function render(){
+    var ids=favIds(),n=ids.length;
+    if(cn)cn.textContent=String(n);
+    if(cw)cw.hidden=n===0; if(empty)empty.hidden=n>0; if(cards)cards.hidden=n===0;
+    if(!cards)return; if(n===0){cards.innerHTML='';return;}
+    cards.innerHTML=ids.slice(0,8).map(function(id){var t=trackById(id);var title=t?(t.title||id):id;
+      var tags=t?[].concat(t.feeling||[],t.scene||[]).slice(0,2).join(' · '):'';var dur=t&&t.duration?t.duration:'';
+      var meta=tags&&dur?(tags+' · '+dur):(tags||dur);
+      return '<div class="card"><div class="card__t">'+esc(title)+'</div><div class="card__m">'+esc(meta)+'</div></div>';
+    }).join('');
+  }
+  var open=document.getElementById('td2-open'); if(open)open.addEventListener('click',function(e){ if(window.HMIX_FAV_MODAL){e.preventDefault();window.HMIX_FAV_MODAL.open();}});
+  var lic=document.getElementById('td2-license'); if(lic)lic.addEventListener('click',function(e){var ids=favIds(); if(ids.length){e.preventDefault();location.href='/license-request.html#tracks='+ids.join(',');}});
+  window.addEventListener('favorites:updated',render);
+  if(window.loadTracks){window.loadTracks().then(render).catch(render);}else{render();window.addEventListener('tracks:ready',render,{once:true});}
+})();
+</script>
+
+</body>
+</html>
