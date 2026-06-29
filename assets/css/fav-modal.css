@@ -534,25 +534,33 @@ body.fav-modal-open {
    「ひとつの心臓」常駐ハート・ハブ ＋ 飛ぶハート ＋ 初回オンボーディング
    お気に入りをサイトの主役に。世界観(深緑×金)で常駐・脈打つ。
    ============================================================ */
+/* ポケットの心臓: HERO中央紋章と同意匠の円形メダリオン */
 #hmix-fav-hub{
   position: fixed; right: clamp(12px,2vw,26px); bottom: clamp(76px,12vh,104px);
-  z-index: 2147483500; display: inline-flex; align-items: center; gap: 7px;
-  height: clamp(44px,5.4vw,50px); padding: 0 clamp(13px,1.4vw,17px) 0 clamp(11px,1.2vw,14px);
-  border-radius: 28px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  z-index: 2147483500; display: grid; place-items: center; padding: 0;
+  width: clamp(50px,6vw,58px); height: clamp(50px,6vw,58px);
+  border-radius: 50%; cursor: pointer; -webkit-tap-highlight-color: transparent;
   background: rgba(10,18,13,.62); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   border: 1px solid rgba(202,164,78,.40); box-shadow: 0 10px 30px -10px rgba(0,0,0,.6);
   color: #e7ca7c; font-family: 'Noto Sans JP', system-ui, sans-serif;
   transition: transform .25s ease, box-shadow .3s ease, border-color .3s ease, background .3s ease;
 }
 #hmix-fav-hub:hover, #hmix-fav-hub:focus-visible{
-  transform: translateY(-2px) scale(1.05); outline: none;
+  transform: translateY(-2px) scale(1.06); outline: none;
   border-color: rgba(230,200,122,.78); background: rgba(16,26,19,.7);
   box-shadow: 0 14px 38px -10px rgba(0,0,0,.7), 0 0 20px rgba(202,164,78,.35);
 }
-#hmix-fav-hub .hfh-heart{ display: inline-flex; }
-#hmix-fav-hub .hfh-heart svg{ width: clamp(20px,2.3vw,23px); height: clamp(20px,2.3vw,23px); fill: rgba(202,164,78,.5); transition: fill .35s ease, filter .35s ease; }
-#hmix-fav-hub.has-fav .hfh-heart svg{ fill: #ffcf6e; filter: drop-shadow(0 0 5px rgba(255,200,110,.65)); }
-#hmix-fav-hub .hfh-count{ font-weight: 700; font-size: clamp(14px,1.5vw,16px); min-width: 11px; text-align: center; }
+#hmix-fav-hub .hfh-crest{ grid-area: 1/1; display: block; width: 86%; height: 86%; }
+#hmix-fav-hub .hfh-crest svg{ width: 100%; height: 100%; display: block; transition: filter .35s ease; }
+#hmix-fav-hub.has-fav .hfh-crest svg{ filter: drop-shadow(0 0 5px rgba(255,200,110,.6)); }
+/* 0件は輪郭ハート＝「これから集める」余白（中央と同じ作法） */
+#hmix-fav-hub:not(.has-fav) .hfh-heart-shape{ fill: rgba(231,202,124,.12); }
+#hmix-fav-hub .hfh-count{
+  grid-area: 1/1; z-index: 2; transform: translateY(1px);
+  font-weight: 600; font-size: clamp(13px,1.5vw,15px); text-align: center;
+  color: #3a2c10; text-shadow: 0 1px 0 rgba(255,245,200,.5);
+}
+#hmix-fav-hub:not(.has-fav) .hfh-count{ color: rgba(245,236,220,.9); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
 #hmix-fav-hub.has-fav{ animation: hfhBreathe 3.6s ease-in-out infinite; }
 @keyframes hfhBreathe{
   0%,100%{ box-shadow: 0 10px 30px -10px rgba(0,0,0,.6), 0 0 0 0 rgba(255,200,110,0); }

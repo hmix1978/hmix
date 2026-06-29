@@ -130,7 +130,7 @@
 
   <!-- ===== Non-critical CSS (async — モーダル / 折り返し以降 / PJAX 先読み) ===== -->
   <link rel="stylesheet" href="/assets/css/howto-scroll.css?v=20260421" media="print" onload="this.media='all'">
-  <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260629c" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/assets/css/footprints.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/assets/css/shiori.css" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="/assets/css/music-library.css?v=20260629a" media="print" onload="this.media='all'">
@@ -140,7 +140,7 @@
   <link rel="stylesheet" href="/assets/css/tutorial.css" media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet" href="/assets/css/howto-scroll.css?v=20260421">
-    <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260623f">
+    <link rel="stylesheet" href="/assets/css/fav-modal.css?v=20260629c">
     <link rel="stylesheet" href="/assets/css/footprints.css">
     <link rel="stylesheet" href="/assets/css/shiori.css">
     <link rel="stylesheet" href="/assets/css/music-library.css?v=20260629a">
@@ -301,7 +301,7 @@
   .hero-heart__beat{
     position:relative; display:inline-grid; place-items:center; width:138px; height:138px;
     filter:drop-shadow(0 0 10px rgba(231,202,124,.30)) drop-shadow(0 0 28px rgba(196,164,69,.20));
-    animation:heartBeat 3.6s ease-in-out infinite;
+    animation:heartBeat var(--beat-dur,3.6s) ease-in-out infinite;
   }
   .hero-heart__crest{ grid-area:1/1; width:138px; height:138px; }
   .hero-heart__count{
@@ -326,16 +326,47 @@
   @keyframes heartBeat{ 0%,100%{transform:scale(1);} 8%{transform:scale(1.07);} 16%{transform:scale(1);} 24%{transform:scale(1.045);} 34%{transform:scale(1);} }
   @keyframes heartThrob{ 0%{transform:scale(1);} 30%{transform:scale(1.17);} 60%{transform:scale(.98);} 100%{transform:scale(1);} }
   @keyframes hhRingSpin{ to{ transform:rotate(360deg); } }
+  /* ── 心臓の拡張: ①第一拍 ②鼓動同期 ③血管 ④節目 ── */
+  .hero--split{ --beat-dur:3.6s; }
+  .hero--split.heart-playing{ --beat-dur:1.5s; }            /* ② 再生中は速く強く脈打つ */
+  /* ③ 血管: 境界を金の脈光が鼓動に合わせて上下へ走る */
+  .hero-vein{ position:absolute; left:50%; top:0; bottom:0; width:2px; transform:translateX(-50%);
+    background:linear-gradient(to bottom, transparent, rgba(231,202,124,.16) 28%, rgba(231,202,124,.26) 50%, rgba(231,202,124,.16) 72%, transparent);
+    z-index:4; pointer-events:none; }
+  .hero-vein__up,.hero-vein__down{ position:absolute; left:50%; top:50%; width:4px; height:64px; margin-left:-2px; margin-top:-32px;
+    border-radius:4px; background:linear-gradient(to bottom, transparent, rgba(255,242,196,.85), transparent); filter:blur(1px); opacity:0; will-change:transform; }
+  .hero-vein__up{ animation:veinUp var(--beat-dur,3.6s) ease-out infinite; }
+  .hero-vein__down{ animation:veinDown var(--beat-dur,3.6s) ease-out infinite; }
+  @keyframes veinUp{ 0%{transform:translateY(0);opacity:0;} 10%{opacity:.85;} 100%{transform:translateY(-44vh);opacity:0;} }
+  @keyframes veinDown{ 0%{transform:translateY(0);opacity:0;} 10%{opacity:.85;} 100%{transform:translateY(44vh);opacity:0;} }
+  /* ① 第一拍の波紋 */
+  .hero-heart__ripple{ position:absolute; inset:0; border:2px solid rgba(231,202,124,.7); border-radius:50%; opacity:0; pointer-events:none; }
+  .hero-heart.awaken .hero-heart__ripple{ animation:heartAwaken 1.7s cubic-bezier(.22,1,.36,1); }
+  @keyframes heartAwaken{ 0%{opacity:.85; transform:scale(.55);} 100%{opacity:0; transform:scale(2.7);} }
+  /* ④ 節目のグロウ */
+  .hero-heart__glow{ position:absolute; inset:-28%; border-radius:50%; filter:blur(8px); opacity:0; pointer-events:none;
+    background:radial-gradient(circle, rgba(255,236,160,.55), transparent 62%); }
+  .hero-heart.milestone .hero-heart__glow{ animation:heartGlow 1.9s ease-out; }
+  @keyframes heartGlow{ 0%{opacity:0; transform:scale(.7);} 28%{opacity:.95;} 100%{opacity:0; transform:scale(1.55);} }
+  /* ①④ 共用: 囁きメッセージ */
+  .hero-heart__msg{ position:absolute; left:50%; bottom:-2.4rem; transform:translateX(-50%) translateY(8px); margin:0; white-space:nowrap;
+    font-family:var(--font-serif-jp); font-size:.92rem; letter-spacing:.3em; color:rgba(255,242,205,.96);
+    text-shadow:0 2px 14px rgba(0,0,0,.72); opacity:0; pointer-events:none; }
+  .hero-heart__msg.show{ animation:heartMsg 3.6s cubic-bezier(.22,1,.36,1); }
+  @keyframes heartMsg{ 0%{opacity:0; transform:translateX(-50%) translateY(12px);} 16%,68%{opacity:1; transform:translateX(-50%) translateY(0);} 100%{opacity:0; transform:translateX(-50%) translateY(-6px);} }
   /* トップでは右下♡ハブを隠し、中央を主役に（PJAX安全: 現ページ判定） */
   body:has(#page-content[data-page-type="home"]) #hmix-fav-hub{ display:none !important; }
   @media (prefers-reduced-motion: reduce){
-    .hero-heart__beat,.hh-ring-outer,.hero-heart.hh-pulse .hero-heart__beat{ animation:none; }
+    .hero-heart__beat,.hh-ring-outer,.hero-heart.hh-pulse .hero-heart__beat,
+    .hero-vein__up,.hero-vein__down,
+    .hero-heart.awaken .hero-heart__ripple,.hero-heart.milestone .hero-heart__glow,.hero-heart__msg.show{ animation:none; }
   }
   @media (max-width:600px){
     .hero-heart{ position:relative; top:auto; left:auto; transform:none; margin:0 auto; padding:1.4rem 0 2rem; }
     .hero-heart__beat,.hero-heart__crest{ width:106px; height:106px; }
     .hero-heart__count{ font-size:1.5rem; }
     .hero-heart__tagline-jp{ font-size:.85rem; }
+    .hero-vein{ display:none; }
   }
 </style>
 </head>
@@ -1167,6 +1198,8 @@
       <div class="hero-aura" aria-hidden="true"></div>
       <!-- 微弱なフィルム粒子 -->
       <div class="film-grain" aria-hidden="true"></div>
+      <!-- 心臓の血管: 境界を走る金の脈光（鼓動に同期） -->
+      <div class="hero-vein" aria-hidden="true"><span class="hero-vein__up"></span><span class="hero-vein__down"></span></div>
       <!-- 中央＝サイトの心臓 (Library と Theater の境界・お気に入り数が脈打つ) -->
       <div class="hero-logo-center" aria-hidden="true">
         <div class="hero-logo-center__aura" aria-hidden="true"></div>
@@ -1177,6 +1210,8 @@
         <button class="hero-heart__btn" id="heroHeartBtn" type="button"
                 aria-label="音楽手帖を開く" data-ja-aria="音楽手帖を開く" data-en-aria="Open your music notebook">
           <span class="hero-heart__beat" aria-hidden="true">
+            <span class="hero-heart__glow" aria-hidden="true"></span>
+            <span class="hero-heart__ripple" aria-hidden="true"></span>
             <svg class="hero-heart__crest" viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
               <defs>
                 <radialGradient id="hh-fill" cx="50%" cy="42%" r="62%">
@@ -1210,30 +1245,80 @@
           <span class="hero-heart__tagline-en">TWO DOORS&nbsp;·&nbsp;ONE JOURNEY</span>
           <span class="hero-heart__tagline-jp" data-ja="2つの入口、1つの旅" data-en="Two doors, one journey">2つの入口、1つの旅</span>
         </p>
+        <p class="hero-heart__msg" id="heroHeartMsg" aria-hidden="true"></p>
       </div>
     </section>
     <script>
-    /* 心臓UI: お気に入り数を表示・脈動、クリックで音楽手帖（#page-content内＝PJAXで再実行） */
+    /* 心臓UI: 数表示・脈動／①第一拍 ②鼓動同期 ③血管 ④節目（#page-content内＝PJAXで再実行） */
     (function(){
       var heart=document.getElementById('heroHeart');
       var btn=document.getElementById('heroHeartBtn');
       var countEl=document.getElementById('heroHeartCount');
+      var msgEl=document.getElementById('heroHeartMsg');
+      var split=document.querySelector('.hero--split');
       if(!heart||!btn||!countEl) return;
       if(heart.__wired) return; heart.__wired=true;
+      var FIRST_KEY='hmix_heart_firstbeat';
+      var MILESTONES=[5,10,25,50];
+      var prev=-1;
+      function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+      function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
       function getCount(){ try{ if(window.HMIX_FAV&&HMIX_FAV.ids) return HMIX_FAV.ids().length; }catch(e){} return 0; }
+      function en(){ return window.HMIX_LANG==='en'; }
+      function showMsg(ja,enTxt){
+        if(!msgEl) return;
+        msgEl.textContent=en()?enTxt:ja;
+        msgEl.classList.remove('show'); void msgEl.offsetWidth; msgEl.classList.add('show');
+        setTimeout(function(){ msgEl.classList.remove('show'); },3700);
+      }
+      function flashClass(cls,ms){ heart.classList.remove(cls); void heart.offsetWidth; heart.classList.add(cls);
+        setTimeout(function(){ heart.classList.remove(cls); },ms); }
       function render(n,animate){
         countEl.textContent=String(n);
         heart.classList.toggle('has-fav', n>0);
-        var en=(window.HMIX_LANG==='en');
-        btn.setAttribute('aria-label', en?('Open your music notebook ('+n+' saved)'):('音楽手帖を開く（保存 '+n+' 曲）'));
-        if(animate){ heart.classList.remove('hh-pulse'); void heart.offsetWidth; heart.classList.add('hh-pulse');
-          setTimeout(function(){ heart.classList.remove('hh-pulse'); },780); }
+        btn.setAttribute('aria-label', en()?('Open your music notebook ('+n+' saved)'):('音楽手帖を開く（保存 '+n+' 曲）'));
+        if(animate){ flashClass('hh-pulse',780); }
       }
-      render(getCount(),false);
-      var tries=0,iv=setInterval(function(){ tries++; if(window.HMIX_FAV||tries>20){ render(getCount(),false); clearInterval(iv);} },150);
+      function milestoneMsg(m){
+        switch(m){
+          case 5:  return ['5曲の調べ','5 melodies gathered'];
+          case 10: return ['10曲の調べ','10 melodies gathered'];
+          case 25: return ['25曲の旅','A journey of 25'];
+          case 50: return ['50曲の旅','A journey of 50'];
+          default: return [m+'曲','+'+m];
+        }
+      }
+      function onCount(n,initial){
+        render(n, !initial && n!==prev);
+        if(!initial){
+          // ① 第一拍: 0件・未経験から初保存した瞬間だけ
+          if(n>=1 && !lsGet(FIRST_KEY)){
+            lsSet(FIRST_KEY,'1');
+            flashClass('awaken',1800);
+            showMsg('旅がはじまった','Your journey begins');
+          } else {
+            // ④ 節目: 上方向に跨いだ時だけ
+            for(var i=0;i<MILESTONES.length;i++){ var m=MILESTONES[i];
+              if(prev>=0 && prev<m && n>=m){ flashClass('milestone',2000); var t=milestoneMsg(m); showMsg(t[0],t[1]); break; } }
+          }
+        }
+        prev=n;
+      }
+      // 初期化: 既存の保有者には第一拍を再生しない（フラグを静かに立てる）
+      var c0=getCount();
+      if(c0>=1 && !lsGet(FIRST_KEY)) lsSet(FIRST_KEY,'1');
+      onCount(c0,true);
+      var tries=0,iv=setInterval(function(){ tries++; if(window.HMIX_FAV||tries>20){ var c=getCount(); if(c0>=1&&!lsGet(FIRST_KEY))lsSet(FIRST_KEY,'1'); render(c,false); prev=c; clearInterval(iv);} },150);
       window.addEventListener('favorites:updated', function(e){
-        var n=(e&&e.detail&&typeof e.detail.count==='number')?e.detail.count:getCount(); render(n,true);
+        var n=(e&&e.detail&&typeof e.detail.count==='number')?e.detail.count:getCount(); onCount(n,false);
       });
+      // ② 鼓動同期: 再生中は速く強く、停止で静まる
+      function setPlaying(on){ if(split) split.classList.toggle('heart-playing', !!on); }
+      window.addEventListener('hmix:player:state', function(e){
+        var st=e&&e.detail&&e.detail.state; setPlaying(st==='playing');
+      });
+      window.addEventListener('hmix:trackplay', function(){ setPlaying(true); });
+      try{ if(window.HMIX_PLAYER&&HMIX_PLAYER.getState){ var s=HMIX_PLAYER.getState(); setPlaying(!!s.isPlaying); } }catch(e){}
       function openNotebook(){
         try{ if(window.HMIX_NOTEBOOK&&HMIX_NOTEBOOK.open){ HMIX_NOTEBOOK.open(); return; } }catch(e){}
         try{ if(window.HMIX_FAV_MODAL&&HMIX_FAV_MODAL.open){ HMIX_FAV_MODAL.open(); return; } }catch(e){}
@@ -2026,7 +2111,7 @@
   <script src="/assets/js/fav-store.js?v=20260624b"></script>
 <script src="/assets/js/fav-notebook.js?v=20260629b"></script>
 <script src="/assets/js/player.js?v=20260624a" defer></script>
-<script src="/assets/js/fav-modal.js?v=20260624c" defer></script>
+<script src="/assets/js/fav-modal.js?v=20260629c" defer></script>
 <script src="/assets/js/music-library.js?v=20260623h" defer></script>
 <script src="/assets/js/app.js?v=20260623d" defer></script>
 <script src="/assets/js/scenic-bg.js" defer></script>

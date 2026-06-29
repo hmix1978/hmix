@@ -385,6 +385,14 @@
   // お気に入りをサイトの主役に：どのページからでも同じ箱へ・脈打つ心臓。
   // ============================================================
   var HEART_SVG = '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+  // ポケットの心臓: HEROの中央紋章と同意匠（金環＋ハート）。旅についてくる連続性。
+  var HUB_CREST_SVG = '<svg viewBox="0 0 120 120" aria-hidden="true">'+
+    '<defs><radialGradient id="hfh-fill" cx="50%" cy="42%" r="62%"><stop offset="0%" stop-color="#ffe9a6"/><stop offset="42%" stop-color="#e7ca7c"/><stop offset="100%" stop-color="#b8923b"/></radialGradient>'+
+    '<linearGradient id="hfh-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(231,202,124,.95)"/><stop offset="55%" stop-color="rgba(168,134,58,.6)"/><stop offset="100%" stop-color="rgba(231,202,124,.95)"/></linearGradient></defs>'+
+    '<circle cx="60" cy="60" r="54" fill="none" stroke="url(#hfh-ring)" stroke-width="2.2"/>'+
+    '<circle cx="60" cy="60" r="46" fill="none" stroke="rgba(231,202,124,.4)" stroke-width="1.2" stroke-dasharray="2 4"/>'+
+    '<path class="hfh-heart-shape" d="M60 88 C36 70 24 56 24 43 C24 33 32 26 41 26 C49 26 55 31 60 39 C65 31 71 26 79 26 C88 26 96 33 96 43 C96 56 84 70 60 88 Z" fill="url(#hfh-fill)" stroke="rgba(231,202,124,.9)" stroke-width="2"/>'+
+    '</svg>';
   var hub, hubCountEl, _hubPrev = -1, _lastPt = null, ONBOARD_KEY = 'hmix_fav_onboarded';
   function hubFavCount(){ try { return getFavIds().size; } catch(e){ return 0; } }
   function buildHub(){
@@ -392,7 +400,7 @@
     hub = document.createElement('button');
     hub.id = 'hmix-fav-hub'; hub.type = 'button';
     hub.setAttribute('aria-label', getLang()==='en' ? 'Your favorites box' : 'お気に入りボックス');
-    hub.innerHTML = '<span class="hfh-heart" aria-hidden="true">'+HEART_SVG+'</span><span class="hfh-count" id="hmix-fav-hub-count">0</span>';
+    hub.innerHTML = '<span class="hfh-crest" aria-hidden="true">'+HUB_CREST_SVG+'</span><span class="hfh-count" id="hmix-fav-hub-count">0</span>';
     hub.addEventListener('click', function(){
       // 音楽手帖（見開きUI）が読み込まれていれば手帖を開く。無ければ従来モーダルにフォールバック。
       try {
