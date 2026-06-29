@@ -965,6 +965,8 @@
 
 
     <section class="hero--split" aria-label="ヒーロー" data-ja-aria="ヒーロー" data-en-aria="Main entrances">
+      <!-- 格上げ: 幕開けの入場 veil（JS有効時のみ。no-JS/reduced-motionでは無効） -->
+      <div class="hero-veil" aria-hidden="true"></div>
       <a href="music-library.html" class="hero-half hero-half--library">
         <div class="hero-half__bg" style="background-image: url('/assets/images/scenes/medieval.webp');"></div>
         <div class="hero-half__overlay"></div>
@@ -1976,6 +1978,47 @@
       }, 250);
     });
   });
+})();
+</script>
+<!-- ═══ 格上げ: ヒーロー「幕開け」エントランス ═══
+     劇場の幕が静かに上がる veil 溶暗 → 中央ロゴ浮上 → 両ヒーローのコピーが時間差で立ち上がる。
+     transform/opacity のみ・cubic-bezier(.22,1,.36,1)・60fps。
+     JS有効時だけ .js-entrance を付与（no-JSは全表示）。reduced-motion は即時表示。 -->
+<style>
+  .hero-veil{ position:absolute; inset:0; z-index:20; pointer-events:none; opacity:0;
+    background:linear-gradient(180deg,#0a140d 0%,#0d0704 58%,#0a0a08 100%); }
+  .hero--split.js-entrance .hero-veil{ opacity:1; transition:opacity 1.15s cubic-bezier(.22,1,.36,1); }
+  .hero--split.js-entrance.is-entered .hero-veil{ opacity:0; }
+  @keyframes heroRise{ from{ opacity:0; transform:translateY(22px); } to{ opacity:1; transform:none; } }
+  .hero--split.js-entrance .hero-half__content > *{ opacity:0; }
+  .hero--split.js-entrance.is-entered .hero-half__content > *{ animation:heroRise .85s cubic-bezier(.22,1,.36,1) both; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(1){ animation-delay:.45s; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(2){ animation-delay:.53s; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(3){ animation-delay:.61s; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(4){ animation-delay:.69s; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(5){ animation-delay:.77s; }
+  .hero--split.js-entrance.is-entered .hero-half--library .hero-half__content > *:nth-child(6){ animation-delay:.85s; }
+  .hero--split.js-entrance.is-entered .hero-half--theater .hero-half__content > *:nth-child(1){ animation-delay:.60s; }
+  .hero--split.js-entrance.is-entered .hero-half--theater .hero-half__content > *:nth-child(2){ animation-delay:.68s; }
+  .hero--split.js-entrance.is-entered .hero-half--theater .hero-half__content > *:nth-child(3){ animation-delay:.76s; }
+  .hero--split.js-entrance.is-entered .hero-half--theater .hero-half__content > *:nth-child(4){ animation-delay:.84s; }
+  .hero--split.js-entrance.is-entered .hero-half--theater .hero-half__content > *:nth-child(5){ animation-delay:.92s; }
+  .hero--split.js-entrance .hero-logo-center{ opacity:0; transition:opacity 1.25s cubic-bezier(.22,1,.36,1); }
+  .hero--split.js-entrance.is-entered .hero-logo-center{ opacity:1; }
+  @media (prefers-reduced-motion: reduce){
+    .hero--split.js-entrance .hero-veil{ display:none; }
+    .hero--split.js-entrance .hero-half__content > *,
+    .hero--split.js-entrance .hero-logo-center{ opacity:1; transform:none; transition:none; animation:none; }
+  }
+</style>
+<script>
+(function(){
+  var hero=document.querySelector('.hero--split'); if(!hero) return;
+  var reduce=false; try{ reduce=matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+  if(reduce) return;
+  hero.classList.add('js-entrance');
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){ hero.classList.add('is-entered'); }); });
+  setTimeout(function(){ hero.classList.add('is-entered'); }, 1600);
 })();
 </script>
 </body>
