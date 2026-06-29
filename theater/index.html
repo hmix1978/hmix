@@ -218,7 +218,7 @@
         </div>
         <h2 id="ft-title" style="margin:0; font-size:clamp(28px,3.4vw,50px); font-weight:700; letter-spacing:.03em; line-height:1.06; color:rgba(245,246,238,.99); text-shadow:0 3px 26px rgba(0,0,0,.9);">星図の旅</h2>
         <p id="ft-line" style="margin:15px 0 0; max-width:28em; font-family:'Noto Serif JP',serif; font-size:clamp(13px,1.2vw,15px); font-weight:300; letter-spacing:.05em; line-height:1.8; color:rgba(206,222,206,.7); text-shadow:0 2px 14px rgba(0,0,0,.85);">タグの星々をたどり、まだ知らない一曲と出会う旅。</p>
-        <button id="ft-cta" type="button" style="margin-top:24px; display:inline-flex; align-items:center; gap:11px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:.05em; color:#10231a; cursor:pointer; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:8px; padding:14px 32px; box-shadow:0 12px 36px -10px rgba(202,164,78,.5); transition:.25s;"><span style="font-size:13px;">▶</span> <span id="ft-cta-label">入場する</span></button>
+        <button id="ft-cta" aria-label="劇場に入る" type="button" style="margin-top:24px; display:inline-flex; align-items:center; gap:11px; font-family:'Noto Sans JP',sans-serif; font-size:15px; font-weight:700; letter-spacing:.05em; color:#10231a; cursor:pointer; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:8px; padding:14px 32px; box-shadow:0 12px 36px -10px rgba(202,164,78,.5); transition:.25s;"><span style="font-size:13px;">▶</span> <span id="ft-cta-label">入場する</span></button>
       </div>
     </div>
     <div id="ft-now" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
@@ -240,7 +240,7 @@
     </a>
     <div style="display:flex; align-items:center; gap:14px;">
       <!-- 背景の切り替え（森の劇場 ほか）。位置調整は開発用で非表示（?cal=1 / Shift+C） -->
-      <button id="ft-bg-switch" type="button" title="クリックで背景（劇場の景色）を切り替えます" style="pointer-events:auto; display:inline-flex; align-items:center; gap:8px; font-family:'Noto Sans JP',sans-serif; font-size:12px; letter-spacing:.06em; color:rgba(206,226,210,.85); cursor:pointer; background:rgba(8,16,11,.5); border:1px solid rgba(140,180,150,.5); border-radius:30px; padding:7px 15px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:.25s;">
+      <button id="ft-bg-switch" aria-label="背景を切り替える" type="button" title="クリックで背景（劇場の景色）を切り替えます" style="pointer-events:auto; display:inline-flex; align-items:center; gap:8px; font-family:'Noto Sans JP',sans-serif; font-size:12px; letter-spacing:.06em; color:rgba(206,226,210,.85); cursor:pointer; background:rgba(8,16,11,.5); border:1px solid rgba(140,180,150,.5); border-radius:30px; padding:7px 15px; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:.25s;">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>
         <span class="ft-bg-cta" data-ja="背景を変える" data-en="Change scene">背景を変える</span>
         <span class="ft-bg-sep">·</span>
@@ -257,8 +257,8 @@
     <div id="ft-readout" style="font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.08em; color:rgba(238,240,234,.85); line-height:1.7; white-space:pre;">—</div>
     <div style="font-size:10.5px; line-height:1.7; letter-spacing:.04em; color:rgba(180,200,185,.55);">ドラッグで移動 · 四隅でサイズ · 矢印キーで微調整(Shiftでサイズ)</div>
     <div style="display:flex; gap:8px; margin-top:2px;">
-      <button id="ft-reset" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:rgba(200,220,205,.85); background:rgba(63,128,96,.16); border:1px solid rgba(80,140,105,.4); border-radius:7px; padding:9px 0;">リセット</button>
-      <button id="ft-cal-done" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:#10231a; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:7px; padding:9px 0;">完了</button>
+      <button id="ft-reset" aria-label="スクリーン位置をリセット" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:rgba(200,220,205,.85); background:rgba(63,128,96,.16); border:1px solid rgba(80,140,105,.4); border-radius:7px; padding:9px 0;">リセット</button>
+      <button id="ft-cal-done" aria-label="位置調整を終了" type="button" style="flex:1; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-size:11px; letter-spacing:.08em; color:#10231a; background:linear-gradient(135deg, #e7ca7c, var(--gold,#caa44e)); border:none; border-radius:7px; padding:9px 0;">完了</button>
     </div>
   </div>
 
@@ -933,7 +933,7 @@
     var pl=document.createElement('div'); pl.id='ft-pl';
     pl.innerHTML=
       '<div id="ft-pl-panel"><div id="ft-pl-head"><h4></h4><p></p></div><div id="ft-pl-body"></div></div>'+
-      '<div id="ft-pl-dock"><div class="dk"><b>'+L('WORKS — 制作実績','WORKS — H/MIX in use')+'</b><button id="ft-pl-close" type="button">'+L('✕ 閉じる','✕ Close')+'</button></div><div id="ft-pl-sel"></div></div>';
+      '<div id="ft-pl-dock"><div class="dk"><b>'+L('WORKS — 制作実績','WORKS — H/MIX in use')+'</b><button id="ft-pl-close" aria-label="プレイリストを閉じる" type="button">'+L('✕ 閉じる','✕ Close')+'</button></div><div id="ft-pl-sel"></div></div>';
     document.body.appendChild(pl);
     var used=document.createElement('div'); used.id='ft-used'; document.body.appendChild(used);
     document.getElementById('ft-pl-close').addEventListener('click', closePlaylistMode);
@@ -1532,19 +1532,19 @@
     <!-- Phase 2: 一括ダウンロード / エクスポート用フッター -->
     <div class="fav-modal__footer" id="fav-modal-footer" hidden>
       <div class="fav-modal__footer-play">
-        <button type="button" class="fav-modal__play-all" id="fav-modal-play-all" disabled>
+        <button type="button" class="fav-modal__play-all" id="fav-modal-play-all" disabled aria-label="全曲再生">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M8 5v14l11-7z"/></svg>
           <span data-ja="再生" data-en="Play all">再生</span>
         </button>
-        <button type="button" class="fav-modal__shuffle-all" id="fav-modal-shuffle-all" disabled>
+        <button type="button" class="fav-modal__shuffle-all" id="fav-modal-shuffle-all" disabled aria-label="シャッフル再生">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
           <span data-ja="シャッフル" data-en="Shuffle">シャッフル</span>
         </button>
-        <button type="button" class="fav-modal__play-theater" id="fav-modal-play-theater" disabled>
+        <button type="button" class="fav-modal__play-theater" id="fav-modal-play-theater" disabled aria-label="シアターで再生">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M4 4h16v16H4z"/></svg>
           <span data-ja="シアター没入再生" data-en="Theater mode">シアター没入再生</span>
         </button>
-        <button type="button" class="fav-modal__dl-all" id="fav-modal-dl-all" disabled>
+        <button type="button" class="fav-modal__dl-all" id="fav-modal-dl-all" disabled aria-label="全曲ダウンロード">
           <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
           <span data-ja="まとめてDL" data-en="Download all">まとめてDL</span>
         </button>

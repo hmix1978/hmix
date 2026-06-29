@@ -1156,6 +1156,15 @@
     </style>
 
 
+    <!-- 信頼三点バッジ: 一目で「老舗・規模・無料」を伝える -->
+    <div class="hero-chips-wrap" aria-label="サイトの強み" data-ja-aria="サイトの強み" data-en-aria="Site highlights">
+      <div class="hero-chips hero-chips--single">
+        <span class="hero-chip"><span data-ja="🎵 302曲" data-en="🎵 302 tracks">🎵 302曲</span></span>
+        <span class="hero-chip"><span data-ja="Since 2002" data-en="Since 2002">Since 2002</span></span>
+        <span class="hero-chip"><span data-ja="クレジット任意・無料利用OK" data-en="Free use · credit optional">クレジット任意・無料利用OK</span></span>
+      </div>
+    </div>
+
     <section class="hero--split" aria-label="ヒーロー" data-ja-aria="ヒーロー" data-en-aria="Main entrances">
       <!-- 格上げ: 幕開けの入場 veil（JS有効時のみ。no-JS/reduced-motionでは無効） -->
       <div class="hero-veil" aria-hidden="true"></div>
@@ -1422,7 +1431,7 @@
         <span class="lantern" style="left:86%; --delay:2s;    --dur:11s;"></span>
         <span class="lantern" style="left:94%; --delay:7s;    --dur:13s;"></span>
       </div>
-      <button type="button" class="third-door__inner" id="tools-choice-trigger" aria-haspopup="dialog" aria-controls="tools-choice-modal" data-tools-url="/tools/">
+      <button type="button" class="third-door__inner" id="tools-choice-trigger" aria-label="ツールを選ぶ" aria-haspopup="dialog" aria-controls="tools-choice-modal" data-tools-url="/tools/">
         <div>
           <span class="third-door__eyebrow">— THIRD DOOR —</span>
           <h2 class="third-door__title">H/MIX TOOLS</h2>
@@ -2054,10 +2063,10 @@
         <h3 class="site-footer__fav-heading">Favorites</h3>
         <p class="site-footer__fav-desc" data-ja="お気に入りに追加した楽曲を、あとでまとめて確認・ダウンロードできます。" data-en="Save your favorite tracks and download them all at once.">お気に入りに追加した楽曲を、あとでまとめて確認・ダウンロードできます。</p>
         <div class="site-footer__fav-actions">
-          <button type="button" class="footer-fav-btn" id="footer-fav-list-btn" data-ja="お気に入りリストを見る" data-en="View Favorites">
+          <button type="button" class="footer-fav-btn" id="footer-fav-list-btn" aria-label="お気に入りリストを開く" data-ja="お気に入りリストを見る" data-en="View Favorites">
             お気に入りリストを見る
           </button>
-          <button type="button" class="footer-fav-btn footer-fav-btn--dl" id="footer-fav-dl-btn" data-ja="まとめてダウンロード" data-en="Download All">
+          <button type="button" class="footer-fav-btn footer-fav-btn--dl" id="footer-fav-dl-btn" aria-label="お気に入りを一括ダウンロード" data-ja="まとめてダウンロード" data-en="Download All">
             まとめてダウンロード
           </button>
         </div>
