@@ -369,6 +369,34 @@
     .hero-vein{ display:none; }
   }
 </style>
+<style>
+  /* ── 人気のBGM ランキング ── */
+  .popular-top{ position:relative; padding:clamp(48px,7vw,86px) 20px; background:linear-gradient(180deg, rgba(6,10,8,0), rgba(6,10,8,.34)); }
+  .popular-top__inner{ max-width:760px; margin:0 auto; }
+  .popular-top__head{ text-align:center; margin-bottom:clamp(22px,3vw,36px); }
+  .popular-top__eyebrow{ display:block; font-family:var(--font-display); font-size:.72rem; letter-spacing:.42em; color:rgba(231,202,124,.9); }
+  .popular-top__title{ font-family:var(--font-serif-jp); font-weight:400; font-size:clamp(1.6rem,3vw,2.2rem); color:#f5ecdc; margin:.5rem 0 .3rem; letter-spacing:.06em; }
+  .popular-top__sub{ font-family:var(--font-serif-jp); font-weight:300; color:rgba(245,236,220,.7); font-size:.95rem; margin:0; }
+  .popular-top__list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .popular-top__loading{ text-align:center; color:rgba(245,236,220,.5); padding:24px; font-family:var(--font-serif-jp); }
+  .ptop-row{ display:grid; grid-template-columns:34px 38px 1fr auto; align-items:center; gap:12px; padding:10px 14px; border-radius:14px; border:1px solid rgba(217,180,108,.16); background:rgba(12,18,13,.5); transition:transform .45s cubic-bezier(.22,1,.36,1), border-color .3s ease, background .3s ease; }
+  .ptop-row:hover{ transform:translateY(-2px); border-color:rgba(231,202,124,.45); background:rgba(16,24,18,.62); }
+  .ptop-rank{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; color:rgba(231,202,124,.68); text-align:center; }
+  .ptop-row.is-top3 .ptop-rank{ color:#ffcf6e; text-shadow:0 0 10px rgba(255,200,110,.4); font-size:1.32rem; }
+  .ptop-play{ width:36px; height:36px; border-radius:50%; border:1px solid rgba(231,202,124,.45); background:rgba(231,202,124,.1); color:#e7ca7c; cursor:pointer; display:grid; place-items:center; padding:0; transition:background .25s ease, box-shadow .25s ease, transform .25s ease; }
+  .ptop-play:hover{ background:rgba(231,202,124,.22); box-shadow:0 0 16px rgba(202,164,78,.3); transform:scale(1.06); }
+  .ptop-play svg{ width:14px; height:14px; margin-left:1px; }
+  .ptop-main{ min-width:0; text-decoration:none; display:block; }
+  .ptop-title{ display:block; color:#f5ecdc; font-family:var(--font-serif-jp); font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .3s ease; }
+  .ptop-row:hover .ptop-title{ color:#fff; }
+  .ptop-dur{ font-family:var(--font-display); font-size:.8rem; color:rgba(245,236,220,.55); }
+  .popular-top__more{ display:block; text-align:center; margin-top:clamp(20px,3vw,30px); font-family:var(--font-display); letter-spacing:.1em; font-size:.9rem; color:#e7ca7c; text-decoration:none; transition:color .3s ease; }
+  .popular-top__more:hover{ color:#ffcf6e; }
+  @media (max-width:600px){
+    .ptop-row{ grid-template-columns:26px 34px 1fr auto; gap:8px; padding:8px 11px; }
+    .ptop-title{ font-size:.92rem; }
+  }
+</style>
 </head>
 <body class="top-page">
 
@@ -1822,6 +1850,74 @@
         </div>
       </div>
     </section>
+
+    <!-- ===== SECTION: 人気のBGM ランキング ===== -->
+    <section class="popular-top" id="popular-top" aria-label="人気のBGM" data-ja-aria="人気のBGM" data-en-aria="Popular BGM" data-reveal>
+      <div class="popular-top__inner">
+        <div class="popular-top__head">
+          <span class="popular-top__eyebrow">POPULAR</span>
+          <h2 class="popular-top__title" data-ja="人気のBGM" data-en="Popular BGM">人気のBGM</h2>
+          <p class="popular-top__sub" data-ja="いま、よく聴かれている曲。" data-en="Most played right now.">いま、よく聴かれている曲。</p>
+        </div>
+        <ol class="popular-top__list" id="popularTopList" aria-busy="true">
+          <li class="popular-top__loading" data-ja="人気を集計中…" data-en="Loading…">人気を集計中…</li>
+        </ol>
+        <a class="popular-top__more" href="/music-library.html?sort=popular" data-ja="人気順で全曲を見る →" data-en="See all by popularity →">人気順で全曲を見る →</a>
+      </div>
+    </section>
+    <script>
+    /* 人気のBGM TOP: getRankings + window.TRACKS で上位を描画（#page-content内＝PJAXで再実行） */
+    (function(){
+      var listEl=document.getElementById('popularTopList');
+      if(!listEl || listEl.__wired) return; listEl.__wired=true;
+      var TOP_N=8;
+      var RANKINGS_URL='https://asia-northeast1-hmix-footprints.cloudfunctions.net/getRankings';
+      var CACHE_KEY='hmix_rankings_v1';
+      function en(){ return window.HMIX_LANG==='en'; }
+      function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+      function getScores(){
+        try{ var c=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null'); if(c&&c.scores&&Date.now()-c.ts<600000) return Promise.resolve(c.scores); }catch(e){}
+        return fetch(RANKINGS_URL).then(function(r){return r.json();}).then(function(j){
+          var s=(j&&j.scores)||{};
+          try{ sessionStorage.setItem(CACHE_KEY, JSON.stringify({ts:Date.now(),scores:s})); }catch(e){}
+          return s;
+        }).catch(function(){ return {}; });
+      }
+      function whenTracks(){
+        if(window.TRACKS&&window.TRACKS.length) return Promise.resolve(window.TRACKS);
+        return new Promise(function(res){
+          window.addEventListener('tracks:ready', function(){ res(window.TRACKS||[]); }, {once:true});
+          var n=0,iv=setInterval(function(){ n++; if(window.TRACKS&&window.TRACKS.length){clearInterval(iv);res(window.TRACKS);} else if(n>40){clearInterval(iv);res(window.TRACKS||[]);} },150);
+        });
+      }
+      function render(scores, tracks){
+        var byId={}; (tracks||[]).forEach(function(t){ byId[t.id]=t; });
+        var ids=Object.keys(scores||{}).filter(function(id){return scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];}).slice(0,TOP_N);
+        var sec=document.getElementById('popular-top');
+        if(!ids.length){ if(sec) sec.style.display='none'; return; }
+        listEl.removeAttribute('aria-busy');
+        listEl.innerHTML=ids.map(function(id,i){
+          var t=byId[id]; var rank=i+1;
+          var title=esc(en()&&t.title_en?t.title_en:(t.title||id));
+          var dur=esc(t.duration||'');
+          return '<li class="ptop-row'+(rank<=3?' is-top3':'')+'">'+
+            '<span class="ptop-rank">'+rank+'</span>'+
+            '<button type="button" class="ptop-play" data-id="'+esc(id)+'" aria-label="'+(en()?('Play '+title):(title+' を再生'))+'"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>'+
+            '<a class="ptop-main" href="/music/'+esc(id)+'.html"><span class="ptop-title">'+title+'</span></a>'+
+            '<span class="ptop-dur">'+dur+'</span>'+
+          '</li>';
+        }).join('');
+      }
+      Promise.all([getScores(), whenTracks()]).then(function(r){ render(r[0]||{}, r[1]||[]); });
+      listEl.addEventListener('click', function(e){
+        var btn=e.target.closest('.ptop-play'); if(!btn) return;
+        e.preventDefault();
+        var id=btn.getAttribute('data-id');
+        try{ if(window.HMIX_PLAYER&&HMIX_PLAYER.playTrackById){ HMIX_PLAYER.playTrackById(id); return; } }catch(err){}
+        location.href='/music/'+id+'.html';
+      });
+    })();
+    </script>
 
 
 
