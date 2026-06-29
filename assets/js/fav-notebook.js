@@ -126,6 +126,9 @@
       if (act === 'addto') openChapterPicker(Object.keys(state.selected), { clearAfter: true });
     });
     window.addEventListener('favorites:updated', function () { if (root.getAttribute('aria-hidden') === 'false') render(); });
+    // サイト共通プレーヤーの再生/停止に追従して ▶/■ を更新
+    window.addEventListener('hmix:player:state', function () { refreshPlayUI(); });
+    window.addEventListener('hmix:trackplay', function () { refreshPlayUI(); });
   }
 
   /* ---- 描画 ---- */
@@ -222,12 +225,13 @@
       shown++;
       shownIds.push(it.trackId);
       var col = F().collections().filter(function (c) { return c.id === state.activeCol; })[0] || {};
+      var rowPlaying = (pstate.id === it.trackId && pstate.playing);
       var row = document.createElement('div');
-      row.className = 'hnb-row' + (state.previewId === it.trackId ? ' is-active' : '') + (pstate.id === it.trackId && pstate.playing ? ' is-playing' : '');
+      row.className = 'hnb-row' + (state.previewId === it.trackId ? ' is-active' : '') + (rowPlaying ? ' is-playing' : '');
       row.innerHTML =
         '<input type="checkbox" class="hnb-check"' + (state.selected[it.trackId] ? ' checked' : '') + '>' +
         '<button class="hnb-iconbtn hnb-fav is-on" title="' + L('栞を外す', 'Remove bookmark') + '">♥</button>' +
-        '<button class="hnb-iconbtn hnb-play" title="' + L('再生', 'Play') + '">▶</button>' +
+        '<button class="hnb-iconbtn hnb-play' + (rowPlaying ? ' is-playing' : '') + '" title="' + (rowPlaying ? L('停止', 'Stop') : L('再生', 'Play')) + '">' + (rowPlaying ? '■' : '▶') + '</button>' +
         '<div class="hnb-row__main"><div class="hnb-row__title">' + escapeHtml(title) + '</div><div class="hnb-row__tags">' + escapeHtml(tags) + '</div></div>' +
         '<span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span>' +
         '<span class="hnb-badge" data-lic="' + (col.status || 'draft') + '">' + statusLabel(col.status) + '</span>';
@@ -292,6 +296,8 @@
     var bars = '';
     for (var i = 0; i < 36; i++) { var h = 16 + Math.round(64 * Math.abs(Math.sin(i * 0.7) * Math.cos(i * 0.21))); bars += '<span style="height:' + h + '%"></span>'; }
     var memo = (F().state().tracks[tk.id] && F().state().tracks[tk.id].favMemo) || '';
+    var pvState = playState();
+    var pvPlaying = (pvState.id === tk.id && pvState.playing);
     var bTk = state.prevPreviewId ? tm[state.prevPreviewId] : null;
     var abHtml = '<div class="hnb-preview__sect">' + L('A / B 聴き比べ', 'A / B compare') + '</div>' +
       '<div class="hnb-ab">' +
@@ -305,7 +311,7 @@
       '<div class="hnb-preview__title">' + escapeHtml(tk.title || tk.id) + '</div>' +
       '<div class="hnb-preview__tags">' + escapeHtml(tagsOf(tk)) + '</div>' +
       '<div class="hnb-wave">' + bars + '</div>' +
-      '<div class="hnb-preview__row"><button class="hnb-iconbtn hnb-pv-play" title="' + L('再生', 'Play') + '">▶</button><span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span></div>' +
+      '<div class="hnb-preview__row"><button class="hnb-iconbtn hnb-pv-play' + (pvPlaying ? ' is-playing' : '') + '" title="' + (pvPlaying ? L('停止', 'Stop') : L('再生', 'Play')) + '">' + (pvPlaying ? '■' : '▶') + '</button><span class="hnb-row__dur">' + escapeHtml(durOf(tk)) + '</span></div>' +
       abHtml +
       '<div class="hnb-preview__sect">' + L('曲メモ', 'Track notes') + '</div>' +
       '<textarea class="hnb-memo" placeholder="' + L('この曲を選んだ理由・使う場面…', 'Why you picked it, where you\'ll use it…') + '">' + escapeHtml(memo) + '</textarea>' +
@@ -343,8 +349,14 @@
   function refreshPlayUI() { try { if (root && root.getAttribute('aria-hidden') === 'false') { renderPages(); renderPreview(); } } catch (e) {} }
   function doPlay(id) {
     if (!id) return;
-    if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) window.HMIX_PLAYER.playTrackById(id);
-    else nbFallbackPlay(id);
+    if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) {
+      // 再生中の同一曲をもう一度押したら停止（▶/■トグル）
+      var ps = playState();
+      if (ps.id === id && ps.playing) { if (window.HMIX_PLAYER.pause) window.HMIX_PLAYER.pause(); refreshPlayUI(); return; }
+      window.HMIX_PLAYER.playTrackById(id);
+    } else {
+      nbFallbackPlay(id);
+    }
   }
   function playId(id) { doPlay(id); }
 

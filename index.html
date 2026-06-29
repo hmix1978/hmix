@@ -284,6 +284,60 @@
   }
 </style>
 <noscript><style>[data-reveal]:not([data-stagger]),[data-reveal][data-stagger]>*{opacity:1!important;transform:none!important;}</style></noscript>
+<style>
+  /* ── HERO 中央＝サイトの心臓（お気に入り数が脈打つ／クリックで音楽手帖） ── */
+  .hero-heart{
+    position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+    z-index:7; display:flex; flex-direction:column; align-items:center; gap:.85rem;
+    text-align:center; pointer-events:none;
+  }
+  .hero-heart__btn{
+    pointer-events:auto; cursor:pointer; background:none; border:0; padding:6px; margin:0;
+    display:inline-grid; place-items:center; border-radius:50%;
+    -webkit-tap-highlight-color:transparent; transition:transform .5s cubic-bezier(.22,1,.36,1);
+  }
+  .hero-heart__btn:hover{ transform:scale(1.06); }
+  .hero-heart__btn:focus-visible{ outline:2px solid rgba(231,202,124,.85); outline-offset:6px; }
+  .hero-heart__beat{
+    position:relative; display:inline-grid; place-items:center; width:138px; height:138px;
+    filter:drop-shadow(0 0 10px rgba(231,202,124,.30)) drop-shadow(0 0 28px rgba(196,164,69,.20));
+    animation:heartBeat 3.6s ease-in-out infinite;
+  }
+  .hero-heart__crest{ grid-area:1/1; width:138px; height:138px; }
+  .hero-heart__count{
+    grid-area:1/1; position:relative; z-index:2; transform:translateY(2px);
+    font-family:var(--font-display); font-weight:600; font-size:1.7rem;
+    color:#3a2c10; text-shadow:0 1px 0 rgba(255,245,200,.5);
+  }
+  /* 0件は輪郭ハート＝「これから旅で集める」余白 */
+  .hero-heart:not(.has-fav) .hh-heart-shape{ fill:rgba(231,202,124,.10); }
+  .hero-heart:not(.has-fav) .hero-heart__count{ color:rgba(245,236,220,.88); text-shadow:0 2px 8px rgba(0,0,0,.6); }
+  .hh-ring-outer{ transform-origin:60px 60px; animation:hhRingSpin 64s linear infinite; }
+  .hero-heart__tagline{ margin:0; pointer-events:none; }
+  .hero-heart__tagline-en{
+    display:block; font-family:var(--font-display); font-size:.72rem; letter-spacing:.42em;
+    color:rgba(231,202,124,.92); text-shadow:0 2px 12px rgba(0,0,0,.72);
+  }
+  .hero-heart__tagline-jp{
+    display:block; margin-top:.5rem; font-family:var(--font-serif-jp); font-weight:300;
+    font-size:.92rem; letter-spacing:.34em; color:rgba(245,236,220,.86); text-shadow:0 2px 8px rgba(0,0,0,.6);
+  }
+  .hero-heart.hh-pulse .hero-heart__beat{ animation:heartThrob .74s cubic-bezier(.22,1,.36,1); }
+  @keyframes heartBeat{ 0%,100%{transform:scale(1);} 8%{transform:scale(1.07);} 16%{transform:scale(1);} 24%{transform:scale(1.045);} 34%{transform:scale(1);} }
+  @keyframes heartThrob{ 0%{transform:scale(1);} 30%{transform:scale(1.17);} 60%{transform:scale(.98);} 100%{transform:scale(1);} }
+  @keyframes hhRingSpin{ to{ transform:rotate(360deg); } }
+  /* トップでは右下♡ハブを隠し、中央を主役に（PJAX安全: 現ページ判定） */
+  body:has(#page-content[data-page-type="home"]) #hmix-fav-hub{ display:none !important; }
+  @media (prefers-reduced-motion: reduce){
+    .hero-heart__beat,.hh-ring-outer,.hero-heart.hh-pulse .hero-heart__beat{ animation:none; }
+  }
+  @media (max-width:600px){
+    .hero-heart{ position:relative; top:auto; left:auto; transform:none; margin:0 auto; padding:1.4rem 0 2rem; }
+    .hero-heart__beat,.hero-heart__crest{ width:106px; height:106px; }
+    .hero-heart__count{ font-size:1.5rem; }
+    .hero-heart__tagline-jp{ font-size:.85rem; }
+  }
+</style>
 </head>
 <body class="top-page">
 
@@ -422,8 +476,8 @@
       .hero-logo-center {
         position: absolute;
         top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 6;
+        transform: translate(-50%, calc(-50% - 172px));
+        z-index: 5;
         pointer-events: none;
         text-align: center;
       }
@@ -473,7 +527,7 @@
       .hero-logo-center__img {
         position: relative;
         z-index: 1;
-        max-width: 320px; width: 36vmin; height: auto;
+        max-width: 128px; width: 14vmin; height: auto;
         filter:
           drop-shadow(0 0 4px rgba(255, 245, 190, 0.32))
           drop-shadow(0 0 12px rgba(255, 215, 120, 0.28))
@@ -1113,12 +1167,81 @@
       <div class="hero-aura" aria-hidden="true"></div>
       <!-- 微弱なフィルム粒子 -->
       <div class="film-grain" aria-hidden="true"></div>
-      <!-- 中央のブランドロゴ (Library と Theater の境界線上) -->
+      <!-- 中央＝サイトの心臓 (Library と Theater の境界・お気に入り数が脈打つ) -->
       <div class="hero-logo-center" aria-hidden="true">
         <div class="hero-logo-center__aura" aria-hidden="true"></div>
         <img src="/assets/img/hmix-gallery-gold-logo-640.png" alt="H/MIX GALLERY" class="hero-logo-center__img" width="640" height="426" decoding="async">
       </div>
+      <!-- 心臓UI: SVG紋章＋脈打つお気に入り数。クリックで音楽手帖を開く -->
+      <div class="hero-heart" id="heroHeart">
+        <button class="hero-heart__btn" id="heroHeartBtn" type="button"
+                aria-label="音楽手帖を開く" data-ja-aria="音楽手帖を開く" data-en-aria="Open your music notebook">
+          <span class="hero-heart__beat" aria-hidden="true">
+            <svg class="hero-heart__crest" viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+              <defs>
+                <radialGradient id="hh-fill" cx="50%" cy="42%" r="62%">
+                  <stop offset="0%" stop-color="#ffe9a6"/>
+                  <stop offset="42%" stop-color="#e7ca7c"/>
+                  <stop offset="100%" stop-color="#b8923b"/>
+                </radialGradient>
+                <linearGradient id="hh-ring" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="rgba(231,202,124,.95)"/>
+                  <stop offset="55%" stop-color="rgba(168,134,58,.6)"/>
+                  <stop offset="100%" stop-color="rgba(231,202,124,.95)"/>
+                </linearGradient>
+              </defs>
+              <!-- 金の二重環＋唐草 -->
+              <circle class="hh-ring-outer" cx="60" cy="60" r="54" fill="none" stroke="url(#hh-ring)" stroke-width="1.1"/>
+              <circle class="hh-ring-inner" cx="60" cy="60" r="46" fill="none" stroke="rgba(231,202,124,.45)" stroke-width="0.7" stroke-dasharray="2 4"/>
+              <g class="hh-filigree" fill="none" stroke="url(#hh-ring)" stroke-width="1" stroke-linecap="round">
+                <path d="M60 6 q5 6 0 12 q-5 -6 0 -12"/>
+                <path d="M60 114 q5 -6 0 -12 q-5 6 0 12"/>
+                <path d="M6 60 q6 5 12 0 q-6 -5 -12 0"/>
+                <path d="M114 60 q-6 5 -12 0 q6 -5 12 0"/>
+              </g>
+              <!-- ハート: 既定は輪郭のみ、保存があれば金で満ちる -->
+              <path class="hh-heart-shape" d="M60 88 C36 70 24 56 24 43 C24 33 32 26 41 26 C49 26 55 31 60 39 C65 31 71 26 79 26 C88 26 96 33 96 43 C96 56 84 70 60 88 Z"
+                    fill="url(#hh-fill)" stroke="rgba(231,202,124,.9)" stroke-width="1.4"/>
+            </svg>
+            <span class="hero-heart__count" id="heroHeartCount">0</span>
+          </span>
+        </button>
+        <p class="hero-heart__tagline">
+          <span class="hero-heart__tagline-en">TWO DOORS&nbsp;·&nbsp;ONE JOURNEY</span>
+          <span class="hero-heart__tagline-jp" data-ja="2つの入口、1つの旅" data-en="Two doors, one journey">2つの入口、1つの旅</span>
+        </p>
+      </div>
     </section>
+    <script>
+    /* 心臓UI: お気に入り数を表示・脈動、クリックで音楽手帖（#page-content内＝PJAXで再実行） */
+    (function(){
+      var heart=document.getElementById('heroHeart');
+      var btn=document.getElementById('heroHeartBtn');
+      var countEl=document.getElementById('heroHeartCount');
+      if(!heart||!btn||!countEl) return;
+      if(heart.__wired) return; heart.__wired=true;
+      function getCount(){ try{ if(window.HMIX_FAV&&HMIX_FAV.ids) return HMIX_FAV.ids().length; }catch(e){} return 0; }
+      function render(n,animate){
+        countEl.textContent=String(n);
+        heart.classList.toggle('has-fav', n>0);
+        var en=(window.HMIX_LANG==='en');
+        btn.setAttribute('aria-label', en?('Open your music notebook ('+n+' saved)'):('音楽手帖を開く（保存 '+n+' 曲）'));
+        if(animate){ heart.classList.remove('hh-pulse'); void heart.offsetWidth; heart.classList.add('hh-pulse');
+          setTimeout(function(){ heart.classList.remove('hh-pulse'); },780); }
+      }
+      render(getCount(),false);
+      var tries=0,iv=setInterval(function(){ tries++; if(window.HMIX_FAV||tries>20){ render(getCount(),false); clearInterval(iv);} },150);
+      window.addEventListener('favorites:updated', function(e){
+        var n=(e&&e.detail&&typeof e.detail.count==='number')?e.detail.count:getCount(); render(n,true);
+      });
+      function openNotebook(){
+        try{ if(window.HMIX_NOTEBOOK&&HMIX_NOTEBOOK.open){ HMIX_NOTEBOOK.open(); return; } }catch(e){}
+        try{ if(window.HMIX_FAV_MODAL&&HMIX_FAV_MODAL.open){ HMIX_FAV_MODAL.open(); return; } }catch(e){}
+        location.href='/music-library.html';
+      }
+      btn.addEventListener('click', openNotebook);
+    })();
+    </script>
 
     <section class="visitor-guide" aria-label="目的別案内" data-ja-aria="目的別案内" data-en-aria="Visitor guide">
       <div class="visitor-guide__head">
@@ -1901,7 +2024,7 @@
      2026-04-21 defer 一括付与 (LCP/TBT 改善)。defer は順序保持なので依存順は維持される。 -->
 <script src="/assets/js/tracks-loader.js?v=3" defer></script>
   <script src="/assets/js/fav-store.js?v=20260624b"></script>
-<script src="/assets/js/fav-notebook.js?v=20260624n"></script>
+<script src="/assets/js/fav-notebook.js?v=20260629b"></script>
 <script src="/assets/js/player.js?v=20260624a" defer></script>
 <script src="/assets/js/fav-modal.js?v=20260624c" defer></script>
 <script src="/assets/js/music-library.js?v=20260623h" defer></script>
