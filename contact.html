@@ -213,7 +213,7 @@
             </select></label>
             <label style="display:block;margin-bottom:22px"><span style="display:block;font-size:12.5px;font-weight:700;color:#39352D;margin-bottom:6px"><span lang="ja">お問い合わせ内容 *</span><span lang="en">Message *</span></span><textarea id="cf-message" rows="6" placeholder="ご用途・媒体・規模などをお書きください。" style="width:100%;border:1px solid #CFC6B2;border-radius:10px;padding:11px 13px;font-size:15.5px;color:#211E18;outline:none;resize:vertical;line-height:1.7"></textarea></label>
             <button id="cf-submit" type="button" style="cursor:pointer;width:100%;background:#16382A;color:#F4F0E6;border:none;border-radius:12px;padding:15px;font-family:inherit;font-size:15px;font-weight:700"><span lang="ja">送信する</span><span lang="en">Send message</span></button>
-            <p style="margin:12px 0 0;font-size:11.5px;color:#9A9183;line-height:1.7"><span lang="ja">※ 送信ボタンを押すと、入力内容を反映したメールアプリが開きます。</span><span lang="en">※ Pressing send opens your email app with the message pre-filled.</span></p>
+            <p style="margin:12px 0 0;font-size:11.5px;color:#9A9183;line-height:1.7"><span lang="ja">※ 送信ボタンを押すと、このフォームから直接お問い合わせを送信します。通常2〜3営業日以内にご返信します。</span><span lang="en">※ Your message is sent directly from this form. We usually reply within 2–3 business days.</span></p>
           </div>
         </div>
       </div>
@@ -221,7 +221,7 @@
 
   </main>
 
-  <!-- お問い合わせ送信（mailto起動＋フォールバック）。
+  <!-- お問い合わせ送信: Formspree へ AJAX 送信（成功表示／失敗時のみ mailto フォールバック）。
        #page-content 内に置くことで router(PJAX) の再実行に追従。document委譲＋ガードで
        直リンク/PJAX遷移/往復のいずれでも #cf-submit を確実に拾う。 -->
   <script>
@@ -229,19 +229,30 @@
     if(window.__cfContactBound) return;   // documentへの委譲は一度だけ（PJAX往復でも重複しない）
     window.__cfContactBound = true;
     var MAIL='hmixtube@gmail.com';
+    var FORMSPREE='https://formspree.io/f/mqegldzy';
     function isEN(){ return document.body.classList.contains('lang-en') || window.HMIX_LANG==='en'; }
     function field(id){ var el=document.getElementById(id); return el?(el.value||'').trim():''; }
-    function showFallback(btn, subject, body){
-      var en=isEN();
+    function ensureBox(btn){
       var box=document.getElementById('cf-fallback');
       if(!box){
         box=document.createElement('div'); box.id='cf-fallback';
         box.style.cssText='margin:14px 0 0;padding:16px 18px;border-radius:12px;background:#fff;border:1px solid #E6DFCF;color:#4A453C;font-size:15px;line-height:1.9';
         btn.parentNode.insertBefore(box, btn.nextSibling);
       }
-      box.innerHTML='<strong>'+(en?'Opening your mail app…':'メールアプリを開きました。')+'</strong><br>'
-        +(en?'If it did not open, email us directly at <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a>, or copy your message below.'
-            :'開かない場合は <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお使いください。')
+      return box;
+    }
+    function showSuccess(btn){
+      var en=isEN(); var box=ensureBox(btn); box.style.borderColor='#9DBBA8'; box.style.background='#F4FBF6';
+      box.innerHTML='<strong style="color:#1d5b3e">'+(en?'Message sent ✓':'送信しました ✓')+'</strong><br>'
+        +(en?'Thank you for reaching out. We usually reply within 2–3 business days.'
+            :'お問い合わせありがとうございます。通常2〜3営業日以内にご返信いたします。');
+      try{ box.scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+    }
+    function showFallback(btn, subject, body){
+      var en=isEN(); var box=ensureBox(btn); box.style.borderColor='#E6DFCF'; box.style.background='#fff';
+      box.innerHTML='<strong>'+(en?'Could not send automatically.':'自動送信できませんでした。')+'</strong><br>'
+        +(en?'Please email us directly at <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a>, or copy your message below.'
+            :'お手数ですが <a href="mailto:'+MAIL+'" style="color:#16382A;font-weight:700">'+MAIL+'</a> 宛に直接お送りいただくか、下のボタンで内容をコピーしてお使いください。')
         +'<div style="margin-top:10px"><button type="button" id="cf-copy" style="cursor:pointer;background:#16382A;color:#F4F0E6;border:none;border-radius:999px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700">'+(en?'Copy message':'内容をコピー')+'</button> <span id="cf-copied" style="margin-left:10px;color:#2E6B4F;font-weight:700"></span></div>';
       var text='To: '+MAIL+'\nSubject: '+subject+'\n\n'+body;
       var copyBtn=document.getElementById('cf-copy');
@@ -264,8 +275,26 @@
       }
       var subject='[H/MIX Contact] '+topic;
       var body=(en?'Name: ':'お名前: ')+name+'\n'+(en?'Email: ':'メールアドレス: ')+email+'\n'+(en?'Topic: ':'お問い合わせの種類: ')+topic+'\n\n'+(en?'Message:\n':'お問い合わせ内容:\n')+message+'\n';
-      try{ window.location.href='mailto:'+MAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body); }catch(_){}
-      showFallback(btn, subject, body);   // mailtoの成否は検知不可のため必ずフォールバック表示
+      var orig=btn.innerHTML;
+      btn.disabled=true; btn.style.opacity='0.7'; btn.style.cursor='default';
+      btn.innerHTML=(en?'Sending…':'送信中…');
+      var fd=new FormData();
+      fd.append('name', name); fd.append('email', email); fd.append('_replyto', email);
+      fd.append('topic', topic); fd.append('message', message); fd.append('_subject', subject);
+      fetch(FORMSPREE, { method:'POST', body:fd, headers:{ 'Accept':'application/json' } })
+        .then(function(res){
+          btn.disabled=false; btn.style.opacity=''; btn.style.cursor='pointer'; btn.innerHTML=orig;
+          if(res && res.ok){
+            showSuccess(btn);
+            ['cf-name','cf-email','cf-message'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+          } else {
+            showFallback(btn, subject, body);
+          }
+        })
+        .catch(function(){
+          btn.disabled=false; btn.style.opacity=''; btn.style.cursor='pointer'; btn.innerHTML=orig;
+          showFallback(btn, subject, body);
+        });
     });
   })();
   </script>
