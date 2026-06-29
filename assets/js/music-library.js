@@ -282,6 +282,19 @@
       .finally(() => { popularFetching = null; });
     return popularFetching;
   }
+  // ─── 人気ランク（上位N曲にバッジ）。popularScores変化で自動再計算 ───
+  const POPULAR_BADGE_TOP_N = 10;
+  let popularRankMap = null, popularRankSrc = null;
+  function getPopularRankMap() {
+    if (!popularScores) return null;
+    if (popularRankMap && popularRankSrc === popularScores) return popularRankMap;
+    const s = popularScores;
+    const ids = Object.keys(s).filter(id => (s[id] || 0) > 0).sort((a, b) => (s[b] || 0) - (s[a] || 0));
+    const m = {};
+    for (let i = 0; i < Math.min(ids.length, POPULAR_BADGE_TOP_N); i++) m[ids[i]] = i + 1;
+    popularRankMap = m; popularRankSrc = s;
+    return m;
+  }
 
   // ─── DOM取得 ────────────────────────────────────
   let grid, searchInput, searchClear, resultCount, resultsCond;
@@ -1227,7 +1240,16 @@
     if (track.bpm) metaBadges.push(`<span class="ml-card-meta-badge ml-card-meta-badge--bpm">${escHtml(String(track.bpm))} BPM</span>`);
     if (track.loop) metaBadges.push(`<span class="ml-card-meta-badge ml-card-meta-badge--loop">Loop</span>`);
 
+    // 人気ランクバッジ（ライブ人気スコア上位N曲）
+    const _rankMap = getPopularRankMap();
+    const popRank = _rankMap ? _rankMap[track.id] : 0;
+    const rankAria = popRank ? (getCurrentLang() === 'en' ? `Popularity rank ${popRank}` : `人気${popRank}位`) : '';
+    const rankBadge = popRank
+      ? `<div class="ml-card-rank${popRank <= 3 ? ' is-top3' : ''}" role="img" aria-label="${rankAria}"><span class="ml-card-rank__star" aria-hidden="true">★</span><span class="ml-card-rank__n">${popRank}</span></div>`
+      : '';
+
     card.innerHTML = `
+      ${rankBadge}
       <div class="ml-card-jacket" aria-hidden="true"></div>
       <div class="ml-card-inner">
         <div class="ml-card-header">
