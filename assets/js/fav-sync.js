@@ -25,6 +25,8 @@
     appId: '1:477684733173:web:ae0d0986a92a426b08e1bc'
   };
   var DEBOUNCE_MS = 2500;
+  // 診断ログ（既定OFF。window.__FS_DEBUG=true でトラブル時に window.__fsLog へ記録）
+  function fslog(m) { if (!window.__FS_DEBUG) return; try { (window.__fsLog = window.__fsLog || []).push(window.__fsLog.length + ':' + m); } catch (e) {} }
 
   // Firestore は map のキー順を保持しないため、JSON文字列の単純一致では
   // 「自分が上げた内容」を判定できず再アップロードのループになる。
@@ -64,16 +66,19 @@
     try { window.dispatchEvent(new CustomEvent('favsync:status', { detail: { status: s } })); } catch (e) {}
   }
 
+  fslog('script-exec');
   whenFirebaseReady(function () {
+    fslog('fb-ready apps=' + (firebase.apps ? firebase.apps.length : '?'));
     var app;
     try { app = (firebase.apps && firebase.apps.length) ? firebase.app() : firebase.initializeApp(CONFIG); }
-    catch (e) { try { app = firebase.app(); } catch (_) { setStatus('local'); return; } }
+    catch (e) { fslog('init-fail ' + e); try { app = firebase.app(); } catch (_) { setStatus('local'); return; } }
 
     var auth, db;
-    try { auth = firebase.auth(); db = firebase.firestore(); } catch (e) { setStatus('local'); return; }
-    try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (e) {}
+    try { auth = firebase.auth(); db = firebase.firestore(); } catch (e) { fslog('auth/db-fail ' + e); setStatus('local'); return; }
+    try { auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); } catch (e) { fslog('persist-fail ' + e); }
 
-    var docRef = null, lastSyncedSig = null, debTimer = null, started = false;
+    var docRef = null, lastSyncedSig = null, debTimer = null;
+    var currentUid = null, unsub = null, graceTimer = null, favListenerAdded = false;
 
     function upload() {
       if (!docRef) return;
@@ -87,8 +92,8 @@
         schemaVersion: 2,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
         client: (navigator.userAgent || '').slice(0, 180)
-      }).then(function () { setStatus('synced'); })
-        .catch(function () { lastSyncedSig = prev; setStatus('local'); });
+      }).then(function () { fslog('set-ok'); setStatus('synced'); })
+        .catch(function (e) { fslog('set-fail ' + (e && e.code || e)); lastSyncedSig = prev; setStatus('local'); });
     }
 
     function scheduleUpload() {
@@ -96,19 +101,28 @@
       debTimer = setTimeout(upload, DEBOUNCE_MS);
     }
 
-    function start(uid) {
-      if (started) return; started = true;
+    // uid へ（再）バインド。footprints等との二重サインインで uid が入れ替わっても
+    // 最終的な currentUser に追従し、古い uid の doc を読んで permission-denied になるのを防ぐ。
+    function bind(uid) {
+      if (uid === currentUid) return;            // 既に同 uid
+      currentUid = uid;
+      if (unsub) { try { unsub(); } catch (e) {} unsub = null; }   // 旧購読を解除
       docRef = db.collection('favorites').doc(uid);
+      lastSyncedSig = null;
+      fslog('bind uid=' + uid.slice(0, 6));
 
       docRef.get().then(function (snap) {
+        if (currentUid !== uid) return;          // バインド中にさらに uid が変わった → 中止
+        fslog('get-ok exists=' + snap.exists);
         if (snap.exists) {
           var d = snap.data();
           if (d && d.state) { try { FAV.merge(d.state); } catch (e) {} lastSyncedSig = canon(d.state); }  // ローカルへLWW統合
         }
         upload();                                                          // 統合後がリモートと異なる時だけ書く（純粋な復元では書かない）
+        setStatus('synced');
 
         // リアルタイム購読：他端末/他タブの変更を取り込む（自分のエコー/同一内容はスキップ）
-        docRef.onSnapshot(function (snap2) {
+        unsub = docRef.onSnapshot(function (snap2) {
           if (!snap2.exists) return;
           if (snap2.metadata && snap2.metadata.hasPendingWrites) return;   // 自分のローカル書き込みエコーは無視
           var d2 = snap2.data(); if (!d2 || !d2.state) return;
@@ -117,18 +131,36 @@
           try { FAV.merge(d2.state); } catch (e) { return; }
           lastSyncedSig = remoteSig;                                       // このリモート版を消化済みに
           upload();                                                        // 統合で新しいローカルが生じた時だけ書き戻し
-        }, function () { /* listen error: ローカルのみで継続 */ });
-      }).catch(function () { setStatus('local'); });
+        }, function (e) { fslog('snap-err ' + e); /* listen error: ローカルのみで継続 */ });
+      }).catch(function (e) { fslog('get-fail ' + (e && e.code || e)); setStatus('local'); });
 
-      window.addEventListener('favorites:updated', scheduleUpload);        // ローカル変更 → デバウンス同期
-      setStatus('synced');
+      if (!favListenerAdded) { favListenerAdded = true; window.addEventListener('favorites:updated', scheduleUpload); }
+    }
+
+    // 既存サインイン（footprints 等）を待ってから自前サインイン＝匿名ユーザーの二重生成を避ける
+    function ensureUser() {
+      if (auth.currentUser) { bind(auth.currentUser.uid); return; }
+      if (graceTimer) return;
+      graceTimer = setTimeout(function () {
+        graceTimer = null;
+        if (!auth.currentUser) {
+          auth.signInAnonymously().then(function () { fslog('anon-ok'); })
+            .catch(function (e) { fslog('anon-fail ' + (e && e.code || e)); setStatus('local'); });
+        }
+      }, 1600);
     }
 
     setStatus('local');
     auth.onAuthStateChanged(function (user) {
-      if (user) { start(user.uid); }
-      else { auth.signInAnonymously().catch(function () { setStatus('local'); }); }
+      fslog('authChange user=' + (user ? user.uid.slice(0, 6) : 'null'));
+      if (user) {
+        if (graceTimer) { clearTimeout(graceTimer); graceTimer = null; }
+        bind(user.uid);                          // 最新 user に常に追従（再バインド）
+      } else {
+        ensureUser();
+      }
     });
+    ensureUser();                                // 既にサインイン済みなら即バインド
   });
 
   // スライス2（メールマジックリンク昇格）から使う公開フック
