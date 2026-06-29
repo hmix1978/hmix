@@ -371,8 +371,22 @@
 </style>
 <style>
   /* ── 人気のBGM ランキング ── */
-  .popular-top{ position:relative; padding:clamp(48px,7vw,86px) 20px; background:linear-gradient(180deg, rgba(6,10,8,0), rgba(6,10,8,.34)); }
-  .popular-top__inner{ max-width:760px; margin:0 auto; }
+  .popular-top{
+    position:relative; isolation:isolate; overflow:hidden;
+    padding:clamp(52px,7vw,92px) 20px;
+    border-top:1px solid rgba(217,180,108,.16); border-bottom:1px solid rgba(217,180,108,.14);
+    background:
+      linear-gradient(180deg, rgba(5,9,7,.97) 0%, rgba(7,12,9,.80) 40%, rgba(7,12,9,.82) 62%, rgba(4,8,6,.98) 100%),
+      url('/assets/images/scenes/forest2.webp') center 36% / cover no-repeat;
+  }
+  .popular-top::before{
+    content:''; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 10%, rgba(217,180,108,.18), transparent 60%),
+      radial-gradient(circle at 14% 88%, rgba(120,180,140,.10), transparent 46%),
+      radial-gradient(circle at 88% 80%, rgba(196,164,69,.08), transparent 44%);
+  }
+  .popular-top__inner{ position:relative; max-width:760px; margin:0 auto; }
   .popular-top__head{ text-align:center; margin-bottom:clamp(22px,3vw,36px); }
   .popular-top__eyebrow{ display:block; font-family:var(--font-display); font-size:.72rem; letter-spacing:.42em; color:rgba(231,202,124,.9); }
   .popular-top__title{ font-family:var(--font-serif-jp); font-weight:400; font-size:clamp(1.6rem,3vw,2.2rem); color:#f5ecdc; margin:.5rem 0 .3rem; letter-spacing:.06em; }
