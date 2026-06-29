@@ -66,7 +66,7 @@
   let W=0,H=0,cx=0,cy=0,RX=0,RY=0;
   function resize(){ W=root.clientWidth; H=root.clientHeight; cx=W/2; cy=H/2;
     canvas.width=W*dpr; canvas.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0);
-    RX=Math.min(W*0.40,660); RY=Math.min(H*0.36,400); }
+    RX=Math.min(W*0.40,660); RY=Math.min(H*0.24,270); }   /* 縦幅を狭く（レターボックス寄りの星図） */
 
   /* ============================================================ GLYPH (variable length) */
   function sampleWord(text){
