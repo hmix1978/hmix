@@ -963,7 +963,7 @@
         '<img src="' + esc(bgUrl) + '" alt="">' +
         '<div class="rel-body">' +
           '<div class="rel-num">No. ' + esc(catalogLabel(t.id)) + '</div>' +
-          '<div class="rel-name">' + esc(t.title_en || t.title) + '</div>' +
+          '<div class="rel-name">' + esc(getTrackTitle(t)) + '</div>' +
           '<div class="rel-jp">' + esc(firstEditorialSentence(getCurrentLang() === 'en' ? (t.description_en || t.description) : t.description)) + '</div>' +
           '<div class="rel-tags">' + displayTags.map(function(tag) {
             return '<span data-tag="' + esc(tag) + '">' + esc(getTagLabel(tag)) + '</span>';
