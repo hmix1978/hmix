@@ -74,6 +74,9 @@
   @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; } }
   /* デザイン指定の hover（DC の style-hover を CSS 化） */
   #ft-cta:hover{ filter:brightness(1.08); transform:translateY(-2px); box-shadow:0 16px 46px -10px rgba(230,200,122,.6); }
+  @keyframes ftBadgePulse{ 0%,100%{ box-shadow:0 0 0 1px rgba(231,202,124,.55), 0 0 24px rgba(231,202,124,.2); } 50%{ box-shadow:0 0 0 1px rgba(231,202,124,.85), 0 0 40px rgba(231,202,124,.4); } }
+  #ft-play-badge{ transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .4s ease, background .35s ease; }
+  #ft-screen:hover #ft-play-badge{ transform:translate(-50%,-50%) scale(1.12); background:rgba(12,22,16,.6); }
   #ft-cal-btn:hover{ border-color:rgba(230,200,122,.6) !important; color:rgba(238,240,234,.96) !important; }
   .ft-prog:hover{ opacity:1 !important; transform:translateY(-6px) !important; }
   .ft-prog:hover [data-thumb]{ filter:brightness(1) !important; }
@@ -122,11 +125,12 @@
   #ft-media:fullscreen, #ft-media:-webkit-full-screen{ left:0!important; top:0!important; width:100%!important; height:100%!important; }
   #ft-media:fullscreen #ft-media-inner, #ft-media:-webkit-full-screen #ft-media-inner{ -webkit-mask-image:none!important; mask-image:none!important; }
 
-  /* 今夜の上映 レール: 作品数が増えた時だけ横スライド */
-  #ft-rail{ max-width:min(54vw,720px); overflow-x:auto; overflow-y:hidden; flex-wrap:nowrap; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity; cursor:grab; padding:14px 0 2px; }
+  /* 今夜の上映 レール: 全作品をラップ表示（横スクロール廃止） */
+  #ft-rail{ display:grid !important; grid-template-columns:repeat(3, minmax(0,1fr)); max-width:min(48vw,520px); gap:16px clamp(14px,1.4vw,22px); padding:14px 0 2px; overflow:visible !important; }
   #ft-rail::-webkit-scrollbar{ display:none; }
+  #ft-rail-prev, #ft-rail-next{ display:none !important; }   /* 全表示なのでチェブロン不要 */
   #ft-rail.dragging{ cursor:grabbing; scroll-snap-type:none; scroll-behavior:auto; }
-  #ft-rail .ft-prog{ flex:0 0 auto; scroll-snap-align:start; }
+  #ft-rail .ft-prog{ width:100% !important; }
   #ft-rail-wrap{ position:relative; }
   .ft-chev{ position:absolute; top:34px; z-index:5; display:none; place-items:center; width:32px; height:32px; border-radius:50%; background:rgba(8,16,11,.66); border:1px solid rgba(120,160,135,.42); color:rgba(222,236,226,.92); font-family:'Bebas Neue',sans-serif; font-size:19px; line-height:1; cursor:pointer; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); box-shadow:0 6px 18px -6px rgba(0,0,0,.7); transform:translateY(-50%); transition:border-color .2s, color .2s, background .2s; }
   #ft-rail-prev{ left:-11px; }
@@ -175,12 +179,13 @@
     <div id="ft-glow" style="position:absolute; left:50.86%; top:47.64%; width:62.8%; height:58.3%; transform:translate(-50%,-50%); border-radius:50%; filter:blur(60px); background:radial-gradient(circle at 50% 46%, rgba(170,205,160,.38), rgba(110,160,120,.13) 46%, transparent 72%); pointer-events:none; animation:glowPulse 9s ease-in-out infinite;"></div>
 
     <button id="ft-screen" type="button" aria-label="再生" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; padding:0; border:none; cursor:pointer; overflow:hidden; background:#070f0c; box-shadow:inset 0 0 0 1px rgba(180,210,180,.14), inset 0 0 70px rgba(0,0,0,.6);">
-      <img id="ft-screen-img" data-screen-img alt="" src="https://www.hmix.net/theater/banners/starmap.webp?v=20260614b" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.06) brightness(1.03); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;">
+      <img id="ft-screen-img" data-screen-img alt="" src="https://www.hmix.net/theater/banners/tabisuru.webp" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:saturate(1.06) brightness(1.03); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); -webkit-mask-composite:source-in; mask-image:linear-gradient(to right, transparent 0, #000 1.6%, #000 98.4%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 2%, #000 98%, transparent 100%); mask-composite:intersect;">
       <div style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(255,255,255,.05), transparent 16%, transparent 70%, rgba(0,0,0,.34));"></div>
       <div style="position:absolute; inset:0; pointer-events:none; background:radial-gradient(120% 120% at 18% 8%, rgba(130,170,150,.14), transparent 52%);"></div>
       <div style="position:absolute; inset:-25%; pointer-events:none; opacity:.05; background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;); background-size:170px; animation:grainShift 3.2s steps(4) infinite;"></div>
       <div style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(108deg, transparent 42%, rgba(220,235,210,.06) 50%, transparent 58%); animation:flick 6s linear infinite;"></div>
       <div id="ft-flash" style="position:absolute; inset:0; pointer-events:none; opacity:0; background:#000;"></div>
+      <div id="ft-play-badge" aria-hidden="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:2; width:clamp(60px,5.4vw,84px); height:clamp(60px,5.4vw,84px); border-radius:50%; display:grid; place-items:center; pointer-events:none; background:rgba(8,16,12,.42); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); animation:ftBadgePulse 3.4s ease-in-out infinite;"><span style="margin-left:.16em; font-size:clamp(24px,2.4vw,34px); line-height:1; color:#f1dca0; text-shadow:0 2px 10px rgba(0,0,0,.6);">▶</span></div>
     </button>
 
     <div id="ft-cal-layer" style="position:absolute; left:25.11%; top:25.23%; width:51.5%; height:44.82%; z-index:9; display:none; cursor:move; outline:1.5px dashed rgba(255,255,255,.65); outline-offset:-1px;">
@@ -210,7 +215,7 @@
 
   <!-- 下部ゾーン: 左に作品情報 / 右に今夜の上映(ビューポート) -->
   <div id="ft-dock" style="position:absolute; left:0; right:0; bottom:3.6%; z-index:6; display:flex; align-items:flex-end; justify-content:space-between; gap:clamp(28px,5vw,80px); padding:0 clamp(26px,5vw,90px);">
-    <div id="ft-info" style="flex:1 1 50%; min-width:0;">
+    <div id="ft-info" style="flex:1 1 38%; min-width:0;">
       <div style="opacity:1;">
         <div style="display:flex; align-items:center; gap:13px; margin-bottom:12px;">
           <span id="ft-tag" style="font-family:'Bebas Neue',sans-serif; font-size:14px; letter-spacing:.16em; color:#0e1f16; background:linear-gradient(135deg, #e6c87a, var(--gold,#caa44e)); border-radius:4px; padding:3px 12px; box-shadow:0 2px 14px -4px rgba(202,164,78,.6);">特集上映</span>
@@ -222,7 +227,7 @@
       </div>
     </div>
     <div id="ft-now" style="flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-start; gap:14px;">
-      <div style="display:flex; align-items:center; gap:11px; font-family:'Bebas Neue',sans-serif; font-size:13px; letter-spacing:.28em; color:rgba(150,194,165,.72);"><span data-ja="今夜の上映" data-en="Now Showing">今夜の上映</span><span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(150,194,165,.4), transparent);"></span></div>
+      <div style="display:flex; align-items:center; gap:12px; font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.24em; color:rgba(180,210,185,.96);"><span style="color:var(--gold,#caa44e); font-size:13px;">◆</span><span data-ja="今夜の上映" data-en="Now Showing">今夜の上映</span><span style="flex:1; min-width:30px; height:1px; background:linear-gradient(90deg, rgba(170,205,180,.5), transparent);"></span></div>
       <div id="ft-rail-wrap" style="position:relative;">
         <button id="ft-rail-prev" class="ft-chev" type="button" aria-label="前へ" data-ja-aria="前へ" data-en-aria="Previous">‹</button>
         <div id="ft-rail" style="display:flex; align-items:flex-start; gap:clamp(10px,1vw,16px);"></div>
@@ -304,23 +309,23 @@
 (function(){
   var B = 'https://www.hmix.net/theater/banners/';
   var entries = [
-    { key:'starmap', title:'星図の旅', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する',
-      title_en:'Star-Chart Journey', tag_en:'Featured', meta_en:'Interactive experience · Navigate the star chart', line_en:'Follow the stars of each tag and discover a track you have never heard.', cta_en:'Enter',
-      img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
-    { key:'night', title:'夜風', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る',
-      title_en:'Night Breeze', tag_en:'Long film', meta_en:'BGM film · 60 min', line_en:'An hour-long film of music to keep you company in the quiet of night.', cta_en:'Watch',
-      img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
-    { key:'play', title:'演奏動画', tag:'特集', meta:'秋山裕和の演奏 · YouTube', line:'秋山裕和の演奏を、この劇場の中で。', cta:'ひらく',
-      title_en:'Performances', tag_en:'Featured', meta_en:'Performances by Hirokazu Akiyama · YouTube', line_en:'Hirokazu Akiyama performing, here in the theater.', cta_en:'Open',
-      img:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', playlist:true, plIndex:0 },
-    { key:'works', title:'実績動画', tag:'特集', meta:'制作・使用実績 · YouTube', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく',
-      title_en:'Productions', tag_en:'Featured', meta_en:'Productions & placements · YouTube', line_en:'Videos that feature H/MIX music, here in the theater.', cta_en:'Open',
-      img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true, plIndex:1 },
-    { key:'tabi', title:'旅する少女', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する',
-      title_en:'The Traveling Girl', tag_en:'Short', meta_en:'Short film', line_en:'A little travel story set to H/MIX music.', cta_en:'Play',
+    { key:'tabi', title:'旅する少女', cap:'音楽と歩く短編映像', tag:'短編', meta:'ショートフィルム · 短編映像', line:'H/MIXの音楽とともに歩く、小さな旅の物語。', cta:'再生する',
+      title_en:'The Traveling Girl', cap_en:'A short film, walking with music', tag_en:'Short', meta_en:'Short film', line_en:'A little travel story set to H/MIX music.', cta_en:'Play',
       img:B+'tabisuru.webp', film:'/assets/video/tabisuru-hito.mp4' },
-    { key:'yt', title:'14年ぶりの大リニューアル', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る',
-      title_en:'The First Renewal in 14 Years', tag_en:'NEW', meta_en:'Latest · YouTube', line_en:'302 free BGM tracks — all the Japanese-style and fantasy you need.', cta_en:'Watch on screen',
+    { key:'starmap', title:'星図の旅', cap:'タグの星で探す体験', tag:'特集上映', meta:'インタラクティブ体験 · 星図をめぐる', line:'タグの星々をたどり、まだ知らない一曲と出会う旅。', cta:'入場する',
+      title_en:'Star-Chart Journey', cap_en:'Explore by the stars of tags', tag_en:'Featured', meta_en:'Interactive experience · Navigate the star chart', line_en:'Follow the stars of each tag and discover a track you have never heard.', cta_en:'Enter',
+      img:B+'starmap.webp?v=20260614b', href:'tag-cockpit.html', mobileHref:'/theater-mobile/' },
+    { key:'night', title:'夜風', cap:'夜に寄り添う60分の映画', tag:'ロングフィルム', meta:'BGMフィルム · 60分', line:'夜のしじまに寄り添う、一時間の音楽の映画。', cta:'観る',
+      title_en:'Night Breeze', cap_en:'An hour-long film for the night', tag_en:'Long film', meta_en:'BGM film · 60 min', line_en:'An hour-long film of music to keep you company in the quiet of night.', cta_en:'Watch',
+      img:B+'night-breeze.webp', href:'night-breeze/', mobileHref:'/theater/night-breeze/mobile.html' },
+    { key:'play', title:'演奏動画', cap:'みんなの演奏', tag:'特集', meta:'みんなの演奏 · YouTube', line:'リスナーや友人の劇団による演奏・パフォーマンスを、この劇場の中で。', cta:'ひらく',
+      title_en:'Performances', cap_en:'Performances by everyone', tag_en:'Featured', meta_en:'Performances by listeners & friends · YouTube', line_en:'Performances by listeners and friends, here in the theater.', cta_en:'Open',
+      img:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', playlist:true, plIndex:0 },
+    { key:'works', title:'制作/使用実績', cap:'音楽が使われた映像集', tag:'特集', meta:'制作・使用実績 · YouTube', line:'H/MIXの音楽が使われた映像を、この劇場の中で。', cta:'ひらく',
+      title_en:'Productions', cap_en:'Videos featuring our music', tag_en:'Featured', meta_en:'Productions & placements · YouTube', line_en:'Videos that feature H/MIX music, here in the theater.', cta_en:'Open',
+      img:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', playlist:true, plIndex:1 },
+    { key:'yt', title:'PICKUP動画', cap:'最新作・全302曲を紹介', tag:'NEW', meta:'最新作 · YouTube', line:'フリーBGM 302曲 — 和風とファンタジーのすべて。', cta:'スクリーンで観る',
+      title_en:'PICKUP', cap_en:'Latest — all 302 tracks', tag_en:'NEW', meta_en:'Latest · YouTube', line_en:'302 free BGM tracks — all the Japanese-style and fantasy you need.', cta_en:'Watch on screen',
       img:B+'youtube-latest.webp', yt:'kHJbcQL6qe8' }
   ];
   // 背景（森の劇場 ＋ 4種）。スクリーン枠は背景ごとに保持。
@@ -354,11 +359,12 @@
       calLabel=$('ft-cal-label'), readout=$('ft-readout'), veil=$('ft-veil'),
       rail=$('ft-rail'), media=$('ft-media'), mediaInner=$('ft-media-inner'),
       bgImg=$('ft-bg-img'), bgName=$('ft-bg-name'), bgSwitch=$('ft-bg-switch'),
-      elTag=$('ft-tag'), elMeta=$('ft-meta'), elTitle=$('ft-title'), elLine=$('ft-line'), elCtaLabel=$('ft-cta-label');
+      elTag=$('ft-tag'), elMeta=$('ft-meta'), elTitle=$('ft-title'), elLine=$('ft-line'), elCtaLabel=$('ft-cta-label'),
+      playBadge=$('ft-play-badge');
   var railEls = [];
   var leafCanvas=$('ft-leaf-canvas'), leafCtx=leafCanvas&&leafCanvas.getContext?leafCanvas.getContext('2d'):null, leaves=[], leafRAF=0, leafLast=0, leafActive=false;
 
-  function loadBgIndex(){ try{ var k=localStorage.getItem('forest.bg.v1'); for(var i=0;i<BGS.length;i++) if(BGS[i].key===k) return i; }catch(_){} return 0; }
+  function loadBgIndex(){ try{ var k=localStorage.getItem('forest.bg.v1'); for(var i=0;i<BGS.length;i++) if(BGS[i].key===k) return i; }catch(_){} return 3; /* 既定=緑の遺跡 */ }
   function curKey(){ return BGS[bgIndex].key; }
   function loadFrames(){
     var out={};
@@ -416,8 +422,9 @@
     railEls = entries.map(function(e, i){
       var btn = document.createElement('button');
       btn.type='button'; btn.className='ft-prog';
-      btn.style.cssText='display:flex; flex-direction:column; align-items:center; gap:8px; width:clamp(98px,7.4vw,134px); padding:0; background:none; border:none; cursor:pointer; opacity:.5; transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);';
+      btn.style.cssText='display:flex; flex-direction:column; align-items:center; gap:8px; width:clamp(118px,8.6vw,150px); padding:0; background:none; border:none; cursor:pointer; opacity:.72; transition:opacity .5s ease, transform .5s cubic-bezier(.16,1,.3,1);';
       btn.innerHTML =
+        '<div style="font-size:10.5px; font-weight:400; letter-spacing:.02em; color:rgba(184,206,188,.72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; margin-bottom:1px;">'+EL(e,'cap')+'</div>' +
         '<div style="position:relative; width:100%; aspect-ratio:16/9; border-radius:4px; overflow:hidden; background:#0a120e; box-shadow:0 14px 28px -14px rgba(0,0,0,.85);">' +
           '<img alt="" data-thumb src="'+e.img+'" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:brightness(.72);">' +
           '<div data-rb style="position:absolute; inset:0; border-radius:4px; box-shadow:inset 0 0 0 0 transparent; transition:box-shadow .4s ease;"></div>' +
@@ -432,7 +439,7 @@
   function styleRail(i){
     var el = railEls[i]; if(!el) return;
     var on = i === state.active;
-    el.style.opacity = on ? '1' : '.5';
+    el.style.opacity = on ? '1' : '.72';
     el.style.transform = on ? 'translateY(-6px)' : 'none';
     var rb = el.querySelector('[data-rb]'); if(rb) rb.style.boxShadow = on ? 'inset 0 0 0 2px var(--gold,#caa44e)' : 'inset 0 0 0 0 transparent';
     var ul = el.querySelector('[data-underline]'); if(ul) ul.style.width = on ? '36px' : '0';
@@ -479,6 +486,7 @@
     }
     state.mediaOpen = true;
     media.style.display = 'block';
+    if(playBadge) playBadge.style.opacity = '0';
   }
   function closeMedia(){
     state.mediaOpen = false;
@@ -490,6 +498,7 @@
     try{ if(document.fullscreenElement) (document.exitFullscreen||function(){}).call(document); }catch(e){}
     if(mediaInner) mediaInner.innerHTML = '';   // video/iframe を破棄して再生停止
     if(media) media.style.display = 'none';
+    if(playBadge) playBadge.style.opacity = '1';
   }
 
   // ============ シアター内蔵 YouTube プレーヤー ============
@@ -748,37 +757,58 @@
   var WORKS_USED_TRACKS = {
     // 動画IDごとの使用曲データ。プレイリスト定義とは分けて保持する。
     // Shift+A の登録フォームで「JSONをコピー」した内容は、このオブジェクトへ貼り付けると公開表示に反映される。
-    // ── リスト1（演奏動画）使用曲 ──
+    // ── 登録フォーム書き出し（42本・2026-06-29 反映） ──
     "bgsd3qP0hSw": [ { "id": "n74", "t": 201 } ],
     "4eF5SbnV48s": [ { "id": "v2", "t": 6 } ],
     "mzIS17ZOuAA": [ { "id": "n16", "t": 5 } ],
     "DqnvgbQa524": [ { "id": "m2", "t": 8 } ],
-    "u8btriUVWFw": [ { "id": "n111", "t": 11 } ],
+    "u8btriUVWFw": [ { "id": "n111", "t": 11 }, { "id": "n82", "t": 86 } ],
     "23EblubLBMg": [ { "id": "c7", "t": 5 } ],
     "HzrJtxAIYMI": [ { "id": "n59", "t": 11 } ],
     "REiNeiVKoPc": [ { "id": "n82", "t": 7 } ],
     "c-W34JOuckk": [ { "id": "n103", "t": 12 } ],
-    // ── リスト2（制作/収録実績）使用曲 ──
-    "rZi1Seibaho": [
-      { "id": "n71", "t": 1 },
-      { "id": "n82", "t": 49 },
-      { "id": "n69", "t": 147 }
-    ],
-    "F7WyPHQs8lo": [
-      { "id": "n149", "t": 0 }
-    ],
-    "wev_Mvk_KEk": [
-      { "id": "n130", "t": 0 }
-    ],
-    "G5HlvWAtCMY": [
-      { "id": "n82", "t": 9 }
-    ],
-    "icshbddktDE": [
-      { "id": "n97", "t": 7 }
-    ]
+    "i1EPBp3rdEo": [ { "id": "n123", "t": 11 } ],
+    "3rKT3abmS_c": [ { "id": "n97", "t": 7 } ],
+    "5Z5e9Y1jvsg": [ { "id": "n74", "t": 11 } ],
+    "nMbyM-FhwrU": [ { "id": "n97", "t": 13 } ],
+    "VE5ClC3ICwg": [ { "id": "n123", "t": 6 } ],
+    "LsVVNM6T0CU": [ { "id": "n123", "t": 4 } ],
+    "nOkOKm2diEw": [ { "id": "n123", "t": 6 } ],
+    "HiVOP5bZIVM": [ { "id": "n123", "t": 3 } ],
+    "MQY1o-v4SPw": [ { "id": "n123", "t": 315 } ],
+    "SiD1vM775_c": [ { "id": "n59", "t": 834 } ],
+    "an3o7di1FjE": [ { "id": "n74", "t": 4 } ],
+    "RQNGMxmORtE": [ { "id": "r4", "t": 109 } ],
+    "RkyszdBbaho": [ { "id": "n95", "t": 3 } ],
+    "Trr2uz0XqB4": [ { "id": "n72", "t": 1 } ],
+    "loMLvALxaxY": [ { "id": "n74", "t": 0 } ],
+    "FpwM_i6py4s": [ { "id": "n74", "t": 3 } ],
+    "Ftq2T7qFKxE": [ { "id": "n74", "t": 3 } ],
+    "8JGtNBidQ6c": [ { "id": "n51", "t": 0 } ],
+    "jukUEpdrV38": [ { "id": "n123", "t": 150 } ],
+    "ILnFHWNkYO4": [ { "id": "n46", "t": 0 } ],
+    "_Ztbj5c-bFY": [ { "id": "n46", "t": 0 } ],
+    "m4AIOo1u7Q0": [ { "id": "n46", "t": 0 } ],
+    "2cnE16aH96k": [ { "id": "n46", "t": 0 } ],
+    "Sr5fed787dA": [ { "id": "n72", "t": 4 } ],
+    "GOY8ZRFd5Ks": [ { "id": "n74", "t": 1 } ],
+    "oY1AMxB9tfk": [ { "id": "n72", "t": 0 } ],
+    "_27MZBmYSy8": [ { "id": "r9", "t": 0 } ],
+    "Amvxm49gCHE": [ { "id": "n74", "t": 0 } ],
+    "Lv6e-KnzkkM": [ { "id": "c2", "t": 0 } ],
+    "o3PhBiJXg6s": [ { "id": "n123", "t": 1 } ],
+    "gygbaAJb3d4": [ { "id": "c21", "t": 1 } ],
+    "ujFNKX_RIgo": [ { "id": "c19", "t": 1 } ],
+    "gDsNZFSNS24": [ { "id": "m2", "t": 1 } ],
+    // ── 旧・制作/収録実績（フォーム書き出しに含まれず温存） ──
+    "rZi1Seibaho": [ { "id": "n71", "t": 1 }, { "id": "n82", "t": 49 }, { "id": "n69", "t": 147 } ],
+    "F7WyPHQs8lo": [ { "id": "n149", "t": 0 } ],
+    "wev_Mvk_KEk": [ { "id": "n130", "t": 0 } ],
+    "G5HlvWAtCMY": [ { "id": "n82", "t": 9 } ],
+    "icshbddktDE": [ { "id": "n97", "t": 7 } ]
   };
   var PLAYLISTS = [
-    { id:'works-a', type:'youtube', name:'演奏動画', name_en:'Performances', sub:'秋山裕和の演奏', sub_en:'Performances by Hirokazu Akiyama', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', yt:'PLDu7Op6BS12E', titles:{} },
+    { id:'works-a', type:'youtube', name:'演奏動画', name_en:'Performances', sub:'みんなの演奏', sub_en:'Performances by listeners & friends', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/i1EPBp3rdEo/hqdefault.jpg', yt:'PLDu7Op6BS12E', titles:{} },
     { id:'works-b', type:'youtube', name:'使用・制作実績', name_en:'Productions', sub:'H/MIXが使われた映像', sub_en:'Videos featuring H/MIX music', icon:'▶', cls:'plY', thumb:'https://img.youtube.com/vi/rZi1Seibaho/hqdefault.jpg', yt:'PLJy2czsk77Rs', titles:{} }
   ];
   var plBuilt=false, plActive=0, plAudio=null, plPlayingId=null;
@@ -1492,6 +1522,7 @@
   setupRailSlider();
   setupLeaves();
   renderInfo();
+  if(screenImg){ var _ie=entries[state.active]||entries[0]; if(_ie) screenImg.setAttribute('src', _ie.img); }  // 初期スクリーンを主役（旅する少女）に同期
   switchBg(bgIndex);   // 背景画像・タイトルを同期（枠は共通）
   applyBox(); applyCalUI(); updateReadout(); styleAllRail(); projectorOn();
   // 開発用: ?cal=1 / #cal で位置調整を起動（通常UIには出さない）
