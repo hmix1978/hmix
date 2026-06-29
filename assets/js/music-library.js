@@ -247,7 +247,7 @@
   let showFavOnly    = false;
   let showRecentOnly = false;
   let activeDurationFilter = '';  // '', 'short', 'medium', 'long'
-  let currentSort = 'default';   // 'default', 'newest', 'duration-asc', 'duration-desc', 'title'
+  let currentSort = 'popular';   // 既定=人気順。他: 'default'(おすすめ), 'newest', 'duration-asc', 'duration-desc', 'title'
 
   const RECENT_KEY = 'hmix_recent_tracks';
   function getRecentIds() {
@@ -595,7 +595,7 @@
     showFavOnly = false;
     showRecentOnly = false;
     activeDurationFilter = '';
-    currentSort = 'default';
+    currentSort = 'popular';
 
     const q = params.get('q');
     if (q && searchInput) {
@@ -627,7 +627,7 @@
 
     const sort = params.get('sort');
     const allowedSorts = ['default', 'popular', 'newest', 'duration-asc', 'duration-desc', 'title'];
-    currentSort = allowedSorts.includes(sort) ? sort : 'default';
+    currentSort = allowedSorts.includes(sort) ? sort : 'popular';
     if (sortSelect) sortSelect.value = currentSort;
     if (currentSort === 'popular') {
       fetchPopularScores().then(() => applyFilters());
@@ -1442,8 +1442,9 @@
     showFavOnly    = false;
     showRecentOnly = false;
     activeDurationFilter = '';
-    currentSort = 'default';
-    if (sortSelect) sortSelect.value = 'default';
+    currentSort = 'popular';
+    if (sortSelect) sortSelect.value = 'popular';
+    if (popularScores) { /* 取得済みならそのまま */ } else { fetchPopularScores().then(function(){ if (currentSort === 'popular') applyFilters(); }); }
     if (searchInput) { searchInput.value = ''; }
     if (searchClear) { searchClear.hidden = true; }
     syncFilterUI();
