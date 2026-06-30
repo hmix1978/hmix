@@ -38,7 +38,7 @@
       if (!host) {
         host = d.createElement('div'); host.id = 'hmix-sync-toast';
         host.setAttribute('role', 'status'); host.setAttribute('aria-live', 'polite');
-        host.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:2147483600;max-width:92vw;background:rgba(10,20,14,.96);color:#eef3ec;border:1px solid rgba(202,164,78,.5);border-radius:12px;padding:13px 18px;font:500 13.5px/1.65 "Noto Sans JP",sans-serif;box-shadow:0 14px 44px -14px rgba(0,0,0,.75);text-align:center;opacity:0;transition:opacity .4s ease;';
+        host.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:2147483647;max-width:92vw;background:rgba(10,20,14,.96);color:#eef3ec;border:1px solid rgba(202,164,78,.5);border-radius:12px;padding:13px 18px;font:500 13.5px/1.65 "Noto Sans JP",sans-serif;box-shadow:0 14px 44px -14px rgba(0,0,0,.75);text-align:center;opacity:0;transition:opacity .4s ease;';
         d.body.appendChild(host);
       }
       host.textContent = msg; host.style.display = 'block';
@@ -178,6 +178,7 @@
       } else {
         ensureUser();
       }
+      try { if (typeof refreshLauncher === 'function') refreshLauncher(); } catch (e) {}  // 連携/解除でラベルを即更新
     });
     ensureUser();                                // 既にサインイン済みなら即バインド
 
@@ -215,20 +216,15 @@
       var provider;
       try { provider = new firebase.auth.GoogleAuthProvider(); } catch (e) { return Promise.reject({ code: 'no-google' }); }
       try { provider.setCustomParameters({ prompt: 'select_account' }); } catch (e) {}
-      var u = auth.currentUser;
-      var attempt = (u && u.isAnonymous)
-        ? u.linkWithPopup(provider).catch(function (e) {
-            if (e && (e.code === 'auth/credential-already-in-use' || e.code === 'auth/email-already-in-use')) return auth.signInWithPopup(provider);
-            throw e;
-          })
-        : auth.signInWithPopup(provider);
-      return attempt.then(function () {
+      // signInWithPopup 一本（匿名→Google切替）。ローカルのお気に入りは bind が Google の手帖へLWWマージ。
+      // linkWithPopup の二重ポップアップ/credential-already-in-use を避け、確実にする。
+      return auth.signInWithPopup(provider).then(function () {
         setStatus('synced'); refreshLauncher();
         syncToast(L('Googleアカウントで、端末間の同期がはじまりました。', 'Now syncing across devices with your Google account.'));
       }).catch(function (e) {
         var code = e && e.code || '';
         if (code === 'auth/popup-blocked' || code === 'auth/cancelled-popup-request' || code === 'auth/operation-not-supported-in-this-environment') {
-          try { (u && u.isAnonymous) ? u.linkWithRedirect(provider) : auth.signInWithRedirect(provider); return; } catch (e2) {}
+          try { auth.signInWithRedirect(provider); return; } catch (e2) {}
         }
         if (code === 'auth/popup-closed-by-user') return;   // ユーザーが閉じただけ
         syncToast(L('Google同期に失敗しました', 'Google sync failed') + (code ? ' (' + code + ')' : ''));
@@ -284,7 +280,7 @@
       closeModal();
       var en = (window.HMIX_LANG === 'en'), a = account();
       var m = document.createElement('div'); m.id = 'hmix-sync-modal';
-      m.style.cssText = 'position:fixed;inset:0;z-index:2147483500;display:flex;align-items:center;justify-content:center;background:rgba(4,8,6,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:20px;';
+      m.style.cssText = 'position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:rgba(4,8,6,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:20px;';
       var card = document.createElement('div');
       card.style.cssText = 'max-width:420px;width:100%;background:linear-gradient(180deg,rgba(14,24,17,.98),rgba(9,16,12,.98));border:1px solid rgba(202,164,78,.34);border-radius:16px;padding:24px 22px;box-shadow:0 30px 80px -24px rgba(0,0,0,.8);font-family:"Noto Sans JP",sans-serif;color:#eef3ec;';
       var inner = '';
