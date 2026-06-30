@@ -343,11 +343,11 @@
     const z=FP_ZONES[fpSpawn._slot%FP_ZONES.length];
     el.style.left=rnd(z[0],z[1]).toFixed(1)+'%';
     el.style.top =rnd(z[2],z[3]).toFixed(1)+'%';
-    el.style.setProperty('--fp-life',rnd(28,34).toFixed(1)+'s');   /* 約30秒で静かに入れ替え */
-    el.style.setProperty('--fp-dx',(-rnd(28,72)).toFixed(0)+'px');
+    el.style.setProperty('--fp-life',rnd(58,66).toFixed(1)+'s');   /* 約1分は表示（球数が少ないのでゆっくり） */
+    el.style.setProperty('--fp-dx',(-rnd(24,60)).toFixed(0)+'px');
     el.style.setProperty('--fp-r0',(rnd(-1.4,1.4)).toFixed(2)+'deg');
     el.style.setProperty('--fp-r1',(rnd(-1.6,1.6)).toFixed(2)+'deg');
-    el.style.setProperty('--fp-max',rnd(.4,.6).toFixed(2));
+    el.style.setProperty('--fp-max',rnd(.72,.88).toFixed(2));      /* 読める濃さ */
     el.addEventListener('animationend',()=>el.remove());
     fpLayer.appendChild(el);
   }
@@ -356,7 +356,7 @@
     fpStop();
     fpKey=fpHistTop()||tTitle.textContent;
     fpLoad(fpKey).then(l=>{ fpList=l||[]; });
-    fpTimer=setInterval(fpSpawn,6000);   /* 約6秒ごとに1つ → 最大5・約30秒周期で入れ替わる */
+    fpTimer=setInterval(fpSpawn,9000);   /* 約9秒ごとに1つ → 各々約1分表示・最大5でゆったり巡る */
     setTimeout(fpSpawn,2600);            /* 曲が始まって少し置いて、一つ目がそっと現れる */
   }
   function fpStop(){

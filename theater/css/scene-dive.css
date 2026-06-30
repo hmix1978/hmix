@@ -102,17 +102,16 @@ body[data-scene="on"] #jOverlay{
   pointer-events:auto;                 /* 文字だけホバーを拾う（景色はクリック可能のまま） */
   cursor:default;
   font-family:var(--font-jp);
-  font-weight:300;
-  font-size:var(--fp-size,16px);
-  letter-spacing:.14em;
-  line-height:2.0;
-  color:rgba(200,222,250,.9);          /* 神秘的な青白 */
+  font-weight:400;
+  font-size:var(--fp-size,19px);
+  letter-spacing:.12em;
+  line-height:1.95;
+  color:rgba(221,237,253,.97);         /* 神秘的な青白（読める明るさ） */
   text-shadow:
-    0 0 10px rgba(150,195,245,.45),
-    0 0 26px rgba(120,170,235,.28),
-    0 1px 20px rgba(0,8,16,.6);
-  filter:blur(1.5px);                  /* 滲み — どこかから響いてくる言霊 */
-  mix-blend-mode:screen;
+    0 1px 3px rgba(0,8,16,.92),        /* 明るい景色でも読めるよう濃い縁取り */
+    0 0 13px rgba(150,195,245,.42),
+    0 1px 22px rgba(0,8,16,.7);
+  filter:blur(.6px);                   /* ほのかな滲み（読める範囲で） */
   will-change:opacity,transform,filter;
   transition:filter .6s ease, color .6s ease, text-shadow .6s ease;
   animation:fpLife var(--fp-life,30s) cubic-bezier(.4,0,.25,1) forwards;
@@ -157,7 +156,7 @@ body[data-scene="on"] #jOverlay{
 @media (max-width:720px){
   .sd-fp .fp{
     max-width:min(24ch,62vw);
-    font-size:clamp(12px,var(--fp-size,14px),16px);
+    font-size:clamp(14px,var(--fp-size,17px),20px);
     letter-spacing:.08em;
   }
 }
