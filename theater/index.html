@@ -478,9 +478,7 @@
   function playInScreen(kind, src){
     if(!media || !mediaInner) return;
     if(kind === 'video'){
-      mediaInner.innerHTML = '<video id="ft-screen-video" controls autoplay playsinline preload="auto" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;"></video>';
-      var v = document.getElementById('ft-screen-video');
-      if(v){ v.src = src; var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+      buildVideoPlayer(src);
     } else if(kind === 'yt'){
       buildYTPlayer(src);   // プレイリスト/単曲を「シアター専用プレーヤー」で枠内再生（離脱防止・自前操作）
     }
@@ -526,6 +524,81 @@
     f.style.transformOrigin='center'; f.style.transform='scale('+(Math.max(1,k)).toFixed(3)+')';
   }
   function ytFmt(s){ s=Math.max(0,Math.floor(s||0)); var m=Math.floor(s/60), ss=s%60; return m+':'+(ss<10?'0':'')+ss; }
+  function bindMediaUIAutoHide(ui, bar, isPlaying){
+    if(!ui) return;
+    function showUI(hold){
+      ui.classList.remove('ft-ui-hide');
+      document.body.classList.add('ft-yt-active');
+      clearTimeout(ytIdleT);
+      if(hold) return;
+      ytIdleT = setTimeout(function(){
+        var active = document.activeElement;
+        if(bar && (bar.matches(':hover') || (active && bar.contains(active)))) return showUI();
+        if(!isPlaying || isPlaying()){
+          ui.classList.add('ft-ui-hide');
+          document.body.classList.remove('ft-yt-active');
+        }
+      }, 2800);
+    }
+    ui.addEventListener('pointermove', function(){ showUI(); });
+    if(bar){
+      bar.addEventListener('pointerenter', function(){ showUI(true); });
+      bar.addEventListener('pointermove', function(){ showUI(true); });
+      bar.addEventListener('pointerleave', function(){ showUI(); });
+      bar.addEventListener('focusin', function(){ showUI(true); });
+      bar.addEventListener('focusout', function(){ showUI(); });
+    }
+    showUI();
+    return showUI;
+  }
+  function buildVideoPlayer(src){
+    mediaInner.innerHTML = '<video id="ft-screen-video" autoplay playsinline preload="auto" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#000;"></video>';
+    var v = document.getElementById('ft-screen-video');
+    if(!v) return;
+    v.src = src;
+    v.volume = 0.8;
+
+    var ui = document.createElement('div'); ui.id = 'ft-yt-ui';
+    ui.innerHTML =
+      '<div id="ft-yt-dim"><span class="ic">' + YT_SVG.play + '</span></div>' +
+      '<div id="ft-yt-shield"></div>' +
+      '<div id="ft-yt-bar">' +
+        '<button class="ft-yt-btn" id="ft-yt-play" type="button" aria-label="'+L('再生/一時停止','Play / pause')+'">' + YT_SVG.pause + '</button>' +
+        '<input id="ft-yt-seek" class="ft-yt-range" type="range" min="0" max="1000" value="0" step="1" aria-label="'+L('シーク','Seek')+'">' +
+        '<span id="ft-yt-time">0:00 / 0:00</span>' +
+        '<button class="ft-yt-btn" id="ft-yt-mute" type="button" aria-label="'+L('ミュート','Mute')+'">' + YT_SVG.vol + '</button>' +
+        '<input id="ft-yt-vol" class="ft-yt-range" type="range" min="0" max="100" value="80" step="1" aria-label="'+L('音量','Volume')+'">' +
+        '<button class="ft-yt-btn" id="ft-yt-fs" type="button" aria-label="'+L('全画面','Fullscreen')+'">' + YT_SVG.fs + '</button>' +
+      '</div>';
+    media.appendChild(ui);
+
+    var bar = ui.querySelector('#ft-yt-bar'), seek = ui.querySelector('#ft-yt-seek'), vol = ui.querySelector('#ft-yt-vol'),
+        timeEl = ui.querySelector('#ft-yt-time'), playBtn = ui.querySelector('#ft-yt-play'), muteBtn = ui.querySelector('#ft-yt-mute'),
+        dim = ui.querySelector('#ft-yt-dim'), shield = ui.querySelector('#ft-yt-shield'), seeking = false;
+    function syncPlay(){
+      playBtn.innerHTML = v.paused ? YT_SVG.play : YT_SVG.pause;
+      if(dim){ if(v.paused) dim.classList.add('on'); else dim.classList.remove('on'); }
+    }
+    function toggle(){ if(v.paused) v.play(); else v.pause(); }
+    shield.addEventListener('click', toggle);
+    playBtn.addEventListener('click', toggle);
+    seek.addEventListener('input', function(){ seeking = true; });
+    seek.addEventListener('change', function(){ if(isFinite(v.duration) && v.duration > 0) v.currentTime = v.duration * (seek.value/1000); seeking = false; });
+    vol.addEventListener('input', function(){ v.volume = (+vol.value||0)/100; if(v.volume > 0){ v.muted = false; muteBtn.innerHTML = YT_SVG.vol; } });
+    muteBtn.addEventListener('click', function(){ v.muted = !v.muted; muteBtn.innerHTML = v.muted ? YT_SVG.mute : YT_SVG.vol; });
+    ui.querySelector('#ft-yt-fs').addEventListener('click', toggleYTFs);
+    v.addEventListener('play', syncPlay);
+    v.addEventListener('pause', syncPlay);
+    bindMediaUIAutoHide(ui, bar, function(){ return !v.paused; });
+    clearInterval(ytProgT);
+    ytProgT = setInterval(function(){
+      var d = v.duration || 0, c = v.currentTime || 0;
+      if(!seeking && d > 0) seek.value = Math.round(c / d * 1000);
+      timeEl.textContent = ytFmt(c) + ' / ' + (d > 0 ? ytFmt(d) : '0:00');
+    }, 250);
+    var p = v.play(); if(p && p.catch) p.catch(function(){ syncPlay(); });
+    syncPlay();
+  }
   function loadYTApi(cb){
     if(window.YT && window.YT.Player){ cb(); return; }
     ytReadyCbs.push(cb);
@@ -562,7 +635,8 @@
 
     var seek = ui.querySelector('#ft-yt-seek'), vol = ui.querySelector('#ft-yt-vol'),
         timeEl = ui.querySelector('#ft-yt-time'), playBtn = ui.querySelector('#ft-yt-play'),
-        muteBtn = ui.querySelector('#ft-yt-mute'), shield = ui.querySelector('#ft-yt-shield');
+        muteBtn = ui.querySelector('#ft-yt-mute'), shield = ui.querySelector('#ft-yt-shield'),
+        bar = ui.querySelector('#ft-yt-bar');
     var seeking = false;
     function toggle(){ if(!ytPlayer || !ytPlayer.getPlayerState) return; if(ytPlayer.getPlayerState() === 1) ytPlayer.pauseVideo(); else ytPlayer.playVideo(); }
     shield.addEventListener('click', toggle);
@@ -580,19 +654,9 @@
     document.addEventListener('fullscreenchange', onFsFit);
     document.addEventListener('webkitfullscreenchange', onFsFit);
 
-    function showUI(){
-      ui.classList.remove('ft-ui-hide');
-      document.body.classList.add('ft-yt-active');   // バー表示中は周囲パネルを薄く＋クリックスルー
-      clearTimeout(ytIdleT);
-      ytIdleT = setTimeout(function(){
-        if(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1){
-          ui.classList.add('ft-ui-hide');
-          document.body.classList.remove('ft-yt-active');
-        }
-      }, 2800);
-    }
-    media.addEventListener('pointermove', showUI);
-    showUI();
+    var showUI = bindMediaUIAutoHide(ui, bar, function(){
+      return !!(ytPlayer && ytPlayer.getPlayerState && ytPlayer.getPlayerState() === 1);
+    });
 
     clearInterval(ytProgT);
     ytProgT = setInterval(function(){
