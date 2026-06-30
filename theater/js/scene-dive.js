@@ -310,11 +310,13 @@
     for(let i=0;i<n;i++) out.push(FP_DEMO[(h+i*7)%FP_DEMO.length]);
     return Promise.resolve(out);
   }
+  const fpCurTitle=()=>{ try{ return (tTitle&&tTitle.textContent||'').trim(); }catch(e){ return ''; } };
+  /* 重ならないよう景色を“たな”に分ける（中央上=タグ名／中央下=プレイヤー／右下=お気に入りを避ける） */
+  const FP_ZONES=[ [6,20,30,46], [70,85,24,40], [9,25,58,72], [63,79,55,69], [39,55,40,52] ];
   function fpSpawn(){
     if(phase!=='scene'||!fpList.length||!fpLayer||window.__fpHidden) return;
-    if(fpLayer.children.length>=2) return;            /* 同時に2つまで — ひっそりと */
-    /* 直前に出した足跡・いま画面に出ている足跡は避ける。
-       候補が無ければ何も出さない（少数なら自然に間が空き、静寂のまま）。連続重複しない。 */
+    if(fpLayer.children.length>=5) return;            /* 同時に5つまで — そっと、ひそかに */
+    /* 直前に出した足跡・いま画面に出ている足跡は避ける。候補が無ければ静寂のまま。 */
     const onScreen=[...fpLayer.children].map(c=>c.dataset.fi);
     const cand=[];
     for(let i=0;i<fpList.length;i++){
@@ -327,16 +329,25 @@
     fpSpawn._last=idx;
     const f=fpList[idx];
     const el=document.createElement('div'); el.className='fp'; el.dataset.fi=String(idx);
-    el.textContent=f.text;
-    if(f.author){ const by=document.createElement('span'); by.className='by'; by.textContent='— '+f.author; el.appendChild(by); }
-    /* 同時に出る言葉は左右・上下のたなに分けて、重なりを避ける */
-    fpSpawn._slot=1-(fpSpawn._slot||0);
-    const s=fpSpawn._slot;
-    el.style.left=(s? rnd(46,62) : rnd(8,26))+'%';
-    el.style.top =(s? rnd(42,58) : rnd(20,34))+'%';
-    el.style.setProperty('--fp-dur',rnd(22,34).toFixed(1)+'s');
-    el.style.setProperty('--fp-dx',(-rnd(30,80)).toFixed(0)+'px');
-    el.style.setProperty('--fp-max',rnd(.32,.5).toFixed(2));
+    const tx=document.createElement('span'); tx.className='fp-text'; tx.textContent=f.text; el.appendChild(tx);
+    /* マウスオーバーでくっきり — 投稿者名と、寄せられた曲名 */
+    const meta=document.createElement('span'); meta.className='fp-meta';
+    const by=document.createElement('span'); by.className='fp-by';
+    by.textContent='— '+((f.author&&String(f.author).trim())||L('名もなき旅人','an unnamed traveler'));
+    meta.appendChild(by);
+    const ti=fpCurTitle();
+    if(ti){ const on=document.createElement('span'); on.className='fp-on'; on.textContent=ti; meta.appendChild(on); }
+    el.appendChild(meta);
+    /* ゾーンを順に使い、微ジッターでばらす */
+    fpSpawn._slot=(fpSpawn._slot==null?-1:fpSpawn._slot)+1;
+    const z=FP_ZONES[fpSpawn._slot%FP_ZONES.length];
+    el.style.left=rnd(z[0],z[1]).toFixed(1)+'%';
+    el.style.top =rnd(z[2],z[3]).toFixed(1)+'%';
+    el.style.setProperty('--fp-life',rnd(28,34).toFixed(1)+'s');   /* 約30秒で静かに入れ替え */
+    el.style.setProperty('--fp-dx',(-rnd(28,72)).toFixed(0)+'px');
+    el.style.setProperty('--fp-r0',(rnd(-1.4,1.4)).toFixed(2)+'deg');
+    el.style.setProperty('--fp-r1',(rnd(-1.6,1.6)).toFixed(2)+'deg');
+    el.style.setProperty('--fp-max',rnd(.4,.6).toFixed(2));
     el.addEventListener('animationend',()=>el.remove());
     fpLayer.appendChild(el);
   }
@@ -345,8 +356,8 @@
     fpStop();
     fpKey=fpHistTop()||tTitle.textContent;
     fpLoad(fpKey).then(l=>{ fpList=l||[]; });
-    fpTimer=setInterval(fpSpawn,7000);
-    setTimeout(fpSpawn,3000);
+    fpTimer=setInterval(fpSpawn,6000);   /* 約6秒ごとに1つ → 最大5・約30秒周期で入れ替わる */
+    setTimeout(fpSpawn,2600);            /* 曲が始まって少し置いて、一つ目がそっと現れる */
   }
   function fpStop(){
     clearInterval(fpTimer); fpTimer=null; fpList=[];
