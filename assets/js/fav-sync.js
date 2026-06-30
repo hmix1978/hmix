@@ -25,8 +25,27 @@
     appId: '1:477684733173:web:ae0d0986a92a426b08e1bc'
   };
   var DEBOUNCE_MS = 2500;
+  var EMAIL_KEY = 'hmix.sync.email';
+  function L(ja, en) { return (window.HMIX_LANG === 'en') ? en : ja; }
   // 診断ログ（既定OFF。window.__FS_DEBUG=true でトラブル時に window.__fsLog へ記録）
   function fslog(m) { if (!window.__FS_DEBUG) return; try { (window.__fsLog = window.__fsLog || []).push(window.__fsLog.length + ':' + m); } catch (e) {} }
+
+  // 同期の小さなトースト（世界観に合わせた深緑×金）
+  function syncToast(msg, ms) {
+    try {
+      var d = document; if (!d || !d.body) return;
+      var host = d.getElementById('hmix-sync-toast');
+      if (!host) {
+        host = d.createElement('div'); host.id = 'hmix-sync-toast';
+        host.setAttribute('role', 'status'); host.setAttribute('aria-live', 'polite');
+        host.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom,0px));z-index:2147483600;max-width:92vw;background:rgba(10,20,14,.96);color:#eef3ec;border:1px solid rgba(202,164,78,.5);border-radius:12px;padding:13px 18px;font:500 13.5px/1.65 "Noto Sans JP",sans-serif;box-shadow:0 14px 44px -14px rgba(0,0,0,.75);text-align:center;opacity:0;transition:opacity .4s ease;';
+        d.body.appendChild(host);
+      }
+      host.textContent = msg; host.style.display = 'block';
+      requestAnimationFrame(function () { host.style.opacity = '1'; });
+      clearTimeout(host.__t); host.__t = setTimeout(function () { host.style.opacity = '0'; setTimeout(function () { host.style.display = 'none'; }, 450); }, ms || 5200);
+    } catch (e) {}
+  }
 
   // Firestore は map のキー順を保持しないため、JSON文字列の単純一致では
   // 「自分が上げた内容」を判定できず再アップロードのループになる。
@@ -161,10 +180,146 @@
       }
     });
     ensureUser();                                // 既にサインイン済みなら即バインド
+
+    /* =================================================================
+     * スライス2 — メールマジックリンクで端末間同期（匿名→アカウント昇格）
+     *   送信: sendSignInLinkToEmail（戻り先=現在ページ／認可ドメイン済）。
+     *   復帰: isSignInWithEmailLink → 匿名なら linkWithCredential で“同じuidを昇格”、
+     *         既存アカウントなら signInWithEmailLink で切替（bindがローカルをLWWマージ）。
+     *   ※ Firebase Console で「メール/パスワード→メールリンク」を有効化していないと
+     *     operation-not-allowed。その時は穏当に案内する。
+     * ================================================================= */
+    function account() {
+      var u = auth.currentUser, linked = !!(u && !u.isAnonymous && u.email);
+      return { linked: linked, email: linked ? u.email : null };
+    }
+    function cleanUrl() {
+      try {
+        var u = new URL(location.href);
+        ['apiKey', 'oobCode', 'mode', 'lang', 'continueUrl', 'tenantId'].forEach(function (k) { u.searchParams.delete(k); });
+        history.replaceState(null, '', u.pathname + (u.search || '') + u.hash);
+      } catch (e) {}
+    }
+    function startEmailSync(email) {
+      email = String(email || '').trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return Promise.reject({ code: 'bad-email' });
+      try { localStorage.setItem(EMAIL_KEY, email); } catch (e) {}
+      return auth.sendSignInLinkToEmail(email, { url: location.origin + location.pathname, handleCodeInApp: true });
+    }
+    function signOutSync() {
+      try { localStorage.removeItem(EMAIL_KEY); } catch (e) {}
+      return auth.signOut();   // onAuthStateChanged(null)→ensureUser で匿名に戻る（ローカルのお気に入りは保持）
+    }
+    function completeEmailLinkIfPresent() {
+      var isLink = false;
+      try { isLink = auth.isSignInWithEmailLink && auth.isSignInWithEmailLink(location.href); } catch (e) {}
+      if (!isLink) return;
+      var email = ''; try { email = localStorage.getItem(EMAIL_KEY) || ''; } catch (e) {}
+      if (!email) { try { email = window.prompt(L('同期するメールアドレスをもう一度入力してください', 'Re-enter your email to finish syncing')) || ''; } catch (e) {} }
+      if (!email) { cleanUrl(); return; }
+      var link = location.href, cred;
+      try { cred = firebase.auth.EmailAuthProvider.credentialWithLink(email, link); } catch (e) { cleanUrl(); return; }
+      var u = auth.currentUser, p;
+      setStatus('syncing');
+      if (u && u.isAnonymous) {
+        p = u.linkWithCredential(cred).catch(function (e) {
+          if (e && (e.code === 'auth/credential-already-in-use' || e.code === 'auth/email-already-in-use')) {
+            return auth.signInWithEmailLink(email, link);   // 既存アカウント → 切替（bindがマージ）
+          }
+          throw e;
+        });
+      } else {
+        p = auth.signInWithEmailLink(email, link);
+      }
+      p.then(function () {
+        try { localStorage.removeItem(EMAIL_KEY); } catch (e) {}
+        cleanUrl(); setStatus('synced'); refreshLauncher();
+        syncToast(L('この手帖が、別の端末ともつながりました。', 'Your notebook now syncs across your devices.'));
+      }).catch(function (e) {
+        cleanUrl();
+        syncToast(L('同期リンクの確認に失敗しました', 'Could not complete the sync link') + (e && e.code ? ' (' + e.code + ')' : ''));
+      });
+    }
+
+    /* ---- 同期UI（モーダル） ---- */
+    function closeModal() { var m = document.getElementById('hmix-sync-modal'); if (m && m.parentNode) m.parentNode.removeChild(m); }
+    function openSync() {
+      closeModal();
+      var en = (window.HMIX_LANG === 'en'), a = account();
+      var m = document.createElement('div'); m.id = 'hmix-sync-modal';
+      m.style.cssText = 'position:fixed;inset:0;z-index:2147483500;display:flex;align-items:center;justify-content:center;background:rgba(4,8,6,.62);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:20px;';
+      var card = document.createElement('div');
+      card.style.cssText = 'max-width:420px;width:100%;background:linear-gradient(180deg,rgba(14,24,17,.98),rgba(9,16,12,.98));border:1px solid rgba(202,164,78,.34);border-radius:16px;padding:24px 22px;box-shadow:0 30px 80px -24px rgba(0,0,0,.8);font-family:"Noto Sans JP",sans-serif;color:#eef3ec;';
+      var inner = '';
+      inner += '<div style="font-family:\'Noto Serif JP\',serif;font-size:1.18rem;letter-spacing:.04em;color:#f3ecd9;margin-bottom:6px;">' + (a.linked ? L('端末間で同期中', 'Synced across devices') : L('別の端末でも、この手帖を', 'Use this notebook on another device')) + '</div>';
+      if (a.linked) {
+        inner += '<p style="margin:.4rem 0 1.1rem;font-size:13px;line-height:1.8;color:rgba(232,240,228,.74);">' + L('いま ', 'Signed in as ') + '<b style="color:#e7ca7c;">' + a.email.replace(/[<>&]/g, '') + '</b>' + L(' で同期しています。同じメールでログインすれば、別の端末でも同じ手帖が開きます。', '. Sign in with the same email on any device to open the same notebook.') + '</p>';
+        inner += '<button id="hmix-sync-out" type="button" style="width:100%;min-height:46px;cursor:pointer;background:transparent;color:rgba(232,240,228,.8);border:1px solid rgba(160,180,165,.4);border-radius:10px;font:600 14px/1 \'Noto Sans JP\',sans-serif;">' + L('この端末の同期を解除', 'Stop syncing on this device') + '</button>';
+      } else {
+        inner += '<p style="margin:.4rem 0 1rem;font-size:13px;line-height:1.85;color:rgba(232,240,228,.74);">' + L('メールアドレスにログイン用のリンクをお送りします。リンクを開くだけで、パスワード不要で同期がはじまります。', 'We will email you a one-tap link. Open it to start syncing — no password needed.') + '</p>';
+        inner += '<input id="hmix-sync-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" style="width:100%;box-sizing:border-box;padding:13px 14px;margin-bottom:10px;background:rgba(6,12,9,.7);border:1px solid rgba(160,180,165,.4);border-radius:10px;color:#fff;font-size:15px;">';
+        inner += '<div id="hmix-sync-msg" style="min-height:18px;margin-bottom:8px;font-size:12.5px;line-height:1.6;color:rgba(232,240,228,.7);"></div>';
+        inner += '<button id="hmix-sync-send" type="button" style="width:100%;min-height:48px;cursor:pointer;background:linear-gradient(135deg,#e7ca7c,#caa44e);color:#16271c;border:none;border-radius:10px;font:700 15px/1 \'Noto Sans JP\',sans-serif;box-shadow:0 12px 30px -12px rgba(202,164,78,.6);">' + L('同期リンクを送る', 'Send the sync link') + '</button>';
+      }
+      inner += '<button id="hmix-sync-close" type="button" aria-label="' + L('閉じる', 'Close') + '" style="position:absolute;top:14px;right:16px;width:40px;height:40px;cursor:pointer;background:none;border:none;color:rgba(232,240,228,.66);font-size:18px;line-height:1;">✕</button>';
+      card.style.position = 'relative'; card.innerHTML = inner; m.appendChild(card); document.body.appendChild(m);
+      m.addEventListener('click', function (e) { if (e.target === m) closeModal(); });
+      var cl = card.querySelector('#hmix-sync-close'); if (cl) cl.addEventListener('click', closeModal);
+      var out = card.querySelector('#hmix-sync-out'); if (out) out.addEventListener('click', function () { signOutSync(); closeModal(); syncToast(L('この端末の同期を解除しました（お気に入りは残ります）', 'Stopped syncing on this device (your favorites stay here)')); });
+      var send = card.querySelector('#hmix-sync-send');
+      if (send) send.addEventListener('click', function () {
+        var inp = card.querySelector('#hmix-sync-email'), msg = card.querySelector('#hmix-sync-msg');
+        var email = inp ? inp.value : '';
+        msg.style.color = 'rgba(232,240,228,.7)'; msg.textContent = L('送信中…', 'Sending…'); send.disabled = true;
+        startEmailSync(email).then(function () {
+          msg.style.color = '#bfe6c8';
+          msg.textContent = L('「' + email + '」にリンクを送りました。メールを開いて、リンクをタップしてください。', 'A link was sent to ' + email + '. Open it and tap the link.');
+          send.textContent = L('送信しました ✓', 'Sent ✓');
+        }).catch(function (e) {
+          send.disabled = false; msg.style.color = '#f6b8a0';
+          if (e && e.code === 'bad-email') msg.textContent = L('メールアドレスの形式をご確認ください。', 'Please check the email address.');
+          else if (e && e.code === 'auth/operation-not-allowed') msg.textContent = L('この機能は現在準備中です（メールリンク認証が未設定）。', 'This feature is being set up (email-link sign-in not enabled yet).');
+          else msg.textContent = L('送信に失敗しました', 'Failed to send') + (e && e.code ? ' (' + e.code + ')' : '');
+        });
+      });
+    }
+
+    /* ---- 手帖ヘッダーに導線を差し込む（fav-notebook.js は触らず注入） ---- */
+    function launcherLabel() { return account().linked ? L('✓ 同期中', '✓ Synced') : L('別の端末でも使う', 'Sync to another device'); }
+    function refreshLauncher() { var b = document.getElementById('hnb-sync-cta'); if (b) b.textContent = launcherLabel(); }
+    function injectLauncher() {
+      var head = document.querySelector('.hnb-head'); if (!head || head.querySelector('#hnb-sync-cta')) return;
+      var btn = document.createElement('button'); btn.id = 'hnb-sync-cta'; btn.type = 'button'; btn.textContent = launcherLabel();
+      btn.style.cssText = 'flex:0 0 auto;cursor:pointer;background:rgba(202,164,78,.12);color:#e7ca7c;border:1px solid rgba(202,164,78,.4);border-radius:999px;padding:7px 13px;font:600 11.5px/1 "Noto Sans JP",sans-serif;letter-spacing:.04em;white-space:nowrap;margin-left:auto;';
+      btn.addEventListener('click', openSync);
+      var close = head.querySelector('#hnb-close');
+      if (close) head.insertBefore(btn, close); else head.appendChild(btn);
+    }
+    function hookNotebook() {
+      if (window.HMIX_NOTEBOOK && window.HMIX_NOTEBOOK.open && !window.HMIX_NOTEBOOK.__syncHooked) {
+        var orig = window.HMIX_NOTEBOOK.open; window.HMIX_NOTEBOOK.__syncHooked = true;
+        window.HMIX_NOTEBOOK.open = function () { var r = orig.apply(this, arguments); setTimeout(injectLauncher, 60); return r; };
+        return;
+      }
+      if (!hookNotebook._n) hookNotebook._n = 0;
+      if (hookNotebook._n++ < 40) setTimeout(hookNotebook, 400);   // fav-notebook.js のロード待ち
+    }
+
+    // 公開フックを本実装で上書き
+    window.HMIX_FAV_SYNC.account = account;
+    window.HMIX_FAV_SYNC.startEmailSync = startEmailSync;
+    window.HMIX_FAV_SYNC.signOutSync = signOutSync;
+    window.HMIX_FAV_SYNC.openSync = openSync;
+
+    completeEmailLinkIfPresent();
+    hookNotebook();
+    window.addEventListener('hmix:lang', refreshLauncher);
   });
 
-  // スライス2（メールマジックリンク昇格）から使う公開フック
+  // スライス2（メールマジックリンク昇格）の公開フック（firebase 準備後に本実装で上書き）
   window.HMIX_FAV_SYNC = {
-    status: function () { return window.__HMIX_SYNC_STATUS || 'local'; }
+    status: function () { return window.__HMIX_SYNC_STATUS || 'local'; },
+    account: function () { return { linked: false, email: null }; },
+    openSync: function () { try { syncToast(L('同期はまだ準備中です', 'Sync is still warming up')); } catch (e) {} }
   };
 })();
