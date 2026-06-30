@@ -78,7 +78,8 @@
           '<span class="hnb-head__title">' + L('音楽手帖', 'Music Notebook') + '</span><span class="hnb-head__count" id="hnb-count"></span></div>' +
           '<div class="hnb-head__spacer"></div>' +
           '<input class="hnb-search" id="hnb-search" type="search" placeholder="' + L('手帖の中を検索', 'Search your notebook') + '">' +
-          '<span class="hnb-sync" id="hnb-sync">' + L('この端末に保存', 'Saved on this device') + '</span>' +
+          // 同期ステータス表示はスライス2（メール昇格＝端末間同期）で正確な導線として再導入する。
+          // スライス1は静かにクラウドへバックアップするため、誤解を招く「この端末に保存」は出さない。
           '<button class="hnb-close" id="hnb-close" aria-label="' + L('とじる', 'Close') + '">✕</button>' +
         '</div>' +
         '<nav class="hnb-spine" id="hnb-spine" aria-label="' + L('章（本棚）', 'Chapters (bookshelf)') + '"></nav>' +
