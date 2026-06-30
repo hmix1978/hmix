@@ -46,6 +46,29 @@
     if (window.HMIX_LANG) return window.HMIX_LANG;
     try { return sessionStorage.getItem('hmix_lang') || 'ja'; } catch (e) { return 'ja'; }
   }
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    if (window.hmixTrack) {
+      window.hmixTrack(eventName, params || {});
+    } else if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, Object.assign({
+        page_type: document.body.getAttribute('data-page-type') || '',
+        source_path: location.pathname,
+        lang: getLang()
+      }, params || {}));
+    }
+  }
+  function trackParams(track, surface, extra) {
+    var params = {
+      surface: surface || 'fav_modal',
+      track_id: track ? String(track.id || '') : '',
+      track_title: track ? (track.title || '') : '',
+      track_title_en: track ? (track.title_en || '') : ''
+    };
+    extra = extra || {};
+    Object.keys(extra).forEach(function (key) { params[key] = extra[key]; });
+    return params;
+  }
   function text(ja, en) { return getLang() === 'en' ? en : ja; }
   function getTagLabel(id) {
     return (getLang() === 'en' ? TAG_LABELS_EN[id] : TAG_LABELS[id]) || id;
@@ -122,6 +145,10 @@
     }
     applyStaticLang();
     renderList();
+    trackEvent('fav_modal_open', {
+      surface: 'fav_modal',
+      favorite_count: getFavIds().size
+    });
     modal.hidden = false;
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('fav-modal-open');
@@ -217,6 +244,7 @@
       li.appendChild(innerDiv);
 
       innerDiv.querySelector('.fav-modal__play').addEventListener('click', function () {
+        trackEvent('play_track', trackParams(track, 'fav_modal'));
         if (window.HMIX_PLAYER) window.HMIX_PLAYER.playTrack(track, window.TRACKS || []);
         closeModal();
       });
@@ -224,6 +252,7 @@
       innerDiv.querySelector('.fav-modal__remove').addEventListener('click', function () {
         // 申請選択からも除去
         _licenseSelection.delete(trackId);
+        trackEvent('favorite_remove', trackParams(track, 'fav_modal'));
 
         var current = getFavIds();
         current.delete(trackId);
@@ -266,6 +295,10 @@
   // ── すべて削除 ────────────────────────────────────
   if (clearBtn) {
     clearBtn.addEventListener('click', function () {
+      trackEvent('favorite_clear_all', {
+        surface: 'fav_modal',
+        favorite_count: getFavIds().size
+      });
       saveFavIds(new Set());
       _licenseSelection.clear();
       renderList();
@@ -285,6 +318,10 @@
         var tmp = queue[i]; queue[i] = queue[j]; queue[j] = tmp;
       }
     }
+    trackEvent(doShuffle ? 'fav_shuffle_play' : 'fav_play_all', {
+      surface: 'fav_modal',
+      track_count: queue.length
+    });
     if (window.HMIX_PLAYER) window.HMIX_PLAYER.setQueue(queue, 0);
     closeModal();
   }
@@ -315,6 +352,10 @@
         ? window.confirm('Download all ' + favTracks.length + ' saved tracks?')
         : window.confirm('お気に入りの ' + favTracks.length + ' 曲をまとめてダウンロードします。\nよろしいですか？');
       if (!ok) return;
+      trackEvent('fav_download_all', {
+        surface: 'fav_modal',
+        track_count: favTracks.length
+      });
       for (var i = 0; i < favTracks.length; i++) {
         var t = favTracks[i];
         if (!t.mp3) continue;
@@ -356,6 +397,10 @@
       var selectedTracks = validIds.map(function (id) {
         var t = tracks.find(function (tr) { return String(tr.id) === id; });
         return t ? { id: String(t.id), title: t.title || id } : { id: id, title: id };
+      });
+      trackEvent('fav_apply_license', {
+        surface: 'fav_modal',
+        track_count: selectedTracks.length
       });
       try {
         sessionStorage.setItem('hmix_license_selection', JSON.stringify(selectedTracks));

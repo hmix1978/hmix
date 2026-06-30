@@ -56,6 +56,25 @@
     var u = PRO_USAGE.find(function (x) { return x.v === v; });
     return u ? u.price : null;
   }
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    if (window.hmixTrack) {
+      window.hmixTrack(eventName, params || {});
+    } else if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, Object.assign({
+        page_type: document.body.getAttribute('data-page-type') || 'license_request',
+        source_path: location.pathname,
+        lang: getLang()
+      }, params || {}));
+    }
+  }
+  function estimateLicenseValue(type, trackCount, usage, plan, storeCount) {
+    if (type === 'single') return PRICES.single * Math.max(trackCount || 0, 1);
+    if (type === 'pack') return PRICES.pack;
+    if (type === 'professional') return (proUsagePrice(usage) || 0) * Math.max(trackCount || 0, 1);
+    if (type === 'store') return storeAnnualTotal(plan, storeCount || 1);
+    return 0;
+  }
   var STORAGE_KEY      = 'hmix_license_selection';
   var PURCHASE_KEY     = 'hmix_pending_purchase';
 
@@ -532,6 +551,13 @@
         applyModeUI(type);
         if (type === 'store') updateStoreCountUI();
         updatePrice();
+        trackEvent('license_type_select', {
+          surface: 'license_request',
+          license_type: type,
+          track_count: currentTracks.length,
+          value: estimateLicenseValue(type, currentTracks.length, selectedUsage, storePlan, storeCountInput ? storeCountInput.value : 1),
+          currency: 'JPY'
+        });
         // Professional は用途選択が必須・UIが変化する。気づけるよう用途ボックスへスクロール＋注目演出。
         if (type === 'professional' && proUsageBlock) {
           try { proUsageBlock.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {}
@@ -552,6 +578,13 @@
         if (storeCountRow) storeCountRow.hidden = (storePlan === 'facility');
         updateStoreCountUI();
         updatePrice();
+        trackEvent('store_plan_select', {
+          surface: 'license_request',
+          license_type: 'store',
+          store_plan: storePlan,
+          value: estimateLicenseValue('store', 0, '', storePlan, storeCountInput ? storeCountInput.value : 1),
+          currency: 'JPY'
+        });
       });
     });
     if (storeCountInput) {
@@ -582,6 +615,14 @@
             : '¥3,300<small style="font-size:0.6em;opacity:0.65;margin-left:3px;">〜 税込/曲</small>';
         }
         updatePrice();
+        trackEvent('professional_usage_select', {
+          surface: 'license_request',
+          license_type: 'professional',
+          usage: selectedUsage,
+          track_count: currentTracks.length,
+          value: estimateLicenseValue('professional', currentTracks.length, selectedUsage, storePlan, storeCountInput ? storeCountInput.value : 1),
+          currency: 'JPY'
+        });
       });
     }
 
@@ -658,6 +699,17 @@
         // 成功ページで使用するためsessionStorageに保存
         try { sessionStorage.setItem(PURCHASE_KEY, JSON.stringify(purchaseData)); } catch (e) {}
         clearIncomingUsage();   // 用途は消費済み
+        var checkoutValue = estimateLicenseValue(selectedType, currentTracks.length, selectedUsage, storePlan, storeCount);
+        trackEvent('begin_checkout', {
+          surface: 'license_request',
+          license_type: selectedType,
+          track_count: currentTracks.length,
+          usage: selectedUsage,
+          store_plan: purchaseData.storePlan,
+          store_count: purchaseData.storeCount,
+          value: checkoutValue,
+          currency: 'JPY'
+        });
 
         // ── 決済への遷移（多重安全策） ──────────────────────────
         var submitBtn = form.querySelector('#lr-submit-btn');
@@ -677,6 +729,11 @@
         // 安全策2: どの失敗経路でもボタンを必ず復帰し、明確に案内（課金なしを明記）
         function failRecover(reason) {
           setBtn(PAY_LABEL, false);
+          trackEvent('checkout_error', {
+            surface: 'license_request',
+            license_type: selectedType,
+            reason: String(reason || 'unknown').slice(0, 100)
+          });
           showCheckoutError(container, reason);
         }
 
@@ -723,6 +780,13 @@
           // 安全策6: Stripe の正規ドメインのみ遷移を許可（不正/誤URLへ飛ばさない）
           if (typeof url === 'string' && /^https:\/\/(checkout|buy|donate)\.stripe\.com\//.test(url)) {
             settled = true; clearTimeout(timer);
+            trackEvent('checkout_redirect', {
+              surface: 'license_request',
+              license_type: selectedType,
+              track_count: currentTracks.length,
+              value: checkoutValue,
+              currency: 'JPY'
+            });
             window.location.href = url;
           } else {
             // 不正URLは settled にせず throw → 下の catch が案内を表示

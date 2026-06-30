@@ -73,6 +73,40 @@
     })();
   }
 
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    if (window.hmixTrack) {
+      window.hmixTrack(eventName, params || {});
+    } else if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, Object.assign({
+        page_type: document.body.getAttribute('data-page-type') || '',
+        source_path: location.pathname,
+        lang: getCurrentLang()
+      }, params || {}));
+    }
+  }
+
+  function findTrackById(trackId) {
+    return allTracks.find(function (track) {
+      return String(track.id) === String(trackId);
+    }) || null;
+  }
+
+  function buildTrackParams(trackId, surface, extra) {
+    var track = typeof trackId === 'object' ? trackId : findTrackById(trackId);
+    var params = {
+      surface: surface || 'music_library',
+      track_id: track ? String(track.id) : String(trackId || ''),
+      track_title: track ? (track.title || '') : '',
+      track_title_en: track ? (track.title_en || '') : ''
+    };
+    extra = extra || {};
+    Object.keys(extra).forEach(function (key) {
+      params[key] = extra[key];
+    });
+    return params;
+  }
+
   function getTrackTitle(track) {
     return (getCurrentLang() === 'en' && track.title_en) ? track.title_en : (track.title || '');
   }
@@ -195,6 +229,8 @@
   let allTracks = [];
   let filteredTracks = [];
   let displayedCount = 0;
+  let searchTrackTimer = 0;
+  let lastTrackedSearchLength = 0;
   let _initScheduled = false; // 同一フレーム内の二重初期化防止
   let _globalListenersInitialized = false; // グローバルリスナーの二重登録防止
 
@@ -842,15 +878,23 @@
     let shouldGlow = false;
     // duration は排他選択（1つだけ）
     if (cat === 'duration') {
+      const wasDurationActive = activeDurationFilter === val;
       shouldGlow = activeDurationFilter !== val && !!val;
       activeDurationFilter = (activeDurationFilter === val) ? '' : val;
       syncFilterUI();
       applyFilters();
+      trackEvent(wasDurationActive ? 'filter_remove' : 'filter_apply', {
+        surface: 'music_library',
+        filter_category: cat,
+        filter_value: val,
+        results_count: filteredTracks.length
+      });
       if (shouldGlow) pulseJourneyConditions();
       return;
     }
     if (!activeFilters[cat]) return;
-    if (activeFilters[cat].has(val)) {
+    const wasActive = activeFilters[cat].has(val);
+    if (wasActive) {
       activeFilters[cat].delete(val);
     } else {
       activeFilters[cat].add(val);
@@ -858,7 +902,28 @@
     }
     syncFilterUI();
     applyFilters();
+    trackEvent(wasActive ? 'filter_remove' : 'filter_apply', {
+      surface: 'music_library',
+      filter_category: cat,
+      filter_value: val,
+      results_count: filteredTracks.length
+    });
     if (shouldGlow) pulseJourneyConditions();
+  }
+
+  function scheduleSearchTrack() {
+    if (!searchInput) return;
+    window.clearTimeout(searchTrackTimer);
+    searchTrackTimer = window.setTimeout(function () {
+      const queryLength = searchInput.value.trim().length;
+      if (queryLength < 2 || queryLength === lastTrackedSearchLength) return;
+      lastTrackedSearchLength = queryLength;
+      trackEvent('search', {
+        surface: 'music_library',
+        search_term_length: queryLength,
+        results_count: filteredTracks.length
+      });
+    }, 600);
   }
 
   // ─── イベントリスナー ────────────────────────────
@@ -868,6 +933,7 @@
       searchInput.addEventListener('input', () => {
         searchClear.hidden = searchInput.value.length === 0;
         applyFilters();
+        scheduleSearchTrack();
       });
     }
     if (searchClear) {
@@ -875,6 +941,11 @@
         searchInput.value = '';
         searchClear.hidden = true;
         applyFilters();
+        lastTrackedSearchLength = 0;
+        trackEvent('search_clear', {
+          surface: 'music_library',
+          results_count: filteredTracks.length
+        });
         searchInput.focus();
       });
     }
@@ -945,6 +1016,12 @@
         showRecentOnly = !showRecentOnly;
         syncFilterUI();
         applyFilters();
+        trackEvent(showRecentOnly ? 'filter_apply' : 'filter_remove', {
+          surface: 'music_library',
+          filter_category: 'recent',
+          filter_value: 'recently_played',
+          results_count: filteredTracks.length
+        });
       });
     }
 
@@ -955,6 +1032,12 @@
         showFavOnly = !showFavOnly;
         syncFilterUI();
         applyFilters();
+        trackEvent(showFavOnly ? 'filter_apply' : 'filter_remove', {
+          surface: 'music_library',
+          filter_category: 'favorite',
+          filter_value: 'favorites',
+          results_count: filteredTracks.length
+        });
       });
     }
 
@@ -974,6 +1057,15 @@
     // ─── カードアクションのイベント委譲 ───
     if (grid) {
       grid.addEventListener('click', (e) => {
+        const dlLink = e.target.closest('.ml-btn-dl');
+        if (dlLink) {
+          const card = e.target.closest('.ml-card');
+          if (card) {
+            trackEvent('download_track', buildTrackParams(card.dataset.trackId, 'music_library_card'));
+          }
+          return;
+        }
+
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
 
@@ -986,6 +1078,7 @@
         if (action === 'play') {
           togglePlay(trackId);
         } else if (action === 'fav') {
+          trackEvent(btn.classList.contains('is-fav') ? 'favorite_remove' : 'favorite_add', buildTrackParams(trackId, 'music_library_card'));
           toggleFav(trackId, btn);
         } else if (action === 'tools') {
           openCreatorTools(trackId);
@@ -997,6 +1090,11 @@
     if (sortSelect) {
       sortSelect.addEventListener('change', () => {
         currentSort = sortSelect.value;
+        trackEvent('sort_change', {
+          surface: 'music_library',
+          sort_value: currentSort,
+          results_count: filteredTracks.length
+        });
         if (currentSort === 'popular' && !popularScores) {
           // スコア取得後に並べ直す（取得まで一瞬は現状順のまま）
           fetchPopularScores().then(() => { if (currentSort === 'popular') applyFilters(); });
@@ -1007,7 +1105,14 @@
 
     // Load More
     if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', loadMore);
+      loadMoreBtn.addEventListener('click', function () {
+        trackEvent('load_more_tracks', {
+          surface: 'music_library',
+          visible_count: displayedCount,
+          results_count: filteredTracks.length
+        });
+        loadMore();
+      });
     }
   }
 
@@ -1385,6 +1490,7 @@
     if (window.HMIX_PLAYER) {
       // プレイヤーに任せる（同じIDなら中でstop()される）
       window.HMIX_PLAYER.playTrackById(id);
+      trackEvent('play_track', buildTrackParams(id, 'music_library_card'));
     } else {
       console.warn('[LIBRARY] HMIX_PLAYER not found');
     }
@@ -1395,6 +1501,7 @@
       console.warn('[LIBRARY] HMIX_PLAYER not found');
       return;
     }
+    trackEvent('creator_tools_open', buildTrackParams(id, 'music_library_card'));
 
     const state = window.HMIX_PLAYER.getState ? window.HMIX_PLAYER.getState() : null;
     const current = state && state.queue && state.currentIndex >= 0 ? state.queue[state.currentIndex] : null;

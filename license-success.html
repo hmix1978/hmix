@@ -627,6 +627,59 @@ console.log('[license-success] script loaded');
     });
   }
 
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    if (typeof window.hmixTrack === 'function') {
+      window.hmixTrack(eventName, params || {});
+    } else if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, Object.assign({
+        page_type: 'license_success',
+        source_path: location.pathname,
+        lang: getLang()
+      }, params || {}));
+    }
+  }
+
+  function estimatePurchaseValue(data) {
+    var type = data && data.licenseType;
+    var count = data && data.tracks ? data.tracks.length : 0;
+    var proPrices = {
+      film_festival: 3300, audiobook: 3300, training: 4400,
+      web_ad: 5500, stage: 5500, radio: 5500, package: 5500,
+      enterprise_vp: 16500, tv_program: 16500, large_game: 16500,
+      theatrical_film: 27500
+    };
+    if (type === 'single') return 2200 * Math.max(count, 1);
+    if (type === 'pack') return 7480;
+    if (type === 'professional') return (proPrices[data.usage] || 0) * Math.max(count, 1);
+    if (type === 'store') {
+      if (data.storePlan === 'facility') return 19800;
+      var n = parseInt(data.storeCount || '1', 10);
+      if (!isFinite(n) || n < 1) n = 1;
+      return 9900 + 4950 * (n - 1);
+    }
+    return 0;
+  }
+
+  function trackPurchaseOnce(data) {
+    if (!data || !data.licenseId) return;
+    var key = 'hmix_purchase_tracked_' + data.licenseId;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+    } catch (e) {}
+    trackEvent('purchase', {
+      transaction_id: data.licenseId,
+      license_type: data.licenseType || '',
+      track_count: data.tracks ? data.tracks.length : 0,
+      usage: data.usage || '',
+      store_plan: data.storePlan || '',
+      store_count: data.storeCount || 0,
+      value: estimatePurchaseValue(data),
+      currency: 'JPY'
+    });
+  }
+
   // 店舗BGMパスの有効期間（発行日 〜 1年後の前日・年次自動更新）
   function computeValidPeriod(purchaseDate) {
     function fmt(d) {
@@ -757,6 +810,7 @@ console.log('[license-success] script loaded');
 
   // ── ライセンス証書を描画 ──
   function renderCert(container, data) {
+    trackPurchaseOnce(data);
     var lang = getLang();
     var isStore = data.licenseType === 'store';
     var isPack = data.licenseType === 'pack';

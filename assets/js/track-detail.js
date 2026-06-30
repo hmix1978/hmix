@@ -14,6 +14,37 @@
 (function () {
   'use strict';
 
+  function getCurrentLang() {
+    return window.HMIX_LANG || document.documentElement.lang || 'ja';
+  }
+
+  function trackEvent(eventName, params) {
+    if (!eventName) return;
+    if (window.hmixTrack) {
+      window.hmixTrack(eventName, params || {});
+    } else if (typeof window.gtag === 'function') {
+      window.gtag('event', eventName, Object.assign({
+        page_type: document.body.getAttribute('data-page-type') || 'track_detail',
+        source_path: location.pathname,
+        lang: getCurrentLang()
+      }, params || {}));
+    }
+  }
+
+  function buildTrackParams(track, surface, extra) {
+    var params = {
+      surface: surface || 'track_detail',
+      track_id: track ? String(track.id || '') : '',
+      track_title: track ? (track.title || '') : '',
+      track_title_en: track ? (track.title_en || '') : ''
+    };
+    extra = extra || {};
+    Object.keys(extra).forEach(function (key) {
+      params[key] = extra[key];
+    });
+    return params;
+  }
+
   // ─── タグ日本語ラベル ────────────────────────────────
   const TAG_LABELS = {
     gentle: '優しい', sad: '悲しい', happy: '楽しい', epic: '勇壮',
@@ -320,6 +351,7 @@
       });
 
       function onCopied() {
+        trackEvent('credit_copy', buildTrackParams(track, 'track_detail'));
         copyBtn.classList.add('copied');
         if (copyLabel) copyLabel.textContent = 'Copied!';
         setTimeout(function() {
@@ -345,6 +377,7 @@
         // player-fav-count / player-btn-fav は player.js が favorites:updated で更新する。
         if (!window.HMIX_FAV) return;
         var id = String(track.id);
+        trackEvent(window.HMIX_FAV.has(id) ? 'favorite_remove' : 'favorite_add', buildTrackParams(track, 'track_detail_hero'));
         if (window.HMIX_FAV.has(id)) window.HMIX_FAV.removeWithUndo(id); else window.HMIX_FAV.add(id);
         updateHeroFav();
       });
@@ -362,6 +395,7 @@
         } else if (window.HMIX_PLAYER) {
           window.HMIX_PLAYER.playTrack(track, window.TRACKS || []);
         }
+        trackEvent('play_track', buildTrackParams(track, 'track_detail_hero'));
       });
     }
 
@@ -370,6 +404,9 @@
     if (dlBtn) {
       dlBtn.href = track.mp3;
       dlBtn.setAttribute('download', track.id + '.mp3');
+      dlBtn.addEventListener('click', function() {
+        trackEvent('download_track', buildTrackParams(track, 'track_detail'));
+      });
     }
 
     // ⑦ タグリスト（v2カテゴリ別グループ）
@@ -715,6 +752,7 @@
     }
     if (playBtn) {
       playBtn.addEventListener('click', () => {
+        trackEvent('play_track', buildTrackParams(track, 'track_detail_player'));
         if (window.HMIX_PLAYER && window.HMIX_PLAYER.playTrackById) {
           // グローバルプレイヤーをトグル（同じ曲再生中なら停止）。ローカルaudioは使わない＝停止が確実に効く
           window.HMIX_PLAYER.playTrackById(track.id);
@@ -730,6 +768,26 @@
         }
         if (isPlaying) stopPlay();
         else startPlay();
+      });
+    }
+
+    if (!document.body.dataset.trackDetailAnalyticsBound) {
+      document.body.dataset.trackDetailAnalyticsBound = '1';
+      document.addEventListener('click', function(event) {
+        const licenseLink = event.target.closest('[data-license-cta], a[href*="license-request.html"]');
+        if (licenseLink) {
+          trackEvent('license_cta_click', buildTrackParams(track, 'track_detail', {
+            cta_text: (licenseLink.textContent || '').trim().slice(0, 80)
+          }));
+          return;
+        }
+
+        const tagLink = event.target.closest('a[href*="music-library.html"][href*="tag="], .td2-tag, .track-tag-chip');
+        if (tagLink) {
+          trackEvent('tag_click', buildTrackParams(track, 'track_detail', {
+            tag_label: (tagLink.textContent || '').trim().slice(0, 80)
+          }));
+        }
       });
     }
 
@@ -752,6 +810,11 @@
       card.className = 'related-card';
       card.href = t.id + '.html';
       card.setAttribute('aria-label', t.title);
+      card.addEventListener('click', function() {
+        trackEvent('related_track_click', buildTrackParams(t, 'track_detail_related', {
+          source_track_id: String(track.id || '')
+        }));
+      });
 
       const allTagsFlat = [...(t.feeling||[]), ...(t.style||[]), ...(t.scene||[]), ...(t.story||[])];
       const primaryTag = TAG_PRIORITY.find(tag => allTagsFlat.includes(tag)) || '';
@@ -1146,6 +1209,7 @@
       copyBtn.addEventListener('click', function() {
         var text = creditText.textContent || '';
         var done = function() {
+          trackEvent('credit_copy', buildTrackParams(currentTrack || track, 'track_detail_editorial'));
           copyBtn.classList.add('done');
           var span = copyBtn.querySelector('span');
           if (span) span.textContent = 'Copied';
@@ -1453,13 +1517,16 @@
       e.stopImmediatePropagation(); // 各描画経路の旧♡ハンドラの二重トグルを抑止
       var id = (typeof getTrackId === 'function') ? getTrackId() : null; if (!id) return;
       id = String(id);
+      var track = (window.TRACKS || []).find(function (t) { return String(t.id) === id; }) || { id: id };
       if (window.HMIX_FAV) {
         // 0-5 Undo: 削除はトースト経由で確定、追加は即時。発火・件数同期はFavStoreが担う。
+        trackEvent(window.HMIX_FAV.has(id) ? 'favorite_remove' : 'favorite_add', buildTrackParams(track, 'track_detail_hero'));
         if (window.HMIX_FAV.has(id)) window.HMIX_FAV.removeWithUndo(id); else window.HMIX_FAV.add(id);
       } else {
         try {
           var favs = JSON.parse(localStorage.getItem('hmix_favorites') || '[]');
           var idx = favs.indexOf(id);
+          trackEvent(idx === -1 ? 'favorite_add' : 'favorite_remove', buildTrackParams(track, 'track_detail_hero'));
           if (idx === -1) favs.push(id); else favs.splice(idx, 1);
           localStorage.setItem('hmix_favorites', JSON.stringify(favs));
           window.dispatchEvent(new CustomEvent('favorites:updated', { detail: { count: favs.length, ids: favs.slice() } }));
