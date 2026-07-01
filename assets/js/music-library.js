@@ -295,6 +295,10 @@
   // getRankings は CDN キャッシュ10分。取得後は sessionStorage に10分キャッシュ。
   const RANKINGS_URL = 'https://asia-northeast1-hmix-footprints.cloudfunctions.net/getRankings';
   const RANKINGS_CACHE_KEY = 'hmix_rankings_v1';
+  const POPULARITY_EXCLUDED_IDS = new Set(['n1']);
+  function isPopularityExcluded(id) {
+    return POPULARITY_EXCLUDED_IDS.has(String(id || ''));
+  }
   let popularScores = null;        // { trackId: score }
   let popularFetching = null;
   function fetchPopularScores() {
@@ -325,7 +329,7 @@
     if (!popularScores) return null;
     if (popularRankMap && popularRankSrc === popularScores) return popularRankMap;
     const s = popularScores;
-    const ids = Object.keys(s).filter(id => (s[id] || 0) > 0).sort((a, b) => (s[b] || 0) - (s[a] || 0));
+    const ids = Object.keys(s).filter(id => !isPopularityExcluded(id) && (s[id] || 0) > 0).sort((a, b) => (s[b] || 0) - (s[a] || 0));
     const m = {};
     for (let i = 0; i < Math.min(ids.length, POPULAR_BADGE_TOP_N); i++) m[ids[i]] = i + 1;
     popularRankMap = m; popularRankSrc = s;
@@ -1200,7 +1204,7 @@
     } else if (currentSort === 'popular') {
       const s = popularScores || {};
       // スコア降順。同点（未集計の曲など）は既存の並びを保つ（sort は安定）
-      filteredTracks.sort((a, b) => (s[b.id] || 0) - (s[a.id] || 0));
+      filteredTracks.sort((a, b) => (isPopularityExcluded(b.id) ? 0 : (s[b.id] || 0)) - (isPopularityExcluded(a.id) ? 0 : (s[a.id] || 0)));
     } else if (currentSort === 'newest') {
       filteredTracks = sortTracksNewFirst(filteredTracks);
     } else if (currentSort === 'duration-asc') {

@@ -141,7 +141,28 @@
         if (!Array.isArray(it.noteConflicts)) it.noteConflicts = [];
       });
     });
+    scrubPrototypeCollections(st);
     return st;
+  }
+
+  function scrubPrototypeCollections(st) {
+    var names = {
+      '\u30c6\u30b9\u30c8': true,
+      '\u7d50\u5a5a\u5f0f\u30aa\u30fc\u30d7\u30cb\u30f3\u30b0': true,
+      'CM\u30fb2026\u6625': true
+    };
+    var t = now();
+    st.collections.forEach(function (c) {
+      if (!c || c.id === DEFAULT_ID || c.deleted) return;
+      var name = String(c.name || '').trim();
+      if (!names[name]) return;
+      var visible = 0;
+      (c.items || []).forEach(function (it) { if (it && !it.deleted) visible++; });
+      if (visible) return;
+      c.deleted = true;
+      c.deletedAt = t;
+      c.updatedAt = t;
+    });
   }
 
   /* =================================================================

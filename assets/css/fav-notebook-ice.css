@@ -1,0 +1,246 @@
+/* =====================================================================
+ * fav-notebook-ice.css ── 音楽手帖「氷晶 / 霜(frost)」リスキン
+ * fav-notebook.css の後に読み込む。クラス/DOMは不変、見た目だけ氷・クリスタルへ。
+ * ── OK版（霜=承認テイク）のみ。試作の積層は flatten 済み。
+ * frost 一層に統合。
+ * 緑×金は主役を降り、金=確定/ライセンス・緑=状態 の“点”の差し色のみ。
+ * ===================================================================== */
+
+#hmix-notebook{
+  /* 一般用途の --gold は「銀氷」に置換（金は重要点だけ別途 --true-gold で残す） */
+  --gold:#cfe6f2; --gold-bright:#eaf6ff;
+  --rule:rgba(188,219,238,.34); --rule-strong:rgba(190,222,240,.62);
+  --ink:#eaf4fb; --ink-dim:#bcd6e6;
+  --green:#8fe0c8; --green-soft:#bdeede;
+  --glass-tint-a:rgba(206,230,245,.10); --glass-tint-b:rgba(150,186,212,.17);
+  --glass-blur:20px;
+  --true-gold:#e7ca7c; --true-gold-bright:#ffcf6e;     /* 本物の金＝確定/ライセンス/最重要CTA のみ */
+  --prism:linear-gradient(100deg, rgba(191,227,255,.5), rgba(233,216,255,.5), rgba(207,238,222,.5));
+  --chamfer:14px;
+  --ice-rim:rgba(226,244,255,.72);        /* 鋭い氷のエッジ光 */
+  --ice-rim-soft:rgba(188,224,255,.32);   /* 屈折のにじみ */
+  --ice-lit:rgba(150,205,245,.30);        /* 内側の灯り */
+  --scrim:rgba(8,20,30,.52);              /* 本文下のscrim(AA担保) */
+  background:
+    radial-gradient(130% 100% at 50% -8%, rgba(36,72,98,.42), transparent 60%),
+    radial-gradient(120% 120% at 50% 105%, rgba(3,9,13,.66), rgba(2,6,9,.80));
+}
+
+/* ── 氷盤シェル：内側から灯る・温度勾配＋上辺の光取り＋冷たい外周グロー
+ *    ＋磨りガラスの微粒ノイズ（soft-light） ── */
+.hmix-notebook{
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='170' height='170'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='170' height='170' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, rgba(228,244,255,.17), rgba(228,244,255,0) 20%),
+    radial-gradient(150% 78% at 50% -12%, var(--ice-lit), transparent 56%),
+    linear-gradient(177deg, rgba(42,76,101,.30), rgba(10,22,32,.28) 46%, rgba(7,16,24,.40));
+  background-size:170px 170px, auto, auto, auto;
+  background-blend-mode:soft-light, normal, normal, normal;
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(1.16) brightness(1.07);
+  backdrop-filter:blur(var(--glass-blur)) saturate(1.16) brightness(1.07);
+  box-shadow:
+    0 50px 130px -34px rgba(4,14,24,.78),
+    0 0 0 1px rgba(206,232,248,.22),
+    0 0 64px -22px rgba(120,180,225,.24),
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 0 92px -26px rgba(170,215,248,.34);
+}
+
+/* 霜の細罫＋ごく薄いプリズム残光（モバイル/フォールバック） */
+.hmix-notebook::before{
+  box-shadow:
+    inset 0 0 0 1px rgba(10,24,32,.34),
+    inset 0 0 0 3px rgba(8,18,24,.4),
+    inset 0 0 0 4px var(--rule),
+    inset 0 0 24px -6px rgba(190,225,255,.42);
+}
+
+/* 面取り(チャンファー)＋鋭い氷エッジ＋屈折のクロマ縁（色収差）＝デスクトップ */
+@media (min-width:761px){
+  .hmix-notebook{
+    border-radius:0;
+    clip-path:polygon(
+      var(--chamfer) 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer),
+      100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%,
+      var(--chamfer) 100%, 0 calc(100% - var(--chamfer)), 0 var(--chamfer));
+  }
+  .hmix-notebook::before{
+    inset:0; border:none; border-radius:0; clip-path:inherit;
+    box-shadow:
+      inset 0 0 0 1px var(--ice-rim),
+      inset 1.5px 1.5px 0 0 rgba(120,205,255,.42),     /* cyan：屈折の内寄り */
+      inset -1.5px -1.5px 0 0 rgba(255,224,186,.26),   /* 暖色：屈折の外寄り */
+      inset 0 0 0 2px rgba(10,24,34,.30),
+      inset 0 0 0 6px rgba(12,28,40,.20),
+      inset 0 0 20px -2px var(--ice-rim-soft),
+      inset 0 0 0 7px rgba(186,224,255,.18);
+  }
+}
+
+/* ── ヘッダー ── */
+.hnb-head{
+  background:linear-gradient(180deg, rgba(206,232,248,.14), rgba(206,232,248,.02) 72%, transparent);
+  border-bottom:1px solid var(--ice-rim-soft);
+}
+.hnb-head__kicker{ color:#a3c8df; letter-spacing:.34em; }   /* 金kicker→氷青 */
+.hnb-head__title{ text-shadow:0 1px 12px rgba(8,22,34,.55); }
+.hnb-head__count{ color:var(--green-soft); }               /* 件数→氷緑（生きている数） */
+
+/* ── 背表紙＝氷の層（縦の薄い堆積＋谷影） ── */
+.hnb-spine{
+  background:
+    linear-gradient(90deg, transparent, rgba(6,18,28,.40) 96%),
+    repeating-linear-gradient(180deg, transparent 0 8px, rgba(190,224,242,.05) 8px 9px),
+    linear-gradient(180deg, rgba(42,76,101,.10), transparent 42%);
+  box-shadow:inset -10px 0 18px -12px rgba(6,18,28,.62);
+}
+.hnb-chapter:hover{ background:rgba(190,225,245,.08); }      /* 霜が晴れて澄む */
+.hnb-chapter.is-active{ background:rgba(196,228,248,.12); border-color:var(--ice-rim-soft); box-shadow:inset 0 0 0 1px rgba(206,232,248,.10); }
+.hnb-chapter::before{ background:var(--rule-strong); }
+.hnb-chapter[data-lic="confirmed"]::before{ background:var(--true-gold); }      /* 金は確定点のみ */
+.hnb-chapter[data-lic="licensed"]::before{ background:linear-gradient(180deg,var(--true-gold-bright),var(--true-gold)); box-shadow:0 0 8px rgba(231,202,124,.5); }
+.hnb-chapter__meta b{ color:var(--green-soft); }
+.hnb-newchapter:hover{ color:var(--gold-bright); border-color:var(--rule-strong); }
+
+/* ── 中央台帳：霜の罫（scrim で本文AAを担保） ── */
+.hnb-pages{
+  background:
+    linear-gradient(180deg, var(--scrim), rgba(8,20,30,.34)),
+    repeating-linear-gradient(180deg, transparent 0 55px, rgba(190,224,242,.06) 55px 56px),
+    radial-gradient(140% 90% at 50% 0%, rgba(44,80,104,.20), transparent);
+}
+.hnb-row{ border-bottom:1px solid rgba(188,219,238,.10); }
+.hnb-row:hover{ background:rgba(196,228,248,.07); }
+.hnb-row.is-active{ background:rgba(196,228,248,.13); box-shadow:inset 2px 0 0 var(--ice-rim); }
+.hnb-row.is-playing .hnb-row__title{ color:var(--green-soft); }
+.hnb-row.is-playing .hnb-row__title::after{ color:var(--green); }
+.hnb-row__title{ text-shadow:0 1px 2px rgba(4,12,20,.5); }
+.hnb-row__tags{ font-size:.82rem; color:#abc8da; }
+.hnb-check{ accent-color:#bfe3ff; }
+.hnb-iconbtn:hover{ color:#eaf6ff; background:rgba(190,225,245,.12); }
+.hnb-select-tools{ background:linear-gradient(180deg, rgba(12,26,34,.96), rgba(12,26,34,.86)); border-bottom:1px solid rgba(188,219,238,.18); }
+.hnb-select-tools__label{ color:var(--ink); }
+.hnb-select-tools__btn:hover{ border-color:var(--rule-strong); color:var(--gold-bright); }
+
+/* ♡＝唯一の温かい点（off=氷銀 / on=金の灯＝封蝋） */
+.hnb-fav{ color:#9cc0d6; }
+.hnb-fav.is-on{ color:var(--true-gold); text-shadow:0 0 12px rgba(231,202,124,.5); }
+
+/* 状態バッジ（金は confirmed/licensed のみ） */
+.hnb-badge[data-lic="draft"]{ color:#a7c4d8; border-color:rgba(188,219,238,.4); }
+.hnb-badge[data-lic="confirmed"]{ color:var(--true-gold); border-color:rgba(202,164,78,.55); }
+.hnb-badge[data-lic="licensed"]{ color:#0a1622; background:linear-gradient(180deg,var(--true-gold-bright),var(--true-gold)); border-color:var(--true-gold); }
+
+/* ── 右プレビュー＝氷盤 ── */
+.hnb-preview{ background:linear-gradient(180deg, rgba(16,34,46,.52), rgba(7,16,24,.62)); }
+.hnb-wave span{ background:linear-gradient(180deg, #bfe3ff, rgba(143,224,200,.55)); }   /* 波形＝氷青→氷緑 */
+.hnb-apply-one{ color:var(--ink); border-color:var(--rule-strong); }
+.hnb-apply-one:hover{ background:rgba(190,225,245,.1); }
+.hnb-ab__btn:hover{ border-color:var(--rule-strong); }
+.hnb-ab__btn b{ color:#bfe3ff; }
+.hnb-addch-one{ background:rgba(190,225,245,.07); color:var(--ink); border-color:var(--rule); }
+.hnb-addch-one:hover{ background:rgba(190,225,245,.13); border-color:var(--rule-strong); }
+.hnb-cta--ghost{ color:var(--gold-bright) !important; border-color:var(--rule-strong); }
+
+/* ── フッター：章まるごと申請CTA＝最重要の確定アクション＝澄んだ温かい金 ── */
+.hnb-foot{ background:linear-gradient(0deg, rgba(7,16,24,.88), transparent); border-top:1px solid var(--ice-rim-soft); }
+.hnb-cta--selected{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20), transparent 42%),
+    linear-gradient(135deg, #f3d391, #e7ca7c 58%, #d9ba6c);
+  border:1px solid rgba(255,243,216,.50);
+  color:#2c2008;
+  box-shadow:
+    0 14px 32px -12px rgba(231,202,124,.55),
+    inset 0 0 0 1px rgba(255,255,255,.26),
+    inset 0 0 26px -8px rgba(255,247,224,.6);
+}
+.hnb-cta--download{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.24), transparent 42%),
+    linear-gradient(135deg, #d9f0fb, #9ccfe8 58%, #7cc7c5);
+  border:1px solid rgba(226,244,255,.58);
+  color:#0b2434;
+  box-shadow:
+    0 14px 32px -12px rgba(156,207,232,.46),
+    inset 0 0 0 1px rgba(255,255,255,.30),
+    inset 0 0 26px -8px rgba(226,244,255,.7);
+}
+.hnb-cta{ box-shadow:0 8px 24px -10px rgba(231,202,124,.5); }
+.hnb-cta__sub{ color:#bcd6e6; }
+.hnb-bulk{ background:rgba(12,26,34,.96); }
+.hnb-bulk__n{ color:#bfe3ff; }
+.hnb-bulk__btn:hover{ border-color:var(--rule-strong); color:var(--gold-bright); }
+
+/* ── 空状態：ひとひらの霜結晶＋霜のシダ（本文背面） ── */
+.hnb-empty{ position:relative; }
+.hnb-empty > *{ position:relative; z-index:1; }
+.hnb-empty__mark{ color:#d2ecff; text-shadow:0 0 22px rgba(150,205,245,.6); }
+.hnb-empty::after{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none; opacity:.16;
+  background:
+    radial-gradient(58% 42% at 50% 30%, rgba(190,225,255,.4), transparent 72%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke='%23bfe3ff' stroke-width='1' stroke-linecap='round' opacity='0.7'%3E%3Cpath d='M80 150 L80 28'/%3E%3Cpath d='M80 130 l-20 -10 M80 130 l20 -10 M80 110 l-26 -12 M80 110 l26 -12 M80 90 l-22 -10 M80 90 l22 -10 M80 70 l-16 -8 M80 70 l16 -8 M80 52 l-10 -6 M80 52 l10 -6'/%3E%3C/g%3E%3C/svg%3E") center 22% / 170px no-repeat;
+  -webkit-mask:radial-gradient(72% 60% at 50% 42%, #000, transparent); mask:radial-gradient(72% 60% at 50% 42%, #000, transparent);
+}
+
+/* ── スクロールバー：氷青 ── */
+.hnb-spine::-webkit-scrollbar-thumb,.hnb-pages::-webkit-scrollbar-thumb,.hnb-preview::-webkit-scrollbar-thumb{ background:rgba(188,219,238,.28); }
+
+/* ── 章ピッカー：氷ガラス ── */
+.hnb-picker__panel{
+  background:linear-gradient(155deg, rgba(28,52,68,.7), rgba(8,18,26,.82));
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.8), 0 0 0 1px rgba(200,228,245,.2);
+}
+
+/* ── 四隅：チャンファーに沿う繊細なクリスタル面取り角飾り（二重ベベル＋霜の針） ──
+ * 角から≤20pxに収め、面取り(clip-path)で外側を断つ＝刃のような facet。
+ * 文字・×ボタン・CTAに掛からない。デスクトップ限定。 */
+@media (min-width:761px){
+  .hmix-notebook::after{
+    content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
+    clip-path:inherit; opacity:1;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18' stroke='%23eaf6ff' stroke-width='1.1'/%3E%3Cpath d='M17 10L10 17' stroke='%23bfe0f5' stroke-width='.9'/%3E%3Cpath d='M12 12L6 6M8 8L11 7M8 8L7 11' stroke='%23cfe9ff' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E") left top / 20px no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M2 6L14 18' stroke='%23eaf6ff' stroke-width='1.1'/%3E%3Cpath d='M3 10L10 17' stroke='%23bfe0f5' stroke-width='.9'/%3E%3Cpath d='M8 12L14 6M12 8L9 7M12 8L13 11' stroke='%23cfe9ff' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E") right top / 20px no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M18 14L6 2' stroke='%23eaf6ff' stroke-width='1.1'/%3E%3Cpath d='M17 10L10 3' stroke='%23bfe0f5' stroke-width='.9'/%3E%3Cpath d='M12 8L6 14M8 12L11 13M8 12L7 9' stroke='%23cfe9ff' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E") left bottom / 20px no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M2 14L14 2' stroke='%23eaf6ff' stroke-width='1.1'/%3E%3Cpath d='M3 10L10 3' stroke='%23bfe0f5' stroke-width='.9'/%3E%3Cpath d='M8 8L14 14M12 12L9 13M12 12L13 9' stroke='%23cfe9ff' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E") right bottom / 20px no-repeat;
+    filter:drop-shadow(0 0 3px rgba(190,225,255,.6));
+  }
+}
+
+/* ── モバイルシート：氷の取っ手＋冷たいガラス＋氷エッジ ── */
+@media (max-width:760px){
+  .hmix-notebook{
+    box-shadow:
+      0 -22px 54px -16px rgba(4,14,24,.72),
+      inset 0 1px 0 rgba(255,255,255,.30),
+      inset 0 0 0 1px rgba(206,232,248,.18),
+      inset 0 0 80px -26px rgba(170,215,248,.30);
+  }
+  .hnb-spine{ background:rgba(10,22,30,.4); }
+  .hnb-preview{ background:linear-gradient(180deg, rgba(28,52,68,.6), rgba(8,18,26,.74)); border-top:1px solid var(--ice-rim); }
+  .hnb-sheet-handle{ background:linear-gradient(90deg, transparent, var(--ice-rim), transparent); }
+}
+
+/* ── 開く瞬間：像が澄む（blur大→定常） ── */
+#hmix-notebook[aria-hidden="false"] .hmix-notebook{ animation:iceClear .9s var(--ease) both; }
+@keyframes iceClear{
+  from{ -webkit-backdrop-filter:blur(34px) saturate(.7) brightness(1.04); backdrop-filter:blur(34px) saturate(.7) brightness(1.04); }
+  to{   -webkit-backdrop-filter:blur(20px) saturate(1.08) brightness(1.04); backdrop-filter:blur(20px) saturate(1.08) brightness(1.04); }
+}
+@media (prefers-reduced-motion:reduce){ #hmix-notebook[aria-hidden="false"] .hmix-notebook{ animation:none; } }
+
+/* ── プリズムの一閃（開いた直後に一度だけ・proto は .hnb-prism を注入） ── */
+.hnb-prism{ position:absolute; inset:0; z-index:7; pointer-events:none; overflow:hidden; }
+.hnb-prism::before{
+  content:""; position:absolute; top:-20%; height:140%; width:42%; left:-55%;
+  background:linear-gradient(100deg, transparent, rgba(200,230,255,.20) 46%, rgba(231,216,255,.15) 54%, transparent);
+  transform:skewX(-12deg);
+}
+#hmix-notebook[aria-hidden="false"] .hnb-prism::before{ animation:prismSweep 1.5s var(--ease) .35s 1 both; }
+@keyframes prismSweep{ from{ left:-55%; } to{ left:120%; } }
+@media (prefers-reduced-motion:reduce){ .hnb-prism{ display:none; } }
+
+/* 正規化：ネイティブボタン地を無効化（共有 reset の無い環境でも氷地を保つ） */
+#hmix-notebook button{ -webkit-appearance:none; appearance:none; background-clip:padding-box; }
