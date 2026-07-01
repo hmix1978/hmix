@@ -29,12 +29,15 @@ const SITE        = 'https://www.hmix.net';
 
 // 再生成時のリグレッション防止用: 本番に注入済みのアセット ?v= 値。
 // 共有JS/CSSをバンプしたらここも更新する。
+// 更新日: 2026-07-01 (Mac Claude, audit week2)
 const FAV_VERSIONS = Object.freeze({
-  favModalCss:    '20260623f',
-  favNotebookCss: '20260624h',
-  favStoreJs:     '20260623',
-  favNotebookJs:  '20260624n',
-  favModalJs:     '20260624c',
+  favModalCss:       '20260629c',
+  favNotebookCss:    '20260630lic',
+  favNotebookIceCss: '20260630frost',   // 2026-06-30 追加テーマ
+  favStoreJs:        '20260630t',
+  favSyncJs:         '20260630w',       // 2026-06-30 cloud sync 追加
+  favNotebookJs:     '20260701',
+  favModalJs:        '20260630g',
 });
 
 // ── CLI 引数パース ──
@@ -118,6 +121,12 @@ function injectFavboxAssets(html) {
       `  <link rel="stylesheet" href="../assets/css/fav-notebook.css?v=${FAV_VERSIONS.favNotebookCss}">\n$1`
     );
   }
+  if (!/assets\/css\/fav-notebook-ice\.css/.test(html)) {
+    html = html.replace(
+      /(<\/head>)/,
+      `  <link rel="stylesheet" href="../assets/css/fav-notebook-ice.css?v=${FAV_VERSIONS.favNotebookIceCss}">\n$1`
+    );
+  }
 
   if (!/id="fav-modal"/.test(html)) {
     const modalBlock =
@@ -159,6 +168,7 @@ function injectFavboxAssets(html) {
 
   const wantScripts = [
     { re: /assets\/js\/fav-store\.js/,    line: `  <script src="../assets/js/fav-store.js?v=${FAV_VERSIONS.favStoreJs}"></script>\n` },
+    { re: /assets\/js\/fav-sync\.js/,     line: `  <script src="../assets/js/fav-sync.js?v=${FAV_VERSIONS.favSyncJs}"></script>\n` },
     { re: /assets\/js\/fav-notebook\.js/, line: `<script src="../assets/js/fav-notebook.js?v=${FAV_VERSIONS.favNotebookJs}"></script>\n` },
     { re: /assets\/js\/fav-modal\.js/,    line: `  <script src="../assets/js/fav-modal.js?v=${FAV_VERSIONS.favModalJs}"></script>\n` },
   ];
