@@ -36,6 +36,7 @@ const FAV_VERSIONS = Object.freeze({
   favNotebookIceCss: '20260630frost',   // 2026-06-30 追加テーマ
   favStoreJs:        '20260630t',
   favSyncJs:         '20260630w',       // 2026-06-30 cloud sync 追加
+  licenseCheckoutJs: '20260701',        // 2026-07-01 決済単一ソース(window.HMIX_LICENSE)
   favNotebookJs:     '20260701',
   favModalJs:        '20260630g',
 });
@@ -169,6 +170,7 @@ function injectFavboxAssets(html) {
   const wantScripts = [
     { re: /assets\/js\/fav-store\.js/,    line: `  <script src="../assets/js/fav-store.js?v=${FAV_VERSIONS.favStoreJs}"></script>\n` },
     { re: /assets\/js\/fav-sync\.js/,     line: `  <script src="../assets/js/fav-sync.js?v=${FAV_VERSIONS.favSyncJs}"></script>\n` },
+    { re: /assets\/js\/license-checkout\.js/, line: `<script src="../assets/js/license-checkout.js?v=${FAV_VERSIONS.licenseCheckoutJs}"></script>\n` },
     { re: /assets\/js\/fav-notebook\.js/, line: `<script src="../assets/js/fav-notebook.js?v=${FAV_VERSIONS.favNotebookJs}"></script>\n` },
     { re: /assets\/js\/fav-modal\.js/,    line: `  <script src="../assets/js/fav-modal.js?v=${FAV_VERSIONS.favModalJs}"></script>\n` },
   ];
