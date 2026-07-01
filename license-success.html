@@ -377,7 +377,8 @@
   }
 }
   </script>
-  <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
+  <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260630lic">
+  <link rel="stylesheet" href="/assets/css/fav-notebook-ice.css?v=20260630frost">
 </head>
 <body class="library-page library-page--dark">
 
@@ -589,7 +590,7 @@ console.log('[license-success] script loaded');
     }
   };
 
-  // Professional 用途キー → 表示ラベル（license-request.js?v=20260630g の PRO_USAGE と一致）
+  // Professional 用途キー → 表示ラベル（license-request.js?v=20260630lic の PRO_USAGE と一致）
   var USAGE_LABELS = {
     film_festival:   { ja: '映画祭・コンペ出品',            en: 'Film festival / competition' },
     audiobook:       { ja: 'オーディオブック / 音声ドラマ', en: 'Audiobook / audio drama' },
@@ -678,6 +679,19 @@ console.log('[license-success] script loaded');
       value: estimatePurchaseValue(data),
       currency: 'JPY'
     });
+  }
+
+  // P1-7 オートバインド：音楽手帖からの申請（collectionId 付き）なら、購入後に
+  // その章を「証書を綴じた章（licensed）」へ自動更新する。FavStore(attachCertificate)が冪等。
+  // 未分類(default)章は申請単位ではないため対象外。同端末で成立（クロス端末はFirestore証書正本＝将来P1-7完全版）。
+  function bindCertToNotebook(data) {
+    try {
+      if (!data || !data.licenseId || !data.collectionId) return;
+      if (data.collectionId === 'default') return;
+      var F = window.HMIX_FAV;
+      if (!F || typeof F.attachCertificate !== 'function') return;
+      F.attachCertificate(data.licenseId, data.collectionId);
+    } catch (e) {}
   }
 
   // 店舗BGMパスの有効期間（発行日 〜 1年後の前日・年次自動更新）
@@ -811,6 +825,7 @@ console.log('[license-success] script loaded');
   // ── ライセンス証書を描画 ──
   function renderCert(container, data) {
     trackPurchaseOnce(data);
+    bindCertToNotebook(data);
     var lang = getLang();
     var isStore = data.licenseType === 'store';
     var isPack = data.licenseType === 'pack';
@@ -966,9 +981,10 @@ console.log('[license-success] script loaded');
 </script>
 
 <script src="/assets/js/tracks-loader.js?v=2"></script>
-  <script src="/assets/js/fav-store.js?v=20260630s"></script>
+  <script src="/assets/js/fav-store.js?v=20260630t"></script>
   <script src="/assets/js/fav-sync.js?v=20260630w"></script>
-<script src="/assets/js/fav-notebook.js?v=20260630a"></script>
+<script src="/assets/js/license-checkout.js?v=20260701"></script>
+<script src="/assets/js/fav-notebook.js?v=20260701"></script>
 <script src="/assets/js/player.js?v=20260624a"></script>
 <script src="/assets/js/app.js?v=20260629-dropdown-fix"></script>
 <script src="/assets/js/player-panel.js?v=20260624k"></script>

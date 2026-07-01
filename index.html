@@ -218,7 +218,8 @@
 .hero-chips-wrap {
   margin-top: 0.6rem;
 }
-</style>  <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260624h">
+</style>  <link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260630lic">
+  <link rel="stylesheet" href="/assets/css/fav-notebook-ice.css?v=20260630frost">
 <!-- 格上げ: ヒーロー幕開け＋セクションreveal（PJAXでも同期されるよう head に配置） -->
 <style>
   .hero-veil{ position:absolute; inset:0; z-index:20; pointer-events:none; opacity:0;
@@ -1426,8 +1427,10 @@
       var favBtn=document.getElementById('heroTodayFav');
       var RANKINGS_URL='https://asia-northeast1-hmix-footprints.cloudfunctions.net/getRankings';
       var CACHE_KEY='hmix_rankings_v1';
+      var RANKING_EXCLUDED_IDS={n1:1};
       var curId=null;
       function en(){ return window.HMIX_LANG==='en'; }
+      function isRankingExcluded(id){ return !!RANKING_EXCLUDED_IDS[id]; }
       function whenTracks(){
         if(window.TRACKS&&window.TRACKS.length) return Promise.resolve(window.TRACKS);
         return new Promise(function(res){
@@ -1448,7 +1451,7 @@
       function buildPool(scores, byId){
         // 人気ランキング 11〜30位（index 10..29）。TRACKSに存在するものだけ。
         if(!scores) return null;
-        var ranked=Object.keys(scores).filter(function(id){return scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];});
+        var ranked=Object.keys(scores).filter(function(id){return !isRankingExcluded(id) && scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];});
         var pool=ranked.slice(10,30);
         return pool.length?pool:null;
       }
@@ -2004,7 +2007,9 @@
       var TOP_N=8;
       var RANKINGS_URL='https://asia-northeast1-hmix-footprints.cloudfunctions.net/getRankings';
       var CACHE_KEY='hmix_rankings_v1';
+      var RANKING_EXCLUDED_IDS={n1:1};
       function en(){ return window.HMIX_LANG==='en'; }
+      function isRankingExcluded(id){ return !!RANKING_EXCLUDED_IDS[id]; }
       function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
       function getScores(){
         try{ var c=JSON.parse(sessionStorage.getItem(CACHE_KEY)||'null'); if(c&&c.scores&&Date.now()-c.ts<600000) return Promise.resolve(c.scores); }catch(e){}
@@ -2023,7 +2028,7 @@
       }
       function render(scores, tracks){
         var byId={}; (tracks||[]).forEach(function(t){ byId[t.id]=t; });
-        var ids=Object.keys(scores||{}).filter(function(id){return scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];}).slice(0,TOP_N);
+        var ids=Object.keys(scores||{}).filter(function(id){return !isRankingExcluded(id) && scores[id]>0 && byId[id];}).sort(function(a,b){return scores[b]-scores[a];}).slice(0,TOP_N);
         var sec=document.getElementById('popular-top');
         if(!ids.length){ if(sec) sec.style.display='none'; return; }
         listEl.removeAttribute('aria-busy');
@@ -2369,9 +2374,10 @@
 <!-- データ読み込みとグローバルスクリプト（PJAX対応のため全ページ共通）
      2026-04-21 defer 一括付与 (LCP/TBT 改善)。defer は順序保持なので依存順は維持される。 -->
 <script src="/assets/js/tracks-loader.js?v=3" defer></script>
-  <script src="/assets/js/fav-store.js?v=20260630s"></script>
+  <script src="/assets/js/fav-store.js?v=20260630t"></script>
   <script src="/assets/js/fav-sync.js?v=20260630w"></script>
-<script src="/assets/js/fav-notebook.js?v=20260630a"></script>
+<script src="/assets/js/license-checkout.js?v=20260701"></script>
+<script src="/assets/js/fav-notebook.js?v=20260701"></script>
 <script src="/assets/js/player.js?v=20260624a" defer></script>
 <script src="/assets/js/fav-modal.js?v=20260630g" defer></script>
 <script src="/assets/js/music-library.js?v=20260630g" defer></script>

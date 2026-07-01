@@ -97,6 +97,7 @@
             '<button class="hnb-bulk__btn" data-act="addto">' + L('章へ入れる ▾', 'Add to chapter ▾') + '</button>' +
           '</div>' +
           '<div class="hnb-apply-actions">' +
+            '<button class="hnb-cta hnb-cta--download" id="hnb-download-cta"></button>' +
             '<button class="hnb-cta hnb-cta--selected" id="hnb-selected-cta"></button>' +
           '</div>' +
           '<span class="hnb-cta__sub">' + L('使う曲だけ選べます・保険の曲は課金されません', 'Pick only the tracks you use — backups are never charged') + '</span>' +
@@ -110,6 +111,7 @@
     els.preview = root.querySelector('#hnb-preview');
     els.empty = root.querySelector('#hnb-empty');
     els.foot = root.querySelector('.hnb-foot');
+    els.downloadCta = root.querySelector('#hnb-download-cta');
     els.selectedCta = root.querySelector('#hnb-selected-cta');
     els.bulk = root.querySelector('#hnb-bulk');
     els.bulkN = root.querySelector('#hnb-bulk-n');
@@ -119,6 +121,7 @@
     root.addEventListener('click', function (e) { if (e.target === root) close(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && root.getAttribute('aria-hidden') === 'false') close(); });
     els.search.addEventListener('input', renderPages);
+    els.downloadCta.addEventListener('click', downloadSelectedZip);
     els.selectedCta.addEventListener('click', applySelected);
     root.querySelector('#hnb-empty-browse').addEventListener('click', function () { location.href = (window.HMIX_BASE_PATH || '') + '/music-library.html'; });
     els.bulk.addEventListener('click', function (e) {
@@ -361,10 +364,159 @@
   }
   function playId(id) { doPlay(id); }
 
+  var ZIP_LIMIT = 30;
+  var zipBusy = false;
+  function loadJSZip() {
+    if (window.JSZip) return Promise.resolve(window.JSZip);
+    return new Promise(function (resolve, reject) {
+      var existing = document.querySelector('script[data-hmix-jszip]');
+      if (existing) {
+        existing.addEventListener('load', function () { resolve(window.JSZip); });
+        existing.addEventListener('error', reject);
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = (window.HMIX_BASE_PATH || '') + '/assets/js/vendor/jszip.min.js?v=3.10.1';
+      s.async = true;
+      s.setAttribute('data-hmix-jszip', '1');
+      s.onload = function () { window.JSZip ? resolve(window.JSZip) : reject(new Error('JSZip missing')); };
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  function zipTextDate() {
+    var d = new Date();
+    function pad(n) { return String(n).padStart(2, '0'); }
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function safeFileName(s) {
+    return String(s || 'track').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, ' ').trim().slice(0, 80) || 'track';
+  }
+  function uniqueFileName(base, used) {
+    var name = base, ext = '', n = 2, dot = base.lastIndexOf('.');
+    if (dot > 0) { name = base.slice(0, dot); ext = base.slice(dot); }
+    var out = base;
+    while (used[out]) out = name + ' (' + (n++) + ')' + ext;
+    used[out] = true;
+    return out;
+  }
+  function trackUrl(tk) {
+    var src = tk && (tk.mp3 || tk.file || tk.url || tk.download);
+    if (!src) return '';
+    try { return new URL(src, location.origin).href; } catch (e) { return src; }
+  }
+  function selectedTracks(ids) {
+    var tm = trackMap();
+    return ids.map(function (id) { return tm[id]; }).filter(Boolean);
+  }
+  function buildZipTexts(tracks, files, failed) {
+    var made = zipTextDate();
+    var lines = tracks.map(function (t, i) {
+      var file = files[t.id] || '';
+      var detail = location.origin + '/music/' + encodeURIComponent(t.id) + '.html';
+      return [
+        (i + 1) + '. ' + (t.title || t.id),
+        '   ID: ' + t.id,
+        '   Duration: ' + (t.duration || ''),
+        '   File: ' + file,
+        '   Detail: ' + detail
+      ].join('\n');
+    }).join('\n\n');
+    return {
+      readme: [
+        'H/MIX GALLERY selected tracks',
+        '',
+        'Created: ' + made,
+        'Track count: ' + tracks.length,
+        '',
+        'This ZIP was created from the H/MIX GALLERY favorites box for listening and production organization.',
+        'It does not mean that a commercial license has already been granted.',
+        'For terms, credit, and commercial use, please check:',
+        'https://www.hmix.net/terms.html',
+        'https://www.hmix.net/professional-license.html',
+        '',
+        failed.length ? ('Skipped files:\n' + failed.map(function (x) { return '- ' + x; }).join('\n')) : 'Skipped files: none'
+      ].join('\n'),
+      list: 'Track list\n\n' + lines + '\n',
+      credit: [
+        'Credit examples',
+        '',
+        'Music: H/MIX GALLERY',
+        'Composer: Hirokazu Akiyama',
+        'Website: https://www.hmix.net/',
+        '',
+        'Japanese credit example:',
+        '音楽: H/MIX GALLERY / 秋山裕和',
+        '',
+        'Please confirm the latest terms before publishing your work.'
+      ].join('\n')
+    };
+  }
+  async function downloadSelectedZip() {
+    if (zipBusy) return;
+    var ids = Object.keys(state.selected);
+    if (!ids.length) return;
+    if (ids.length > ZIP_LIMIT) {
+      nbToast(L('ZIPは一度に' + ZIP_LIMIT + '曲までです', 'ZIP download is limited to ' + ZIP_LIMIT + ' tracks at a time'));
+      return;
+    }
+    var tracks = selectedTracks(ids);
+    if (!tracks.length) return;
+    zipBusy = true;
+    renderBulk();
+    try {
+      var JSZipCtor = await loadJSZip();
+      var zip = new JSZipCtor();
+      var music = zip.folder('music');
+      var files = {}, failed = [], used = {};
+      for (var i = 0; i < tracks.length; i++) {
+        var tk = tracks[i], url = trackUrl(tk);
+        if (!url) { failed.push((tk.title || tk.id) + ' (no mp3 URL)'); continue; }
+        try {
+          var res = await fetch(url, { credentials: 'same-origin' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          var blob = await res.blob();
+          var fn = uniqueFileName(safeFileName(tk.title || tk.id) + '.mp3', used);
+          files[tk.id] = 'music/' + fn;
+          music.file(fn, blob);
+        } catch (e) {
+          failed.push((tk.title || tk.id) + ' (' + (e && e.message ? e.message : 'download failed') + ')');
+        }
+      }
+      var texts = buildZipTexts(tracks, files, failed);
+      zip.file('README.txt', texts.readme);
+      zip.file('track-list.txt', texts.list);
+      zip.file('credit.txt', texts.credit);
+      var out = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+      var a = document.createElement('a');
+      var stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      a.href = URL.createObjectURL(out);
+      a.download = 'hmix-selected-tracks-' + stamp + '.zip';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 12000);
+      try {
+        if (window.hmixTrack) window.hmixTrack('fav_download_zip', { surface: 'fav_notebook', track_count: tracks.length, failed_count: failed.length });
+      } catch (e) {}
+      nbToast(failed.length ? L('ZIPを作成しました（一部スキップ）', 'ZIP created with some skipped files') : L('ZIPを作成しました', 'ZIP created'));
+    } catch (e) {
+      nbToast(L('ZIP作成に失敗しました', 'ZIP creation failed'));
+    } finally {
+      zipBusy = false;
+      renderBulk();
+    }
+  }
+
   function renderBulk() {
     var ids = Object.keys(state.selected);
     els.bulk.classList.toggle('is-on', ids.length > 0);
     els.bulkN.textContent = L(ids.length + '曲選択中', nTracks(ids.length) + ' selected');
+    els.downloadCta.textContent = zipBusy
+      ? L('ZIP作成中...', 'Building ZIP...')
+      : (ids.length
+        ? L('選択曲（' + ids.length + '曲）をZIPでDL ↓', 'Download selected ZIP (' + nTracks(ids.length) + ') ↓')
+        : L('選択曲をZIPでDL ↓', 'Download selected ZIP ↓'));
+    els.downloadCta.disabled = ids.length === 0 || zipBusy;
+    els.downloadCta.style.opacity = (ids.length === 0 || zipBusy) ? '.5' : '1';
     els.selectedCta.textContent = ids.length
       ? L('選択曲（' + ids.length + '曲）を商用利用申請 →', 'License selected (' + nTracks(ids.length) + ') →')
       : L('選択曲を商用利用申請 →', 'License selected tracks →');
@@ -430,8 +582,303 @@
     t.textContent = msg; t.classList.add('is-on');
     clearTimeout(_toastT); _toastT = setTimeout(function () { t.classList.remove('is-on'); }, 2200);
   }
-  function gotoLicense(ids) {
+  // 申請（旧導線）: 共有モジュール未読込のページでは従来どおり申請ページへ遷移して継続。
+  function redirectToLicensePage(ids) {
     location.href = (window.HMIX_BASE_PATH || '') + '/license-request.html#tracks=' + ids.join(',');
+  }
+  // 申請: 手帖内の4ステップウィザードを開く（決済まで内製）。
+  function gotoLicense(ids) {
+    ids = (ids || []).filter(Boolean);
+    if (!ids.length) return;
+    if (!(window.HMIX_LICENSE && typeof window.HMIX_LICENSE.checkout === 'function')) {
+      redirectToLicensePage(ids);   // 保険: 共有モジュール未読込なら申請ページへ
+      return;
+    }
+    openLicenseWizard(ids);
+  }
+
+  /* ===================================================================
+   * 申請ウィザード（4ステップ：曲を選ぶ → ライセンス → お客様情報 → 確認）
+   * 決済は window.HMIX_LICENSE.checkout（license-checkout.js）に委譲＝単一ソース。
+   * =================================================================== */
+  function yen(n) { return '¥' + (Number(n) || 0).toLocaleString(); }
+  function openLicenseWizard(ids) {
+    var HL = window.HMIX_LICENSE;
+    var tm = trackMap();
+    var isEn = curLang() === 'en';
+    // 候補曲（章から渡された ids）。Step1 で使う曲だけに絞れる（保険曲を外す）。
+    var cand = ids.map(function (id) { return { id: id, title: (tm[id] && tm[id].title) || id }; });
+    var chosen = {}; cand.forEach(function (t) { chosen[t.id] = true; });   // 既定=全部チェック
+
+    var wz = {
+      step: 1,
+      type: cand.length >= 4 ? 'pack' : 'single',  // 4曲以上はパックが割安＝初期選択
+      usage: '',
+      name: '',
+      email: '',
+      projectName: ''
+    };
+
+    var shellEl = root.querySelector('.hmix-notebook');
+    var pop = document.createElement('div');
+    pop.className = 'hnb-wizard';
+    pop.innerHTML =
+      '<div class="hnb-wizard__backdrop"></div>' +
+      '<div class="hnb-wizard__panel" role="dialog" aria-modal="true" aria-label="' + L('商用利用申請', 'License request') + '">' +
+        '<div class="hnb-wizard__head">' +
+          '<div class="hnb-wizard__steps" id="wz-steps"></div>' +
+          '<button class="hnb-wizard__x" aria-label="' + L('とじる', 'Close') + '">✕</button>' +
+        '</div>' +
+        '<div class="hnb-wizard__body" id="wz-body"></div>' +
+        '<div class="hnb-wizard__foot">' +
+          '<button class="hnb-wizard__back" id="wz-back">' + L('← 戻る', '← Back') + '</button>' +
+          '<div class="hnb-wizard__total" id="wz-total"></div>' +
+          '<button class="hnb-wizard__next" id="wz-next"></button>' +
+        '</div>' +
+      '</div>';
+    shellEl.appendChild(pop);
+    requestAnimationFrame(function () { pop.classList.add('is-open'); });
+
+    var elBody = pop.querySelector('#wz-body');
+    var elSteps = pop.querySelector('#wz-steps');
+    var elBack = pop.querySelector('#wz-back');
+    var elNext = pop.querySelector('#wz-next');
+    var elTotal = pop.querySelector('#wz-total');
+
+    function closeWz() { pop.classList.remove('is-open'); setTimeout(function () { if (pop.parentNode) pop.parentNode.removeChild(pop); }, 200); }
+    pop.querySelector('.hnb-wizard__x').addEventListener('click', closeWz);
+    pop.querySelector('.hnb-wizard__backdrop').addEventListener('click', closeWz);
+
+    function chosenIds() { return cand.filter(function (t) { return chosen[t.id]; }).map(function (t) { return t.id; }); }
+    function chosenCount() { return chosenIds().length; }
+    function total() {
+      var n = chosenCount();
+      return HL.estimate(wz.type, n, wz.usage, '', 0);
+    }
+    function usageObj() { return HL.PRO_USAGE.find(function (u) { return u.v === wz.usage; }); }
+    function emailOk() { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((wz.email || '').trim()); }
+
+    var STEP_TITLES = [
+      L('曲を選ぶ', 'Choose tracks'),
+      L('ライセンス', 'License'),
+      L('お客様情報', 'Your info'),
+      L('確認', 'Review')
+    ];
+    function renderSteps() {
+      elSteps.innerHTML = STEP_TITLES.map(function (t, i) {
+        var n = i + 1;
+        var cls = 'hnb-wizard__step' + (n === wz.step ? ' is-on' : '') + (n < wz.step ? ' is-done' : '');
+        return '<span class="' + cls + '"><b>' + n + '</b>' + escapeHtml(t) + '</span>';
+      }).join('<span class="hnb-wizard__arrow">›</span>');
+    }
+
+    // ── Step 1: 曲を選ぶ ──
+    function renderStep1() {
+      var rows = cand.map(function (t) {
+        return '<label class="wz-trackrow">' +
+          '<input type="checkbox" class="wz-trk" data-id="' + escapeHtml(t.id) + '"' + (chosen[t.id] ? ' checked' : '') + '>' +
+          '<span class="wz-trackrow__title">' + escapeHtml(t.title) + '</span>' +
+          '</label>';
+      }).join('');
+      elBody.innerHTML =
+        '<p class="wz-lead">' + L('この申請に含める曲を選んでください。使わない「保険の曲」はチェックを外せます（課金されません）。',
+                                  'Pick the tracks for this request. Uncheck any backup tracks you won\'t use — they\'re never charged.') + '</p>' +
+        '<div class="wz-tracklist">' + rows + '</div>';
+      elBody.querySelectorAll('.wz-trk').forEach(function (c) {
+        c.addEventListener('change', function () {
+          if (c.checked) chosen[c.dataset.id] = true; else delete chosen[c.dataset.id];
+          syncFoot();
+        });
+      });
+    }
+
+    // ── Step 2: ライセンスを選ぶ ──
+    function licenseCardsHtml() {
+      var n = chosenCount();
+      var packBetter = n >= 4;
+      function card(type, badge, name, priceHtml, desc) {
+        return '<button type="button" class="wz-card' + (wz.type === type ? ' is-sel' : '') + '" data-type="' + type + '">' +
+          (badge ? '<span class="wz-card__badge">' + badge + '</span>' : '') +
+          '<span class="wz-card__name">' + name + '</span>' +
+          '<span class="wz-card__price">' + priceHtml + '</span>' +
+          '<span class="wz-card__desc">' + desc + '</span>' +
+        '</button>';
+      }
+      var singlePrice = yen(HL.PRICES.single) + '<small>' + L(' 税込/曲', ' /track') + '</small>';
+      var packPrice = yen(HL.PRICES.pack) + '<small>' + L(' 税込・曲数無制限', ' · unlimited tracks') + '</small>';
+      var proPrice = (wz.usage ? yen(HL.proUsagePrice(wz.usage)) : yen(3300) + '〜') + '<small>' + L(' 税込/曲', ' /track') + '</small>';
+      return '<div class="wz-cards">' +
+        card('single', '', L('Standard（単曲）', 'Standard (per track)'), singlePrice,
+             L('Web動画・配信・ゲーム等の一般的な商用利用。', 'General commercial use: web video, streaming, games, etc.')) +
+        card('pack', packBetter ? L('お得', 'Best value') : '', L('Project Pack', 'Project Pack'), packPrice,
+             L('1プロジェクトで曲数無制限。4曲以上ならこちらが割安。', 'Unlimited tracks for one project. Cheaper from 4 tracks.')) +
+        card('professional', '', L('Professional（用途別）', 'Professional (by use)'), proPrice,
+             L('映画・TV・大規模広告など。用途で価格が変わります。', 'Film, TV, large-scale ads. Price varies by use.')) +
+      '</div>';
+    }
+    function proUsageHtml() {
+      if (wz.type !== 'professional') return '';
+      var opts = '<option value="">' + L('用途を選択…', 'Select a use…') + '</option>' +
+        HL.PRO_USAGE.map(function (u) {
+          return '<option value="' + u.v + '"' + (wz.usage === u.v ? ' selected' : '') + '>' +
+            escapeHtml(isEn ? u.en : u.ja) + '（' + yen(u.price) + L('/曲', '/track') + '）</option>';
+        }).join('');
+      return '<div class="wz-usage"><label class="wz-usage__label">' + L('用途', 'Use') + '</label>' +
+        '<select class="wz-usage__sel" id="wz-usage">' + opts + '</select></div>';
+    }
+    function renderStep2() {
+      elBody.innerHTML =
+        '<p class="wz-lead">' + L('ご利用内容に合うライセンスを選んでください。', 'Choose the license that fits your use.') + '</p>' +
+        licenseCardsHtml() +
+        '<div id="wz-usage-wrap">' + proUsageHtml() + '</div>';
+      elBody.querySelectorAll('.wz-card').forEach(function (b) {
+        b.addEventListener('click', function () {
+          wz.type = b.dataset.type;
+          if (wz.type !== 'professional') wz.usage = '';
+          renderStep2(); syncFoot();
+        });
+      });
+      var sel = elBody.querySelector('#wz-usage');
+      if (sel) sel.addEventListener('change', function () {
+        wz.usage = sel.value;
+        // カード価格表示を更新
+        var pc = elBody.querySelector('.wz-card[data-type="professional"] .wz-card__price');
+        if (pc) pc.innerHTML = (wz.usage ? yen(HL.proUsagePrice(wz.usage)) : yen(3300) + '〜') + '<small>' + L(' 税込/曲', ' /track') + '</small>';
+        syncFoot();
+      });
+    }
+
+    // ── Step 3: お客様情報 ──
+    function renderStep3() {
+      var projHtml = (wz.type === 'pack')
+        ? '<label class="wz-field"><span class="wz-field__lbl">' + L('プロジェクト名（任意）', 'Project name (optional)') + '</span>' +
+          '<input type="text" id="wz-proj" class="wz-input" value="' + escapeHtml(wz.projectName) + '" placeholder="' + L('〇〇 PV / ゲームタイトル 等', 'e.g. Project X PV / Game title') + '"></label>'
+        : '';
+      elBody.innerHTML =
+        '<p class="wz-lead">' + L('証明書に記載するお名前と、控えの送付先メールを入力してください。',
+                                  'Enter the name for your certificate and the email for your receipt.') + '</p>' +
+        '<label class="wz-field"><span class="wz-field__lbl">' + L('お名前 / 会社名', 'Name / Company') + ' <i>*</i></span>' +
+          '<input type="text" id="wz-name" class="wz-input" value="' + escapeHtml(wz.name) + '" autocomplete="name"></label>' +
+        '<label class="wz-field"><span class="wz-field__lbl">' + L('メールアドレス', 'Email') + ' <i>*</i></span>' +
+          '<input type="email" id="wz-email" class="wz-input" value="' + escapeHtml(wz.email) + '" autocomplete="email" inputmode="email"></label>' +
+        projHtml +
+        '<div class="wz-err" id="wz-info-err" hidden></div>';
+      var nm = elBody.querySelector('#wz-name'); if (nm) nm.addEventListener('input', function () { wz.name = nm.value; syncFoot(); });
+      var em = elBody.querySelector('#wz-email'); if (em) em.addEventListener('input', function () { wz.email = em.value; syncFoot(); });
+      var pj = elBody.querySelector('#wz-proj'); if (pj) pj.addEventListener('input', function () { wz.projectName = pj.value; });
+    }
+
+    // ── Step 4: 確認 ──
+    function renderStep4() {
+      var n = chosenCount();
+      var typeName = wz.type === 'single' ? L('Standard（単曲）', 'Standard (per track)')
+                   : wz.type === 'pack' ? L('Project Pack', 'Project Pack')
+                   : L('Professional', 'Professional');
+      var uo = usageObj();
+      var trackLines = (wz.type === 'pack')
+        ? '<div class="wz-sum__row"><span>' + L('対象', 'Scope') + '</span><b>' + L('1プロジェクト（曲数無制限）', 'One project (unlimited tracks)') + '</b></div>'
+        : '<div class="wz-sum__row"><span>' + L('曲数', 'Tracks') + '</span><b>' + nTracks(n) + '</b></div>';
+      var usageLine = (wz.type === 'professional' && uo)
+        ? '<div class="wz-sum__row"><span>' + L('用途', 'Use') + '</span><b>' + escapeHtml(isEn ? uo.en : uo.ja) + '</b></div>' : '';
+      var projLine = (wz.type === 'pack' && wz.projectName)
+        ? '<div class="wz-sum__row"><span>' + L('プロジェクト', 'Project') + '</span><b>' + escapeHtml(wz.projectName) + '</b></div>' : '';
+      elBody.innerHTML =
+        '<div class="wz-sum">' +
+          '<div class="wz-sum__row"><span>' + L('ライセンス', 'License') + '</span><b>' + typeName + '</b></div>' +
+          trackLines + usageLine + projLine +
+          '<div class="wz-sum__row"><span>' + L('お名前', 'Name') + '</span><b>' + escapeHtml(wz.name) + '</b></div>' +
+          '<div class="wz-sum__row"><span>' + L('メール', 'Email') + '</span><b>' + escapeHtml(wz.email) + '</b></div>' +
+          '<div class="wz-sum__total"><span>' + L('お支払い合計（税込）', 'Total (incl. tax)') + '</span><b>' + yen(total()) + '</b></div>' +
+        '</div>' +
+        '<p class="wz-note">' + L('「決済へ進む」を押すと Stripe の安全な決済ページへ移動します。決済が完了するまで料金は発生しません。',
+                                  'Pressing "Proceed to payment" opens Stripe\'s secure checkout. You are not charged until payment completes.') + '</p>' +
+        '<div class="wz-err" id="wz-pay-err" hidden></div>';
+    }
+
+    function renderStepBody() {
+      if (wz.step === 1) renderStep1();
+      else if (wz.step === 2) renderStep2();
+      else if (wz.step === 3) renderStep3();
+      else renderStep4();
+      renderSteps();
+      syncFoot();
+    }
+
+    function nextLabel() {
+      if (wz.step < 4) return L('次へ →', 'Next →');
+      return L('決済へ進む →', 'Proceed to payment →');
+    }
+    function canAdvance() {
+      if (wz.step === 1) return chosenCount() > 0;
+      if (wz.step === 2) return wz.type === 'professional' ? !!wz.usage : !!wz.type;
+      if (wz.step === 3) return !!(wz.name || '').trim() && emailOk();
+      return true;
+    }
+    function syncFoot() {
+      elBack.style.visibility = wz.step > 1 ? 'visible' : 'hidden';
+      elNext.textContent = nextLabel();
+      var ok = canAdvance();
+      elNext.disabled = !ok;
+      elNext.style.opacity = ok ? '1' : '.5';
+      // 合計は Step2 以降で表示
+      elTotal.innerHTML = (wz.step >= 2)
+        ? '<span class="wz-total__lbl">' + L('合計', 'Total') + '</span> ' + yen(total())
+        : '';
+    }
+
+    elBack.addEventListener('click', function () { if (wz.step > 1) { wz.step--; renderStepBody(); } });
+    elNext.addEventListener('click', function () {
+      if (!canAdvance()) {
+        // Step3 のバリデーションエラーを明示
+        if (wz.step === 3) {
+          var e = elBody.querySelector('#wz-info-err');
+          if (e) { e.hidden = false; e.textContent = !( (wz.name||'').trim() ) ? L('お名前を入力してください。', 'Please enter your name.') : L('メールアドレスの形式が正しくありません。', 'Please enter a valid email address.'); }
+        }
+        return;
+      }
+      if (wz.step < 4) { wz.step++; renderStepBody(); return; }
+      submitWizard();
+    });
+
+    function submitWizard() {
+      var uo = usageObj();
+      var sendTracks = (wz.type === 'single' || wz.type === 'professional')
+        ? chosenIds().map(function (id) { return { id: String(id), title: (tm[id] && tm[id].title) || String(id) }; })
+        : [];
+      var errEl = elBody.querySelector('#wz-pay-err');
+      var payLabel = L('決済へ進む →', 'Proceed to payment →');
+      HL.checkout({
+        licenseType:  wz.type,
+        tracks:       sendTracks,
+        trackCount:   chosenCount(),
+        name:         (wz.name || '').trim(),
+        email:        (wz.email || '').trim(),
+        usage:        wz.type === 'professional' ? wz.usage : '',
+        usageLabelJa: uo ? uo.ja : '',
+        usageLabelEn: uo ? uo.en : '',
+        projectName:  wz.type === 'pack' ? (wz.projectName || '').trim() : '',
+        collectionId: state.activeCol,   // 購入後に license-success がこの章へ証書を綴じ込む（P1-7）
+        surface:      'music_notebook'
+      }, {
+        payLabel: payLabel,
+        preparingLabel: L('決済ページを準備中…', 'Preparing checkout…'),
+        setBusy: function (label, busy) {
+          elNext.textContent = label == null ? payLabel : label;
+          elNext.disabled = !!busy;
+          elNext.style.opacity = busy ? '.6' : '1';
+          elBack.disabled = !!busy;
+        },
+        onError: function (reason) {
+          if (!errEl) return;
+          errEl.hidden = false;
+          errEl.textContent = (reason === 'timeout')
+            ? L('通信がタイムアウトしました。料金は発生していません。もう一度お試しください。', 'The request timed out. You were not charged. Please try again.')
+            : L('決済ページを開けませんでした。料金は発生していません。もう一度お試しください。', 'Could not open checkout. You were not charged. Please try again.');
+        }
+      });
+    }
+
+    renderStepBody();
   }
 
   function playState() {

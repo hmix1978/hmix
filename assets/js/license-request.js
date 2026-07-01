@@ -19,9 +19,12 @@
 
   // ── Stripe Checkout Session API ──────────────────────────────
   // Firebase Cloud Functions のエンドポイント
-  var STRIPE_API_URL = 'https://createcheckout-r5y6n4kfwq-an.a.run.app';
+  // 価格定数・決済処理は license-checkout.js（window.HMIX_LICENSE）を単一ソースとする。
+  // 申請ページにも license-checkout.js を先に読み込む。万一未読込でも動くようフォールバック値を持つ。
+  var _HL = window.HMIX_LICENSE || {};
+  var STRIPE_API_URL = _HL.STRIPE_API_URL || 'https://createcheckout-r5y6n4kfwq-an.a.run.app';
 
-  var PRICES = { single: 2200, pack: 7480 }; // すべて税込（消費税10%）
+  var PRICES = _HL.PRICES || { single: 2200, pack: 7480 }; // すべて税込（消費税10%）
 
   // ── 店舗BGMパス（A表・年額サブスク）─────────────────────────
   // STORE_PASS_ENABLED: Stripe で年額サブスク3商品を作成し、バックエンドの
@@ -29,17 +32,18 @@
   //   false の間は店舗カードを従来どおり professional-license.html へのリンクで表示する
   //   （まだオンライン購入できないため、誤って決済エラーに当たらないようにする安全装置）。
   var STORE_PASS_ENABLED = true;
-  var STORE_PRICES = { store_base: 9900, store_add: 4950, facility: 19800 }; // 税込/年
-  function storeAnnualTotal(plan, count) {
+  var STORE_PRICES = _HL.STORE_PRICES || { store_base: 9900, store_add: 4950, facility: 19800 }; // 税込/年
+  var storeAnnualTotal = _HL.storeAnnualTotal || function (plan, count) {
     if (plan === 'facility') return STORE_PRICES.facility;
     var n = parseInt(count, 10);
     if (!isFinite(n) || n < 1) n = 1;
     if (n > 50) n = 50;
     return STORE_PRICES.store_base + STORE_PRICES.store_add * (n - 1);
-  }
+  };
 
   // Professional（B表）用途 → 価格（税込/曲）。値・キーはサーバ側 PRO_USAGE_BAND と一致させること。
-  var PRO_USAGE = [
+  // 単一ソース = license-checkout.js（window.HMIX_LICENSE.PRO_USAGE）。下はフォールバック。
+  var PRO_USAGE = _HL.PRO_USAGE || [
     { v: 'film_festival',   ja: '映画祭・コンペ出品',            en: 'Film festival / competition',     price: 3300 },
     { v: 'audiobook',       ja: 'オーディオブック / 音声ドラマ', en: 'Audiobook / audio drama',         price: 3300 },
     { v: 'training',        ja: '企業研修 / eラーニング',        en: 'Corporate training / e-learning', price: 4400 },
@@ -52,10 +56,10 @@
     { v: 'large_game',      ja: '大規模商用ゲーム',              en: 'Major commercial game',           price: 16500 },
     { v: 'theatrical_film', ja: '劇場映画（配給）',              en: 'Theatrical film (distribution)',  price: 27500 },
   ];
-  function proUsagePrice(v) {
+  var proUsagePrice = _HL.proUsagePrice || function (v) {
     var u = PRO_USAGE.find(function (x) { return x.v === v; });
     return u ? u.price : null;
-  }
+  };
   function trackEvent(eventName, params) {
     if (!eventName) return;
     if (window.hmixTrack) {
@@ -676,47 +680,14 @@
           ? currentTracks.map(function (t) { return { id: String(t.id), title: t.title || String(t.id) }; })
           : [];
 
-        // 購入データを準備
-        var purchaseData = {
-          licenseId:   generateLicenseId(),
-          licenseType: selectedType,
-          tracks:      sendTracks,
-          name:        name,
-          email:       email,
-          purpose:     (form.querySelector('#lr-purpose') || {}).value || '',
-          usage:       selectedUsage,
-          usageLabelJa: usageObj ? usageObj.ja : '',
-          usageLabelEn: usageObj ? usageObj.en : '',
-          // 店舗BGMパス（サブスク）
-          storePlan:    selectedType === 'store' ? storePlan : '',
-          storeCount:   selectedType === 'store' ? storeCount : 0,
-          storeName:    storeName,
-          storeAddress: storeAddress,
-          // Project Pack（プロジェクト単位）
-          projectName:  selectedType === 'pack' ? projectName : '',
-          purchaseDate: new Date().toISOString().slice(0, 10)
-        };
-        // 成功ページで使用するためsessionStorageに保存
-        try { sessionStorage.setItem(PURCHASE_KEY, JSON.stringify(purchaseData)); } catch (e) {}
         clearIncomingUsage();   // 用途は消費済み
-        var checkoutValue = estimateLicenseValue(selectedType, currentTracks.length, selectedUsage, storePlan, storeCount);
-        trackEvent('begin_checkout', {
-          surface: 'license_request',
-          license_type: selectedType,
-          track_count: currentTracks.length,
-          usage: selectedUsage,
-          store_plan: purchaseData.storePlan,
-          store_count: purchaseData.storeCount,
-          value: checkoutValue,
-          currency: 'JPY'
-        });
 
-        // ── 決済への遷移（多重安全策） ──────────────────────────
+        // ── 決済への遷移（共有 performCheckout＝多重安全策を内包） ──
         var submitBtn = form.querySelector('#lr-submit-btn');
         var isEn = getLang() === 'en';
         var PAY_LABEL = isEn ? 'Pay with Stripe' : 'Stripe で決済する';
 
-        // 安全策1: 二重送信ガード（Enter連打・ダブルクリック対策）
+        // 二重送信ガード（Enter連打・ダブルクリック対策／performCheckout 内にも _checkoutInFlight ガードあり）
         if (submitBtn && submitBtn.dataset.submitting === '1') return;
 
         function setBtn(txt, busy) {
@@ -726,78 +697,28 @@
           var sp = submitBtn.querySelector('span');
           if (sp) sp.textContent = txt;
         }
-        // 安全策2: どの失敗経路でもボタンを必ず復帰し、明確に案内（課金なしを明記）
-        function failRecover(reason) {
-          setBtn(PAY_LABEL, false);
-          trackEvent('checkout_error', {
-            surface: 'license_request',
-            license_type: selectedType,
-            reason: String(reason || 'unknown').slice(0, 100)
-          });
-          showCheckoutError(container, reason);
-        }
 
-        // 安全策3: 設定欠落ガード
-        if (!STRIPE_API_URL) { failRecover('config'); return; }
-
-        setBtn(isEn ? 'Preparing checkout…' : '決済ページを準備中…', true);
-
-        // 安全策4: タイムアウト（応答が来なくても固まらない）
-        var ac = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-        var timedOut = false;
-        var timer = setTimeout(function () { timedOut = true; if (ac) try { ac.abort(); } catch (e) {} }, 25000);
-        var settled = false;
-        fetch(STRIPE_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            licenseType: selectedType,
-            tracks: purchaseData.tracks,
-            email: email,
-            licenseId: purchaseData.licenseId,
-            usage: selectedUsage,
-            storePlan: purchaseData.storePlan,
-            storeCount: purchaseData.storeCount,
-            storeName: purchaseData.storeName,
-            storeAddress: purchaseData.storeAddress,
-            projectName: purchaseData.projectName,
-            lang: getLang()
-          }),
-          signal: ac ? ac.signal : undefined
-        })
-        // 安全策5: JSON 以外が返っても落ちないよう text() 経由で安全パース
-        .then(function (res) {
-          return res.text().then(function (text) {
-            var data = {};
-            try { data = text ? JSON.parse(text) : {}; } catch (e) { data = {}; }
-            if (!res.ok) throw new Error((data && data.error) || ('HTTP ' + res.status));
-            return data;
-          });
-        })
-        .then(function (data) {
-          if (settled) return;   // タイムアウト済みなら何もしない
-          var url = data && data.url;
-          // 安全策6: Stripe の正規ドメインのみ遷移を許可（不正/誤URLへ飛ばさない）
-          if (typeof url === 'string' && /^https:\/\/(checkout|buy|donate)\.stripe\.com\//.test(url)) {
-            settled = true; clearTimeout(timer);
-            trackEvent('checkout_redirect', {
-              surface: 'license_request',
-              license_type: selectedType,
-              track_count: currentTracks.length,
-              value: checkoutValue,
-              currency: 'JPY'
-            });
-            window.location.href = url;
-          } else {
-            // 不正URLは settled にせず throw → 下の catch が案内を表示
-            throw new Error((data && data.error) || 'invalid_checkout_url');
-          }
-        })
-        .catch(function (err) {
-          if (settled) return;
-          settled = true; clearTimeout(timer);
-          console.error('Checkout error:', err && err.message ? err.message : err);
-          failRecover(timedOut ? 'timeout' : (err && err.message));
+        performCheckout({
+          licenseType:  selectedType,
+          tracks:       sendTracks,
+          trackCount:   currentTracks.length,
+          name:         name,
+          email:        email,
+          purpose:      (form.querySelector('#lr-purpose') || {}).value || '',
+          usage:        selectedUsage,
+          usageLabelJa: usageObj ? usageObj.ja : '',
+          usageLabelEn: usageObj ? usageObj.en : '',
+          storePlan:    selectedType === 'store' ? storePlan : '',
+          storeCount:   selectedType === 'store' ? storeCount : 0,
+          storeName:    storeName,
+          storeAddress: storeAddress,
+          projectName:  selectedType === 'pack' ? projectName : '',
+          surface:      'license_request'
+        }, {
+          payLabel:       PAY_LABEL,
+          preparingLabel: isEn ? 'Preparing checkout…' : '決済ページを準備中…',
+          setBusy:        function (label, busy) { setBtn(label == null ? PAY_LABEL : label, busy); },
+          onError:        function (reason) { showCheckoutError(container, reason); }
         });
       });
     }
@@ -851,6 +772,19 @@
     }
 
     updatePrice();
+  }
+
+  // ── 決済は license-checkout.js（window.HMIX_LICENSE.checkout）へ委譲（単一ソース） ──
+  // フォーム送信ハンドラは従来どおり performCheckout(payload, ui) を呼ぶ。実体は共有モジュール。
+  function performCheckout(p, ui) {
+    var fn = window.HMIX_LICENSE && window.HMIX_LICENSE.checkout;
+    if (typeof fn !== 'function') {
+      // 共有モジュール未読込の保険：課金は起きていない旨を安全に案内
+      if (ui && typeof ui.onError === 'function') ui.onError('config');
+      console.error('HMIX_LICENSE.checkout is not available (license-checkout.js not loaded)');
+      return;
+    }
+    return fn(p, ui);
   }
 
   // ── フローHTML ───────────────────────────────────────────

@@ -143,6 +143,8 @@ const SITE="https://www.hmix.net";
 const trackMap={}; DATA.tracks.forEach(function(t){trackMap[t.id]=t;});
 const labels=DATA.labels;
 let activeFilter="all", currentRows=[], audio=document.getElementById("audio"), playingId=null;
+const RANKING_EXCLUDED_IDS={n1:1};
+function isRankingExcluded(id){return !!RANKING_EXCLUDED_IDS[id];}
 
 function fmtDate(iso){try{var d=new Date(iso);var D=(d.getMonth()+1)+"月"+d.getDate()+"日";var h=String(d.getHours()).padStart(2,"0"),m=String(d.getMinutes()).padStart(2,"0");return D+" "+h+":"+m;}catch(e){return iso;}}
 function mp3url(t){return SITE+t.mp3;}
@@ -151,7 +153,7 @@ function tagChips(t,max){var all=[].concat(t.f||[],t.s||[]).map(function(x){retu
 function hasTag(t,id){return [].concat(t.f||[],t.s||[]).indexOf(id)>=0;}
 
 function buildRanked(scores){
-  return Object.entries(scores).filter(function(e){return trackMap[e[0]];})
+  return Object.entries(scores).filter(function(e){return !isRankingExcluded(e[0])&&trackMap[e[0]];})
     .sort(function(a,b){return b[1]-a[1];})
     .map(function(e,i){return {id:e[0],score:e[1],rank:i+1,t:trackMap[e[0]]};});
 }

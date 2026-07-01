@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>音楽手帖 氷晶プロト</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Noto+Serif+JP:wght@200;300;400;500;600&family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/fav-notebook.css?v=20260630lic">
+<link rel="stylesheet" href="/assets/css/fav-notebook-ice.css?v=20260630frost">
+<style>
+  html,body{margin:0;height:100%;background:#0a1018;}
+  body{background:radial-gradient(120% 90% at 50% -10%, #16324a, #0a1620 55%, #060c12);color:#cfe6f2;font-family:'Noto Sans JP',sans-serif;}
+  body.lightbg{background:radial-gradient(120% 90% at 50% -10%, #cfe1ee, #aec6da 55%, #94b0c8);}
+  #hint{position:fixed;left:16px;top:14px;z-index:2147483647;font-size:12px;letter-spacing:.06em;color:#9fc3da;pointer-events:none;}
+  #hint b{color:#dff0fb;}
+  .bind{position:fixed;right:16px;top:12px;z-index:2147483647;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;max-width:60vw;}
+  .bind button{cursor:pointer;background:rgba(190,225,245,.12);border:1px solid rgba(190,225,245,.42);color:#dff0fb;border-radius:999px;padding:7px 12px;font:600 12px/1 'Noto Sans JP';}
+  .bind #toggleBright{background:rgba(231,202,124,.16);border-color:rgba(231,202,124,.5);color:#ffe3a8;}
+</style>
+</head>
+<body>
+<div id="hint"><b>音楽手帖 — 氷晶プロト 第二弾</b>　面取り/プリズム/霜のシダ</div>
+<div class="bind">
+  <button data-b="forest">霜 (既定)</button>
+  <button data-b="gilt">水晶</button>
+  <button data-b="plain">澄</button>
+  <button id="toggleBright">白氷 ⇄ 暗氷</button>
+</div>
+
+<script src="/assets/js/tracks.js"></script>
+<script src="/assets/js/fav-store.js?v=20260630t"></script>
+<script src="/assets/js/license-checkout.js?v=20260701"></script>
+<script src="/assets/js/fav-notebook.js?v=20260701"></script>
+<script>
+(function(){
+  var KEYS=['hmix_favorites_v2','hmix_favorites'], BK={};
+  KEYS.forEach(function(k){ BK[k]=localStorage.getItem(k); });
+  function restore(){ KEYS.forEach(function(k){ if(BK[k]==null) localStorage.removeItem(k); else localStorage.setItem(k,BK[k]); }); }
+  window.addEventListener('pagehide', restore);
+  window.addEventListener('beforeunload', restore);
+
+  function injectPrism(){
+    var nb=document.querySelector('.hmix-notebook');
+    if(nb && !nb.querySelector('.hnb-prism')){ var pr=document.createElement('div'); pr.className='hnb-prism'; nb.appendChild(pr); }
+  }
+  function seedAndOpen(){
+    if(!(window.HMIX_FAV && window.HMIX_NOTEBOOK && window.TRACKS && window.TRACKS.length)){ return setTimeout(seedAndOpen,120); }
+    var F=window.HMIX_FAV;
+    KEYS.forEach(function(k){ localStorage.removeItem(k); });
+    F._reload();
+    ['n74','n82','n59','n97','n123','n46'].forEach(function(id){ F.add(id); });
+    F.setNote('n74','default','旅立ちの場面に。静かな高揚。');
+    F.setNote('n59','default','エンドロール候補。');
+    var c2=F.createCollection('結婚式オープニング');  ['n16','m2','v2'].forEach(function(id){ F.add(id,c2); });
+    var c3=F.createCollection('CM・2026春');         ['c7','n95'].forEach(function(id){ F.add(id,c3); }); F.attachCertificate('CERT-DEMO', c3);
+    window.HMIX_NOTEBOOK.open();
+    setTimeout(injectPrism, 40);
+
+    var nbEl=document.getElementById('hmix-notebook');
+    document.querySelectorAll('.bind button[data-b]').forEach(function(b){
+      b.addEventListener('click', function(){ if(nbEl) nbEl.setAttribute('data-binding', b.getAttribute('data-b')); });
+    });
+    var tb=document.getElementById('toggleBright');
+    if(tb) tb.addEventListener('click', function(){
+      var on=nbEl.classList.toggle('bright');
+      document.body.classList.toggle('lightbg', on);
+      injectPrism();
+    });
+  }
+  seedAndOpen();
+})();
+</script>
+</body>
+</html>
