@@ -441,40 +441,33 @@
   }
   function updateReadout(){ if(readout){ var b=box; readout.textContent = '【'+BGS[bgIndex].title+'】\nL '+b.l.toFixed(1)+'  T '+b.t.toFixed(1)+'\nW '+b.w.toFixed(1)+'  H '+b.h.toFixed(1); } }
 
-  // 今日の上映マーキー用：使用・制作実績データの全動画ID（重複除去）→ YouTubeサムネ
-  var _worksPosters=null;
-  function worksPosters(){
-    if(_worksPosters) return _worksPosters;
-    var seen={}, out=[];
-    try{ Object.keys(WORKS_USED_TRACKS||{}).forEach(function(v){ if(v && !seen[v]){ seen[v]=1; out.push(v); } }); }catch(e){}
-    _worksPosters=out; return out;
+  // 「今日の上映」= シアターのメイン6作品だけを、常時ゆっくり左へ流す無限マーキー。
+  // 6枚だと画面幅より短くなる場合があるので、ビューポートを超えるまで6セットを繰り返して
+  // 「1周分(half)」を作り、それを2周ぶん連結。-50% 移動で継ぎ目なく循環させる。
+  // （YouTube作品まで全部入れると主役6作品が一周してくるまで時間がかかるため対象外）
+  function makeMarqueeCard(e, i){
+    var b=document.createElement('button'); b.type='button'; b.className='ftm-card'; b.setAttribute('role','listitem');
+    var cap=EL(e,'title');
+    b.setAttribute('aria-label', cap || '上映作品');
+    b.innerHTML='<div class="ftm-thumb"><img loading="lazy" decoding="async" src="'+e.img+'" alt=""><span class="ftm-play">▶</span></div>'+
+      '<div class="ftm-cap">'+esc(cap||'')+'</div>';
+    b.addEventListener('click', function(){ open(entries[i]); });
+    return b;
   }
-  // 「今日の上映」= 主役6作品 ＋ YouTube作品の全ポスター を、常時ゆっくり左へ流す無限マーキー。
-  // シームレスな無限ループのため同じ並びを2周ぶん連結し、-50% 移動で継ぎ目なく循環させる。
+  function appendMarqueeSet(){ entries.forEach(function(e,i){ rail.appendChild(makeMarqueeCard(e,i)); }); }
   function buildRail(){
     if(!rail) return;
     rail.innerHTML=''; railEls=[];   // マーキーでは選択ハイライトを持たない
-    var items=[];
-    entries.forEach(function(e,i){ items.push({ kind:'entry', i:i, img:e.img, cap:EL(e,'title') }); });
-    worksPosters().forEach(function(v){ items.push({ kind:'yt', vid:v, img:'https://i.ytimg.com/vi/'+v+'/mqdefault.jpg', cap:(ytTitles[v]||'') }); });
-    function make(c){
-      var b=document.createElement('button'); b.type='button'; b.className='ftm-card'; b.setAttribute('role','listitem');
-      b.setAttribute('aria-label', c.cap || (c.kind==='yt' ? '使用・制作実績の映像' : '上映作品'));
-      b.innerHTML='<div class="ftm-thumb"><img loading="lazy" decoding="async" src="'+c.img+'" alt="">'+
-        (c.kind==='yt'?'<span class="ftm-badge">▶</span>':'')+
-        '<span class="ftm-play">▶</span></div>'+
-        '<div class="ftm-cap">'+esc(c.cap||'')+'</div>';
-      b.addEventListener('click', function(){
-        if(c.kind==='entry'){ open(entries[c.i]); }
-        else { openPlaylistMode(1); }   // YouTube作品 → 使用・制作実績コーナーを開く
-      });
-      return b;
-    }
-    items.concat(items).forEach(function(c){ rail.appendChild(make(c)); });
-    // 速度を一定（約48px/秒）に：コンテンツ長に応じて所要秒数を算出。ドックはマーキー実寸の上へ。
+    appendMarqueeSet();              // まず1セット描画して実寸を測る
     requestAnimationFrame(function(){
-      var one=rail.scrollWidth/2;
-      if(one>0) rail.style.animationDuration=Math.max(40, Math.round(one/48))+'s';
+      var setW=rail.scrollWidth;                        // 6作品1セットの幅
+      if(setW<=0){ fitDockAboveMarquee(); return; }
+      var vw=window.innerWidth||1440;
+      var K=Math.max(1, Math.ceil((vw+80)/setW));       // half が画面幅を超えるための繰り返し数
+      // 現在1セット。half=K セット、belt=half×2 にするため、あと (2K-1) セット追加
+      for(var n=0; n<(2*K-1); n++) appendMarqueeSet();
+      var half=setW*K;                                  // 1周分の幅
+      rail.style.animationDuration=Math.max(40, Math.round(half/48))+'s';   // 約48px/秒
       fitDockAboveMarquee();
     });
   }
@@ -1648,10 +1641,8 @@
   var _rzT=0;
   window.addEventListener('resize', function(){
     clearTimeout(_rzT);
-    _rzT=setTimeout(function(){
-      if(rail){ var one=rail.scrollWidth/2; if(one>0) rail.style.animationDuration=Math.max(40, Math.round(one/48))+'s'; }
-      fitDockAboveMarquee();
-    }, 160);
+    // ビューポート幅で必要な繰り返し数(K)が変わるので作り直す（速度・ドック位置も再計算される）
+    _rzT=setTimeout(function(){ buildRail(); }, 180);
   });
 
   // mount
